@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+
+set -e
+
+path="/sys/class/backlight/intel_backlight"
+
+max=$(sudo cat $path/max_brightness)
+current=$(sudo cat $path/brightness)
+step=$(( $max / 10))
+
+if [ $1 = "up" ]
+then
+  new=$(( $current + $step ))
+  [ $new -gt $max ] && new=$max
+
+  sudo sh -c "echo $new > $path/brightness"
+elif [ $1 = "down" ]
+then
+  new=$(( $current - $step ))
+  [ $new -lt 0 ] && new=0
+
+  sudo sh -c "echo $new > $path/brightness"
+fi
+
+percentage=$(( $new / ( $max / 100 ) ))
+notify-send -t 1000 -c INFO $percentage% "Brightness set to $percentage%"

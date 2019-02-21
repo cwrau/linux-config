@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+set -e
+
+/usr/local/bin/lock && sudo sh -c 'echo mem > /sys/power/state'

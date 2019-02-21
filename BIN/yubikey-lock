@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -ex
+
+getXuser() {
+  user=`pinky| grep -m1 ":$displaynum" | awk '{print $1}'`
+ 
+  if [ x"$user" != x"" ]; then
+    export XAUTHORITY="/run/user/$(id -u $user)/gdm/Xauthority"
+  else
+    export XAUTHORITY=""
+  fi
+}
+
+for x in /tmp/.X11-unix/*; do
+  displaynum=`echo $x | sed s#/tmp/.X11-unix/X##`
+  getXuser
+  if [ x"$XAUTHORITY" != x"" ]; then
+    # extract current state
+    export DISPLAY=":$displaynum"
+    break
+  fi
+done
+
+i3-msg -s /run/user/$(id -u $user)/i3/ipc-socket.$(pgrep -x i3) exec /usr/local/bin/lock
