@@ -4,6 +4,7 @@ set -x -o pipefail
 
 tmp=/tmp/i3status
 
+rm -rf ${tmp}
 mkdir -p ${tmp}
 
 source <(
