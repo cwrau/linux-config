@@ -168,7 +168,8 @@ bindsym $mod+r mode "resize"
 exec_always --no-startup-id ~/.config/screenlayouts/autosetup.sh
 
 exec_always --no-startup-id sh -c 'numlockx off; numlockx on'
-exec_always --no-startup-id sh -c 'pgrep redshift || exec redshift -l "$(curl ipinfo.io | jq -j .loc | tr "," ":")"'
+#exec_always --no-startup-id sh -c 'pgrep redshift || exec redshift -l "$(curl ipinfo.io | jq -j .loc | tr "," ":")"'
+exec_always --no-startup-id sh -c 'pgrep blugon || exec blugon'
 exec_always --no-startup-id sh -c 'pgrep nm-applet || exec nm-applet'
 exec_always --no-startup-id sh -c 'pgrep blueman-applet || exec blueman-applet'
 exec_always --no-startup-id sh -c 'ps aux | grep -E "[b]ash.+clipmenud" || exec clipmenud'
