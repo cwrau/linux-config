@@ -104,7 +104,7 @@ while read line; do
   then
     ${base}/private/${clickScript} &
   else
-    echo "${clickScript}: ${name}, ${button}" | tee -a ${tmp}/clicks >&2
+    echo "${line}" | tee -a ${tmp}/clicks >&2
   fi
 done
 
