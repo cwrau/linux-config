@@ -68,8 +68,8 @@ else
   cd /
 
   yay -Syu --noconfirm --needed --removemake yubico-pam feh bash-completion libu2f-host pcsclite ccid gnupg shfmt jq networkmanager-openvpn matcha-gtk-theme papirus-icon-theme xwinfo ttf-fira-code ttf-font-awesome-4 ttf-dejavu ttf-liberation breeze-hacked-cursor-theme clipmenu clipnotify xclip pulseaudio intel-ucode polkit polkit-gnome fzf \
-    ripgrep fd bat kubectl-bin kubernetes-helm-bin kubespy docker docker-compose subversion git curl diff-so-fancy tldr++ prettyping ncdu youtube-dl blugon playerctl scrot lightdm i3-wm i3status i3lock perl-anyevent-i3 network-manager-applet rke-bin jq numlockx bash-git-prompt httpie cli-visualizer dunst glances net-tools emoji-keyboard zsh dmenu-frecency imagemagick xorg-xrandr yay jdk8-openjdk jdk-openjdk openjdk8-src openjdk-src networkmanager-dmenu cht.sh bind-tools ngrok kube-bench
-      kubectx whois \
+    ripgrep fd bat kubectl-bin kubernetes-helm-bin kubespy docker docker-compose subversion git curl diff-so-fancy tldr++ prettyping ncdu youtube-dl blugon playerctl scrot lightdm i3-wm i3status i3lock perl-anyevent-i3 network-manager-applet rke-bin jq numlockx bash-git-prompt httpie cli-visualizer dunst glances net-tools emoji-keyboard zsh dmenu-frecency imagemagick xorg-xrandr yay jdk8-openjdk jdk-openjdk openjdk8-src openjdk-src networkmanager-dmenu cht.sh bind-tools ngrok kube-bench kubectx
+      whois nload \
     visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark evolution charles krita ranger jetbrains-toolbox firefox
 
   sudo usermod cwr -a -G docker wheel

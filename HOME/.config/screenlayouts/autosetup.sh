@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -ex -o pipefail
+
 if xrandr | grep -Pzo 'HDMI1 .+\n(\s+.+\n)+' | grep -Pzo '\d+x1080 .+\n'
 then
     $(dirname $(realpath $0))/1080multi.sh $(xrandr | grep -Pzo 'HDMI1 .+\n(\s+.+\n)+' | grep -Pzo '\d+x1080 .+\n' | sed -r 's#([0-9]+)x1080.+$#\1#g' | sort -h | tail -1)

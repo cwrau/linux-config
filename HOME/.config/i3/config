@@ -96,7 +96,6 @@ bindsym $mod+Shift+space floating toggle
 #bindsym $mod+d focus child
 
 bindsym $mod+Shift+r restart
-bindsym $mod+Shift+c reload
 
 # switch to workspace
 bindsym $mod+1 workspace 1
@@ -254,7 +253,8 @@ bindsym Ctrl+Print --release exec "scrot -s $HOME/Screenshots/$(date +%FT%T.%2N)
 # Full Screen > File
 bindsym Ctrl+Shift+Print exec "scrot $HOME/Screenshots/$(date +%FT%T.%2N).png"
 
-bindsym $mod+C exec "google-chrome-stable"
+bindsym $mod+c exec "google-chrome-stable"
+bindsym $mod+Shift+c exec "google-chrome-stable --incognito"
 
 for_window [class="jetbrains-idea" title="Debug"] floating disable
 

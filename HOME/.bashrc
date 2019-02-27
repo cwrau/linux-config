@@ -155,13 +155,6 @@ then
     docker-here -v ~/.m2:/home/.m2 -e MAVEN_OPTS=-Duser.home=/home maven:$1 "${@:2}"
   }
 
-  function updateCompose() {
-    COMPOSE_VERSION=`git ls-remote https://github.com/docker/compose | grep refs/tags | grep -oP "[0-9]+\.[0-9][0-9]+\.[0-9]+$" | tail -n 1`
-    sudo sh -c "curl -L $(curl https://api.github.com/repos/docker/compose/releases/latest | docker run --rm -i gempesaw/curl-jq jq -r ".assets[] | select(.name | contains(\"$(uname -s)-$(uname -m)\")) | select(.name | contains(\"sha\") | not) | .browser_download_url") > /usr/local/bin/docker-compose"
-    sudo chmod +x /usr/local/bin/docker-compose
-    sudo sh -c "curl -L https://raw.githubusercontent.com/docker/compose/master/contrib/completion/bash/docker-compose > /etc/bash_completion.d/docker-compose"
-  }
-
   alias mvn8='maven 3-jdk-8-alpine mvn'
   alias mvn11='maven 3-jdk-11-slim mvn'
 
