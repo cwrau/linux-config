@@ -151,18 +151,6 @@ then
     docker-run -v "$PWD:$PWD" -w "$PWD" -u `id --user`:`id --group` "$@"
   }
 
-  function maven() {
-    docker-here -v ~/.m2:/home/.m2 -e MAVEN_OPTS=-Duser.home=/home maven:$1 "${@:2}"
-  }
-
-  alias mvn8='maven 3-jdk-8-alpine mvn'
-  alias mvn11='maven 3-jdk-11-slim mvn'
-
-  alias java8='docker-here openjdk:8-jre-alpine java'
-  alias java11='docker-here openjdk:11-jre-slim java'
-
-  alias jshell='docker-here openjdk:11-jre-slim jshell'
-
   function ctop() {
     docker-run --name ctop -v /var/run/docker.sock:/var/run/docker.sock quay.io/vektorlab/ctop
   }
@@ -171,7 +159,7 @@ then
     docker-run --name glances -v /var/run/docker.sock:/var/run/docker.sock:ro --pid host --network host docker.io/nicolargo/glances
   }
 
-  alias atop="glances"
+  alias atop="gotop"
   alias htop="atop"
 fi
 
@@ -227,3 +215,4 @@ then
 fi
 export VISUAL=vim
 export EDITOR="$VISUAL"
+[ -d /usr/local/bin/custom ] && PATH="$PATH:/usr/local/bin/custom"

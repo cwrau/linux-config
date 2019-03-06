@@ -92,17 +92,18 @@ declare -A notifications
 base=$HOME/.config/i3status/custom.d/
 
 while read line; do
-  name=$(echo ${line} | sed -r 's#^,##g' | jq -r .name)
-  button=$(echo ${line} | sed -r 's#^,##g' | jq -r .button)
+  line=$(echo ${line} | sed -r 's#^,##g')
+  name=$(echo ${line} | jq -r .name)
+  button=$(echo ${line} | jq -r .button)
 
   clickScript="${name}_click_${button}.sh"
 
   if [[ -x ${base}/public/${clickScript} ]]
   then
-    ${base}/public/${clickScript} &
+    ${base}/public/${clickScript} ${line} &
   elif [[ -x ${base}/private/${clickScript} ]]
   then
-    ${base}/private/${clickScript} &
+    ${base}/private/${clickScript} ${line} &
   else
     echo "${line}" | tee -a ${tmp}/clicks >&2
   fi

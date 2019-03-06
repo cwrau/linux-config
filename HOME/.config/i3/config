@@ -245,9 +245,9 @@ bindsym $mod+Ctrl+v exec --no-startup-id sh -c 'clipmenu'
 
 # Screenshots
 # Selection > Clipboard
-bindsym Print --release exec "scrot -s /tmp/screenshot-$(date +%FT%T.%2N).png -e 'xclip -selection c -t image/png < $f'"
+bindsym Print --release exec "scrot -s /tmp/screenshot-$(date +%FT%T.%2N).png -e 'xclip -selection clipboard -t image/png < $f'"
 # Full Screen > Clipboard
-bindsym Shift+Print exec "scrot /tmp/screenshot-$(date +%FT%T.%2N).png -e 'xclip -selection c -t image/png < $f'"
+bindsym Shift+Print exec "scrot /tmp/screenshot-$(date +%FT%T.%2N).png -e 'xclip -selection clipboard -t image/png < $f'"
 # Selection > File
 bindsym Ctrl+Print --release exec "scrot -s $HOME/Screenshots/$(date +%FT%T.%2N).png"
 # Full Screen > File
@@ -293,3 +293,9 @@ bindsym $mod+Shift+$alt+0 move container to workspace 20 Slack
 # move workspace to output
 bindsym Ctrl+$mod+Right move workspace to output right
 bindsym Ctrl+$mod+Left move workspace to output left
+
+set $external HDMI1
+set $internal eDP1
+
+workspace 1 output $external
+workspace "20 Slack" output $internal
