@@ -155,12 +155,7 @@ then
     docker-run --name ctop -v /var/run/docker.sock:/var/run/docker.sock quay.io/vektorlab/ctop
   }
 
-  command -v glances &> /dev/null || function glances() {
-    docker-run --name glances -v /var/run/docker.sock:/var/run/docker.sock:ro --pid host --network host docker.io/nicolargo/glances
-  }
-
-  alias atop="gotop"
-  alias htop="atop"
+  command -v gotop &>/dev/null && alias htop="gotop"
 fi
 
 function swap() {
