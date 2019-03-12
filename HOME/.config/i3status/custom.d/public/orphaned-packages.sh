@@ -4,7 +4,7 @@ set -ex -o pipefail
 
 pgrep yay &>/dev/null && exit 1
 
-num=$(timeout 20 bash -c "yay -Qtd  2>/dev/null | awk '{print \$1}' | wc -l")
+num=$(yay -Qtd 2>/dev/null | wc -l")
 
 if [[ ${num:-0} -gt 0 ]]
 then

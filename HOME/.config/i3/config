@@ -177,9 +177,13 @@ exec_always --no-startup-id sh -c 'pgrep dunst || exec dunst'
 exec_always --no-startup-id sh -c 'pgrep emoji-keyboard || exec emoji-keyboard'
 exec_always --no-startup-id sh -c 'pgrep jetbrains-toolb || exec jetbrains-toolbox --window-mode --minimize'
 exec_always --no-startup-id sh -c 'pgrep polkit-gnome-au || exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
+exec_always --no-startup-id sh -c 'pgrep polkit-gnome-au || exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
+exec_always --no-startup-id sh -c 'pgrep xfce4-power-man || exec xfce4-power-manager --no-daemon'
+
 exec_always --no-startup-id sh -c 'pgrep slack || exec slack'
 exec_always --no-startup-id sh -c 'pgrep evolution || exec evolution'
 exec_always --no-startup-id sh -c 'pgrep chrome || exec google-chrome-stable'
+
 for_window [class="jetbrains-toolbox"] floating enable
 for_window [class=".+charles.+"] floating enable
 

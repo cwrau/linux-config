@@ -156,6 +156,7 @@ then
   }
 
   command -v gotop &>/dev/null && alias htop="gotop"
+  command -v gotop &>/dev/null && alias gotop="gotop -r 4"
 fi
 
 function swap() {
