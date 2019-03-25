@@ -2,6 +2,11 @@
 
 set -ex
 
+if lsusb | grep -E '1050:(0407|0116)' &> /dev/null
+then
+  exit 0
+fi
+
 getXuser() {
   user=`pinky| grep -m1 ":$displaynum" | awk '{print $1}'`
  

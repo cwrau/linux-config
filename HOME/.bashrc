@@ -48,15 +48,6 @@ then
 
   alias vim='docker-run -e TERM=xterm -v $(pwd):/home/developer/workspace jare/vim-bundle'
 
-  function updateBashrc() {
-    curl -H 'Cache-Control: no-cache' -fsSL https://gist.githubusercontent.com/cwrau/8ba808826def0f01e5f8d520878c966e/raw/.bashrc > /tmp/.bashrc
-    if [ "$?" == 0 ]
-    then
-      mv -f /tmp/.bashrc /home/${USER}/.bashrc
-      . /home/cwr/.bashrc
-    fi
-  }
-
   function e.() {
     xdg-open . > /dev/null
   }
@@ -70,13 +61,13 @@ then
     then
       name="$1"
       shift
-      scp -q ~/.bashrc ${name}:/tmp/${USER}.bashrc > /dev/null
+      scp -q ~/.bashrc ${name}:/tmp/cwr.bashrc > /dev/null
 
       if [[ "${#@}" > 0 ]]
       then
         /usr/bin/ssh -q $name "$@"
       else
-        /usr/bin/ssh $name -t "bash --rcfile /tmp/cwr.bashrc -i"
+        /usr/bin/ssh $name -t "sh -c 'if which bash &> /dev/null; then bash --rcfile /tmp/cwr.bashrc -i; else if which ash &> /dev/null; then ash; else sh; fi; fi'"
       fi
       return $?
     else
@@ -96,7 +87,20 @@ then
   export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
   gpgconf --launch gpg-agent
 else
-  [ -f /tmp/cwr.bashrc ] && rm -f /tmp/cwr.bashrc
+  if [ -f /tmp/cwr.bashrc ]
+  then
+    if [ "$KEEP_RC" != "true" ]
+    then
+      function cleanup() {
+        rm -f /tmp/cwr.bashrc
+      }
+
+      trap cleanup EXIT
+
+      export KEEP_RC=true
+    fi
+    alias bash="bash --rcfile /tmp/cwr.bashrc -i"
+  fi
 
   lastlog -u $USER | perl -lane 'END{print "Last login: @F[3..6] $F[8] from $F[2]"}'
 fi

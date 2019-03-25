@@ -16,9 +16,6 @@ source <(
   done
 )
 
-declare -A lastExecute
-declare -A notifications
-
 (
   i3status | (
     read line && echo "${line/\}/,\"click_events\":true\}}" && read line && echo "$line" && read line && echo "$line" &&
@@ -36,7 +33,13 @@ declare -A notifications
           interval=$(echo $(basename -- "$s" .sh) | sed -rn 's#^.+_([0-9]+)$#\1#gp')
           currTmp=${tmp}/${name}
           mkdir -p ${currTmp}
-          last=${lastExecute[$name]:-0}
+
+          if [[ -L ${currTmp}/lastExecute ]]
+          then
+            last=$(readlink ${currTmp}/lastExecute)
+          else
+            last=0
+          fi
 
           if [[ $(($(date +%s) - $last)) -ge ${interval:-0} ]]
           then
@@ -59,7 +62,7 @@ declare -A notifications
               rmdir ${currTmp}/lock &>/dev/null
             ) &
 
-            lastExecute[$name]=$(date +%s)
+            ln -sf $(date +%s) ${currTmp}/lastExecute
           fi
 
           [[ -f ${currTmp}/out ]] || continue
@@ -72,10 +75,12 @@ declare -A notifications
           notification="$(echo "$out" | sed '3q;d')"
           notificationOptions="$(echo "$out" | sed '4q;d')"
 
-          if [[ ! ${notification} = "${notifications[$name]}" ]]
+          oldNotification="$(cat ${currTmp}/notification || echo "")"
+
+          if [[ ! ${notification} = "${oldNotification}" ]]
           then
             [[ ! -z ${notification} ]] && notify-send "i3status: $name" ${notificationOptions} "${notification}"
-            notifications[$name]=${notification}
+            echo "${notification}" > ${currTmp}/notification
           fi
 
           i3Out="${i3Out}{\"name\":\"$name\",\"full_text\":\"$text\",\"color\":\"$color\"},"
