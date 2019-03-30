@@ -105,10 +105,16 @@ while read line; do
 
   if [[ -x ${base}/public/${clickScript} ]]
   then
-    ${base}/public/${clickScript} ${line} &
+    (
+      ${base}/public/${clickScript} ${line}
+      pkill i3status --signal USR1
+    ) &
   elif [[ -x ${base}/private/${clickScript} ]]
   then
-    ${base}/private/${clickScript} ${line} &
+    (
+      ${base}/private/${clickScript} ${line}
+      pkill i3status --signal USR1
+    ) &
   else
     echo "${line}" | tee -a ${tmp}/clicks >&2
   fi

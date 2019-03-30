@@ -3,7 +3,12 @@ pgrep i3lock &>/dev/null && unlock
 case "$-" in
   *i*)
     GIT_PROMPT_THEME=Default_NoExitState
-    GIT_PROMPT_START='\n[ \u@\h ]'
+    if command -v kubectl &> /dev/null
+    then
+      GIT_PROMPT_START='\n[ \u@\h ] ⎈ $(kubectl config current-context) ⎈ '
+    else
+      GIT_PROMPT_START='\n[ \u@\h ]'
+    fi
     GIT_PROMPT_END='\n\e[38;2;133;153;0m$PWD\e[0m\nλ '
 
     PROMPT_COMMAND='history -a'
@@ -123,10 +128,13 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias ls='ls -phAbl --color=auto --time-style=long-iso'
 alias vim='vim -b'
-command -v apt &> /dev/null && alias apt='sudo apt'
-command -v apt-get &> /dev/null && alias apt-get='sudo apt-get'
-command -v systemctl &> /dev/null && alias systemctl='sudo systemctl'
-command -v pacman &> /dev/null && alias pacman='sudo pacman'
+if [[ "$(id -u)" != 0 ]] && command -v sudo &> /dev/null
+then
+  command -v apt &> /dev/null && alias apt='sudo apt'
+  command -v apt-get &> /dev/null && alias apt-get='sudo apt-get'
+  command -v systemctl &> /dev/null && alias systemctl='sudo systemctl'
+  command -v pacman &> /dev/null && alias pacman='sudo pacman'
+fi
 alias top="htop"
 alias vi='vim'
 command -v bat &> /dev/null && alias cat='bat'
@@ -204,12 +212,33 @@ then
   . /usr/lib/bash-git-prompt/gitprompt.sh
 fi
 
-if [ -f /etc/bash_completion ] ||
-   [ -f /etc/profile.d/bash_completion.sh ]
+if [ -r /etc/bash_completion ] ||
+   [ -r /etc/profile.d/bash_completion.sh ] ||
+   [ -r /usr/share/bash-completion/bash_completion ]
 then
   [ -f /etc/bash_completion ] && source /etc/bash_completion
   [ -f /etc/profile.d/bash_completion.sh ] && source /etc/profile.d/bash_completion.sh
-  command -v kubectl &> /dev/null && source <(kubectl completion bash)
+  [ -f /usr/share/bash-completion/bash_completion ] && source /usr/share/bash-completion/bash_completion
+  if command -v kubectl &> /dev/null
+  then
+    source <(kubectl completion bash)
+    if command -v fzf &> /dev/null
+    then
+      # Get current context
+      alias krc='kubectl config current-context'
+      # List all contexts
+      alias klc='kubectl config get-contexts -o name | sed "s/^/  /;\|^  $(krc)$|s/ /*/"'
+      # Change current context
+      alias kcc='kubectl config use-context "$(klc | fzf -e | sed "s/^..//")"'
+      
+      # Get current namespace
+      alias krn='kubectl config get-contexts --no-headers "$(krc)" | awk "{print \$5}" | sed "s/^$/default/"'
+      # List all namespaces
+      alias kln='kubectl get -o name ns | sed "s|^.*/|  |;\|$(krn)|s/ /*/"'
+      # Change current namespace
+      alias kcn='kubectl config set-context --current --namespace "$(kln | fzf -e | sed "s/^..//")"'
+    fi
+  fi
   command -v kubeadm &> /dev/null && source <(kubeadm completion bash)
   command -v helm &> /dev/null && source <(helm completion bash)
 fi
