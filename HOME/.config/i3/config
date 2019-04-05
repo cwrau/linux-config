@@ -186,7 +186,7 @@ exec_always --no-startup-id sh -c 'pgrep evolution || exec evolution'
 exec_always --no-startup-id sh -c 'pgrep chrome || exec google-chrome-stable'
 
 for_window [class="jetbrains-toolbox"] floating enable
-for_window [class=".+charles.+"] floating enable
+for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
 
 exec_always --no-startup-id $HOME/.config/i3/rc.sh
 

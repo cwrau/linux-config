@@ -36,12 +36,18 @@ then
 
   pacman -Sy --noconfirm --needed grub efibootmgr
 
-  echo -e "Type the name of the device on which Arch is to be installed.\nMake sure to type the right one!"
-  read disk
-  [[ -e /dev/${disk} ]]
-  echo "Is /dev/$disk correct? (YES|*)"
-  read answer
-  [[ ${answer} = "YES" ]]
+  answer="NO"
+  until [[ "${answer}" == "YES" ]]
+  do
+    disk='$$$$$$$$'
+    until [[ -e "/dev/${disk}" ]]
+    do
+      echo -e "Type the name of the device on which Arch is to be installed.\nMake sure to type the right one!"
+      read disk
+    done
+    echo "Is /dev/$disk correct? (YES|*)"
+    read answer
+  done
   eval $(blkid /dev/${disk} -o export)
   sed -r -i "s#^GRUB_CMDLINE_LINUX_DEFAULT=.+\$#GRUB_CMDLINE_LINUX_DEFAULT=\"cryptdevice=UUID=$UUID:luks-$UUID root=/dev/mapper/luks-$UUID resume=/dev/mapper/luks-$UUID\"#g" /etc/default/grub
   echo 'GRUB_ENABLE_CRYPTODISK=y' >> /etc/default/grub
@@ -137,8 +143,6 @@ EOF
   fi
 
   sed -r 's#set show_hidden false#set show_hidden true#' ${HOME}/.config/ranger/rc.conf -i
-
-  xdg-mime default ranger.desktop inode/directory
 
   localectl set-x11-keymap de latin1 nodeadkeys
   sudo systemctl enable --now systemd-timesyncd docker NetworkManager lightdm
