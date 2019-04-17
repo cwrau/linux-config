@@ -4,7 +4,7 @@ set -ex -o pipefail
 
 unadded=$(cd $HOME/projects/linux-config &> /dev/null && git diff --name-only | wc -l)
 uncommitted=$(cd $HOME/projects/linux-config &> /dev/null && git diff --cached --name-only | wc -l)
-unpushed=$(cd $HOME/projects/linux-config &> /dev/null && git ls-files -m | wc -l)
+unpushed=$(cd $HOME/projects/linux-config &> /dev/null && git log --branches --not --remotes --format=%H | wc -l)
 
 if [[ ${unadded:-0} -gt 0 ]]
 then
@@ -19,7 +19,7 @@ fi
 
 if [[ ${unpushed:-0} -gt 0 ]]
 then
-    [[ ${uncommitted:-0} -gt 0 ]] && echo -n ', '
+    [[ ${uncommitted:-0} -gt 0 ]] || [[ ${unadded:-0} -gt 0 ]] && echo -n ', '
     echo -n "$unpushed commit$([[ ${unpushed:-0} -gt 1 ]] && echo s) not pushed"
 fi
 
