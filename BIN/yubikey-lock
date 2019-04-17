@@ -7,24 +7,8 @@ then
   exit 0
 fi
 
-getXuser() {
-  user=`pinky| grep -m1 ":$displaynum" | awk '{print $1}'`
- 
-  if [ x"$user" != x"" ]; then
-    export XAUTHORITY="/run/user/$(id -u $user)/gdm/Xauthority"
-  else
-    export XAUTHORITY=""
-  fi
-}
-
-for x in /tmp/.X11-unix/*; do
-  displaynum=`echo $x | sed s#/tmp/.X11-unix/X##`
-  getXuser
-  if [ x"$XAUTHORITY" != x"" ]; then
-    # extract current state
-    export DISPLAY=":$displaynum"
-    break
-  fi
+for i3id in $(pgrep -x i3)
+do
+  uid="$(stat -c %u /run/user/1000/i3/ipc-socket.$i3id)"
+  i3-msg -s /run/user/$uid/i3/ipc-socket.$i3id exec /usr/local/bin/lock
 done
-
-i3-msg -s /run/user/$(id -u $user)/i3/ipc-socket.$(pgrep -x i3) exec /usr/local/bin/lock

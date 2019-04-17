@@ -5,7 +5,15 @@ case "$-" in
     GIT_PROMPT_THEME=Default_NoExitState
     if command -v kubectl &> /dev/null
     then
-      GIT_PROMPT_START='\n[ \u@\h ] ⎈ $(kubectl config current-context) ⎈ '
+      function _kubecontext() {
+        local ctx
+	ctx="$(kubectl config current-context 2>/dev/null)"
+        if [[ "$?" == "0" ]]
+        then
+          echo " ⎈ ${ctx} ⎈ "
+        fi
+      }
+      GIT_PROMPT_START='\n[ \u@\h ]$(_kubecontext)'
     else
       GIT_PROMPT_START='\n[ \u@\h ]'
     fi
@@ -46,12 +54,15 @@ esac
 
 if [ "$(hostname)" = 'cwr' ]
 then
+  if [[ -z "$DISPLAY" ]] && [[ "$XDG_VTNR" -eq 1 ]]
+  then
+    exec startx
+  fi
+
   function command_not_found_handle {
     echo "Command '$1' not found, but could be installed via the following packages:"
-    yay -Fsq -- $1
+    yay -Fysq -- $1
   }
-
-  alias vim='docker-run -e TERM=xterm -v $(pwd):/home/developer/workspace jare/vim-bundle'
 
   function e.() {
     xdg-open . > /dev/null
@@ -94,7 +105,7 @@ then
 else
   if [ -f /tmp/cwr.bashrc ]
   then
-    if [ "$KEEP_RC" != "true" ]
+    if [ "${KEEP_RC}" != "true" ]
     then
       function cleanup() {
         rm -f /tmp/cwr.bashrc
@@ -155,6 +166,33 @@ function mem() {
 
 if command -v docker &> /dev/null && [[ -x $(which docker) ]]
 then
+  function jflint() {
+    if [[ $# = 0 ]]
+    then
+      if [[ -f Jenkinsfile ]]
+      then
+        file=Jenkinsfile
+      else
+        echo "No argument given and default 'Jenkinsfile' doesn't exist"
+        return 1
+      fi
+    elif [[ $# = 1 ]]
+    then
+      if [[ -f "$1" ]]
+      then
+        file="$1"
+      else
+        echo "File '$1' doesn't exist"
+        return 1
+      fi
+    else
+      echo "Too many arguments"
+      return 1
+    fi
+
+    docker-run --network host -v "$(realpath "$file")":/Jenkinsfile registry.4allportal.net/jflint --csrf-disabled -j https://jenkins.4allportal.net /Jenkinsfile
+  }
+
   function docker-run() {
     docker run --rm -it "$@"
   }
@@ -180,10 +218,16 @@ function bak() {
   cp -r "${1%/}" "${1%/}~"
 }
 
-[ -f ~/.bashrc.work ] && . ~/.bashrc.work
+function bsrv() {
+    index="$1"
+    shift
+    ssh root@buildsrv${index}.4allportal.net $*
+}
 
-function cwr() {
-  ssh root@direct.cwrcoding.com $*
+function 4ap() {
+    name="$1"
+    shift
+    ssh root@${name}.4allportal.net $*
 }
 
 function gitUpdate() {

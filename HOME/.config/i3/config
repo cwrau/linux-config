@@ -44,8 +44,8 @@ bindsym $mod+Shift+q kill
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
 #bindsym $mod+d exec --no-startup-id j4-dmenu-desktop --usage-log=$HOME/.config/i3/j4-dmenu-desktop-usage --no-generic
-#bindsym $mod+d exec --no-startup-id dmenu-frecency
-bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
+bindsym $mod+d exec --no-startup-id dmenu-frecency
+#bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
 # change focus
 #bindsym $mod+j focus left
@@ -98,29 +98,6 @@ bindsym $mod+Shift+space floating toggle
 
 bindsym $mod+Shift+r restart
 
-# switch to workspace
-bindsym $mod+1 workspace 1
-bindsym $mod+2 workspace 2
-bindsym $mod+3 workspace 3
-bindsym $mod+4 workspace 4
-bindsym $mod+5 workspace 5
-bindsym $mod+6 workspace 6
-bindsym $mod+7 workspace 7
-bindsym $mod+8 workspace 8
-bindsym $mod+9 workspace 9
-bindsym $mod+0 workspace 10
-
-bindsym $mod+Shift+1 move container to workspace 1
-bindsym $mod+Shift+2 move container to workspace 2
-bindsym $mod+Shift+3 move container to workspace 3
-bindsym $mod+Shift+4 move container to workspace 4
-bindsym $mod+Shift+5 move container to workspace 5
-bindsym $mod+Shift+6 move container to workspace 6
-bindsym $mod+Shift+7 move container to workspace 7
-bindsym $mod+Shift+8 move container to workspace 8
-bindsym $mod+Shift+9 move container to workspace 9
-bindsym $mod+Shift+0 move container to workspace 10
-
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
 bar {
@@ -166,23 +143,19 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 # exec_always --no-startup-id /home/cwr/.config/polybar/launch.sh
-exec_always --no-startup-id ~/.config/screenlayouts/autosetup.sh
 
 exec_always --no-startup-id sh -c 'numlockx off; numlockx on'
-#exec_always --no-startup-id sh -c 'pgrep redshift || exec redshift -l "$(curl ipinfo.io | jq -j .loc | tr "," ":")"'
-exec_always --no-startup-id sh -c 'pgrep blugon || exec blugon'
+exec_always --no-startup-id sh -c 'pgrep blugon || exec blugon -f'
 exec_always --no-startup-id sh -c 'pgrep nm-applet || exec nm-applet'
 exec_always --no-startup-id sh -c 'pgrep blueman-applet || exec blueman-applet'
 exec_always --no-startup-id sh -c 'ps aux | grep -E "[b]ash.+clipmenud" || exec clipmenud'
 exec_always --no-startup-id sh -c 'pgrep dunst || exec dunst'
-exec_always --no-startup-id sh -c 'pgrep emoji-keyboard || exec emoji-keyboard'
 exec_always --no-startup-id sh -c 'pgrep jetbrains-toolb || exec jetbrains-toolbox --window-mode --minimize'
-exec_always --no-startup-id sh -c 'pgrep polkit-gnome-au || exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
 exec_always --no-startup-id sh -c 'pgrep polkit-gnome-au || exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
 exec_always --no-startup-id sh -c 'pgrep xfce4-power-man || exec xfce4-power-manager --no-daemon'
 
 exec_always --no-startup-id sh -c 'pgrep slack || exec slack'
-exec_always --no-startup-id sh -c 'pgrep evolution || exec evolution'
+exec_always --no-startup-id sh -c 'pgrep mailspring || exec mailspring'
 exec_always --no-startup-id sh -c 'pgrep chrome || exec google-chrome-stable'
 
 for_window [class="jetbrains-toolbox"] floating enable
@@ -213,7 +186,7 @@ mode $Power {
 
 # Emoji Keyboard
 
-bindsym $mod+space exec --no-startup-id emoji-keyboard -k
+bindsym $mod+period exec --no-startup-id splatmoji type
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5%; exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ false #increase sound volume
@@ -236,7 +209,7 @@ bindsym $mod+Shift+o exec --no-startup-id /usr/local/bin/audio-program-sink
 bindsym $mod+o exec --no-startup-id /usr/local/bin/audio-sink
 
 # Display Manager
-bindsym $mod+p exec /usr/local/bin/xrandr-dmenu
+bindsym $mod+p exec /usr/local/bin/rofi-randr
 
 # Lock
 bindsym $mod+l exec /usr/local/bin/lock
@@ -271,6 +244,17 @@ for_window [class="Kazam"] floating enable
 set $alt Mod1
 
 # switch to workspace
+bindsym $mod+1 workspace 1
+assign[class="Mailspring"] 1
+bindsym $mod+2 workspace 2
+bindsym $mod+3 workspace 3
+bindsym $mod+4 workspace 4
+bindsym $mod+5 workspace 5
+bindsym $mod+6 workspace 6
+bindsym $mod+7 workspace 7
+bindsym $mod+8 workspace 8
+bindsym $mod+9 workspace 9
+bindsym $mod+0 workspace 10
 bindsym $mod+$alt+1 workspace 11
 bindsym $mod+$alt+2 workspace 12
 bindsym $mod+$alt+3 workspace 13
@@ -284,6 +268,16 @@ bindsym $mod+$alt+0 workspace 20 Slack
 assign[class="Slack"] 20 Slack
 
 # move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace 1
+bindsym $mod+Shift+2 move container to workspace 2
+bindsym $mod+Shift+3 move container to workspace 3
+bindsym $mod+Shift+4 move container to workspace 4
+bindsym $mod+Shift+5 move container to workspace 5
+bindsym $mod+Shift+6 move container to workspace 6
+bindsym $mod+Shift+7 move container to workspace 7
+bindsym $mod+Shift+8 move container to workspace 8
+bindsym $mod+Shift+9 move container to workspace 9
+bindsym $mod+Shift+0 move container to workspace 10
 bindsym $mod+Shift+$alt+1 move container to workspace 11
 bindsym $mod+Shift+$alt+2 move container to workspace 12
 bindsym $mod+Shift+$alt+3 move container to workspace 13
@@ -299,8 +293,8 @@ bindsym $mod+Shift+$alt+0 move container to workspace 20 Slack
 bindsym Ctrl+$mod+Right move workspace to output right
 bindsym Ctrl+$mod+Left move workspace to output left
 
-set $external HDMI1
-set $internal eDP1
+set $external HDMI-1
+set $internal eDP-1
 
 workspace 1 output $external
 workspace "20 Slack" output $internal
