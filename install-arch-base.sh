@@ -13,12 +13,12 @@ if [[ $(id -u) = 0 ]]
 then
   timedatectl set-timezone Europe/Berlin
   hwclock --systohc
-  localectl set-locale LANG=en_GB.UTF-8
-  sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
+  localectl set-locale LANG=en_US.UTF-8
+  #sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
   localectl set-locale LC_COLLATE=C
   locale-gen
-  localectl set-keymap de-latin1-nodeadkeys
-  localectl set-x11-keymap de latin1 nodeadkeys
+  localectl set-keymap us-latin1
+  localectl set-x11-keymap us latin1
   hostnamectl set-hostname cwr
   echo '127.0.0.1 localhost
 ::1 localhost
@@ -76,12 +76,12 @@ else
 
   #yay -R --noconfirm freetype2
   yay -Syu --noconfirm --needed \
-    yubico-pam feh bash-completion libu2f-host pcsclite ccid gnupg shfmt jq networkmanager-openvpn matcha-gtk-theme papirus-icon-theme xwinfo ttf-fira-code ttf-font-awesome-4 ttf-dejavu ttf-liberation breeze-hacked-cursor-theme clipmenu clipnotify xclip pulseaudio intel-ucode polkit polkit-gnome fzf xfce4-power-manager android-udev bluez libsecret libgnome-keyring p7zip unzip xorg-xwininfo xorg-xprop xorg-xinit xorg-xinput gnome-disk-utility freetype2-cleartype linux-zen-headers noto-fonts-emoji \
+    yubico-pam feh bash-completion libu2f-host pcsclite ccid gnupg shfmt jq networkmanager-openvpn matcha-gtk-theme papirus-icon-theme xwinfo ttf-fira-code ttf-font-awesome-4 ttf-dejavu ttf-liberation breeze-hacked-cursor-theme clipmenu clipnotify xclip pulseaudio pulseaudio-bluetooth intel-ucode polkit polkit-gnome fzf xfce4-power-manager android-udev bluez libsecret libgnome-keyring p7zip unzip xorg-xwininfo xorg-xprop xorg-xinit xorg-xinput gnome-disk-utility freetype2-cleartype linux-zen-headers noto-fonts-emoji \
   \
     thunar xorg-server bc gotop-bin git ripgrep fd bat kubectl-bin kubernetes-helm-bin kubespy docker docker-compose subversion git curl diff-so-fancy tldr++ prettyping ncdu youtube-dl blugon playerctl scrot i3-wm i3status i3lock perl-anyevent-i3 network-manager-applet rke-bin jq numlockx bash-git-prompt httpie cli-visualizer dunst glances net-tools zsh dmenu-frecency imagemagick xorg-xrandr yay jdk8-openjdk openjdk8-src jdk-openjdk openjdk-src networkmanager-dmenu cht.sh splatmoji-git \
-    bind-tools whois nload gtop nodejs-terminalizer dive maven maven-bash-completion-git uhk-agent-appimage hadolint-bin powertop go minikube-bin scaleway-cli android-tools pastebinit ausweisapp2 vim blueman pup-bin openssh gnome-keyring mupdf xarchiver thunar-archive-plugin k9s-bin mousepad arandr rofi rofi-dmenu udiskie-dmenu-git cups \
+    bind-tools whois nload gtop nodejs-terminalizer dive maven maven-bash-completion-git uhk-agent-appimage hadolint-bin powertop go minikube-bin scaleway-cli android-tools pastebinit ausweisapp2 vim blueman pup-bin openssh gnome-keyring mupdf xarchiver thunar-archive-plugin gvfs gvfs-smb k9s-bin mousepad arandr rofi rofi-dmenu udiskie-dmenu-git cups storageexplorer \
   \
-    visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark mailspring charles krita ranger jetbrains-toolbox firefox
+    visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark mailspring charles krita ranger jetbrains-toolbox firefox gpmdp
 
   sudo usermod -a -G docker,wheel cwr
 
@@ -169,4 +169,6 @@ EOF
   sed -r 's#set show_hidden false#set show_hidden true#' ${HOME}/.config/ranger/rc.conf -i
 
   sudo systemctl enable --now systemd-timesyncd docker NetworkManager bluetooth org.cups.cupsd
+  systemctl --user enable --now gpg-agent
+  sudo systemctl disable NetworkManager-wait-online
 fi

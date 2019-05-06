@@ -25,15 +25,13 @@ source <(
       line="${line#,[}"
       i3Out=",["
 
-      if [[ "$(cat /sys/class/power_supply/AC/online)" == "1" ]]
-      then
         #for s in $HOME/.config/i3status/custom.d/*/*.sh
         for s in $(fd -E '*_click*' -e sh -t x --search-path $HOME/.config/i3status/custom.d | sort -n --field-separator=/ -k 8)
         do
           if ! (echo ${s} | grep "_click" &>/dev/null)
           then
-            name=$(basename -- "$s" .sh | sed -r 's#^[0-9]*_?([^_]+)_?[0-9]*$#\1#g')
-            interval=$(echo $(basename -- "$s" .sh) | sed -rn 's#^.+_([0-9]+)$#\1#gp')
+            name=$(basename -- "$s" .sh | sed -r 's#^[0-9]*_?([^_]+)_?-?[0-9]*$#\1#g')
+            interval=$(echo $(basename -- "$s" .sh) | sed -rn 's#^.+_(-?[0-9]+)$#\1#gp')
             currTmp=${tmp}/${name}
             mkdir -p ${currTmp}
 
@@ -44,7 +42,7 @@ source <(
               last=0
             fi
 
-            if [[ $(($(date +%s) - $last)) -ge ${interval:-0} ]]
+            if ( [[ ${interval:-0} == -1 ]] && [[ ${last} == -1  ]] ) || ( [[ ${interval:-0} != -1 ]] && [[ $(($(date +%s) - $last)) -ge ${interval:-0} ]] )
             then
               (
                 mkdir ${currTmp}/lock &>/dev/null || exit
@@ -89,7 +87,6 @@ source <(
             i3Out="${i3Out}{\"name\":\"$name\",\"full_text\":\"$text\",\"color\":\"$color\"},"
           fi
         done
-      fi
 
       i3Out="${i3Out}${line}"
 
