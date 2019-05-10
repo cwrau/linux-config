@@ -30,7 +30,7 @@ font pango:monospace 9
 floating_modifier $mod
 
 # focus_follows_mouse no
-mouse_warping none
+#mouse_warping none
 
 # start a terminal
 bindsym $mod+Return exec gnome-terminal
