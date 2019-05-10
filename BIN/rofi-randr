@@ -26,7 +26,12 @@ function main() {
     if (( iteration++ )); then
       select_output 'Select next output:' 'unconfigured' | read output
       select_position "${output}" | read position
-      [[ "${position}" != '--off' ]] && select_mode "${output}" | read mode
+      if [[ "${position}" != '--off' ]]
+      then
+        select_mode "${output}" | read mode
+      else
+        mode=""
+      fi
       OUTPUT_CONFIGURED[${output}]='true'
     else
       select_output 'Select primary output:' 'all' | read output
