@@ -103,6 +103,7 @@ then
   export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
   #gpgconf --launch gpg-agent
 else
+  [ -f ${HOME}/.bashrc ] && source ${HOME}/.bashrc
   if [ -f /tmp/cwr.bashrc ]
   then
     if [ "${KEEP_RC}" != "true" ]
