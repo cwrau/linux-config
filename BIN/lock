@@ -34,7 +34,7 @@ then
     LOCK="${tmp}/screen-lock.png"
 
     # lockscreen image info
-    if (! timeout 0.5 ping -c 1 google.com &>/dev/null) || (! timeout -k 2 1 curl -s 'http://dogr.io/wow/very%20wallpapger/so%20lockscreen/such%20laptop/much%20secure.png?split=false' -o ${LOCK})
+    if (! timeout 0.5 ping -c 1 google.com &>/dev/null) || (! timeout -k 2 1 curl -s 'http://dogr.io/wow/very%20wallpaper/so%20lockscreen/such%20laptop/much%20secure.png?split=false' -o ${LOCK})
     then
         cp $HOME/.config/screen-lock.png ${LOCK}
     fi
