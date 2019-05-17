@@ -78,7 +78,7 @@ source <(
 
             oldNotification="$(cat ${currTmp}/notification || echo "")"
 
-            if [[ ! ${notification} = "${oldNotification}" ]]
+            if [[ ! ${notification} = "${oldNotification}" ]] && ! pgrep lock &> /dev/null
             then
               [[ ! -z ${notification} ]] && notify-send "i3status: $name" ${notificationOptions} "${notification}"
               echo "${notification}" > ${currTmp}/notification
