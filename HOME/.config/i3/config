@@ -144,6 +144,7 @@ bindsym $mod+r mode "resize"
 
 # exec_always --no-startup-id /home/cwr/.config/polybar/launch.sh
 
+exec_always --no-startup-id feh --bg-fill $HOME/.config/background.jpg
 exec_always --no-startup-id sh -c 'numlockx off; numlockx on'
 exec_always --no-startup-id sh -c 'pgrep blugon || exec blugon -f'
 exec_always --no-startup-id sh -c 'pgrep nm-applet || exec nm-applet'
