@@ -8,5 +8,5 @@ if (( $(echo "($rel_x / $width) < .5" | bc -l) ))
 then
   exec networkmanager_dmenu
 else
-  ip address show $interface | grep -Po 'inet \K[\d.]+' | xclip -selection clipboard
+  ip address show $interface | grep -Po 'inet \K[\d.]+' | tr -d '\n' | xclip -selection clipboard
 fi
