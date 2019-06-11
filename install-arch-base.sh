@@ -80,7 +80,7 @@ else
       linux-zen-headers noto-fonts-emoji exfat-utils \
   \
     thunar xorg-server bc gotop-bin git ripgrep fd bat kubectl-bin kubernetes-helm-bin kubespy docker docker-compose subversion git curl diff-so-fancy tldr++ prettyping ncdu youtube-dl blugon playerctl scrot i3-wm i3status i3lock perl-anyevent-i3 network-manager-applet rke-bin jq numlockx bash-git-prompt httpie cli-visualizer dunst glances net-tools zsh dmenu-frecency imagemagick xorg-xrandr yay jdk8-openjdk openjdk8-src jdk-openjdk openjdk-src networkmanager-dmenu cht.sh splatmoji-git \
-    bind-tools whois nload gtop nodejs-terminalizer dive maven maven-bash-completion-git uhk-agent-appimage hadolint-bin powertop go minikube-bin scaleway-cli android-tools pastebinit ausweisapp2 vim blueman pup-bin openssh gnome-keyring mupdf xarchiver thunar-archive-plugin gvfs gvfs-smb k9s-bin mousepad arandr rofi rofi-dmenu udiskie-dmenu-git cups storageexplorer \
+    bind-tools whois nload gtop nodejs-terminalizer dive maven maven-bash-completion-git uhk-agent-appimage hadolint-bin powertop go minikube-bin scaleway-cli android-tools pastebinit ausweisapp2 vim blueman pup-bin openssh gnome-keyring mupdf xarchiver thunar-archive-plugin gvfs gvfs-smb k9s-bin mousepad arandr rofi rofi-dmenu udiskie-dmenu-git cups storageexplorer slit-git \
   \
     visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark mailspring charles krita ranger jetbrains-toolbox firefox gpmdp
 
@@ -120,8 +120,7 @@ EOF
   ln -sf ${HOME}/projects/linux-config/HOME/.config/gtk-3.0/settings.ini $HOME/.config/gtk-3.0/settings.ini
   ln -sf /home/cwr/projects/linux-config/HOME/.gtkrc-2.0 $HOME/.gtkrc-2.0
   ln -sf ${HOME}/projects/linux-config/HOME/.config/screenlayouts $HOME/.config/screenlayouts
-  sudo rm -rf /usr/local/bin
-  sudo ln -sf ${HOME}/projects/linux-config/BIN /usr/local/bin
+  sudo ln -sf ${HOME}/projects/linux-config/BIN /usr/local/bin/custom
   sudo rm -rf /usr/share/icons/default
   sudo ln -sf Breeze_Hacked /usr/share/icons/default
   sudo ln -sf ${HOME}/projects/linux-config/pacman.hook /usr/share/libalpm/hooks/i3status-updates.hook

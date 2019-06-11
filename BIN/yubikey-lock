@@ -2,6 +2,9 @@
 
 set -ex
 
+# To prevent accidental locking
+sleep 1
+
 if lsusb | grep -E '1050:(0407|0116)' &> /dev/null
 then
   exit 0
@@ -9,6 +12,6 @@ fi
 
 for i3id in $(pgrep -x i3)
 do
-  uid="$(stat -c %u /run/user/1000/i3/ipc-socket.$i3id)"
-  i3-msg -s /run/user/$uid/i3/ipc-socket.$i3id exec /usr/local/bin/lock
+  uid="$(stat -c %u /run/user/*/i3/ipc-socket.$i3id)"
+  i3-msg -s /run/user/$uid/i3/ipc-socket.$i3id exec /usr/local/bin/custom/lock
 done

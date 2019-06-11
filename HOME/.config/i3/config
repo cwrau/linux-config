@@ -175,14 +175,14 @@ mode $displayMode {
     bindsym Escape mode "default"
 }
 
-bindsym Pause exec /usr/local/bin/suspend
-bindsym Scroll_Lock exec /usr/local/bin/lock
+bindsym Pause exec /usr/local/bin/custom/suspend
+bindsym Scroll_Lock exec /usr/local/bin/custom/lock
 
 set $Power "[S]leep, [p]oweroff, [l]ogoff or [r]eboot?"
 bindsym $mod+q mode $Power
 
 mode $Power {
-    bindsym s exec /usr/local/bin/suspend; mode "default"
+    bindsym s exec /usr/local/bin/custom/suspend; mode "default"
     bindsym p exec poweroff
     bindsym r exec reboot
     bindsym l exec i3-msg exit
@@ -199,8 +199,8 @@ bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle # mute sound
 
 # Sreen brightness controls
-bindsym XF86MonBrightnessUp exec /usr/local/bin/brightness up
-bindsym XF86MonBrightnessDown exec /usr/local/bin/brightness down
+bindsym XF86MonBrightnessUp exec /usr/local/bin/custom/brightness up
+bindsym XF86MonBrightnessDown exec /usr/local/bin/custom/brightness down
 
 # Media player controls
 bindsym XF86AudioPlay exec playerctl play-pause
@@ -210,14 +210,14 @@ bindsym XF86AudioNext exec playerctl next
 bindsym XF86AudioPrev exec playerctl previous
 
 # Change Audio Settings
-bindsym $mod+Shift+o exec --no-startup-id /usr/local/bin/audio-program-sink
-bindsym $mod+o exec --no-startup-id /usr/local/bin/audio-sink
+bindsym $mod+Shift+o exec --no-startup-id /usr/local/bin/custom/audio-program-sink
+bindsym $mod+o exec --no-startup-id /usr/local/bin/custom/audio-sink
 
 # Display Manager
-bindsym $mod+p exec /usr/local/bin/rofi-randr
+bindsym $mod+p exec /usr/local/bin/custom/rofi-randr
 
 # Lock
-bindsym $mod+l exec /usr/local/bin/lock
+bindsym $mod+l exec /usr/local/bin/custom/lock
 
 # WiFi-Manager
 bindsym $mod+i exec --no-startup-id networkmanager_dmenu
