@@ -24,9 +24,7 @@ case "$-" in
 
     GIT_PROMPT_ONLY_IN_REPO=1
 
-    HISTSIZE=
-    HISTFILESIZE=
-    HISTCONTROL="erasedups:ignoreboth"
+    HISTCONTROL=ignoredups
     HISTTIMEFORMAT='%F %T%z '
 
     shopt -s histappend
@@ -98,6 +96,9 @@ then
       return $ret
     fi
   }
+
+  HISTSIZE=-1
+  HISTFILESIZE=-1
 
   #export GPG_TTY="$(tty)"
   export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
@@ -267,6 +268,10 @@ then
   if command -v kubectl &> /dev/null
   then
     source <(kubectl completion bash)
+    if [ -d $HOME/.krew/bin ]
+    then
+      alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
+    fi
     if command -v fzf &> /dev/null
     then
       # Get current context
