@@ -42,7 +42,9 @@ source <(
               last=0
             fi
 
-            if ( [[ ${interval:-0} == -1 ]] && [[ ${last} == -1  ]] ) || ( [[ ${interval:-0} != -1 ]] && [[ $(($(date +%s) - $last)) -ge ${interval:-0} ]] )
+            if ( [[ ${interval:-0} == -1 ]] && [[ ${last} == -1  ]] ) ||
+                ( [[ ${interval:-0} == -2 ]] && ! [[ -f ${currTmp}/out ]] ) ||
+                ( [[ ${interval:-0} -ge 0 ]] && [[ $(($(date +%s) - $last)) -ge ${interval:-0} ]] )
             then
               (
                 mkdir ${currTmp}/lock &>/dev/null || exit
