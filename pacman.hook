@@ -7,4 +7,4 @@ Target = *
 
 [Action]
 When = PostTransaction
-Exec = /bin/sh -c '/usr/bin/rm -f /tmp/i3status/updates/lastExecute; /usr/bin/ln -sf -- -1 /tmp/i3status/orphaned-packages/lastExecute'
+Exec = /bin/sh -c '/usr/bin/rm -f /tmp/i3status/updates/lastExecute; /usr/bin/ln -sf -- -1 /tmp/i3status/orphaned-packages/lastExecute; /usr/bin/ln -sf -- -1 /tmp/i3status/kernel-update/lastExecute'
