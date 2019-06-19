@@ -86,6 +86,7 @@ else
 
   kubectl krew update
   kubectl krew install access-matrix warp
+  helm plugin install https://github.com/databus23/helm-diff --version master
 
   sudo usermod -a -G docker,wheel cwr
 
