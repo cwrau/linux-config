@@ -155,6 +155,8 @@ exec_always --no-startup-id sh -c 'pgrep jetbrains-toolb || exec jetbrains-toolb
 exec_always --no-startup-id sh -c 'pgrep polkit-gnome-au || exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
 exec_always --no-startup-id sh -c 'pgrep xfce4-power-man || exec xfce4-power-manager --no-daemon'
 
+exec_always --no-startup-id sh -c 'pgrep earlyoom || exec sudo earlyoom --avoid ".*i3.*" -m 1'
+
 exec_always --no-startup-id sh -c 'pgrep slack || exec slack'
 exec_always --no-startup-id sh -c 'pgrep mailspring || exec mailspring'
 exec_always --no-startup-id sh -c 'pgrep chrome || exec google-chrome-stable'
@@ -214,7 +216,8 @@ bindsym $mod+Shift+o exec --no-startup-id /usr/local/bin/custom/audio-program-si
 bindsym $mod+o exec --no-startup-id /usr/local/bin/custom/audio-sink
 
 # Display Manager
-bindsym $mod+p exec /usr/local/bin/custom/rofi-randr
+#bindsym $mod+p exec /usr/local/bin/custom/rofi-randr
+bindsym $mod+p exec /usr/bin/lxrandr
 
 # Lock
 bindsym $mod+l exec /usr/local/bin/custom/lock
@@ -223,8 +226,8 @@ bindsym $mod+l exec /usr/local/bin/custom/lock
 bindsym $mod+i exec --no-startup-id networkmanager_dmenu
 
 # Clipboard-Manager
-bindsym $mod+Shift+v exec --no-startup-id sh -c 'clipmenu && xdotool type "$(xclip -selection clipboard -o)"'
-bindsym $mod+Ctrl+v exec --no-startup-id sh -c 'clipmenu'
+bindsym $mod+Shift+v exec --no-startup-id sh -c 'clipmenu -i && xdotool type "$(xclip -selection clipboard -o)"'
+bindsym $mod+Ctrl+v exec --no-startup-id sh -c 'clipmenu -i'
 
 # Screenshots
 # Selection > Clipboard
