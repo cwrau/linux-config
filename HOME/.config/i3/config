@@ -219,6 +219,7 @@ bindsym $mod+o exec --no-startup-id /usr/local/bin/custom/audio-sink
 # Display Manager
 #bindsym $mod+p exec /usr/local/bin/custom/rofi-randr
 bindsym $mod+p exec /usr/bin/lxrandr
+bindsym $mod+b exec /usr/bin/btmenu
 
 # Lock
 bindsym $mod+l exec /usr/local/bin/custom/lock
