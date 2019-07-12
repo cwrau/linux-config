@@ -10,4 +10,6 @@ if [[ ${num:-0} -gt 0 ]]
 then
     echo "$num Packages orphaned"
     echo "$color_bad"
+    echo "$num Packages orphaned"
+    echo "-u normal -A auto,Auto -A manual,Manual"
 fi

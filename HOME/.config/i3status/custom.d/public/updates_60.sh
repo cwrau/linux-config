@@ -13,5 +13,5 @@ then
   echo "$num Updates available"
   echo "$color_bad"
   echo "$num Updates available"
-  echo "-u critical"
+  echo "-u critical -A auto,Auto -A manual,Manual"
 fi
