@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -x
+
 # Sink list
 sinks_name=$(pactl list sinks | grep -Po 'Description: \K.*')
 
@@ -24,4 +26,4 @@ for (( i = 0; i < ${#s_n_db[@]}; i++ )); do
 done
 
 # Execute command
-ret=$(pacmd set-default-sink $index_sink)
+ret=$(pacmd set-default-sink ${s_i_db[$index_sink]})

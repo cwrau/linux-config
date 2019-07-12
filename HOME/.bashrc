@@ -232,6 +232,10 @@ function 4ap() {
     ssh root@${name}.4allportal.net $*
 }
 
+function getRepoVersion() {
+    4ap repository find /services/repository/apps/4allportal-$1 -mindepth 1 -maxdepth 1 | sed -r 's#^.*/([^/]+)$#\1#g' | sort
+}
+
 function gitUpdate() {
   if command -v git &> /dev/null && (timeout 0.5 ping -c 1 google.com &> /dev/null)
   then

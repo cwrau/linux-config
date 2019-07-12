@@ -145,24 +145,25 @@ bindsym $mod+r mode "resize"
 # exec_always --no-startup-id /home/cwr/.config/polybar/launch.sh
 
 exec_always --no-startup-id feh --bg-fill $HOME/.config/background.jpg
-exec_always --no-startup-id sh -c 'numlockx off; numlockx on'
-exec_always --no-startup-id sh -c 'pgrep blugon || exec blugon -f'
-exec_always --no-startup-id sh -c 'pgrep nm-applet || exec nm-applet'
-exec_always --no-startup-id sh -c 'pgrep blueman-applet || exec blueman-applet'
-exec_always --no-startup-id sh -c 'ps aux | grep -E "[b]ash.+clipmenud" || exec clipmenud'
-exec_always --no-startup-id sh -c 'pgrep dunst || exec dunst'
-exec_always --no-startup-id sh -c 'pgrep jetbrains-toolb || exec jetbrains-toolbox --window-mode --minimize'
-exec_always --no-startup-id sh -c 'pgrep polkit-gnome-au || exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
-exec_always --no-startup-id sh -c 'pgrep xfce4-power-man || exec xfce4-power-manager --no-daemon'
-
+exec_always --no-startup-id sh -c 'pgrep -f blugon | grep -v $$ || exec blugon -f'
+exec_always --no-startup-id sh -c 'pgrep nm-applet | grep -v $$ || exec nm-applet'
+exec_always --no-startup-id sh -c 'pgrep bueman-applet | grep -v $$ || exec blueman-applet'
+exec_always --no-startup-id sh -c 'pgrep kdeconnectd | grep -v $$ || exec /usr/lib/kdeconnectd'
+exec_always --no-startup-id sh -c 'pgrep kdeconnect-indi | grep -v $$ || exec kdeconnect-indicator'
+exec_always --no-startup-id sh -c 'pgrep -f cipmenud | grep -v $$ || CM_MAX_CLIPS=0 CM_DIR=/var/cache/clipmenud exec clipmenud'
+exec_always --no-startup-id sh -c 'pgrep dunst | grep -v $$ || exec dunst'
+exec_always --no-startup-id sh -c 'pgrep jetbrains-toolb | grep -v $$ || exec jetbrains-toolbox --window-mode --minimize'
+exec_always --no-startup-id sh -c 'pgrep polkit-gnome-au | grep -v $$ || exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
+exec_always --no-startup-id sh -c 'pgrep xfce4-power-man | grep -v $$ || exec xfce4-power-manager --no-daemon'
 exec_always --no-startup-id sh -c 'pgrep earlyoom || exec sudo earlyoom --avoid "i3.*|custom.sh|slack|teams-for-linux" -m 1'
-
-exec_always --no-startup-id sh -c 'pgrep slack || exec slack'
-exec_always --no-startup-id sh -c 'pgrep teams-for-linux || exec teams-for-linux'
+#exec_always --no-startup-id sh -c 'pgrep slack || exec slack'
+#exec_always --no-startup-id sh -c 'pgrep teams-for-linux || exec teams-for-linux'
+exec_always --no-startup-id sh -c 'pgrep ferdi || exec ferdi'
 exec_always --no-startup-id sh -c 'pgrep mailspring || exec mailspring'
 exec_always --no-startup-id sh -c 'pgrep chrome || exec google-chrome-stable'
 exec_always --no-startup-id dmenu-frecency --read-apps
 
+default_border none
 for_window [class="jetbrains-toolbox"] floating enable
 for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
 

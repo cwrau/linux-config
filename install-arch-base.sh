@@ -85,7 +85,7 @@ else
     thunar xorg-server bc gotop-bin git ripgrep fd bat kubectl-bin kubernetes-helm-bin kubespy docker docker-compose subversion git curl diff-so-fancy tldr++ prettyping ncdu youtube-dl blugon playerctl scrot i3-wm i3status i3lock perl-anyevent-i3 network-manager-applet rke-bin jq numlockx bash-git-prompt httpie cli-visualizer dunst glances net-tools zsh dmenu-frecency imagemagick xorg-xrandr yay-bin jdk11-openjdk openjdk11-src jdk8-openjdk openjdk9-src networkmanager-dmenu cht.sh splatmoji-git \
     bind-tools whois nload gtop nodejs-terminalizer dive maven maven-bash-completion-git uhk-agent-appimage hadolint-bin powertop go minikube-bin scaleway-cli android-tools pastebinit ausweisapp2 vim blueman pup-bin openssh gnome-keyring mupdf xarchiver thunar-archive-plugin gvfs gvfs-smb k9s-bin mousepad arandr rofi rofi-dmenu udiskie-dmenu-git cups storageexplorer slit-git krew-bin rsync lxrandr yq python-nvidia-ml-py3-git btmenu \
   \
-    visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark mailspring charles krita ranger jetbrains-toolbox firefox gpmdp
+    visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark mailspring charles krita jetbrains-toolbox firefox gpmdp
 
   kubectl krew update
   kubectl krew install access-matrix warp
@@ -175,8 +175,6 @@ EOF
     sudo sed '2 i \\nauth sufficient pam_yubico.so mode=challenge-response chalresp_path=/var/yubico' /etc/pam.d/system-auth -i
     echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/$USER-*'"
   fi
-
-  sed -r 's#set show_hidden false#set show_hidden true#' ${HOME}/.config/ranger/rc.conf -i
 
   sudo systemctl enable --now systemd-timesyncd docker NetworkManager bluetooth org.cups.cupsd
   systemctl --user enable --now gpg-agent
