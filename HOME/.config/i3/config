@@ -145,20 +145,18 @@ bindsym $mod+r mode "resize"
 # exec_always --no-startup-id /home/cwr/.config/polybar/launch.sh
 
 exec_always --no-startup-id feh --bg-fill $HOME/.config/background.jpg
-exec_always --no-startup-id sh -c 'pgrep -f blugon | grep -v $$ || exec blugon -f'
-exec_always --no-startup-id sh -c 'pgrep nm-applet | grep -v $$ || exec nm-applet'
-exec_always --no-startup-id sh -c 'pgrep bueman-applet | grep -v $$ || exec blueman-applet'
-exec_always --no-startup-id sh -c 'pgrep kdeconnectd | grep -v $$ || exec /usr/lib/kdeconnectd'
-exec_always --no-startup-id sh -c 'pgrep kdeconnect-indi | grep -v $$ || exec kdeconnect-indicator'
-exec_always --no-startup-id sh -c 'pgrep -f cipmenud | grep -v $$ || CM_MAX_CLIPS=0 CM_DIR=/var/cache/clipmenud exec clipmenud'
-exec_always --no-startup-id sh -c 'pgrep dunst | grep -v $$ || exec dunst'
-exec_always --no-startup-id sh -c 'pgrep jetbrains-toolb | grep -v $$ || exec jetbrains-toolbox --window-mode --minimize'
-exec_always --no-startup-id sh -c 'pgrep polkit-gnome-au | grep -v $$ || exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
-exec_always --no-startup-id sh -c 'pgrep xfce4-power-man | grep -v $$ || exec xfce4-power-manager --no-daemon'
+exec_always --no-startup-id sh -c 'pgrep -f blugon | grep -v -E "pgrep|$$" || exec blugon -f'
+exec_always --no-startup-id sh -c 'pgrep nm-applet | grep -v -E "pgrep|$$" || exec nm-applet'
+exec_always --no-startup-id sh -c 'pgrep bueman-applet | grep -v -E "pgrep|$$" || exec blueman-applet'
+#exec_always --no-startup-id sh -c 'pgrep kdeconnectd | grep -v -E "pgrep|$$" || exec /usr/lib/kdeconnectd'
+#exec_always --no-startup-id sh -c 'pgrep kdeconnect-indi | grep -v -E "pgrep|$$" || exec kdeconnect-indicator'
+exec_always --no-startup-id sh -c 'pgrep -f cipmenud | grep -v -E "pgrep|$$" || CM_MAX_CLIPS=0 CM_DIR=$HOME/.cache/clipmenud exec clipmenud'
+exec_always --no-startup-id sh -c 'pgrep dunst | grep -v -E "pgrep|$$" || exec dunst'
+exec_always --no-startup-id sh -c 'pgrep jetbrains-toolb | grep -v -E "pgrep|$$" || exec jetbrains-toolbox --window-mode --minimize'
+exec_always --no-startup-id sh -c 'pgrep polkit-gnome-au | grep -v -E "pgrep|$$" || exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
 exec_always --no-startup-id sh -c 'pgrep earlyoom || exec sudo earlyoom --avoid "i3.*|custom.sh|slack|teams-for-linux" -m 1'
-#exec_always --no-startup-id sh -c 'pgrep slack || exec slack'
-#exec_always --no-startup-id sh -c 'pgrep teams-for-linux || exec teams-for-linux'
-exec_always --no-startup-id sh -c 'pgrep ferdi || exec ferdi'
+exec_always --no-startup-id sh -c 'pgrep slack || exec slack'
+exec_always --no-startup-id sh -c 'pgrep teams-for-linux || exec teams-for-linux'
 exec_always --no-startup-id sh -c 'pgrep mailspring || exec mailspring'
 exec_always --no-startup-id sh -c 'pgrep chrome || exec google-chrome-stable'
 exec_always --no-startup-id dmenu-frecency --read-apps
@@ -229,8 +227,8 @@ bindsym $mod+l exec /usr/local/bin/custom/lock
 bindsym $mod+i exec --no-startup-id networkmanager_dmenu
 
 # Clipboard-Manager
-bindsym $mod+Shift+v exec --no-startup-id sh -c 'clipmenu -i && xdotool type "$(xclip -selection clipboard -o)"'
-bindsym $mod+Ctrl+v exec --no-startup-id sh -c 'clipmenu -i'
+bindsym $mod+Shift+v exec --no-startup-id sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i && xdotool type "$(xclip -selection clipboard -o)"'
+bindsym $mod+Ctrl+v exec --no-startup-id sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i'
 
 # Screenshots
 # Selection > Clipboard
@@ -274,10 +272,10 @@ bindsym $mod+$alt+5 workspace 15
 bindsym $mod+$alt+6 workspace 16
 bindsym $mod+$alt+7 workspace 17
 bindsym $mod+$alt+8 workspace 18
-bindsym $mod+$alt+9 workspace 19 Teams
-assign[class="Teams for Linux"] 19 Teams
-bindsym $mod+$alt+0 workspace 20 Slack
-assign[class="Slack"] 20 Slack
+bindsym $mod+$alt+9 workspace Teams
+assign[class="Teams for Linux"] Teams
+bindsym $mod+$alt+0 workspace Slack
+assign[class="Slack"] Slack
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace 1
@@ -298,8 +296,8 @@ bindsym $mod+Shift+$alt+5 move container to workspace 15
 bindsym $mod+Shift+$alt+6 move container to workspace 16
 bindsym $mod+Shift+$alt+7 move container to workspace 17
 bindsym $mod+Shift+$alt+8 move container to workspace 18
-bindsym $mod+Shift+$alt+9 move container to workspace 19 Teams
-bindsym $mod+Shift+$alt+0 move container to workspace 20 Slack
+bindsym $mod+Shift+$alt+9 move container to workspace Teams
+bindsym $mod+Shift+$alt+0 move container to workspace Slack
 
 # move workspace to output
 bindsym Ctrl+$mod+Right move workspace to output right
@@ -309,5 +307,5 @@ set $external HDMI-1
 set $internal eDP-1
 
 workspace 1 output $external
-workspace "19 Teams" output $internal
-workspace "20 Slack" output $internal
+workspace Teams output $internal
+workspace Slack output $internal

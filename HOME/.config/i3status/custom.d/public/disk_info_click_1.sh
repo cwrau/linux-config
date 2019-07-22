@@ -1,3 +1,3 @@
 #!/bin/bash
 
-i3-msg exec "gnome-terminal -- ranger $HOME" &>/dev/null
+i3-msg exec "pcmanfm $HOME" &>/dev/null

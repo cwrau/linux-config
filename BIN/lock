@@ -7,51 +7,10 @@ set -x
 
 pgrep i3lock && exit 0
 
-tmp=/tmp/screenlock
-
-mkdir -p ${tmp}
-
-scrot ${tmp}/screen.png
-convert ${tmp}/screen.png -scale 10% -scale 1000% ${tmp}/screen.png
-#convert $tmp/screen.png -fuzz 99999999999 -fill black -opaque white $tmp/screen.png
- 
-if [[ -f $HOME/.config/screen-lock.png ]]
-then
-  # placement x/y
-  PX=0
-  PY=0
-
-  SR=$(xrandr --query | grep ' connected' | sed 's/primary //' | cut -f3 -d' ')
-
-  for RES in ${SR}
-  do
-    # monitor position/offset
-    SRX=$(echo ${RES} | cut -d'x' -f 1)                   # x pos
-    SRY=$(echo ${RES} | cut -d'x' -f 2 | cut -d'+' -f 1)  # y pos
-    SROX=$(echo ${RES} | cut -d'x' -f 2 | cut -d'+' -f 2) # x offset
-    SROY=$(echo ${RES} | cut -d'x' -f 2 | cut -d'+' -f 3) # y offset
-
-    LOCK="${tmp}/screen-lock.png"
-
-    # lockscreen image info
-    if (! timeout 0.5 ping -c 1 google.com &>/dev/null) || (! timeout -k 2 1 curl -s 'http://dogr.io/wow/very%20wallpaper/so%20lockscreen/such%20laptop/much%20secure.png?split=false' -o ${LOCK})
-    then
-        cp $HOME/.config/screen-lock.png ${LOCK}
-    fi
-
-    convert -scale $(( $SRY * 90 / 100 ))x ${LOCK} ${LOCK}
-
-    R=$(file ${LOCK} | grep -o '[0-9]* x [0-9]*')
-    RX=$(echo ${R} | cut -d' ' -f 1)
-    RY=$(echo ${R} | cut -d' ' -f 3)
-
-    PX=$(($SROX + $SRX/2 - $RX/2))
-    PY=$(($SROY + $SRY/2 - $RY/2))
-
-    convert ${tmp}/screen.png ${LOCK} -geometry +${PX}+${PY} -composite -matte  ${tmp}/screen.png
-  done
-fi
-
-# i3lock  -I 10 -d -e -u -n -i $tmp/screen.png
-exec i3lock -e -u -i ${tmp}/screen.png
-# i3lock -e -i $tmp/screen.png
+i3lock --blur 10 \
+    --ignore-empty-password \
+    --force-clock \
+    --insidecolor 00000000 --insidevercolor 00000000 --insidewrongcolor 00000000 \
+    --datestr %F \
+    --veriftext= --wrongtext= --noinputtext= \
+    --redraw-thread
