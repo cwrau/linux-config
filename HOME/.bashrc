@@ -2,6 +2,7 @@ pgrep i3lock &>/dev/null && unlock
 
 case "$-" in
   *i*)
+    stty -ixon
     GIT_PROMPT_THEME=Default_NoExitState
     if command -v kubectl &> /dev/null
     then
