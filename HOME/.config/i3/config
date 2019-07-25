@@ -213,6 +213,7 @@ bindsym XF86AudioPrev exec playerctl previous
 
 # Change Audio Settings
 bindsym $mod+Shift+o exec --no-startup-id /usr/local/bin/custom/audio-program-sink
+bindsym $mod+Ctrl+o exec --no-startup-id /usr/local/bin/custom/audio-profile
 bindsym $mod+o exec --no-startup-id /usr/local/bin/custom/audio-sink
 
 # Display Manager

@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+
+import pulsectl
+import dmenu
+import notify2
+import functools
+import os
+
+dmenuShow = functools.partial(dmenu.show, case_insensitive=True)
+
+pulse = pulsectl.Pulse("audio-profile-switcher")
+notify2.init("audio-profile-switcher")
+cards = pulse.card_list()
+sinks = pulse.sink_list()
+inputs = pulse.sink_input_list()
+
+
+def notify(title, message, timeout=2000):
+    notification = notify2.Notification(title, message)
+    notification.timeout = timeout
+    notification.show()
+
+
+def get_choice(items, item_name, name_getter, selector=None):
+    if selector is None:
+        selector = name_getter
+    if len(items) == 0:
+        notify("Audio Script", f"No {item_name} available")
+        return None
+    elif len(items) == 1:
+        item = items[0]
+        notify("Audio Script", f"Chose '{name_getter(item)}', as it was the only {item_name}")
+    else:
+        selection = dmenuShow([selector(it) for it in items])
+
+        if selection is None:
+            return None
+
+        item = next(it for it in items if selector(it) == selection)
+
+    return item
+
+
+def get_sink():
+    return get_choice(sinks, "sink", lambda s: s.description)
+
+
+def audio_profile():
+    card = get_choice(cards, "card", lambda c: c.proplist["device.description"])
+
+    if card is None:
+        return
+
+    profiles = card.profile_list
+
+    profile = get_choice(profiles, "profile", lambda p: p.description)
+
+    if profile is None:
+        return
+
+    pulse.card_profile_set(card, profile)
+
+
+def audio_sink():
+    sink = get_sink()
+
+    if sink is None:
+        return
+
+    pulse.sink_default_set(sink)
+
+    for inp in pulse.sink_input_list():
+        pulse.sink_input_move(inp.index, sink.index)
+
+
+def audio_program_sink():
+    prog_input = get_choice(inputs, "input", lambda i: i.proplist["application.name"])
+
+    if prog_input is None:
+        return
+
+    sink = get_sink()
+
+    if sink is None:
+        return
+
+    pulse.sink_input_move(prog_input.index, sink.index)
+
+
+options = {
+    "audio-profile": audio_profile,
+    "audio-sink": audio_sink,
+    "audio-program-sink": audio_program_sink,
+}
+
+options[os.path.basename(__file__)]()
