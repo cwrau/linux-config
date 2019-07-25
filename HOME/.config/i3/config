@@ -219,7 +219,7 @@ bindsym $mod+o exec --no-startup-id /usr/local/bin/custom/audio-sink
 # Display Manager
 #bindsym $mod+p exec /usr/local/bin/custom/rofi-randr
 bindsym $mod+p exec /usr/bin/lxrandr
-bindsym $mod+b exec /usr/bin/btmenu
+bindsym $mod+b exec sh -c "sudo rfkill unblock bluetooth && /usr/bin/btmenu"
 
 # Lock
 bindsym $mod+l exec /usr/local/bin/custom/lock
@@ -245,6 +245,7 @@ bindsym $mod+c exec "google-chrome-stable"
 bindsym $mod+Shift+c exec "google-chrome-stable --incognito"
 
 for_window [class="jetbrains-idea" title="Debug"] floating disable
+for_window [class="java-lang-Thread" instance="java-lang-Thread"] floating enable
 
 for_window [class="Kazam"] floating enable
 
