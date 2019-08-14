@@ -8,4 +8,5 @@ xinput --map-to-output $(xinput | rg Touchscreen | sed -r 's#^.+id=([0-9]+).+$#\
 
 xrandr --setprovideroutputsource modesetting NVIDIA-0
 xrandr --output eDP-1-1 --dpi 92 --primary --scale 1x1 --mode 1920x1080
+autorandr --skip-option gamma --change
 i3

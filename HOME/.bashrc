@@ -1,4 +1,4 @@
-pgrep i3lock &>/dev/null && unlock
+pgrep i3lock &>/dev/null && unlock &>/dev/null
 
 case "$-" in
   *i*)
@@ -130,17 +130,16 @@ case "$TERM" in
   xterm-color) color_prompt=yes;;
 esac
 
-[ -f /etc/motd ] && cat /etc/motd
-
 if [ -f /etc/bashrc ]; then
   . /etc/bashrc
 fi
 
+alias :q=exit
 alias env='env | sort'
 alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
-alias ls='ls -phAbl --color=auto --time-style=long-iso'
+alias ls='ls -phAvbl --color=always --time-style=long-iso'
 alias vim='vim -b'
 if [[ "$(id -u)" != 0 ]] && command -v sudo &> /dev/null
 then

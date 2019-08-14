@@ -28,4 +28,4 @@ then
 fi
 
 percentage=$(( $new / ( $max / 100 ) ))
-dunstify -r 62726967 -t 1000 -u INFO $percentage% "Brightness set to $percentage%"
+notify-send.sh -r 62726967 -t 1000 -u INFO $percentage% "Brightness set to $percentage%"

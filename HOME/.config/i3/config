@@ -38,14 +38,17 @@ bindsym $mod+Return exec gnome-terminal
 # kill focused window
 bindsym $mod+Shift+q kill
 
+set $exid exec --no-startup-id
+set $exaid exec_always --no-startup-id
+
 # start dmenu (a program launcher)
 #bindsym $mod+d exec dmenu_run
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
-#bindsym $mod+d exec --no-startup-id j4-dmenu-desktop --usage-log=$HOME/.config/i3/j4-dmenu-desktop-usage --no-generic
-#bindsym $mod+d exec --no-startup-id dmenu-frecency
-bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
+#bindsym $mod+d $exid j4-dmenu-desktop --usage-log=$HOME/.config/i3/j4-dmenu-desktop-usage --no-generic
+#bindsym $mod+d $exid dmenu-frecency
+bindsym $mod+d exec i3-dmenu-desktop
 
 # change focus
 #bindsym $mod+j focus left
@@ -100,16 +103,14 @@ bindsym $mod+Shift+r restart
 
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
-bar {
-        status_command exec $HOME/.config/i3status/custom.sh
-        tray_output primary
-        position top
-        #bindsym button1 nop
-        #bindsym button2 nop
-        #bindsym button3 nop
-        #bindsym button4 nop
-        #bindsym button5 nop
-}
+# bar {
+#         status_command exec $HOME/.config/i3status/custom.sh
+#         tray_output none
+#         position bottom
+# }
+$exaid $HOME/.config/polybar/launch.sh
+$exaid $HOME/.config/glava/launch.sh
+$exaid sh -c "pgrep compton || exec compton --config=$HOME/.config/compton/config.conf"
 
 #bindsym button3 nop
 #bindsym button4 nop
@@ -142,30 +143,29 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
-# exec_always --no-startup-id /home/cwr/.config/polybar/launch.sh
+# $exaid /home/cwr/.config/polybar/launch.sh
 
-exec_always --no-startup-id feh --bg-fill $HOME/.config/background.jpg
-exec_always --no-startup-id sh -c 'pgrep -f blugon | grep -v -E "pgrep|$$" || exec blugon -f'
-exec_always --no-startup-id sh -c 'pgrep nm-applet | grep -v -E "pgrep|$$" || exec nm-applet'
-exec_always --no-startup-id sh -c 'pgrep bueman-applet | grep -v -E "pgrep|$$" || exec blueman-applet'
-#exec_always --no-startup-id sh -c 'pgrep kdeconnectd | grep -v -E "pgrep|$$" || exec /usr/lib/kdeconnectd'
-#exec_always --no-startup-id sh -c 'pgrep kdeconnect-indi | grep -v -E "pgrep|$$" || exec kdeconnect-indicator'
-exec_always --no-startup-id sh -c 'pgrep -f cipmenud | grep -v -E "pgrep|$$" || CM_MAX_CLIPS=0 CM_DIR=$HOME/.cache/clipmenud exec clipmenud'
-exec_always --no-startup-id sh -c 'pgrep dunst | grep -v -E "pgrep|$$" || exec dunst'
-exec_always --no-startup-id sh -c 'pgrep jetbrains-toolb | grep -v -E "pgrep|$$" || exec jetbrains-toolbox --window-mode --minimize'
-exec_always --no-startup-id sh -c 'pgrep polkit-gnome-au | grep -v -E "pgrep|$$" || exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
-exec_always --no-startup-id sh -c 'pgrep earlyoom || exec sudo earlyoom --avoid "i3.*|custom.sh|slack|teams-for-linux" -m 1'
-exec_always --no-startup-id sh -c 'pgrep slack || exec slack'
-exec_always --no-startup-id sh -c 'pgrep teams-for-linux || exec teams-for-linux'
-exec_always --no-startup-id sh -c 'pgrep mailspring || exec mailspring'
-exec_always --no-startup-id sh -c 'pgrep chrome || exec google-chrome-stable'
-exec_always --no-startup-id dmenu-frecency --read-apps
+$exaid feh --bg-fill $HOME/.config/background.jpg
+$exaid sh -c 'pgrep nm-applet || exec nm-applet'
+#$exaid sh -c 'pgrep kdeconnectd | grep -v -E "pgrep|$$" || exec /usr/lib/kdeconnectd'
+#$exaid sh -c 'pgrep kdeconnect-indi | grep -v -E "pgrep|$$" || exec kdeconnect-indicator'
+$exaid sh -c 'pgrep -f clipmenud | grep -v -E "pgrep|$$" || CM_MAX_CLIPS=0 CM_DIR=$HOME/.cache/clipmenud exec clipmenud'
+$exaid sh -c 'pgrep jetbrains-toolb || exec jetbrains-toolbox --window-mode --minimize'
+$exaid sh -c 'pgrep polkit-gnome-au || exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
+$exaid sh -c 'pgrep earlyoom || exec sudo earlyoom --avoid "i3.*|custom.sh|slack|teams-for-linux|glava|polybar|.*gpmdp.*" -m 1'
+$exaid sh -c 'pgrep slack || exec slack'
+$exaid sh -c 'pgrep "Google Play Mus" || exec gpmdp'
+#$exaid sh -c 'pgrep teams-for-linux || exec teams-for-linux'
+$exaid sh -c 'pgrep qtws || exec /usr/bin/qtws /usr/share/qtws-apps/netflix/netflix.qtws --disable-seccomp-filter-sandbox --register-pepper-plugins="/usr/lib/qt/plugins/ppapi/libwidevinecdmadapter.so; application/x-ppapi-widevine-cdm"'
+$exaid sh -c 'pgrep mailspring || exec mailspring'
+$exaid sh -c 'pgrep chrome || exec google-chrome-stable'
+$exaid sh -c 'pgrep deadd-notificat || exec deadd-notification-center'
 
 default_border none
 for_window [class="jetbrains-toolbox"] floating enable
 for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
 
-exec_always --no-startup-id $HOME/.config/i3/rc.sh
+$exaid $HOME/.config/i3/rc.sh
 
 set $displayMode "Set display mode [w]ork [l]aptop"
 bindsym $mod+x mode $displayMode
@@ -180,56 +180,59 @@ mode $displayMode {
 bindsym Pause exec /usr/local/bin/custom/suspend
 bindsym Scroll_Lock exec /usr/local/bin/custom/lock
 
-set $Power "[S]leep, [p]oweroff, [l]ogoff or [r]eboot?"
+set $Power " [S]leep, [p]oweroff, [l]ogoff or [r]eboot?"
 bindsym $mod+q mode $Power
 
 mode $Power {
     bindsym s exec /usr/local/bin/custom/suspend; mode "default"
-    bindsym p exec poweroff
-    bindsym r exec reboot
+    bindsym p exec systemctl poweroff
+    bindsym r exec systemctl reboot
     bindsym l exec i3-msg exit
     bindsym Escape mode "default"
 }
 
 # Emoji Keyboard
 
-bindsym $mod+period exec --no-startup-id splatmoji type
+bindsym $mod+period $exid splatmoji type
 
 # Pulse Audio controls
-bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5%; exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ false #increase sound volume
-bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5% #decrease sound volume
-bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle # mute sound
+bindsym XF86AudioRaiseVolume $exid pamixer -i 5; $exid pamixer -u #increase sound volume
+bindsym XF86AudioLowerVolume $exid pamixer -d 5 #decrease sound volume
+bindsym XF86AudioMute $exid pamixer -t # mute sound
 
 # Sreen brightness controls
-bindsym XF86MonBrightnessUp exec /usr/local/bin/custom/brightness up
-bindsym XF86MonBrightnessDown exec /usr/local/bin/custom/brightness down
+bindsym XF86MonBrightnessUp $exid sudo sh -c "echo 1500 > /sys/class/backlight/intel_backlight/brightness"
+bindsym XF86MonBrightnessDown $exid sudo sh -c "echo 1 > /sys/class/backlight/intel_backlight/brightness"
+# bindsym XF86MonBrightnessUp $exid /usr/local/bin/custom/brightness up
+# bindsym XF86MonBrightnessDown $exid /usr/local/bin/custom/brightness down
 
 # Media player controls
-bindsym XF86AudioPlay exec playerctl play-pause
-bindsym XF86AudioPause exec playerctl pause
-bindcode 164 exec playerctl play-pause
-bindsym XF86AudioNext exec playerctl next
-bindsym XF86AudioPrev exec playerctl previous
+bindsym XF86AudioPlay $exid playerctl -i chrome play-pause
+bindsym XF86AudioPause $exid playerctl -i chrome pause
+bindcode 164 $exid playerctl -i chrome play-pause
+bindsym XF86AudioNext $exid playerctl -i chrome next
+bindsym XF86AudioPrev $exid playerctl -i chrome previous
 
 # Change Audio Settings
-bindsym $mod+Shift+o exec --no-startup-id /usr/local/bin/custom/audio-program-sink
-bindsym $mod+Ctrl+o exec --no-startup-id /usr/local/bin/custom/audio-profile
-bindsym $mod+o exec --no-startup-id /usr/local/bin/custom/audio-sink
+bindsym $mod+Shift+o $exid /usr/local/bin/custom/audio-program-sink
+bindsym $mod+Ctrl+o $exid /usr/local/bin/custom/audio-profile
+bindsym $mod+o $exid /usr/local/bin/custom/audio-sink
 
 # Display Manager
-#bindsym $mod+p exec /usr/local/bin/custom/rofi-randr
-bindsym $mod+p exec /usr/bin/lxrandr
-bindsym $mod+b exec sh -c "sudo rfkill unblock bluetooth && /usr/bin/btmenu"
+bindsym $mod+p $exid autorandr --skip-option gamma --change
+bindsym $mod+Shift+p $exid /usr/local/bin/custom/rofi-randr
+#bindsym $mod+p $exid /usr/bin/lxrandr
+bindsym $mod+b $exid sh -c "sudo rfkill unblock bluetooth && /usr/local/bin/custom/bluetooth_dmenu"
 
 # Lock
 bindsym $mod+l exec /usr/local/bin/custom/lock
 
 # WiFi-Manager
-bindsym $mod+i exec --no-startup-id networkmanager_dmenu
+bindsym $mod+i $exid networkmanager_dmenu
 
 # Clipboard-Manager
-bindsym $mod+Shift+v exec --no-startup-id sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i && xdotool type "$(xclip -selection clipboard -o)"'
-bindsym $mod+Ctrl+v exec --no-startup-id sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i'
+bindsym $mod+Shift+v $exid sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i && xdotool type --delay 0 "$(xclip -selection clipboard -o)"'
+bindsym $mod+Ctrl+v $exid sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i'
 
 # Screenshots
 # Selection > Clipboard
@@ -256,7 +259,7 @@ set $alt Mod1
 
 # switch to workspace
 bindsym $mod+1 workspace 1
-assign[class="Mailspring"] 1
+assign [class="Mailspring"] 1
 bindsym $mod+2 workspace 2
 bindsym $mod+3 workspace 3
 bindsym $mod+4 workspace 4
@@ -271,13 +274,28 @@ bindsym $mod+$alt+2 workspace 12
 bindsym $mod+$alt+3 workspace 13
 bindsym $mod+$alt+4 workspace 14
 bindsym $mod+$alt+5 workspace 15
-bindsym $mod+$alt+6 workspace 16
-bindsym $mod+$alt+7 workspace 17
-bindsym $mod+$alt+8 workspace 18
-bindsym $mod+$alt+9 workspace Teams
-assign[class="Teams for Linux"] Teams
-bindsym $mod+$alt+0 workspace Slack
-assign[class="Slack"] Slack
+
+bindsym $mod+$alt+6 workspace 16:YouTube
+assign [class="Google-chrome" title=".*YouTube"] 16:YouTube
+for_window [class="Google-chrome" title=".*YouTube"] move to workspace 16:YouTube
+
+bindsym $mod+$alt+7 workspace 17:Netflix
+assign [class="Google-chrome" title="Netflix"] 17:Netflix
+for_window [class="Google-chrome" title="Netflix"] move to workspace 17:Netflix
+
+bindsym $mod+$alt+8 workspace 18:GPMDP
+assign [class="Google Play Music Desktop Player"] 18:GPMDP
+for_window [class="Google Play Music Desktop Player"] move to workspace 18:GPMDP
+
+bindsym $mod+$alt+9 workspace 19:Teams
+assign [class="teams-for-linux"] 19:Teams
+for_window [class="teams-for-linux"] move to workspace 19:Teams
+assign [class="Google-chrome" title=".*Microsoft Teams"] 19:Teams
+for_window [class="Google-chrome" title=".*Microsoft Teams"] move to workspace 19:Teams
+
+bindsym $mod+$alt+0 workspace 20:Slack
+assign [class="Slack"] 20:Slack
+for_window [class="Slack"] move to workspace 20:Slack
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace 1
@@ -295,19 +313,26 @@ bindsym $mod+Shift+$alt+2 move container to workspace 12
 bindsym $mod+Shift+$alt+3 move container to workspace 13
 bindsym $mod+Shift+$alt+4 move container to workspace 14
 bindsym $mod+Shift+$alt+5 move container to workspace 15
-bindsym $mod+Shift+$alt+6 move container to workspace 16
-bindsym $mod+Shift+$alt+7 move container to workspace 17
-bindsym $mod+Shift+$alt+8 move container to workspace 18
-bindsym $mod+Shift+$alt+9 move container to workspace Teams
-bindsym $mod+Shift+$alt+0 move container to workspace Slack
+bindsym $mod+Shift+$alt+6 move container to workspace 16:YouTube
+bindsym $mod+Shift+$alt+7 move container to workspace 17:Netflix
+bindsym $mod+Shift+$alt+8 move container to workspace 18:GPMDP
+bindsym $mod+Shift+$alt+9 move container to workspace 19:Teams
+bindsym $mod+Shift+$alt+0 move container to workspace 20:Slack
 
 # move workspace to output
 bindsym Ctrl+$mod+Right move workspace to output right
 bindsym Ctrl+$mod+Left move workspace to output left
 
-set $external HDMI-1
-set $internal eDP-1
+set $external HDMI-1-1
+set $internal eDP-1-1
 
 workspace 1 output $external
-workspace Teams output $internal
-workspace Slack output $internal
+workspace 16:YouTube output $internal
+workspace 17:Netflix output $internal
+workspace 18:GPMDP output $internal
+workspace 19:Teams output $internal
+workspace 20:Slack output $internal
+
+gaps outer 5
+gaps inner 10
+smart_borders on

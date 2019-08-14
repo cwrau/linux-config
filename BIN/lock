@@ -7,8 +7,10 @@ set -x
 
 pgrep i3lock && exit 0
 
+sudo chmod u+s $(which i3lock)
 i3lock --blur 10 \
     --ignore-empty-password \
+    --pass-media-keys \
     --force-clock \
     --insidecolor 00000000 --insidevercolor 00000000 --insidewrongcolor 00000000 \
     --datestr %F \

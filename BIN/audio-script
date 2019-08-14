@@ -1,18 +1,29 @@
 #!/usr/bin/env python3
 
 import pulsectl
-import dmenu
 import notify2
-import functools
 import os
-
-dmenuShow = functools.partial(dmenu.show, case_insensitive=True)
+import dynmen
 
 pulse = pulsectl.Pulse("audio-profile-switcher")
 notify2.init("audio-profile-switcher")
+info = pulse.server_info()
 cards = pulse.card_list()
 sinks = pulse.sink_list()
+default_sink = info.default_sink_name
 inputs = pulse.sink_input_list()
+
+
+def dmenu(items, active_indices=None):
+    args = ["dmenu", "-format", "i", "-i"]
+    if active_indices:
+        args += ["-a", ",".join([str(i) for i in active_indices])]
+    menu = dynmen.Menu(args)
+
+    try:
+        return int(menu(items).selected)
+    except dynmen.MenuError:
+        return -1
 
 
 def notify(title, message, timeout=2000):
@@ -21,9 +32,7 @@ def notify(title, message, timeout=2000):
     notification.show()
 
 
-def get_choice(items, item_name, name_getter, selector=None):
-    if selector is None:
-        selector = name_getter
+def get_choice(items, item_name, name_getter, active_selector=None):
     if len(items) == 0:
         notify("Audio Script", f"No {item_name} available")
         return None
@@ -31,18 +40,18 @@ def get_choice(items, item_name, name_getter, selector=None):
         item = items[0]
         notify("Audio Script", f"Chose '{name_getter(item)}', as it was the only {item_name}")
     else:
-        selection = dmenuShow([selector(it) for it in items])
+        names = [name_getter(it) for it in items]
+        if active_selector is None:
+            selection = dmenu(names)
+        else:
+            selection = dmenu(names, [index for index, sink in enumerate(items) if active_selector(sink)])
 
-        if selection is None:
+        if selection is None or selection < 0:
             return None
 
-        item = next(it for it in items if selector(it) == selection)
+        item = items[selection]
 
     return item
-
-
-def get_sink():
-    return get_choice(sinks, "sink", lambda s: s.description)
 
 
 def audio_profile():
@@ -53,7 +62,7 @@ def audio_profile():
 
     profiles = card.profile_list
 
-    profile = get_choice(profiles, "profile", lambda p: p.description)
+    profile = get_choice(profiles, "profile", lambda p: p.description, lambda p: p.name == card.profile_active.name)
 
     if profile is None:
         return
@@ -62,24 +71,25 @@ def audio_profile():
 
 
 def audio_sink():
-    sink = get_sink()
+    sink = get_choice(sinks, "sink", lambda s: s.description, lambda s: s.name == default_sink)
 
     if sink is None:
         return
 
     pulse.sink_default_set(sink)
 
-    for inp in pulse.sink_input_list():
+    for inp in inputs:
         pulse.sink_input_move(inp.index, sink.index)
 
 
 def audio_program_sink():
-    prog_input = get_choice(inputs, "input", lambda i: i.proplist["application.name"])
+    prog_input = get_choice(inputs, "input",
+                            lambda i: f'{i.proplist["application.name"]} ({i.proplist["application.process.id"]})')
 
     if prog_input is None:
         return
 
-    sink = get_sink()
+    sink = get_choice(sinks, "sink", lambda s: s.description, lambda s: s.index == prog_input.sink)
 
     if sink is None:
         return

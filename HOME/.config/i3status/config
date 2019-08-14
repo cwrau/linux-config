@@ -14,12 +14,6 @@ order += "ethernet enp62s0u1u1"
 order += "ethernet enp62s0u1u2"
 order += "wireless _first_"
 #order += "load"
-order += "cpu_usage"
-order += "cpu_temperature 0"
-order += "disk /"
-order += "battery all"
-order += "volume master"
-order += "time"
 
 battery all {
   hide_seconds = true

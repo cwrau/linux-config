@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+
+import subprocess
+import notify2
+import dynmen
+
+notify2.init("audio-profile-switcher")
+
+
+def dmenu(items, active_indices=None):
+    args = ["dmenu", "-format", "i", "-i"]
+    if active_indices:
+        args += ["-a", ",".join([str(i) for i in active_indices])]
+    menu = dynmen.Menu(args)
+
+    try:
+        return int(menu(items).selected)
+    except dynmen.MenuError:
+        return -1
+
+
+def notify(title, message, timeout=2000):
+    notification = notify2.Notification(title, message)
+    notification.timeout = timeout
+    notification.show()
+
+
+def get_choice(items, item_name, name_getter, active_selector=None):
+    if len(items) == 0:
+        notify("Bluethooth Script", f"No {item_name} available")
+        return None
+    else:
+        names = [name_getter(it) for it in items]
+        if active_selector is None:
+            selection = dmenu(names)
+        else:
+            selection = dmenu(names, [index for index, sink in enumerate(items) if active_selector(sink)])
+
+        if selection is None or selection < 0:
+            return None
+
+        item = items[selection]
+
+    return item
+
+
+class BluetoothDevice:
+    def __init__(self, name, mac, connected):
+        self.name = name
+        self.mac = mac
+        self.connected = connected
+
+
+def bluetooth_command(command, args=None):
+    if args is not None:
+        cmdline = f"{command} {args}"
+    else:
+        cmdline = command
+    bluetoothCtl = subprocess.Popen(("bluetoothctl"), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    bluetoothCtl.stdin.write(cmdline.encode())
+    bluetoothCtl.stdin.close()
+    return [line.decode() for line in bluetoothCtl.stdout.readlines()]
+
+
+outPut = [line[7:-1].split(" ") for line in bluetooth_command("devices") if line.startswith("Device")]
+
+devices = []
+
+for mac, name in outPut:
+    connected = "yes" in [connected for connected in bluetooth_command("info", mac) if "Connected" in connected][0]
+    devices.append(BluetoothDevice(name, mac, connected))
+
+print(devices)
+
+device = get_choice(devices, "Device", lambda d: f'{d.name} ({"Connected" if d.connected else "Disconnected"})', lambda d: d.connected)
+
+if device is None:
+    exit(0)
+
+if device.connected:
+    bluetooth_command("disconnect", device.mac)
+else:
+    bluetooth_command("connect", device.mac)
