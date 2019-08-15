@@ -16,8 +16,8 @@ function update() {
    # if mkdir $DIR/LOCK &> /dev/null
    # then
       notify-send.sh -t 10000 -r 21181154 -u critical " $num" \
-          -o Auto:"i3-msg exec \"i3-sensible-terminal -- sh -c 'yay -Rns --noconfirm \$(yay -Qtdq)'\"" \
-          -o Manual:"i3-msg exec \"i3-sensible-terminal -- sh -c 'yay -Rns \$(yay -Qtdq)'\""
+          -o Auto:"i3-msg exec \"i3-sensible-terminal -- sh -c 'yay -Rns --noconfirm \\\\\$(yay -Qtdq)'\"" \
+          -o Manual:"i3-msg exec \"i3-sensible-terminal -- sh -c 'yay -Rns \\\\\$(yay -Qtdq)'\""
      # choice=$(timeout 10 dunstify -t 10000 -r 21181154 -u critical -A auto,Auto -A manual,Manual " $num" || true)
      # case $choice in
      #   auto) i3-msg exec "i3-sensible-terminal -- sh -c 'yay -Rns --noconfirm \$(yay -Qtdq)'" &> /dev/null ;;
