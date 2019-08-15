@@ -33,7 +33,7 @@ floating_modifier $mod
 #mouse_warping none
 
 # start a terminal
-bindsym $mod+Return exec gnome-terminal
+bindsym $mod+Return $exid gnome-terminal
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -48,7 +48,7 @@ set $exaid exec_always --no-startup-id
 # installed.
 #bindsym $mod+d $exid j4-dmenu-desktop --usage-log=$HOME/.config/i3/j4-dmenu-desktop-usage --no-generic
 #bindsym $mod+d $exid dmenu-frecency
-bindsym $mod+d exec i3-dmenu-desktop
+bindsym $mod+d $exid i3-dmenu-desktop
 
 # change focus
 #bindsym $mod+j focus left
@@ -158,8 +158,9 @@ $exaid sh -c 'pgrep "Google Play Mus" || exec gpmdp'
 #$exaid sh -c 'pgrep teams-for-linux || exec teams-for-linux'
 $exaid sh -c 'pgrep qtws || exec /usr/bin/qtws /usr/share/qtws-apps/netflix/netflix.qtws --disable-seccomp-filter-sandbox --register-pepper-plugins="/usr/lib/qt/plugins/ppapi/libwidevinecdmadapter.so; application/x-ppapi-widevine-cdm"'
 $exaid sh -c 'pgrep mailspring || exec mailspring'
-$exaid sh -c 'pgrep chrome || exec google-chrome-stable'
+$exaid sh -c 'pgrep chrome || exec google-chrome-stable --force-dark-mode'
 $exaid sh -c 'pgrep deadd-notificat || exec deadd-notification-center'
+$exaid sh -c 'pgrep mitmweb || exec sudo mitmweb -m transparent --showhost -p 3030 > /tmp/mitmweb.log'
 
 default_border none
 for_window [class="jetbrains-toolbox"] floating enable
@@ -244,8 +245,8 @@ bindsym Ctrl+Print --release exec "scrot -s $HOME/Screenshots/$(date +%FT%T.%2N)
 # Full Screen > File
 bindsym Ctrl+Shift+Print exec "scrot $HOME/Screenshots/$(date +%FT%T.%2N).png"
 
-bindsym $mod+c exec "google-chrome-stable"
-bindsym $mod+Shift+c exec "google-chrome-stable --incognito"
+bindsym $mod+c exec "google-chrome-stable --force-dark-mode"
+bindsym $mod+Shift+c exec "google-chrome-stable --incognito --force-dark-mode"
 
 for_window [class="jetbrains-idea" title="Debug"] floating disable
 for_window [class="java-lang-Thread" instance="java-lang-Thread"] floating enable

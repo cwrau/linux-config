@@ -89,7 +89,7 @@ else
   \
     xorg-server bc gotop-bin git ripgrep fd bat kubectl-bin kubernetes-helm-bin kubespy docker docker-compose subversion git curl diff-so-fancy tldr++ prettyping ncdu youtube-dl blugon playerctl scrot i3-gaps i3lock-color perl-anyevent-i3 network-manager-applet rke-bin jq bash-git-prompt httpie cli-visualizer dunst glances net-tools zsh dmenu-frecency imagemagick xorg-xrandr yay-bin jdk11-openjdk openjdk11-src jdk8-openjdk openjdk9-src networkmanager-dmenu cht.sh splatmoji-git \
     bind-tools whois nload gtop nodejs-terminalizer dive maven maven-bash-completion-git uhk-agent-appimage hadolint-bin powertop go minikube-bin scaleway-cli android-tools pastebinit ausweisapp2 vim blueman pup-bin openssh gnome-keyring mupdf xarchiver gvfs gvfs-smb k9s-bin mousepad arandr rofi rofi-dmenu udiskie-dmenu-git cups storageexplorer slit-git krew-bin rsync lxrandr yq python-nvidia-ml-py3-git libretro libretro-dolphin-git dolphin-emu nvidia vulkan-icd-loader \
-      magic-wormhole python-pip python-traitlets python-notify2 glava autorandr inotify-tools xorg-xkill \
+      magic-wormhole python-pip python-traitlets python-notify2 glava autorandr inotify-tools xorg-xkill pkgstats \
   \
     visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark mailspring charles krita jetbrains-toolbox firefox gpmdp
 
@@ -108,14 +108,23 @@ else
   mkdir -p ${HOME}/projects
   git clone https://github.com/cwrau/linux-config ${HOME}/projects/linux-config
 
+  sudo mitmproxy &
+  sleep 5
+  kill %1
+
+  sudo cp /root/.mitmproxy/mitmproxy-ca-cert.cer /etc/ca-certificates/trust-source/anchors/mitmproxy-ca-cert.crt
+  sudo trust extract-compat
+
   homeConfiglink .bashrc
   homeConfiglink .xinitrc
   sudo rm -f /root/.bashrc
   sudo ln -sf ${HOME}/projects/linux-config/HOME/.bashrc /root/.bashrc
   sudo mkdir -p /etc/udev/rules.d
-  sudo cp ${HOME}/projects/linux-config/etc/udev/rules.d/20-yubikey.rules /etc/udev/rules.d/20-yubikey.rules
-  sudo cp ${HOME}/projects/linux-config/etc/subuid /etc/subuid
-  sudo cp ${HOME}/projects/linux-config/etc/subgid /etc/subgid
+  sudo cp ${HOME}/projects/linux-config/ETC/udev/rules.d/20-yubikey.rules /etc/udev/rules.d/20-yubikey.rules
+  sudo cp ${HOME}/projects/linux-config/ETC/subuid /etc/subuid
+  sudo cp ${HOME}/projects/linux-config/ETC/subgid /etc/subgid
+  sudo cp ${HOME}/projects/linux-config/ETC/iptables/iptables.rules /etc/iptables/iptables.rules
+  sudo cp ${HOME}/projects/linux-config/ETC/iptables/ip6tables.rules /etc/iptables/ip6tables.rules
   sudo ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules
   homeConfiglink .gitconfig
   homeConfiglink .config/i3status
@@ -175,7 +184,7 @@ else
     echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/$USER-*'"
   fi
 
-  sudo systemctl enable --now systemd-timesyncd NetworkManager bluetooth org.cups.cupsd
+  sudo systemctl enable --now systemd-timesyncd NetworkManager bluetooth org.cups.cupsd pkgstats.timer iptables ip6tables
   systemctl --user enable --now gpg-agent blugon dunst blueman-applet
   sudo systemctl disable NetworkManager-wait-online
 fi
