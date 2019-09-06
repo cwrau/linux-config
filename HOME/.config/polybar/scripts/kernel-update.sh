@@ -21,7 +21,7 @@ function update() {
     echo "%{F$color_red}Kernel Update%{F-}"
    # if mkdir $DIR/LOCK &> /dev/null
    # then
-      notify-send.sh -t 10000 -r 051151 -u critical "Kernel Update, reboot?" \
+   notify-send.sh -t 10000 -R $DIR/NOTIFICATION_ID -u critical "Kernel Update, reboot?" \
           -o Yes:"systemctl reboot" \
           -o No:echo
      # choice=$(timeout 10 dunstify -t 10000 -r 051151 -u critical -A yes,Yes -A no,No "Kernel Update, reboot?" || true)
@@ -36,7 +36,7 @@ function update() {
 }
 
 update
-inotifywait -m -r -e modify -e create $DIR 2> /dev/null | while read -r _
+inotifywait -m -r -e modify -e create $DIR 2> /dev/null | grep --line-buffered event | while read -r _
 do
   sudo rm -f $DIR/event
   update

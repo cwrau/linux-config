@@ -58,6 +58,15 @@ then
     exec startx
   fi
 
+  function proxy() {
+    sudo mitmweb -m transparent --showhost -p 3030 &
+    sleep 1
+    xdg-open http://localhost:8081
+    sudo systemctl start iptables ip6tables
+    wait
+    sudo systemctl stop iptables ip6tables
+  }
+
   function command_not_found_handle {
     echo "Command '$1' not found, but could be installed via the following packages:"
     yay -Fysq -- $1

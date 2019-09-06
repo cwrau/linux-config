@@ -89,7 +89,7 @@ else
   \
     xorg-server bc gotop-bin git ripgrep fd bat kubectl-bin kubernetes-helm-bin kubespy docker docker-compose subversion git curl diff-so-fancy tldr++ prettyping ncdu youtube-dl blugon playerctl scrot i3-gaps i3lock-color perl-anyevent-i3 network-manager-applet rke-bin jq bash-git-prompt httpie cli-visualizer dunst glances net-tools zsh dmenu-frecency imagemagick xorg-xrandr yay-bin jdk11-openjdk openjdk11-src jdk8-openjdk openjdk9-src networkmanager-dmenu cht.sh splatmoji-git \
     bind-tools whois nload gtop nodejs-terminalizer dive maven maven-bash-completion-git uhk-agent-appimage hadolint-bin powertop go minikube-bin scaleway-cli android-tools pastebinit ausweisapp2 vim blueman pup-bin openssh gnome-keyring mupdf xarchiver gvfs gvfs-smb k9s-bin mousepad arandr rofi rofi-dmenu udiskie-dmenu-git cups storageexplorer slit-git krew-bin rsync lxrandr yq python-nvidia-ml-py3-git libretro libretro-dolphin-git dolphin-emu nvidia vulkan-icd-loader \
-      magic-wormhole python-pip python-traitlets python-notify2 glava autorandr inotify-tools xorg-xkill pkgstats \
+      magic-wormhole python-pip python-traitlets python-notify2 glava autorandr inotify-tools xorg-xkill pkgstats libinput-gestures python-virtualenv xfce4-power-manager \
   \
     visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark mailspring charles krita jetbrains-toolbox firefox gpmdp
 
@@ -184,7 +184,7 @@ else
     echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/$USER-*'"
   fi
 
-  sudo systemctl enable --now systemd-timesyncd NetworkManager bluetooth org.cups.cupsd pkgstats.timer iptables ip6tables
+  sudo systemctl enable --now systemd-timesyncd NetworkManager bluetooth org.cups.cupsd pkgstats.timer fwupd
   systemctl --user enable --now gpg-agent blugon dunst blueman-applet
   sudo systemctl disable NetworkManager-wait-online
 fi

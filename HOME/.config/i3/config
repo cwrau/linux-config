@@ -109,7 +109,7 @@ bindsym $mod+Shift+r restart
 #         position bottom
 # }
 $exaid $HOME/.config/polybar/launch.sh
-$exaid $HOME/.config/glava/launch.sh
+#$exaid $HOME/.config/glava/launch.sh
 $exaid sh -c "pgrep compton || exec compton --config=$HOME/.config/compton/config.conf"
 
 #bindsym button3 nop
@@ -147,8 +147,8 @@ bindsym $mod+r mode "resize"
 
 $exaid feh --bg-fill $HOME/.config/background.jpg
 $exaid sh -c 'pgrep nm-applet || exec nm-applet'
-#$exaid sh -c 'pgrep kdeconnectd | grep -v -E "pgrep|$$" || exec /usr/lib/kdeconnectd'
-#$exaid sh -c 'pgrep kdeconnect-indi | grep -v -E "pgrep|$$" || exec kdeconnect-indicator'
+$exaid sh -c 'pgrep kdeconnectd | grep -v -E "pgrep|$$" || exec /usr/lib/kdeconnectd'
+$exaid sh -c 'pgrep kdeconnect-indi | grep -v -E "pgrep|$$" || exec kdeconnect-indicator'
 $exaid sh -c 'pgrep -f clipmenud | grep -v -E "pgrep|$$" || CM_MAX_CLIPS=0 CM_DIR=$HOME/.cache/clipmenud exec clipmenud'
 $exaid sh -c 'pgrep jetbrains-toolb || exec jetbrains-toolbox --window-mode --minimize'
 $exaid sh -c 'pgrep polkit-gnome-au || exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
@@ -160,7 +160,8 @@ $exaid sh -c 'pgrep qtws || exec /usr/bin/qtws /usr/share/qtws-apps/netflix/netf
 $exaid sh -c 'pgrep mailspring || exec mailspring'
 $exaid sh -c 'pgrep chrome || exec google-chrome-stable --force-dark-mode'
 $exaid sh -c 'pgrep deadd-notificat || exec deadd-notification-center'
-$exaid sh -c 'pgrep mitmweb || exec sudo mitmweb -m transparent --showhost -p 3030 > /tmp/mitmweb.log'
+$exaid libinput-gestures-setup start
+$exaid sh -c 'pgrep xfce4-power-man || exec xfce4-power-manager'
 
 default_border none
 for_window [class="jetbrains-toolbox"] floating enable
@@ -232,7 +233,7 @@ bindsym $mod+l exec /usr/local/bin/custom/lock
 bindsym $mod+i $exid networkmanager_dmenu
 
 # Clipboard-Manager
-bindsym $mod+Shift+v $exid sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i && xdotool type --delay 0 "$(xclip -selection clipboard -o)"'
+bindsym $mod+Shift+v $exid sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i && xdotool type --clearmodifiers "$(xclip -selection clipboard -o)"'
 bindsym $mod+Ctrl+v $exid sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i'
 
 # Screenshots
@@ -277,8 +278,8 @@ bindsym $mod+$alt+4 workspace 14
 bindsym $mod+$alt+5 workspace 15
 
 bindsym $mod+$alt+6 workspace 16:YouTube
-assign [class="Google-chrome" title=".*YouTube"] 16:YouTube
-for_window [class="Google-chrome" title=".*YouTube"] move to workspace 16:YouTube
+assign [class="Google-chrome" title=".*YouTube$"] 16:YouTube
+for_window [class="Google-chrome" title=".*YouTube$"] move to workspace 16:YouTube
 
 bindsym $mod+$alt+7 workspace 17:Netflix
 assign [class="Google-chrome" title="Netflix"] 17:Netflix
@@ -325,9 +326,10 @@ bindsym Ctrl+$mod+Right move workspace to output right
 bindsym Ctrl+$mod+Left move workspace to output left
 
 set $external HDMI-1-1
+set $external2 DP-1-1
 set $internal eDP-1-1
 
-workspace 1 output $external
+workspace 1 output $external $external2
 workspace 16:YouTube output $internal
 workspace 17:Netflix output $internal
 workspace 18:GPMDP output $internal

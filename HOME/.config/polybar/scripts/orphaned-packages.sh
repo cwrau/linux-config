@@ -10,28 +10,16 @@ mkdir -p $DIR
 function update() {
   num=$(yay -Qtd 2>/dev/null | wc -l || echo)
 
-  if [[ ${num:-0} -gt 0 ]]
+  if [[ ${num:-0} -gt 0 ]] && ! pgrep yay
   then
-    echo "%{F$color_red} $num%{F-}"
-   # if mkdir $DIR/LOCK &> /dev/null
-   # then
-      notify-send.sh -t 10000 -r 21181154 -u critical " $num" \
-          -o Auto:"i3-msg exec \"i3-sensible-terminal -- sh -c 'yay -Rns --noconfirm \\\\\$(yay -Qtdq)'\"" \
-          -o Manual:"i3-msg exec \"i3-sensible-terminal -- sh -c 'yay -Rns \\\\\$(yay -Qtdq)'\""
-     # choice=$(timeout 10 dunstify -t 10000 -r 21181154 -u critical -A auto,Auto -A manual,Manual " $num" || true)
-     # case $choice in
-     #   auto) i3-msg exec "i3-sensible-terminal -- sh -c 'yay -Rns --noconfirm \$(yay -Qtdq)'" &> /dev/null ;;
-     #   manual) i3-msg exec "i3-sensible-terminal -- sh -c 'yay -Rns \$(yay -Qtdq)'" &> /dev/null ;;
-     # esac
-     # rmdir $DIR/LOCK &> /dev/null
-   # fi
-  else
-    echo
+    notify-send.sh -t 10000 -R $DIR/NOTIFICATION_ID -u critical " $num"
+    i3-msg exec "i3-sensible-terminal -- sh -c 'yay -Rns --noconfirm \$(yay -Qtdq)'"
   fi
+  echo
 }
 
 update
-inotifywait -m -r -e modify -e create $DIR 2> /dev/null | while read -r _
+inotifywait -m -r -e modify -e create $DIR 2> /dev/null | grep --line-buffered event | while read -r _
 do
   sudo rm -f $DIR/event
   update

@@ -19,9 +19,16 @@ function interval() {
 
 function update() {
   timeout 20 yay -Syy &>/dev/null
-  yay -Qu 2>/dev/null | wc -l > $DIR/count
+  UPDATES=$(yay -Qu 2>/dev/null | wc -l)
+  if (( UPDATES >= 1 )) && ! pgrep yay
+  then
+    notify-send.sh -t 10000 -R $DIR/NOTIFICATION_ID -u critical "$(BAR_ICON) $UPDATES!!"
+    i3-msg exec "i3-sensible-terminal -- sh -c 'yay -Syu --noconfirm --removemake'"
+  fi
+  echo
 }
 
+update
 while true
 do
   until interval 60
