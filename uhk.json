@@ -681,7 +681,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 3
+                  "macroIndex": 4
                 },
                 null,
                 null,
@@ -699,7 +699,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 4
+                  "macroIndex": 5
                 },
                 null,
                 {
@@ -725,11 +725,11 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 2
+                  "macroIndex": 3
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 1
+                  "macroIndex": 2
                 },
                 null,
                 null,
@@ -788,7 +788,10 @@
                 null,
                 null,
                 null,
-                null,
+                {
+                  "keyActionType": "playMacro",
+                  "macroIndex": 1
+                },
                 null,
                 null,
                 null,
@@ -1641,7 +1644,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 3
+                  "macroIndex": 4
                 },
                 null,
                 null,
@@ -1659,7 +1662,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 4
+                  "macroIndex": 5
                 },
                 null,
                 {
@@ -1685,11 +1688,11 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 2
+                  "macroIndex": 3
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 1
+                  "macroIndex": 2
                 },
                 null,
                 null,
@@ -1999,6 +2002,30 @@
         {
           "macroActionType": "text",
           "text": "1f436"
+        },
+        {
+          "macroActionType": "key",
+          "action": "tap",
+          "type": "basic",
+          "scancode": 44
+        }
+      ]
+    },
+    {
+      "isLooped": false,
+      "isPrivate": true,
+      "name": "€",
+      "macroActions": [
+        {
+          "macroActionType": "key",
+          "action": "tap",
+          "type": "basic",
+          "scancode": 24,
+          "modifierMask": 3
+        },
+        {
+          "macroActionType": "text",
+          "text": "20AC"
         },
         {
           "macroActionType": "key",
