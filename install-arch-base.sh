@@ -91,7 +91,7 @@ else
     bind-tools whois nload gtop nodejs-terminalizer dive maven maven-bash-completion-git uhk-agent-appimage hadolint-bin powertop go minikube-bin scaleway-cli android-tools pastebinit ausweisapp2 vim blueman pup-bin openssh gnome-keyring mupdf xarchiver gvfs gvfs-smb k9s-bin mousepad arandr rofi rofi-dmenu udiskie-dmenu-git cups storageexplorer slit-git krew-bin rsync lxrandr yq python-nvidia-ml-py3-git libretro libretro-dolphin-git dolphin-emu nvidia vulkan-icd-loader \
       magic-wormhole python-pip python-traitlets python-notify2 glava autorandr inotify-tools xorg-xkill pkgstats libinput-gestures python-virtualenv xfce4-power-manager \
   \
-    visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark mailspring charles krita jetbrains-toolbox firefox gpmdp
+    visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark mailspring charles krita jetbrains-toolbox firefox gpmdp zoom
 
   sudo pip install dynmem pulsectl
   kubectl krew update
