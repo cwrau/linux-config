@@ -278,6 +278,13 @@ then
   [ -f /etc/bash_completion ] && source /etc/bash_completion
   [ -f /etc/profile.d/bash_completion.sh ] && source /etc/profile.d/bash_completion.sh
   [ -f /usr/share/bash-completion/bash_completion ] && source /usr/share/bash-completion/bash_completion
+  if [ -d $HOME/.bash_completion.d ]
+  then
+    for f in $HOME/.bash_completion.d/*.sh
+    do
+      source "$f"
+    done
+  fi
   if command -v kubectl &> /dev/null
   then
     source <(kubectl completion bash)
