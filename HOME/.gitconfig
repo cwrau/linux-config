@@ -18,6 +18,8 @@
 	required = true
 [gpg]
 	program = /usr/bin/gpg
+[push]
+  default = current
 [pull]
 	rebase = true
 [rebase]
