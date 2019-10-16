@@ -11,7 +11,7 @@ case "$-" in
 	ctx="$(kubectl config current-context 2>/dev/null)"
         if [[ "$?" == "0" ]]
         then
-          echo " ⎈ ${ctx} ⎈ "
+          echo " ⎈ ${ctx}⎈ "
         fi
       }
       GIT_PROMPT_START='\n[ \u@\h ]$(_kubecontext)'
@@ -107,8 +107,8 @@ then
     fi
   }
 
-  HISTSIZE=-1
-  HISTFILESIZE=-1
+  export HISTSIZE=-1
+  export HISTFILESIZE=-1
 
   #export GPG_TTY="$(tty)"
   export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
@@ -241,6 +241,14 @@ function 4ap() {
     ssh root@${name}.4allportal.net $*
 }
 
+function appVs() {
+  ssh root@repository.4allportal.net ls /services/repository/apps/$1 -v
+}
+
+function appV() {
+  echo "$1:$(ssh root@repository.4allportal.net ls /services/repository/apps/$1 -v | tail -1)"
+}
+
 function getRepoVersion() {
     4ap repository find /services/repository/apps/4allportal-$1 -mindepth 1 -maxdepth 1 | sed -r 's#^.*/([^/]+)$#\1#g' | sort
 }
@@ -315,3 +323,4 @@ fi
 export VISUAL=vim
 export EDITOR="$VISUAL"
 [ -d /usr/local/bin/custom ] && PATH="$PATH:/usr/local/bin/custom"
+[ -d /usr/local/bin/custom/custom ] && PATH="$PATH:/usr/local/bin/custom/custom"
