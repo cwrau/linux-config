@@ -84,18 +84,18 @@ else
 
   #yay -R --noconfirm freetype2
   yay -Syu --noconfirm --needed \
-    yubico-pam feh bash-completion libu2f-host pcsclite ccid gnupg shfmt networkmanager-openvpn matcha-gtk-theme papirus-icon-theme xwinfo ttf-fira-code ttf-font-awesome-4 ttf-dejavu ttf-liberation breeze-hacked-cursor-theme clipmenu clipnotify xclip pulseaudio pulseaudio-bluetooth intel-ucode polkit polkit-gnome fzf android-udev bluez libsecret libgnome-keyring p7zip unzip xorg-xwininfo xorg-xprop xorg-xinit xorg-xinput gnome-disk-utility freetype2-cleartype \
+    yubico-pam feh bash-completion libu2f-host pcsclite ccid gnupg shfmt networkmanager-openvpn matcha-gtk-theme papirus-icon-theme xwinfo ttf-fira-code ttf-dejavu ttf-liberation breeze-hacked-cursor-theme clipmenu clipnotify xclip pulseaudio pulseaudio-bluetooth intel-ucode polkit polkit-gnome fzf android-udev bluez libsecret libgnome-keyring p7zip unzip xorg-xwininfo xorg-xprop xorg-xinit xorg-xinput gnome-disk-utility freetype2-cleartype \
       linux-headers noto-fonts-emoji exfat-utils \
   \
-    xorg-server bc gotop-bin git ripgrep fd bat kubectl-bin kubernetes-helm-bin kubespy docker docker-compose subversion git curl diff-so-fancy tldr++ prettyping ncdu youtube-dl blugon playerctl scrot i3-gaps i3lock-color perl-anyevent-i3 network-manager-applet rke-bin jq bash-git-prompt httpie cli-visualizer dunst glances net-tools zsh dmenu-frecency imagemagick xorg-xrandr yay-bin jdk11-openjdk openjdk11-src jdk8-openjdk openjdk9-src networkmanager-dmenu cht.sh splatmoji-git \
-    bind-tools whois nload gtop nodejs-terminalizer dive maven maven-bash-completion-git uhk-agent-appimage hadolint-bin powertop go minikube-bin scaleway-cli android-tools pastebinit ausweisapp2 vim blueman pup-bin openssh gnome-keyring mupdf xarchiver gvfs gvfs-smb k9s-bin mousepad arandr rofi rofi-dmenu udiskie-dmenu-git cups storageexplorer slit-git krew-bin rsync lxrandr yq python-nvidia-ml-py3-git libretro libretro-dolphin-git dolphin-emu nvidia vulkan-icd-loader \
-      magic-wormhole python-pip python-traitlets python-notify2 glava autorandr inotify-tools xorg-xkill pkgstats libinput-gestures python-virtualenv xfce4-power-manager pyton-azure-cli \
+    xorg-server bc gotop-bin git ripgrep fd bat kubectl-bin kubernetes-helm-bin kubespy docker docker-compose subversion git curl diff-so-fancy tldr++ prettyping ncdu youtube-dl blugon playerctl scrot i3-gaps i3lock-color perl-anyevent-i3 network-manager-applet rke-bin jq bash-git-prompt httpie dunst glances net-tools zsh dmenu-frecency imagemagick xorg-xrandr yay-bin jdk-openjdk openjdk-src jdk8-openjdk openjdk8-src networkmanager-dmenu cht.sh splatmoji-git \
+    bind-tools whois nload gtop nodejs-terminalizer dive uhk-agent-appimage hadolint-bin powertop android-tools pastebinit ausweisapp2 vim blueman pup-bin openssh gnome-keyring mupdf xarchiver gvfs gvfs-smb k9s-bin mousepad arandr rofi rofi-dmenu udiskie-dmenu-git cups storageexplorer slit-git krew-bin rsync lxrandr yq python-nvidia-ml-py3-git dolphin-emu nvidia vulkan-icd-loader \
+      magic-wormhole python-pip python-traitlets python-notify2 glava autorandr inotify-tools xorg-xkill pkgstats libinput-gestures python-virtualenv xfce4-power-manager python-azure-cli polybar compton kdeconnect mitmproxy nerd-fonts-complete deadd-notification-center-bin fwupd notify-send.sh pavucontrol pcmanfm ttf-font-awesome thunderbird-extension-enigmail pamixer virt-manager dnsmasq ebtables kubebox \
   \
-    visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark mailspring charles krita jetbrains-toolbox firefox gpmdp zoom
+    visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark mailspring krita jetbrains-toolbox firefox gpmdp zoom
 
   sudo pip install dynmem pulsectl
   kubectl krew update
-  kubectl krew install access-matrix warp
+  kubectl krew install access-matrix konfig
   helm plugin install https://github.com/databus23/helm-diff --version master
 
   sudo usermod -a -G docker,wheel cwr
@@ -184,7 +184,7 @@ else
     echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/$USER-*'"
   fi
 
-  sudo systemctl enable --now systemd-timesyncd NetworkManager bluetooth org.cups.cupsd pkgstats.timer fwupd
+  sudo systemctl enable --now systemd-timesyncd NetworkManager bluetooth org.cups.cupsd pkgstats.timer fwupd ebtables dnsmasq libvirtd
   systemctl --user enable --now gpg-agent blugon dunst blueman-applet
   sudo systemctl disable NetworkManager-wait-online
 fi
