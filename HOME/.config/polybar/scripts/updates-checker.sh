@@ -23,7 +23,7 @@ function update() {
   if (( UPDATES >= 1 )) && ! pgrep yay
   then
     notify-send.sh -t 10000 -R $DIR/NOTIFICATION_ID -u critical "$(BAR_ICON) $UPDATES!!"
-    i3-msg exec "i3-sensible-terminal -- sh -c 'yay -Syu --noconfirm --removemake'"
+    i3-msg exec "i3-sensible-terminal -- sh -c 'yay -Syu --devel --noconfirm --removemake'"
   fi
   echo
 }

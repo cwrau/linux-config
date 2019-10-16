@@ -110,7 +110,7 @@ bindsym $mod+Shift+r restart
 # }
 $exaid $HOME/.config/polybar/launch.sh
 #$exaid $HOME/.config/glava/launch.sh
-$exaid sh -c "pgrep compton || exec compton --config=$HOME/.config/compton/config.conf"
+$exaid sh -c "pkill compton; exec compton --config=$HOME/.config/compton/config.conf"
 
 #bindsym button3 nop
 #bindsym button4 nop
@@ -157,7 +157,7 @@ $exaid sh -c 'pgrep slack || exec slack'
 $exaid sh -c 'pgrep "Google Play Mus" || exec gpmdp'
 #$exaid sh -c 'pgrep teams-for-linux || exec teams-for-linux'
 $exaid sh -c 'pgrep qtws || exec /usr/bin/qtws /usr/share/qtws-apps/netflix/netflix.qtws --disable-seccomp-filter-sandbox --register-pepper-plugins="/usr/lib/qt/plugins/ppapi/libwidevinecdmadapter.so; application/x-ppapi-widevine-cdm"'
-$exaid sh -c 'pgrep mailspring || exec mailspring'
+#$exaid sh -c 'pgrep mailspring || exec mailspring'
 $exaid sh -c 'pgrep chrome || exec google-chrome-stable --force-dark-mode'
 $exaid sh -c 'pgrep deadd-notificat || exec deadd-notification-center'
 $exaid libinput-gestures-setup start
@@ -196,6 +196,7 @@ mode $Power {
 # Emoji Keyboard
 
 bindsym $mod+period $exid splatmoji type
+bindsym $mod+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume $exid pamixer -i 5; $exid pamixer -u #increase sound volume
@@ -231,6 +232,9 @@ bindsym $mod+l exec /usr/local/bin/custom/lock
 
 # WiFi-Manager
 bindsym $mod+i $exid networkmanager_dmenu
+
+# Mount-Manager
+bindsym $mod+u $exid udiskie-dmenu
 
 # Clipboard-Manager
 bindsym $mod+Shift+v $exid sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i && xdotool type --clearmodifiers "$(xclip -selection clipboard -o)"'
