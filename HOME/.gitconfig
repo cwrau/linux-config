@@ -4,6 +4,8 @@
   path = .gitconfig-work
 [includeIf "gitdir:~/projects/"]
   path = .gitconfig-private
+[includeIf "gitdir:~/go/"]
+  path = .gitconfig-private
 [gui]
 [credential]
 [user]
@@ -29,8 +31,8 @@
 [credential]
 	helper = store
 [pager]
-  diff = diff-so-fancy | less --tabs=1,5 -RFX
-  show = diff-so-fancy | less --tabs=1,5 -RFX
+  diff = diff-so-fancy | less --tabs=1,5 -RFS --pattern '^(Date|added|deleted|modified): '
+  show = diff-so-fancy | less --tabs=1,5 -RFS --pattern '^(Date|added|deleted|modified): '
 [color]
 	ui = true
 [color "diff-highlight"]

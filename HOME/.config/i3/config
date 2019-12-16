@@ -82,6 +82,8 @@ bindsym $mod+v split h
 
 # enter fullscreen mode for the focused container
 bindsym $mod+f fullscreen toggle
+# toggle polybar
+bindsym $mod+Shift+f $exid sh -c 'pgrep polybar | xargs -I{} polybar-msg -p {} cmd toggle'
 
 # change container layout (stacked, tabbed, toggle split)
 bindsym $mod+t layout toggle stacking tabbed
@@ -110,7 +112,7 @@ bindsym $mod+Shift+r restart
 # }
 $exaid $HOME/.config/polybar/launch.sh
 #$exaid $HOME/.config/glava/launch.sh
-$exaid sh -c "pkill compton; exec compton --config=$HOME/.config/compton/config.conf"
+$exaid sh -c "pkill picom; exec picom --config=$HOME/.config/picom/config.conf"
 
 #bindsym button3 nop
 #bindsym button4 nop
@@ -152,25 +154,33 @@ $exaid sh -c 'pgrep kdeconnect-indi | grep -v -E "pgrep|$$" || exec kdeconnect-i
 $exaid sh -c 'pgrep -f clipmenud | grep -v -E "pgrep|$$" || CM_MAX_CLIPS=0 CM_DIR=$HOME/.cache/clipmenud exec clipmenud'
 $exaid sh -c 'pgrep jetbrains-toolb || exec jetbrains-toolbox --window-mode --minimize'
 $exaid sh -c 'pgrep polkit-gnome-au || exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
-$exaid sh -c 'pgrep earlyoom || exec sudo earlyoom --avoid "i3.*|custom.sh|slack|teams-for-linux|glava|polybar|.*gpmdp.*" -m 1'
+$exaid sh -c 'pgrep earlyoom || exec sudo earlyoom --avoid "i3.*|custom.sh|teams-insiders|glava|polybar|.*gpmdp.*" -m 1'
 $exaid sh -c 'pgrep slack || exec slack'
+$exaid sh -c 'pgrep telegram-deskto || exec telegram-desktop'
+$exaid sh -c 'pgrep whats-app || exec whatsapp-nativefier'
+# GooglePlayMusicDestopPlayer is broken
 $exaid sh -c 'pgrep "Google Play Mus" || exec gpmdp'
-#$exaid sh -c 'pgrep teams-for-linux || exec teams-for-linux'
-$exaid sh -c 'pgrep qtws || exec /usr/bin/qtws /usr/share/qtws-apps/netflix/netflix.qtws --disable-seccomp-filter-sandbox --register-pepper-plugins="/usr/lib/qt/plugins/ppapi/libwidevinecdmadapter.so; application/x-ppapi-widevine-cdm"'
+#$exaid sh -c 'pgrep GooglePlayMusic || exec /opt/GooglePlayMusic/GooglePlayMusic'
+$exaid sh -c 'pgrep teams-insiders || exec teams-insiders'
+#$exaid sh -c 'pgrep qtws || exec /usr/bin/qtws /usr/share/qtws-apps/netflix/netflix.qtws --disable-seccomp-filter-sandbox --register-pepper-plugins="/usr/lib/qt/plugins/ppapi/libwidevinecdmadapter.so; application/x-ppapi-widevine-cdm"'
+# switched to outlook web
 #$exaid sh -c 'pgrep mailspring || exec mailspring'
-$exaid sh -c 'pgrep chrome || exec google-chrome-stable --force-dark-mode'
-$exaid sh -c 'pgrep deadd-notificat || exec deadd-notification-center'
+$exaid sh -c 'pgrep chrome || exec google-chrome-stable --force-dark-mode --enable-features=OverlayScrollbar,OverlayScrollbarFlashAfterAnyScrollUpdate,OverlayScrollbarFlashWhenMouseEnter'
+#$exaid sh -c 'pkill deadd-notificat; exec deadd-notification-center'
+$exaid sh -c 'pgrep dunst || exec dunst'
 $exaid libinput-gestures-setup start
 $exaid sh -c 'pgrep xfce4-power-man || exec xfce4-power-manager'
 
 default_border none
 for_window [class="jetbrains-toolbox"] floating enable
 for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
+for_window [class="Gnome-network-displays"] floating enable
+for_window [class="Microsoft Teams - Insiders" title="Microsoft Teams Notification"] floating enable
 
 $exaid $HOME/.config/i3/rc.sh
 
 set $displayMode "Set display mode [w]ork [l]aptop"
-bindsym $mod+x mode $displayMode
+#bindsym $mod+x mode $displayMode
 mode $displayMode {
     bindsym w exec $HOME/.config/screenlayouts/work.sh; mode "default"; restart
     bindsym l exec $HOME/.config/screenlayouts/laptop.sh; mode "default"; restart
@@ -179,8 +189,8 @@ mode $displayMode {
     bindsym Escape mode "default"
 }
 
-bindsym Pause exec /usr/local/bin/custom/suspend
-bindsym Scroll_Lock exec /usr/local/bin/custom/lock
+#bindsym Pause exec /usr/local/bin/custom/suspend
+#bindsym Scroll_Lock exec /usr/local/bin/custom/lock
 
 set $Power " [S]leep, [p]oweroff, [l]ogoff or [r]eboot?"
 bindsym $mod+q mode $Power
@@ -228,7 +238,7 @@ bindsym $mod+Shift+p $exid /usr/local/bin/custom/rofi-randr
 bindsym $mod+b $exid sh -c "sudo rfkill unblock bluetooth && /usr/local/bin/custom/bluetooth_dmenu"
 
 # Lock
-bindsym $mod+l exec /usr/local/bin/custom/lock
+bindsym $mod+l $exid /usr/local/bin/custom/lock
 
 # WiFi-Manager
 bindsym $mod+i $exid networkmanager_dmenu
@@ -236,25 +246,28 @@ bindsym $mod+i $exid networkmanager_dmenu
 # Mount-Manager
 bindsym $mod+u $exid udiskie-dmenu
 
+bindsym $mod+x $exid xkill
+
 # Clipboard-Manager
-bindsym $mod+Shift+v $exid sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i && xdotool type --clearmodifiers "$(xclip -selection clipboard -o)"'
+bindsym $mod+Shift+v $exid sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i && xdotool key --clearmodifiers ctrl+v'
 bindsym $mod+Ctrl+v $exid sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i'
 
 # Screenshots
 # Selection > Clipboard
-bindsym Print --release exec "scrot -s /tmp/screenshot-$(date +%FT%T.%2N).png -e 'xclip -selection clipboard -t image/png < $f'"
+bindsym Print --release $exid "scrot -s /tmp/screenshot-$(date +%FT%T.%2N).png -e 'xclip -selection clipboard -t image/png < $f'"
 # Full Screen > Clipboard
-bindsym Shift+Print exec "scrot /tmp/screenshot-$(date +%FT%T.%2N).png -e 'xclip -selection clipboard -t image/png < $f'"
+bindsym Shift+Print $exid "scrot /tmp/screenshot-$(date +%FT%T.%2N).png -e 'xclip -selection clipboard -t image/png < $f'"
 # Selection > File
-bindsym Ctrl+Print --release exec "scrot -s $HOME/Screenshots/$(date +%FT%T.%2N).png"
+bindsym Ctrl+Print --release $exid "scrot -s $HOME/Screenshots/$(date +%FT%T.%2N).png"
 # Full Screen > File
-bindsym Ctrl+Shift+Print exec "scrot $HOME/Screenshots/$(date +%FT%T.%2N).png"
+bindsym Ctrl+Shift+Print $exid "scrot $HOME/Screenshots/$(date +%FT%T.%2N).png"
 
-bindsym $mod+c exec "google-chrome-stable --force-dark-mode"
-bindsym $mod+Shift+c exec "google-chrome-stable --incognito --force-dark-mode"
+bindsym $mod+c exec "google-chrome-stable --force-dark-mode --enable-features=OverlayScrollbar,OverlayScrollbarFlashAfterAnyScrollUpdate,OverlayScrollbarFlashWhenMouseEnter"
+bindsym $mod+Shift+c exec "google-chrome-stable --force-dark-mode --enable-features=OverlayScrollbar,OverlayScrollbarFlashAfterAnyScrollUpdate,OverlayScrollbarFlashWhenMouseEnter"
 
 for_window [class="jetbrains-idea" title="Debug"] floating disable
 for_window [class="java-lang-Thread" instance="java-lang-Thread"] floating enable
+for_window [class="jetbrains-.*" title="win0"] floating enable
 
 for_window [class="Kazam"] floating enable
 
@@ -262,6 +275,9 @@ for_window [class="Kazam"] floating enable
 #new_window none
 
 set $alt Mod1
+
+bindsym $mod+Page_Up workspace next
+bindsym $mod+Page_Down workspace prev
 
 # switch to workspace
 bindsym $mod+1 workspace 1
@@ -287,21 +303,27 @@ for_window [class="Google-chrome" title=".*YouTube$"] move to workspace 16:YouTu
 
 bindsym $mod+$alt+7 workspace 17:Netflix
 assign [class="Google-chrome" title="Netflix"] 17:Netflix
-for_window [class="Google-chrome" title="Netflix"] move to workspace 17:Netflix
+for_window [class="Google-chrome" title="^Netflix$"] move to workspace 17:Netflix
 
 bindsym $mod+$alt+8 workspace 18:GPMDP
 assign [class="Google Play Music Desktop Player"] 18:GPMDP
+assign [class="GooglePlayMusic"] 18:GPMDP
 for_window [class="Google Play Music Desktop Player"] move to workspace 18:GPMDP
+for_window [class="GooglePlayMusic"] move to workspace 18:GPMDP
 
 bindsym $mod+$alt+9 workspace 19:Teams
-assign [class="teams-for-linux"] 19:Teams
-for_window [class="teams-for-linux"] move to workspace 19:Teams
+assign [class="Microsoft Teams - Insiders"] 19:Teams
+for_window [class="Microsoft Teams - Insiders"] move to workspace 19:Teams
 assign [class="Google-chrome" title=".*Microsoft Teams"] 19:Teams
 for_window [class="Google-chrome" title=".*Microsoft Teams"] move to workspace 19:Teams
 
-bindsym $mod+$alt+0 workspace 20:Slack
-assign [class="Slack"] 20:Slack
-for_window [class="Slack"] move to workspace 20:Slack
+bindsym $mod+$alt+0 workspace 20:Chat
+assign [class="Slack"] 20:Chat
+for_window [class="Slack"] move to workspace 20:Chat
+assign [class="TelegramDesktop"] 20:Chat
+for_window [class="TelegramDesktop"] move to workspace 20:Chat
+assign [class="whats-app-nativefier-.*"] 20:Chat
+for_window [class="whats-app-nativefier-.*"] move to workspace 20:Chat
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace 1
@@ -323,11 +345,13 @@ bindsym $mod+Shift+$alt+6 move container to workspace 16:YouTube
 bindsym $mod+Shift+$alt+7 move container to workspace 17:Netflix
 bindsym $mod+Shift+$alt+8 move container to workspace 18:GPMDP
 bindsym $mod+Shift+$alt+9 move container to workspace 19:Teams
-bindsym $mod+Shift+$alt+0 move container to workspace 20:Slack
+bindsym $mod+Shift+$alt+0 move container to workspace 20:Chat
 
 # move workspace to output
 bindsym Ctrl+$mod+Right move workspace to output right
 bindsym Ctrl+$mod+Left move workspace to output left
+bindsym Ctrl+$mod+Up move workspace to output up
+bindsym Ctrl+$mod+Down move workspace to output down
 
 set $external HDMI-1-1
 set $external2 DP-1-1
@@ -338,7 +362,7 @@ workspace 16:YouTube output $internal
 workspace 17:Netflix output $internal
 workspace 18:GPMDP output $internal
 workspace 19:Teams output $internal
-workspace 20:Slack output $internal
+workspace 20:Chat output $internal
 
 gaps outer 5
 gaps inner 10

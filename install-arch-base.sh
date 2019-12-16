@@ -23,10 +23,12 @@ then
   locale-gen
   localectl set-keymap us-latin1
   localectl set-x11-keymap us latin1
-  hostnamectl set-hostname cwr
-  echo '127.0.0.1 localhost
+  hostnamectl set-hostname steve
+  cat <<EOF > /etc/hosts
+127.0.0.1 localhost
 ::1 localhost
-127.0.1.1 cwr' > /etc/hosts
+127.0.0.1 $(hostname)
+EOF
   sed -r -i 's#^HOOKS=.+$#HOOKS=(base udev autodetect modconf block keyboard keymap encrypt filesystems)#g' /etc/mkinitcpio.conf
   sed -r -i 's#^MODULES=.+$#MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)#g' /etc/mkinitcpio.conf
   echo "cwr ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/cwr
@@ -82,21 +84,26 @@ else
   sudo sed -i -r "s#^\#?BUILDDIR=.*\$#BUILDDIR=/tmp/makepkg#g" /etc/makepkg.conf
   sudo sed -i -r "s#^\#?MAKEFLAGS=.*\$#MAKEFLAGS=\"-j\\\$(nproc)\"#g" /etc/makepkg.conf
 
-  #yay -R --noconfirm freetype2
-  yay -Syu --noconfirm --needed \
-    yubico-pam feh bash-completion libu2f-host pcsclite ccid gnupg shfmt networkmanager-openvpn matcha-gtk-theme papirus-icon-theme xwinfo ttf-fira-code ttf-dejavu ttf-liberation breeze-hacked-cursor-theme clipmenu clipnotify xclip pulseaudio pulseaudio-bluetooth intel-ucode polkit polkit-gnome fzf android-udev bluez libsecret libgnome-keyring p7zip unzip xorg-xwininfo xorg-xprop xorg-xinit xorg-xinput gnome-disk-utility freetype2-cleartype \
-      linux-headers noto-fonts-emoji exfat-utils \
-  \
-    xorg-server bc gotop-bin git ripgrep fd bat kubectl-bin kubernetes-helm-bin kubespy docker docker-compose subversion git curl diff-so-fancy tldr++ prettyping ncdu youtube-dl blugon playerctl scrot i3-gaps i3lock-color perl-anyevent-i3 network-manager-applet rke-bin jq bash-git-prompt httpie dunst glances net-tools zsh dmenu-frecency imagemagick xorg-xrandr yay-bin jdk-openjdk openjdk-src jdk8-openjdk openjdk8-src networkmanager-dmenu cht.sh splatmoji-git \
-    bind-tools whois nload gtop nodejs-terminalizer dive uhk-agent-appimage hadolint-bin powertop android-tools pastebinit ausweisapp2 vim blueman pup-bin openssh gnome-keyring mupdf xarchiver gvfs gvfs-smb k9s-bin mousepad arandr rofi rofi-dmenu udiskie-dmenu-git cups storageexplorer slit-git krew-bin rsync lxrandr yq python-nvidia-ml-py3-git dolphin-emu nvidia vulkan-icd-loader \
-      magic-wormhole python-pip python-traitlets python-notify2 glava autorandr inotify-tools xorg-xkill pkgstats libinput-gestures python-virtualenv xfce4-power-manager python-azure-cli polybar compton kdeconnect mitmproxy nerd-fonts-complete deadd-notification-center-bin fwupd notify-send.sh pavucontrol pcmanfm ttf-font-awesome thunderbird-extension-enigmail pamixer virt-manager dnsmasq ebtables kubebox \
-  \
-    visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark mailspring krita jetbrains-toolbox firefox gpmdp zoom
+  #packages
+  packages=(yubico-pam feh bash-completion libu2f-host pcsclite ccid gnupg shfmt networkmanager-openvpn matcha-gtk-theme papirus-icon-theme xwinfo ttf-fira-code ttf-dejavu ttf-liberation breeze-hacked-cursor-theme clipmenu clipnotify xclip pulseaudio pulseaudio-bluetooth intel-ucode polkit polkit-gnome fzf android-udev bluez libsecret libgnome-keyring p7zip unzip xorg-xwininfo xorg-xprop xorg-xinit xorg-xinput gnome-disk-utility freetype2-cleartype linux-headers noto-fonts-emoji exfat-utils
+    xorg-server bc gotop-bin git ripgrep fd bat kubectl-bin kubernetes-helm-bin kubespy docker docker-compose subversion git curl diff-so-fancy tldr++ prettyping ncdu youtube-dl blugon playerctl scrot i3-gaps i3lock-color perl-anyevent-i3 network-manager-applet rke-bin jq bash-git-prompt httpie dunst glances net-tools zsh antigen-git dmenu-frecency imagemagick xorg-xrandr yay-bin jdk-openjdk openjdk-src jdk8-openjdk openjdk8-src networkmanager-dmenu cht.sh splatmoji-git bind-tools whois nload gtop
+    nodejs-terminalizer dive uhk-agent-appimage hadolint-bin powertop android-tools pastebinit ausweisapp2 neovim python-pynvim blueman pup-bin openssh gnome-keyring mupdf xarchiver gvfs gvfs-smb k9s-bin mousepad arandr rofi rofi-dmenu udiskie-dmenu-git cups storageexplorer slit-git krew-bin rsync lxrandr yq python-nvidia-ml-py3-git dolphin-emu nvidia vulkan-icd-loader vlc libdvdread libdvdcss magic-wormhole python-pip python-traitlets python-notify2 glava autorandr inotify-tools xorg-xkill pkgstats
+    libinput-gestures python-virtualenv xfce4-power-manager polybar picom kdeconnect mitmproxy python-tornado nerd-fonts-complete fwupd notify-send.sh pavucontrol pcmanfm ttf-font-awesome thunderbird-extension-enigmail pamixer virt-manager dnsmasq ebtables kubebox visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark mailspring krita jetbrains-toolbox gpmdp zoom yarn xorg-xhost sxiv vue-cli telepresence remmina powerpill noto-fonts-all k3s-bin heluxup go-pie flatpak
+    earlyoom gnome-network-displays)
+
+  yay -Syu --noconfirm --needed ${packages[@]}
 
   sudo pip install dynmem pulsectl
+
   kubectl krew update
   kubectl krew install access-matrix konfig
+
   helm plugin install https://github.com/databus23/helm-diff --version master
+
+  flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+  flatpak --user install flathub com.valvesoftware.Steam
+  flatpak run com.valvesoftware.Steam
+  flatpak override com.valvesoftware.Steam --filesystem=$HOME
 
   sudo usermod -a -G docker,wheel cwr
 
@@ -116,6 +123,7 @@ else
   sudo trust extract-compat
 
   homeConfiglink .bashrc
+  homeConfiglink .zshrc
   homeConfiglink .xinitrc
   sudo rm -f /root/.bashrc
   sudo ln -sf ${HOME}/projects/linux-config/HOME/.bashrc /root/.bashrc
@@ -130,11 +138,17 @@ else
   homeConfiglink .config/i3status
   homeConfiglink .config/polybar
   homeConfiglink .config/glava
+  homeConfiglink .config/dunst
+  homeConfiglink .config/nvim
+  homeConfiglink .config/p10k.zsh
+  homeConfiglink .config/picom
   homeConfiglink .config/autorandr
   homeConfiglink .config/i3
   homeConfiglink .config/gtk-3.0
   homeConfiglink .gtkrc-2.0
   homeConfiglink .config/screenlayouts
+  mkdir -p ${HOME}/.local/share/steamApps
+  ln -s ${HOME}/.var/app/com.valvesoftware.Steam/Desktop ${HOME}/.local/share/steamApps/applications
   sudo ln -sf ${HOME}/projects/linux-config/BIN /usr/local/bin/custom
   sudo rm -rf /usr/share/icons/default
   sudo ln -sf Breeze_Hacked /usr/share/icons/default
@@ -150,12 +164,7 @@ else
   curl -fsSL http://dogr.io/wow/very%20wallpapger/so%20lockscreen/such%20laptop/much%20secure.png?split=false > ${HOME}/.config/screen-lock.png
   curl -fsSL https://upload.wikimedia.org/wikipedia/commons/3/3d/NASA%27s_Swift_Mission_Observes_Mega_Flares_from_a_Mini_Star.jpg > ${HOME}/.config/background.jpg
 
-  mkdir -p ${HOME}/.config/dunst
-  curl https://dunst-project.org/static/dunstrc1 > ${HOME}/.config/dunst/dunstrc
-
   chown ${USER}:${USER} -R ${HOME}
-
-  sudo -u ${USER} /bin/bash -c ". ${HOME}/.vim_runtime/install_awesome_vimrc.sh"
 
   mkdir ${HOME}/Screenshots
 

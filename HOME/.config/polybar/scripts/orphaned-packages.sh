@@ -10,7 +10,7 @@ mkdir -p $DIR
 function update() {
   num=$(yay -Qtd 2>/dev/null | wc -l || echo)
 
-  if [[ ${num:-0} -gt 0 ]] && ! pgrep yay
+  if [[ ${num:-0} -gt 0 ]] && ! pgrep yay &> /dev/null
   then
     notify-send.sh -t 10000 -R $DIR/NOTIFICATION_ID -u critical " $num"
     i3-msg exec "i3-sensible-terminal -- sh -c 'yay -Rns --noconfirm \$(yay -Qtdq)'"

@@ -1,3 +1,4 @@
 .idea
 HOME/.config/i3status/custom.d/private
+HOME/.config/polybar/scripts/private
 BIN/custom

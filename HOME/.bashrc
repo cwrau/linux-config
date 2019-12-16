@@ -1,5 +1,3 @@
-pgrep i3lock &>/dev/null && unlock &>/dev/null
-
 case "$-" in
   *i*)
     stty -ixon
@@ -8,7 +6,7 @@ case "$-" in
     then
       function _kubecontext() {
         local ctx
-	ctx="$(kubectl config current-context 2>/dev/null)"
+        ctx="$(kubectl config current-context 2>/dev/null)"
         if [[ "$?" == "0" ]]
         then
           echo " ⎈ ${ctx}⎈ "
@@ -24,12 +22,6 @@ case "$-" in
     PS1="$GIT_PROMPT_START$GIT_PROMPT_END"
 
     GIT_PROMPT_ONLY_IN_REPO=1
-
-    HISTCONTROL=ignoredups
-    HISTTIMEFORMAT='%F %T%z '
-
-    shopt -s histappend
-    shopt -s cmdhist
 
     shopt -s checkwinsize
 
@@ -51,7 +43,7 @@ case "$-" in
     ;;
 esac
 
-if [ "$(hostname)" = 'cwr' ]
+if [ "$(hostname)" = 'steve' ]
 then
   if [[ -z "$DISPLAY" ]] && [[ "$XDG_VTNR" -eq 1 ]]
   then
@@ -67,9 +59,30 @@ then
     sudo systemctl stop iptables ip6tables
   }
 
+  function kboot() {
+    if [[ "$1" != '-' ]]; then
+      kernel="$1"
+    fi
+    shift
+    if [[ "$1" == '-' ]]; then
+      reuse='--reuse-cmdline'
+      shift
+    fi
+    if [[ $# == 0 ]]; then
+      reuse='--reuse-cmdline'
+      echo
+    fi
+
+    kernel="${kernel:-linux}"
+    kargs="/boot/vmlinuz-$kernel --initrd=/boot/initramfs-$kernel.img"
+
+    sudo kexec -l -t bzImage $kargs $reuse --append="$*" #&& \
+    #  sudo systemctl kexec
+  }
+
   function command_not_found_handle {
     echo "Command '$1' not found, but could be installed via the following packages:"
-    yay -Fysq -- $1
+    yay -Fyq -- $1
   }
 
   function e.() {
@@ -107,6 +120,12 @@ then
     fi
   }
 
+  HISTCONTROL=ignoredups
+  HISTTIMEFORMAT='%F %T%z '
+
+  shopt -s histappend
+  shopt -s cmdhist
+
   export HISTSIZE=-1
   export HISTFILESIZE=-1
 
@@ -143,29 +162,58 @@ if [ -f /etc/bashrc ]; then
   . /etc/bashrc
 fi
 
-alias :q=exit
-alias env='env | sort'
-alias rm='rm -i'
-alias cp='cp -i'
-alias mv='mv -i'
-alias ls='ls -phAvbl --color=always --time-style=long-iso'
-alias vim='vim -b'
+function reAlias() {
+  nAlias $1 $1 ${@:2}
+}
+
+function nAlias() {
+  if command -v $2 &> /dev/null; then
+    alias "$1=${*:2}"
+    if [ -r /etc/bash_completion ] ||
+       [ -r /etc/profile.d/bash_completion.sh ] ||
+       [ -r /usr/share/bash-completion/bash_completion ]; then
+      complete -F _complete_alias $1
+    fi
+  fi
+}
+
+nAlias :q exit
+nAlias :e vim
+reAlias env ' | sort'
+reAlias rm -i
+reAlias cp -i
+reAlias mv -i
+reAlias ls -phAvbl --color=always --time-style=long-iso
+reAlias vim -b
 if [[ "$(id -u)" != 0 ]] && command -v sudo &> /dev/null
 then
-  command -v apt &> /dev/null && alias apt='sudo apt'
-  command -v apt-get &> /dev/null && alias apt-get='sudo apt-get'
-  command -v systemctl &> /dev/null && alias systemctl='sudo systemctl'
-  command -v pacman &> /dev/null && alias pacman='sudo pacman'
+  for cmd in apt apt-get systemctl pacman; do
+    nAlias $cmd "sudo $cmd"
+  done
 fi
-alias top="htop"
-alias vi='vim'
-command -v bat &> /dev/null && alias cat='bat'
-command -v slit &> /dev/null && alias less='slit'
-command -v prettyping &> /dev/null && alias ping='prettyping --nolegend'
-command -v ncdu &> /dev/null && alias du="ncdu"
-command -v tldr &> /dev/null && alias man='tldr'
-command -v rg &> /dev/null && alias rg='rg -S'
+nAlias top htop
+nAlias vi vim
+nAlias cat bat
+nAlias less slit
+reAlias prettyping --nolegend
+nAlias ping prettyping
+nAlias du ncdu
+nAlias man tldr
+reAlias rg -S
+reAlias jq -r
+nAlias k kubectl
+reAlias yay --pacman powerpill
+nAlias docker-run docker run --rm -it -u $(id -u):$(id -g)
+nAlias htop gotop
+reAlias gotop -r 4
 
+function diff() {
+  /bin/diff -u "${@}" | diff-so-fancy | /bin/less --tabs=1,5 -RF
+}
+
+function idea() {
+  i3-msg "exec $(which idea) $(realpath ${1:-.})"
+}
 
 function memU() {
     ps -ax -o rss | awk '{a += $1} END{print (a/1024/1024)/'"$(free -h | grep Mem | awk '{print $2}' | sed -r 's#[^0-9]##g')"*100'}'
@@ -204,10 +252,6 @@ then
     docker-run --network host -v "$(realpath "$file")":/Jenkinsfile registry.4allportal.net/jflint --csrf-disabled -j https://jenkins.4allportal.net /Jenkinsfile
   }
 
-  function docker-run() {
-    docker run --rm -it "$@"
-  }
-
   function docker-here() {
     docker-run -v "$PWD:$PWD" -w "$PWD" -u `id --user`:`id --group` "$@"
   }
@@ -215,9 +259,6 @@ then
   function ctop() {
     docker-run --name ctop -v /var/run/docker.sock:/var/run/docker.sock quay.io/vektorlab/ctop
   }
-
-  command -v gotop &>/dev/null && alias htop="gotop"
-  command -v gotop &>/dev/null && alias gotop="gotop -r 4"
 fi
 
 function swap() {
@@ -260,8 +301,6 @@ function gitUpdate() {
     [ -f .git/FETCH_HEAD ] || (popd > /dev/null; return 0)
     if (( ($(date +%s) - $(stat -c %Y .git/FETCH_HEAD)) > 86400 ))
     then
-      git reset --hard &> /dev/null
-      git clean -d -x -f &> /dev/null
       git pull &> /dev/null
     fi
     popd > /dev/null
@@ -300,21 +339,24 @@ then
     then
       alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
     fi
+
+    complete -F __start_kubectl k
+
     if command -v fzf &> /dev/null
     then
       # Get current context
-      alias krc='kubectl config current-context'
+      nAlias krc kubectl config current-context
       # List all contexts
-      alias klc='kubectl config get-contexts -o name | sed "s/^/  /;\|^  $(krc)$|s/ /*/"'
+      nAlias klc 'kubectl config get-contexts -o name | sed "s/^/  /;\|^  $(krc)$|s/ /*/"'
       # Change current context
-      alias kcc='kubectl config use-context "$(klc | fzf -e | sed "s/^..//")"'
+      nAlias kcc 'kubectl config use-context "$(klc | fzf -e | sed "s/^..//")"'
       
       # Get current namespace
-      alias krn='kubectl config get-contexts --no-headers "$(krc)" | awk "{print \$5}" | sed "s/^$/default/"'
+      nAlias krn 'kubectl config get-contexts --no-headers "$(krc)" | awk "{print \$5}" | sed "s/^$/default/"'
       # List all namespaces
-      alias kln='kubectl get -o name ns | sed "s|^.*/|  |;\|$(krn)|s/ /*/"'
+      nAlias kln 'kubectl get -o name ns | sed "s|^.*/|  |;\|$(krn)|s/ /*/"'
       # Change current namespace
-      alias kcn='kubectl config set-context --current --namespace "$(kln | fzf -e | sed "s/^..//")"'
+      nAlias kcn 'kubectl config set-context --current --namespace "$(kln | fzf -e | sed "s/^..//")"'
     fi
   fi
   command -v kubeadm &> /dev/null && source <(kubeadm completion bash)

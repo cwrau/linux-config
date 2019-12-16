@@ -4,7 +4,7 @@ import subprocess
 import notify2
 import dynmen
 
-notify2.init("audio-profile-switcher")
+notify2.init("bluetooth-dmenu")
 
 
 def dmenu(items, active_indices=None):
@@ -66,13 +66,13 @@ outPut = [line[7:-1].split(" ") for line in bluetooth_command("devices") if line
 
 devices = []
 
-for mac, name in outPut:
+for out in outPut:
+    mac = out[0]
+    name = " ".join(out[1:])
     connected = "yes" in [connected for connected in bluetooth_command("info", mac) if "Connected" in connected][0]
     devices.append(BluetoothDevice(name, mac, connected))
 
-print(devices)
-
-device = get_choice(devices, "Device", lambda d: f'{d.name} ({"Connected" if d.connected else "Disconnected"})', lambda d: d.connected)
+device = get_choice(sorted(devices, key=lambda d: (not d.connected, d.name)), "Device", lambda d: f'{d.name} ({"Connected" if d.connected else "Disconnected"})', lambda d: d.connected)
 
 if device is None:
     exit(0)
