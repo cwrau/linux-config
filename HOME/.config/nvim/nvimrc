@@ -1,9 +1,3 @@
-if empty(glob('$HOME/.local/share/nvim/site/autoload/plug.vim'))
-  silent !curl -fLo $HOME/.local/share/nvim/site/autoload/plug.vim --create-dirs
-    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
-
 call plug#begin('$HOME/.config/nvim-plugins')
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' } " autocomplete
 Plug 'scrooloose/nerdtree' " FileBrowser 
@@ -47,10 +41,6 @@ set wildmode=longest,list,full
 map <F6>d :setlocal spell! spelllang=de<CR>
 map <F6>e :setlocal spell! spelllang=en_us<CR>
 
-" Make copy and pasting easy :) (gvim should be installed)
-vnoremap <C-c> "+y
-map <C-v> "+P
-vnoremap <C-c> "*y :let @+=@*<CR>
 " preferences
 " j/k will move virtual lines (lines that wrap)
 noremap <silent> <expr> j (v:count == 0 ? 'gj' : 'j')
@@ -100,3 +90,4 @@ set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite
 
 " jsx
 let g:jsx_ext_required = 0
+set guicursor=
