@@ -295,12 +295,13 @@ reAlias rg -S
 reAlias jq -r
 reAlias yq -r
 nAlias k kubectl
-reAlias yay --pacman powerpill
+command -v powerpill &> /dev/null && reAlias yay --pacman powerpill
 nAlias docker-run docker run --rm -it
 nAlias htop gotop
 reAlias gotop -r 4
 reAlias fd
 nAlias gradle gradle-or-gradlew --no-daemon
+reAlias feh --scale-down --auto-zoom
 
 alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
 

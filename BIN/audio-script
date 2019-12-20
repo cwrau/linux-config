@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
+import os
 import pulsectl
 import notify2
-import os
 import dynmen
 
 pulse = pulsectl.Pulse("audio-profile-switcher")

@@ -7,14 +7,29 @@ Plug 'vim-syntastic/syntastic' " syntax check for most languages
 Plug 'bling/vim-airline' " better monitoring
 Plug 'jiangmiao/auto-pairs' " add eg. (->)
 Plug 'christoomey/vim-tmux-navigator' " better tmux support
-Plug 'dracula/vim', { 'as': 'dracula' } " Dark Theme
-Plug 'trevordmiller/nova-vim' " Nova Theme
+Plug 'kristijanhusak/vim-hybrid-material' " Dark Theme
 Plug 'tpope/vim-surround' " Easy add matching parentheses
 Plug 'ctrlpvim/ctrlp.vim' " use Fuzzy Finder to switch between Files (C-p)
 Plug 'PotatoesMaster/i3-vim-syntax' " for syntax in i3 config file
 Plug 'easymotion/vim-easymotion'
 Plug 'mxw/vim-jsx'
 Plug 'w0rp/ale'
+Plug 'udalov/kotlin-vim'
+Plug 'autozimu/LanguageClient-neovim', { 
+     \   'branch': 'next',
+     \   'do': 'bash install.sh',
+     \ }
+
+let g:LanguageClient_serverCommands = {
+     \   'kotlin': ['kotlin-language-server'],
+     \   'bash': ['bash-language-server', 'start'],
+     \   'vue': ['vue-language-server'],
+     \   'python': ['pyls'],
+     \   'dockerfile': ['docker-langserver', '--stdio'],
+     \   'yaml': ['yaml-language-server'],
+     \   'java': ['java-language-server'],
+     \ }
+
 " call PlugInstall to install new plugins
 call plug#end()
 " basics
@@ -70,10 +85,10 @@ autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
 
 " Theme
 syntax enable
-"let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 set termguicolors
 set background=dark
-colorscheme dracula
+colorscheme hybrid_material
 
 "NERDTree
 " How can I close vim if the only window left open is a NERDTree?
