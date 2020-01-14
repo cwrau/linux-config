@@ -21,13 +21,13 @@ function update() {
     echo "%{F$color_red}Kernel Update%{F-}"
    # if mkdir $DIR/LOCK &> /dev/null
    # then
-   while true
-   do
-     notify-send.sh -t 10000 -R $DIR/NOTIFICATION_ID -u critical "Kernel Update, reboot?" \
-            -o Yes:"systemctl reboot" \
-            -o No:echo
-     sleep 15
-   done
+#   while true
+#   do
+#     notify-send.sh -t 10000 -R $DIR/NOTIFICATION_ID -u critical "Kernel Update, reboot?" \
+#            -o Yes:"systemctl reboot" \
+#            -o No:echo
+#     sleep 15
+#   done
      # choice=$(timeout 10 dunstify -t 10000 -r 051151 -u critical -A yes,Yes -A no,No "Kernel Update, reboot?" || true)
      # case $choice in
      #   yes) reboot ;;
