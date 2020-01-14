@@ -228,6 +228,11 @@ function ss() {
   fi
 }
 
+function google() {
+  local IFS=+
+  xdg-open "http://google.com/search?q=${*}"
+}
+
 #function release4App() {
 #  local version="$1"
 #  local newVersion="$2"
@@ -286,6 +291,7 @@ nAlias vim nvim
 nAlias vi vim
 nAlias cat bat -p
 nAlias less slit
+nAlias ps procs
 reAlias fzf --ansi
 reAlias prettyping --nolegend
 nAlias ping prettyping
