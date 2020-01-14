@@ -87,11 +87,13 @@ else
   #packages
   packages=(yubico-pam feh bash-completion libu2f-host pcsclite ccid gnupg shfmt networkmanager-openvpn matcha-gtk-theme papirus-icon-theme xwinfo ttf-fira-code ttf-dejavu ttf-liberation breeze-hacked-cursor-theme clipmenu clipnotify xclip pulseaudio pulseaudio-bluetooth intel-ucode polkit polkit-gnome fzf android-udev bluez libsecret libgnome-keyring p7zip unzip xorg-xwininfo xorg-xprop xorg-xinit xorg-xinput gnome-disk-utility freetype2-cleartype linux-headers linux-firmware noto-fonts-emoji exfat-utils
     xorg-server bc gotop-bin git ripgrep fd bat kubectl-bin kubernetes-helm2 docker docker-compose subversion git curl diff-so-fancy tldr++ prettyping ncdu youtube-dl blugon playerctl scrot i3-gaps i3lock-color perl-anyevent-i3 network-manager-applet rke-bin jq bash-git-prompt httpie dunst glances net-tools zsh antigen-git dmenu-frecency imagemagick xorg-xrandr yay-bin jdk-openjdk openjdk-src jdk8-openjdk openjdk8-src networkmanager-dmenu cht.sh splatmoji-git bind-tools whois nload gtop
-    nodejs-terminalizer dive uhk-agent-appimage hadolint-bin powertop android-tools pastebinit ausweisapp2 neovim neovim-plug python-pynvim nodejs-neovim python2-pynvim ruby-neovim bash-language-server python-language-server python-mccabe python-rope python-pyflakes python-pycodestyle yapf python-pylint flake8 dockerfile-language-server-bin vue-language-server yaml-language-server-bin kotlin-language-server java-language-server blueman pup-bin openssh gnome-keyring mupdf xarchiver gvfs gvfs-smb k9s-bin mousepad arandr rofi rofi-dmenu udiskie-dmenu-git cups storageexplorer slit-git krew-bin rsync lxrandr yq python-nvidia-ml-py3-git dolphin-emu nvidia vulkan-icd-loader vlc libdvdread libdvdcss magic-wormhole python-pip python-traitlets python-notify2 glava autorandr inotify-tools xorg-xkill pkgstats
+    nodejs-terminalizer dive uhk-agent-appimage hadolint-bin powertop android-tools pastebinit ausweisapp2 neovim neovim-drop-in neovim-plug python-pynvim nodejs-neovim python2-pynvim ruby-neovim bash-language-server python-language-server python-mccabe python-rope python-pyflakes python-pycodestyle yapf python-pylint flake8 dockerfile-language-server-bin vue-language-server yaml-language-server-bin kotlin-language-server java-language-server blueman pup-bin openssh gnome-keyring mupdf xarchiver gvfs gvfs-smb k9s mousepad arandr rofi rofi-dmenu udiskie-dmenu-git cups storageexplorer slit-git krew-bin rsync lxrandr yq dolphin-emu nvidia vulkan-icd-loader vlc libdvdread libdvdcss magic-wormhole python-pip python-traitlets python-notify2 glava autorandr inotify-tools xorg-xkill pkgstats
     libinput-gestures python-virtualenv xfce4-power-manager polybar picom kdeconnect mitmproxy python-tornado nerd-fonts-complete fwupd notify-send.sh pavucontrol pcmanfm ttf-font-awesome thunderbird-extension-enigmail pamixer virt-manager dnsmasq ebtables kubebox visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark krita jetbrains-toolbox gpmdp zoom yarn xorg-xhost sxiv vue-cli telepresence remmina powerpill noto-fonts-all k3s-bin heluxup go-pie flatpak
-    earlyoom gnome-network-displays whatsapp-nativefier telegram-desktop-bin teams-insiders nvtop)
+    earlyoom gnome-network-displays whatsapp-nativefier telegram-desktop-bin teams nvtop exo obs-studio libva-mesa-driver audacity i3-layout-manager)
 
   yay -Syu --noconfirm --needed ${packages[@]}
+
+  nvim +PlugInstall +exit +exit
 
   sudo pip install dynmem pulsectl
 
@@ -105,7 +107,7 @@ else
   flatpak run com.valvesoftware.Steam
   flatpak override com.valvesoftware.Steam --filesystem=$HOME
 
-  sudo usermod -a -G docker,wheel cwr
+  sudo usermod -a -G docker,wheel,input cwr
 
   mkdir -p ${HOME}/projects
   git clone https://github.com/cwrau/linux-config ${HOME}/projects/linux-config
