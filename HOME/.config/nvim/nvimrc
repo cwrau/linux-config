@@ -4,7 +4,10 @@ Plug 'scrooloose/nerdtree' " FileBrowser
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
 Plug 'scrooloose/nerdcommenter' " better commenting 
 Plug 'vim-syntastic/syntastic' " syntax check for most languages
-Plug 'bling/vim-airline' " better monitoring
+Plug 'vim-airline/vim-airline' " better monitoring
+Plug 'airblade/vim-gitgutter'
+Plug 'mhinz/vim-signify'
+Plug 'tpope/vim-fugitive'
 Plug 'jiangmiao/auto-pairs' " add eg. (->)
 Plug 'christoomey/vim-tmux-navigator' " better tmux support
 Plug 'kristijanhusak/vim-hybrid-material' " Dark Theme
@@ -13,8 +16,9 @@ Plug 'ctrlpvim/ctrlp.vim' " use Fuzzy Finder to switch between Files (C-p)
 Plug 'PotatoesMaster/i3-vim-syntax' " for syntax in i3 config file
 Plug 'easymotion/vim-easymotion'
 Plug 'mxw/vim-jsx'
-Plug 'w0rp/ale'
+" Plug 'w0rp/ale'
 Plug 'udalov/kotlin-vim'
+Plug 'farmergreg/vim-lastplace'
 Plug 'autozimu/LanguageClient-neovim', { 
      \   'branch': 'next',
      \   'do': 'bash install.sh',
@@ -30,6 +34,23 @@ let g:LanguageClient_serverCommands = {
      \   'java': ['java-language-server'],
      \ }
 
+"
+"Plug 'neoclide/coc.nvim', {'branch': 'release'}
+"inoremap <silent><expr> <TAB>
+"      \ pumvisible() ? "\<C-n>" :
+"      \ <SID>check_back_space() ? "\<TAB>" :
+"      \ coc#refresh()
+"inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+"
+"function! s:check_back_space() abort
+"  let col = col('.') - 1
+"  return !col || getline('.')[col - 1]  =~# '\s'
+"endfunction
+"
+"inoremap <silent><expr> <c-space> coc#refresh()
+"inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+"
+
 " call PlugInstall to install new plugins
 call plug#end()
 " basics
@@ -39,7 +60,7 @@ set relativenumber
 set incsearch
 set ignorecase
 set smartcase
-set nohlsearch
+set hlsearch
 set tabstop=2
 set softtabstop=0
 set shiftwidth=2
@@ -47,6 +68,8 @@ set expandtab
 set nobackup
 set noswapfile
 set nowrap
+set undofile
+set undodir=$HOME/.cache/nvim-undodir
 
 " fuzzy finding with vim
 set path+=**
@@ -70,16 +93,16 @@ vnoremap > >gv
 "noremap Y y$
 " navigate split screens easily
 " change spacing for language specific
-autocmd Filetype javascript setlocal ts=2 sts=2 sw=2
+"autocmd Filetype javascript setlocal ts=2 sts=2 sw=2
 
 " plugin settings
 
 " deoplete
 let g:deoplete#enable_at_startup = 1
 " use tab to forward cycle
-inoremap <silent><expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
+"inoremap <silent><expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
 " use tab to backward cycle
-inoremap <silent><expr><s-tab> pumvisible() ? "\<c-p>" : "\<s-tab>"
+"inoremap <silent><expr><s-tab> pumvisible() ? "\<c-p>" : "\<s-tab>"
 " Close the documentation window when completion is done
 autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
 
@@ -99,6 +122,7 @@ let g:NERDTreeChDirMode=2
 let g:NERDTreeIgnore=['\.rbc$', '\~$', '\.pyc$', '\.db$', '\.sqlite$', '__pycache__', 'node_modules']
 let g:NERDTreeSortOrder=['^__\.py$', '\/$', '*', '\.swp$', '\.bak$', '\~$']
 let g:NERDTreeShowBookmarks=1
+let g:NERDTreeShowHidden=1
 let g:nerdtree_tabs_focus_on_files=1
 let g:NERDTreeMapOpenInTabSilent = '<RightMouse>'
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite
