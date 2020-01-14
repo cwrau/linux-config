@@ -60,7 +60,7 @@ def audio_profile():
     if card is None:
         return
 
-    profiles = card.profile_list
+    profiles = [profile for profile in card.profile_list if profile.available != 0]
 
     profile = get_choice(profiles, "profile", lambda p: p.description, lambda p: p.name == card.profile_active.name)
 
