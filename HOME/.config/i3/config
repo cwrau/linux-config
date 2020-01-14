@@ -49,6 +49,7 @@ set $exaid exec_always --no-startup-id
 #bindsym $mod+d $exid j4-dmenu-desktop --usage-log=$HOME/.config/i3/j4-dmenu-desktop-usage --no-generic
 #bindsym $mod+d $exid dmenu-frecency
 bindsym $mod+d $exid i3-dmenu-desktop
+#bindsym $mod+d $exid 'rofi -mode drun'
 
 # change focus
 #bindsym $mod+j focus left
@@ -147,6 +148,7 @@ bindsym $mod+r mode "resize"
 
 # $exaid /home/cwr/.config/polybar/launch.sh
 
+$exaid i3-msg "workspace 20:Chat; append_layout $HOME/.layouts/layout-CHATS.json
 $exaid feh --bg-fill $HOME/.config/background.jpg
 $exaid sh -c 'pgrep nm-applet || exec nm-applet'
 $exaid sh -c 'pgrep kdeconnectd | grep -v -E "pgrep|$$" || exec /usr/lib/kdeconnectd'
@@ -154,28 +156,28 @@ $exaid sh -c 'pgrep kdeconnect-indi | grep -v -E "pgrep|$$" || exec kdeconnect-i
 $exaid sh -c 'pgrep -f clipmenud | grep -v -E "pgrep|$$" || CM_MAX_CLIPS=0 CM_DIR=$HOME/.cache/clipmenud exec clipmenud'
 $exaid sh -c 'pgrep jetbrains-toolb || exec jetbrains-toolbox --window-mode --minimize'
 $exaid sh -c 'pgrep polkit-gnome-au || exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
-$exaid sh -c 'pgrep earlyoom || exec sudo earlyoom --avoid "i3.*|custom.sh|teams-insiders|glava|polybar|.*gpmdp.*" -m 1'
+$exaid sh -c 'pgrep earlyoom || exec sudo earlyoom -n --avoid "i3.*|custom.sh|teams|glava|polybar|.*gpmdp.*" -m 2'
 $exaid sh -c 'pgrep slack || exec slack'
 $exaid sh -c 'pgrep telegram-deskto || exec telegram-desktop'
 $exaid sh -c 'pgrep whats-app || exec whatsapp-nativefier'
 # GooglePlayMusicDestopPlayer is broken
 $exaid sh -c 'pgrep "Google Play Mus" || exec gpmdp'
 #$exaid sh -c 'pgrep GooglePlayMusic || exec /opt/GooglePlayMusic/GooglePlayMusic'
-$exaid sh -c 'pgrep teams-insiders || exec teams-insiders'
+$exaid sh -c 'pgrep teams || exec teams'
 #$exaid sh -c 'pgrep qtws || exec /usr/bin/qtws /usr/share/qtws-apps/netflix/netflix.qtws --disable-seccomp-filter-sandbox --register-pepper-plugins="/usr/lib/qt/plugins/ppapi/libwidevinecdmadapter.so; application/x-ppapi-widevine-cdm"'
 # switched to outlook web
 #$exaid sh -c 'pgrep mailspring || exec mailspring'
 $exaid sh -c 'pgrep chrome || exec google-chrome-stable --force-dark-mode --enable-features=OverlayScrollbar,OverlayScrollbarFlashAfterAnyScrollUpdate,OverlayScrollbarFlashWhenMouseEnter'
 #$exaid sh -c 'pkill deadd-notificat; exec deadd-notification-center'
 $exaid sh -c 'pgrep dunst || exec dunst'
-$exaid libinput-gestures-setup start
+$exaid libinput-gestures-setup restart
 $exaid sh -c 'pgrep xfce4-power-man || exec xfce4-power-manager'
 
 default_border none
 for_window [class="jetbrains-toolbox"] floating enable
 for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
 for_window [class="Gnome-network-displays"] floating enable
-for_window [class="Microsoft Teams - Insiders" title="Microsoft Teams Notification"] floating enable
+for_window [class="Microsoft Teams" title="Microsoft Teams Notification"] floating enable
 
 $exaid $HOME/.config/i3/rc.sh
 
@@ -205,7 +207,7 @@ mode $Power {
 
 # Emoji Keyboard
 
-bindsym $mod+period $exid splatmoji type
+bindsym $mod+period $exid sh -c 'splatmoji copy && xdotool key --clearmodifiers ctrl+shift+v'
 bindsym $mod+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
 
 # Pulse Audio controls
@@ -249,7 +251,7 @@ bindsym $mod+u $exid udiskie-dmenu
 bindsym $mod+x $exid xkill
 
 # Clipboard-Manager
-bindsym $mod+Shift+v $exid sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i && xdotool key --clearmodifiers ctrl+v'
+bindsym $mod+Shift+v $exid sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i && xdotool key --clearmodifiers ctrl+shift+v'
 bindsym $mod+Ctrl+v $exid sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i'
 
 # Screenshots
@@ -262,8 +264,9 @@ bindsym Ctrl+Print --release $exid "scrot -s $HOME/Screenshots/$(date +%FT%T.%2N
 # Full Screen > File
 bindsym Ctrl+Shift+Print $exid "scrot $HOME/Screenshots/$(date +%FT%T.%2N).png"
 
-bindsym $mod+c exec "google-chrome-stable --force-dark-mode --enable-features=OverlayScrollbar,OverlayScrollbarFlashAfterAnyScrollUpdate,OverlayScrollbarFlashWhenMouseEnter"
-bindsym $mod+Shift+c exec "google-chrome-stable --force-dark-mode --enable-features=OverlayScrollbar,OverlayScrollbarFlashAfterAnyScrollUpdate,OverlayScrollbarFlashWhenMouseEnter"
+bindsym $mod+c exec "exo-open --launch WebBrowser"
+bindsym $mod+Shift+c exec "exo-open --launch WebBrowser --incognito"
+bindsym $mod+g exec sh -c 'xdg-open https://google.com/search\?q\=$(dmenu -p google | tr " " "+")'
 
 for_window [class="jetbrains-idea" title="Debug"] floating disable
 for_window [class="java-lang-Thread" instance="java-lang-Thread"] floating enable
@@ -276,8 +279,8 @@ for_window [class="Kazam"] floating enable
 
 set $alt Mod1
 
-bindsym $mod+Page_Up workspace next
-bindsym $mod+Page_Down workspace prev
+bindsym $mod+Page_Up workspace prev
+bindsym $mod+Page_Down workspace next
 
 # switch to workspace
 bindsym $mod+1 workspace 1
@@ -312,8 +315,8 @@ for_window [class="Google Play Music Desktop Player"] move to workspace 18:GPMDP
 for_window [class="GooglePlayMusic"] move to workspace 18:GPMDP
 
 bindsym $mod+$alt+9 workspace 19:Teams
-assign [class="Microsoft Teams - Insiders"] 19:Teams
-for_window [class="Microsoft Teams - Insiders"] move to workspace 19:Teams
+assign [class="Microsoft Teams"] 19:Teams
+for_window [class="Microsoft Teams"] move to workspace 19:Teams
 assign [class="Google-chrome" title=".*Microsoft Teams"] 19:Teams
 for_window [class="Google-chrome" title=".*Microsoft Teams"] move to workspace 19:Teams
 
