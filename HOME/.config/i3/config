@@ -163,7 +163,7 @@ $exaid sh -c 'pgrep whats-app || exec whatsapp-nativefier'
 # GooglePlayMusicDestopPlayer is broken
 $exaid sh -c 'pgrep "Google Play Mus" || exec gpmdp'
 #$exaid sh -c 'pgrep GooglePlayMusic || exec /opt/GooglePlayMusic/GooglePlayMusic'
-$exaid sh -c 'pgrep teams || exec teams'
+$exaid sh -c 'pgrep teams-insiders || exec teams-insiders'
 #$exaid sh -c 'pgrep qtws || exec /usr/bin/qtws /usr/share/qtws-apps/netflix/netflix.qtws --disable-seccomp-filter-sandbox --register-pepper-plugins="/usr/lib/qt/plugins/ppapi/libwidevinecdmadapter.so; application/x-ppapi-widevine-cdm"'
 # switched to outlook web
 #$exaid sh -c 'pgrep mailspring || exec mailspring'
@@ -315,8 +315,8 @@ for_window [class="Google Play Music Desktop Player"] move to workspace 18:GPMDP
 for_window [class="GooglePlayMusic"] move to workspace 18:GPMDP
 
 bindsym $mod+$alt+9 workspace 19:Teams
-assign [class="Microsoft Teams"] 19:Teams
-for_window [class="Microsoft Teams"] move to workspace 19:Teams
+assign [class="Microsoft Teams - Insiders"] 19:Teams
+for_window [class="Microsoft Teams - Insiders"] move to workspace 19:Teams
 assign [class="Google-chrome" title=".*Microsoft Teams"] 19:Teams
 for_window [class="Google-chrome" title=".*Microsoft Teams"] move to workspace 19:Teams
 
@@ -358,9 +358,12 @@ bindsym Ctrl+$mod+Down move workspace to output down
 
 set $external HDMI-1-1
 set $external2 DP-1-1
+set $external3 DP-1-1-1
 set $internal eDP-1-1
 
-workspace 1 output $external $external2
+workspace 1 output $external
+workspace 1 output $external2
+workspace 1 output $external3
 workspace 16:YouTube output $internal
 workspace 17:Netflix output $internal
 workspace 18:GPMDP output $internal

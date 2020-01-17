@@ -97,13 +97,6 @@ DISABLE_AUTO_UPDATE="true"
 
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}'
 
-SAVEHIST=9223372036854775807
-HISTSIZE=9223372036854775807
-
-setopt INC_APPEND_HISTORY
-setopt HIST_IGNORE_DUPS
-setopt HIST_REDUCE_BLANKS
-
 ZSH_CACHE_DIR=$HOME/.cache/oh-my-zsh
 if [[ ! -d $ZSH_CACHE_DIR ]]; then
   mkdir $ZSH_CACHE_DIR
@@ -130,6 +123,14 @@ autoload -U compinit && compinit
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ -f ~/.config/p10k.zsh ]] && source ~/.config/p10k.zsh
+
+export SAVEHIST=9223372036854775807
+export HISTSIZE=9223372036854775807
+
+setopt INC_APPEND_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_REDUCE_BLANKS
+unsetopt share_history
 
 function command_not_found_handler() {
   echo "Command '$1' not found, but could be installed via the following packages:"
@@ -323,4 +324,3 @@ export EDITOR="$VISUAL"
 [ -d /usr/local/bin/custom ] && PATH="$PATH:/usr/local/bin/custom"
 [ -d /usr/local/bin/custom/custom ] && PATH="$PATH:/usr/local/bin/custom/custom"
 
-unsetopt share_history
