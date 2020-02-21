@@ -837,7 +837,11 @@
                   "scancode": 73
                 },
                 null,
-                null,
+                {
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 40
+                },
                 {
                   "keyActionType": "keystroke",
                   "type": "basic",
@@ -1136,10 +1140,7 @@
               "keyActions": [
                 null,
                 null,
-                {
-                  "keyActionType": "switchKeymap",
-                  "keymapAbbreviation": "IDE"
-                },
+                null,
                 {
                   "keyActionType": "switchKeymap",
                   "keymapAbbreviation": "CLS"
@@ -1229,7 +1230,10 @@
                   "keyActionType": "mouse",
                   "mouseAction": "scrollRight"
                 },
-                null,
+                {
+                  "keyActionType": "mouse",
+                  "mouseAction": "accelerate"
+                },
                 null,
                 null,
                 null,
@@ -1249,7 +1253,10 @@
                   "keyActionType": "mouse",
                   "mouseAction": "moveRight"
                 },
-                null,
+                {
+                  "keyActionType": "mouse",
+                  "mouseAction": "decelerate"
+                },
                 null,
                 null,
                 {
@@ -1307,32 +1314,53 @@
                 null,
                 null,
                 null,
+                {
+                  "keyActionType": "mouse",
+                  "mouseAction": "accelerate"
+                },
+                {
+                  "keyActionType": "mouse",
+                  "mouseAction": "scrollLeft"
+                },
+                {
+                  "keyActionType": "mouse",
+                  "mouseAction": "moveUp"
+                },
+                {
+                  "keyActionType": "mouse",
+                  "mouseAction": "scrollRight"
+                },
                 null,
-                null,
-                null,
-                null,
-                null,
-                null,
+                {
+                  "keyActionType": "mouse",
+                  "mouseAction": "scrollUp"
+                },
                 {
                   "keyActionType": "switchLayer",
                   "layer": "mouse",
                   "switchLayerMode": "holdAndDoubleTapToggle"
                 },
-                null,
                 {
                   "keyActionType": "mouse",
-                  "mouseAction": "rightClick"
+                  "mouseAction": "decelerate"
                 },
                 {
                   "keyActionType": "mouse",
-                  "mouseAction": "middleClick"
+                  "mouseAction": "moveLeft"
                 },
                 {
                   "keyActionType": "mouse",
-                  "mouseAction": "leftClick"
+                  "mouseAction": "moveDown"
+                },
+                {
+                  "keyActionType": "mouse",
+                  "mouseAction": "moveRight"
                 },
                 null,
-                null,
+                {
+                  "keyActionType": "mouse",
+                  "mouseAction": "scrollDown"
+                },
                 {
                   "keyActionType": "keystroke",
                   "type": "basic",
@@ -1343,7 +1371,10 @@
                 null,
                 null,
                 null,
-                null,
+                {
+                  "keyActionType": "mouse",
+                  "mouseAction": "middleClick"
+                },
                 {
                   "keyActionType": "keystroke",
                   "type": "basic",
@@ -1362,11 +1393,11 @@
                 null,
                 {
                   "keyActionType": "mouse",
-                  "mouseAction": "decelerate"
+                  "mouseAction": "rightClick"
                 },
                 {
                   "keyActionType": "mouse",
-                  "mouseAction": "accelerate"
+                  "mouseAction": "leftClick"
                 },
                 null
               ]

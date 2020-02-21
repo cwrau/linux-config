@@ -13,8 +13,7 @@ ROOT on / (^_^)
 cryptsetup luksFormat --type luks @DISK@ #not luks2! Incompatible with grub
 EOF
 
-if [[ $(id -u) = 0 ]]
-then
+if [[ $(id -u) = 0 ]]; then
   timedatectl set-timezone Europe/Berlin
   hwclock --systohc
   localectl set-locale LANG=en_US.UTF-8
@@ -24,14 +23,14 @@ then
   localectl set-keymap us-latin1
   localectl set-x11-keymap us latin1
   hostnamectl set-hostname steve
-  cat <<EOF > /etc/hosts
+  cat <<EOF >/etc/hosts
 127.0.0.1 localhost
 ::1 localhost
 127.0.0.1 $(hostname)
 EOF
   sed -r -i 's#^HOOKS=.+$#HOOKS=(base udev autodetect modconf block keyboard keymap encrypt filesystems)#g' /etc/mkinitcpio.conf
   sed -r -i 's#^MODULES=.+$#MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)#g' /etc/mkinitcpio.conf
-  echo "cwr ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/cwr
+  echo "cwr ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/cwr
   id -u cwr || (
     useradd cwr -d /home/cwr -U -m
     passwd cwr
@@ -40,16 +39,14 @@ EOF
 
   pacman -Sy --noconfirm --needed pacman-contrib
 
-  curl -s "https://www.archlinux.org/mirrorlist/?country=DE&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 10 - > /etc/pacman.d/mirrorlist
+  curl -s "https://www.archlinux.org/mirrorlist/?country=DE&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 10 - >/etc/pacman.d/mirrorlist
 
   pacman -Sy --noconfirm --needed grub efibootmgr linux
 
   answer="NO"
-  until [[ "${answer}" == "YES" ]]
-  do
+  until [[ "${answer}" == "YES" ]]; do
     disk='$$$$$$$$'
-    until [[ -e "/dev/${disk}" ]]
-    do
+    until [[ -e "/dev/${disk}" ]]; do
       echo -e "Type the name of the device on which Arch is to be installed.\nMake sure to type the right one!"
       read disk
     done
@@ -58,7 +55,7 @@ EOF
   done
   eval $(blkid /dev/${disk} -o export)
   sed -r -i "s#^GRUB_CMDLINE_LINUX_DEFAULT=.+\$#GRUB_CMDLINE_LINUX_DEFAULT=\"cryptdevice=UUID=$UUID:luks-$UUID root=/dev/mapper/luks-$UUID resume=/dev/mapper/luks-$UUID nvidia-drm.modeset=1\"#g" /etc/default/grub
-  echo 'GRUB_ENABLE_CRYPTODISK=y' >> /etc/default/grub
+  echo 'GRUB_ENABLE_CRYPTODISK=y' >>/etc/default/grub
 
   #if [[ ! -f  /crypto_keyfile.bin ]]
   #then
@@ -89,7 +86,7 @@ else
     xorg-server bc gotop-bin git ripgrep fd bat kubectl-bin kubernetes-helm2 docker docker-compose subversion git curl diff-so-fancy tldr++ prettyping ncdu youtube-dl blugon playerctl scrot i3-gaps i3lock-color perl-anyevent-i3 network-manager-applet rke-bin jq bash-git-prompt httpie dunst glances net-tools zsh antigen-git dmenu-frecency imagemagick xorg-xrandr yay-bin jdk-openjdk openjdk-src jdk8-openjdk openjdk8-src networkmanager-dmenu cht.sh splatmoji-git bind-tools whois nload gtop
     nodejs-terminalizer dive uhk-agent-appimage hadolint-bin powertop android-tools pastebinit ausweisapp2 neovim neovim-drop-in neovim-plug python-pynvim nodejs-neovim python2-pynvim ruby-neovim bash-language-server python-language-server python-mccabe python-rope python-pyflakes python-pycodestyle yapf python-pylint flake8 dockerfile-language-server-bin vue-language-server yaml-language-server-bin kotlin-language-server java-language-server blueman pup-bin openssh gnome-keyring mupdf xarchiver gvfs gvfs-smb k9s mousepad arandr rofi rofi-dmenu udiskie-dmenu-git cups storageexplorer slit-git krew-bin rsync lxrandr yq dolphin-emu nvidia vulkan-icd-loader vlc libdvdread libdvdcss magic-wormhole python-pip python-traitlets python-notify2 glava autorandr inotify-tools xorg-xkill pkgstats
     libinput-gestures python-virtualenv xfce4-power-manager polybar picom kdeconnect mitmproxy python-tornado nerd-fonts-complete fwupd notify-send.sh pavucontrol pcmanfm ttf-font-awesome thunderbird-extension-enigmail pamixer virt-manager dnsmasq ebtables kubebox visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark krita jetbrains-toolbox gpmdp zoom yarn xorg-xhost sxiv vue-cli telepresence remmina powerpill noto-fonts-all k3s-bin heluxup go-pie flatpak
-    earlyoom gnome-network-displays whatsapp-nativefier telegram-desktop-bin teams nvtop exo obs-studio libva-mesa-driver audacity i3-layout-manager)
+    earlyoom gnome-network-displays whatsapp-nativefier telegram-desktop-bin teams nvtop exo obs-studio libva-mesa-driver audacity i3-layout-manager js-beautify deluge img-bin)
 
   yay -Syu --noconfirm --needed ${packages[@]}
 
@@ -150,14 +147,12 @@ else
   sudo ln -sf ${HOME}/projects/linux-config/BIN /usr/local/bin/custom
   sudo rm -rf /usr/share/icons/default
   sudo ln -sf Breeze_Hacked /usr/share/icons/default
-  for hook in ${HOME}/projects/linux-config/pacman-hooks/*
-  do
+  for hook in ${HOME}/projects/linux-config/pacman-hooks/*; do
     sudo ln -sf ${hook} /usr/share/libalpm/hooks/$(basename ${hook})
   done
-  sudo ln -s /etc/fonts/conf.avail/11-lcdfilter-default.conf /etc/fonts/conf.d/
-  sudo ln -s /etc/fonts/conf.avail/10-sub-pixel-rgb.conf /etc/fonts/conf.d/
+  homeConfiglink .config/fontconfig
 
-  echo "yes" > ${HOME}/.config/gnome-initial-setup-done
+  echo "yes" >${HOME}/.config/gnome-initial-setup-done
 
   chown ${USER}:${USER} -R ${HOME}
 
@@ -167,22 +162,19 @@ else
 
   echo "$USER ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/${USER}
 
-  if ! grep pam_gnome_keyring.so /etc/pam.d/login &>/dev/null
-  then
+  if ! grep pam_gnome_keyring.so /etc/pam.d/login &>/dev/null; then
     authSectionEnd="$(grep -n ^auth /etc/pam.d/login | sort -n | tail -1 | sed -r 's#^([0-9]+):.+$#\1#g')"
     sessionSectionEnd="$(grep -n ^session /etc/pam.d/login | sort -n | tail -1 | sed -r 's#^([0-9]+):.+$#\1#g')"
 
-    sudo sed -i -r "$(( $authSectionEnd + 1 ))i auth       optional     pam_gnome_keyring.so" /etc/pam.d/login
-    if [[ "$(( sessionSectionEnd + 1 ))" -ge "$(wc -l < /etc/pam.d/login)" ]]
-    then
+    sudo sed -i -r "$(($authSectionEnd + 1))i auth       optional     pam_gnome_keyring.so" /etc/pam.d/login
+    if [[ "$((sessionSectionEnd + 1))" -ge "$(wc -l </etc/pam.d/login)" ]]; then
       sudo sed -i -r "$ a session    optional     pam_gnome_keyring.so auto_start" /etc/pam.d/login
     else
-      sudo sed -i -r "$(( $sessionSectionEnd + 1 ))i session    optional     pam_gnome_keyring.so auto_start" /etc/pam.d/login
+      sudo sed -i -r "$(($sessionSectionEnd + 1))i session    optional     pam_gnome_keyring.so auto_start" /etc/pam.d/login
     fi
   fi
 
-  if ! grep pam_yubico.so /etc/pam.d/system-auth &>/dev/null
-  then
+  if ! grep pam_yubico.so /etc/pam.d/system-auth &>/dev/null; then
     # only make it sufficient, you're not supposed to publish the challenge response files (?)
     sudo sed '2 i \\nauth sufficient pam_yubico.so mode=challenge-response chalresp_path=/var/yubico' /etc/pam.d/system-auth -i
     echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/$USER-*'"

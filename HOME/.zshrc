@@ -8,7 +8,7 @@ ZSH=/usr/share/oh-my-zsh/
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="robbyrussell"
+#ZSH_THEME="robbyrussell"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -103,7 +103,7 @@ if [[ ! -d $ZSH_CACHE_DIR ]]; then
 fi
 
 source /usr/share/zsh/share/antigen.zsh
-plugins=(git common-aliases docker-compose docker fancy-ctrl-z fd fzf gpg-agent helm httpie kubectl mvn gradle ripgrep sudo)
+plugins=(git git-auto-fetch gitfast common-aliases docker-compose docker fancy-ctrl-z fd fzf gpg-agent helm httpie kubectl mvn gradle ripgrep sudo)
 
 antigen use oh-my-zsh
 for plugin in $plugins; do
@@ -119,16 +119,17 @@ antigen apply
 #  source "$plugin"
 #done
 
-autoload -U compinit && compinit
+autoload -U compinit && compinit -d $HOME/.cache/zsh/zcompdump-$ZSH_VERSION
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ -f ~/.config/p10k.zsh ]] && source ~/.config/p10k.zsh
+[[ -f /opt/azure-cli/az.completion ]] && source /opt/azure-cli/az.completion
 
 export SAVEHIST=9223372036854775807
 export HISTSIZE=9223372036854775807
 
 setopt INC_APPEND_HISTORY
-setopt HIST_IGNORE_DUPS
+unsetopt HIST_IGNORE_DUPS
 setopt HIST_REDUCE_BLANKS
 unsetopt share_history
 
@@ -234,6 +235,18 @@ function google() {
   xdg-open "http://google.com/search?q=${*}"
 }
 
+function grim() {
+  local choice
+  choice="$(rg $* | fzf | cut -d ':' -f 1)"
+  [ "$?" = 0 ] && vim "$choice"
+}
+
+function fim() {
+  local choice
+  choice="$(fd $* | fzf)"
+  [ "$?" = 0 ] && vim "$choice"
+}
+
 #function release4App() {
 #  local version="$1"
 #  local newVersion="$2"
@@ -266,14 +279,15 @@ function nAlias() {
   if command -v $2 &> /dev/null; then
     local param="${@:2}"
     alias "$1=${param}"
-    #if [ -r /etc/bash_completion ] ||
-    #   [ -r /etc/profile.d/bash_completion.sh ] ||
-    #   [ -r /usr/share/bash-completion/bash_completion ]; then
-    #  complete -F _complete_alias $1
-    #fi
+#    if [ -r /etc/bash_completion ] ||
+#       [ -r /etc/profile.d/bash_completion.sh ] ||
+#       [ -r /usr/share/bash-completion/bash_completion ]; then
+#      complete -F _complete_alias $1
+#    fi
   fi
 }
 
+unalias fd
 nAlias :q exit
 nAlias :e nvim
 reAlias env ' | sort'
@@ -283,7 +297,7 @@ reAlias mv -i
 reAlias ls -phAvbl --color=always --time-style=long-iso
 reAlias nvim -b
 if [[ "$(id -u)" != 0 ]] && command -v sudo &> /dev/null; then
-  for cmd in systemctl pacman; do
+  for cmd in systemctl pacman ignite ip; do
     nAlias $cmd sudo $cmd
   done
 fi
@@ -306,9 +320,10 @@ command -v powerpill &> /dev/null && reAlias yay --pacman powerpill
 nAlias docker-run docker run --rm -it
 nAlias htop gotop
 reAlias gotop -r 4
-reAlias fd
 nAlias gradle gradle-or-gradlew --no-daemon
-reAlias feh --scale-down --auto-zoom
+reAlias feh --scale-down --auto-zoom --auto-rotate
+nAlias grep rg
+nAlias o xdg-open
 
 alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
 

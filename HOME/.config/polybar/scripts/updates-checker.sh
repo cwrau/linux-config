@@ -18,13 +18,15 @@ function interval() {
 }
 
 function update() {
-  timeout 20 yay -Syy &>/dev/null
+  timeout 20 yay -Syy &>/dev/null &
+  FLATPATK_UPDATES=$(timeout 20 flatpak remote-ls --updates 2> /dev/null | wc -l)
+  wait
   UPDATES=$(yay -Qu --repo 2>/dev/null | wc -l)
   AUR_UPDATES=$(yay -Qu --aur 2> /dev/null | wc -l)
-  if (( (UPDATES + AUR_UPDATES) >= 1 )) && ! pgrep yay &> /dev/null
+  if (( (UPDATES + AUR_UPDATES + FLATPATK_UPDATES) >= 1 )) && ! pgrep yay &> /dev/null && ! pgrep flatpak &> /dev/null
   then
-    notify-send.sh -t 10000 -R $DIR/NOTIFICATION_ID -u critical "$(BAR_ICON) $UPDATES | $AUR_UPDATES $(BAR_ICON)"
-    i3-msg exec "i3-sensible-terminal -- sh -c 'yay -Syu --devel --noconfirm --removemake'"
+    notify-send.sh -t 10000 -R $DIR/NOTIFICATION_ID -u critical "$(BAR_ICON) $UPDATES | $AUR_UPDATES | $FLATPATK_UPDATES $(BAR_ICON)"
+    i3-msg exec "i3-sensible-terminal -- sh -c 'yay -Syu --devel --noconfirm --removemake && flatpak update --assumeyes'"
   fi
   echo
 }

@@ -1,8 +1,8 @@
 call plug#begin('$HOME/.config/nvim-plugins')
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' } " autocomplete
-Plug 'scrooloose/nerdtree' " FileBrowser 
+Plug 'scrooloose/nerdtree' " FileBrowser
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
-Plug 'scrooloose/nerdcommenter' " better commenting 
+Plug 'scrooloose/nerdcommenter' " better commenting
 Plug 'vim-syntastic/syntastic' " syntax check for most languages
 Plug 'vim-airline/vim-airline' " better monitoring
 Plug 'airblade/vim-gitgutter'
@@ -19,21 +19,27 @@ Plug 'mxw/vim-jsx'
 " Plug 'w0rp/ale'
 Plug 'udalov/kotlin-vim'
 Plug 'farmergreg/vim-lastplace'
-Plug 'autozimu/LanguageClient-neovim', { 
-     \   'branch': 'next',
-     \   'do': 'bash install.sh',
-     \ }
+Plug 'Chiel92/vim-autoformat'
+Plug 'christoomey/vim-system-copy'
+Plug 'pgdouyon/vim-evanesco'
+" au BufWrite * :Autoformat " Autoformat destroys yaml's
+noremap = :Autoformat<CR>
+Plug 'autozimu/LanguageClient-neovim', {
+      \   'branch': 'next',
+      \   'do': 'bash install.sh',
+      \ }
 
 let g:LanguageClient_serverCommands = {
-     \   'kotlin': ['kotlin-language-server'],
-     \   'bash': ['bash-language-server', 'start'],
-     \   'vue': ['vue-language-server'],
-     \   'python': ['pyls'],
-     \   'dockerfile': ['docker-langserver', '--stdio'],
-     \   'yaml': ['yaml-language-server'],
-     \   'java': ['java-language-server'],
-     \ }
+      \   'kotlin': ['kotlin-language-server'],
+      \   'bash': ['bash-language-server', 'start'],
+      \   'vue': ['vue-language-server'],
+      \   'python': ['pyls'],
+      \   'dockerfile': ['docker-langserver', '--stdio'],
+      \   'java': ['java-language-server'],
+      \   'yaml': ['yaml-language-server'],
+      \ }
 
+"
 "
 "Plug 'neoclide/coc.nvim', {'branch': 'release'}
 "inoremap <silent><expr> <TAB>
@@ -70,6 +76,7 @@ set noswapfile
 set nowrap
 set undofile
 set undodir=$HOME/.cache/nvim-undodir
+set inccommand=nosplit
 
 " fuzzy finding with vim
 set path+=**

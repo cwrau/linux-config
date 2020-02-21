@@ -45,9 +45,12 @@ esac
 
 if [ "$(hostname)" = 'steve' ]
 then
-  if [[ -z "$DISPLAY" ]] && [[ "$XDG_VTNR" -eq 1 ]]
-  then
-    exec startx
+  if [[ -z "$DISPLAY" ]]; then
+    if [[ "$XDG_VTNR" -eq 1 ]]; then
+      exec startx
+    elif [[ "$XDG_VTNR" -eq 2 ]]; then
+      exec sway
+    fi
   fi
 
   function proxy() {
@@ -150,6 +153,11 @@ else
   fi
 
   lastlog -u $USER | perl -lane 'END{print "Last login: @F[3..6] $F[8] from $F[2]"}'
+  if [ -d /services ]; then
+    cd /services
+  elif [ -d /docker ]; then
+    cd /docker
+  fi
 fi
 
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -169,9 +177,9 @@ function reAlias() {
 function nAlias() {
   if command -v $2 &> /dev/null; then
     alias "$1=${*:2}"
-    if [ -r /etc/bash_completion ] ||
+    if ([ -r /etc/bash_completion ] ||
        [ -r /etc/profile.d/bash_completion.sh ] ||
-       [ -r /usr/share/bash-completion/bash_completion ]; then
+       [ -r /usr/share/bash-completion/bash_completion ]) && type _complete_alias &> /dev/null; then
       complete -F _complete_alias $1
     fi
   fi
@@ -206,6 +214,8 @@ reAlias yay --pacman powerpill
 nAlias docker-run docker run --rm -it -u $(id -u):$(id -g)
 nAlias htop gotop
 reAlias gotop -r 4
+nAlias dc docker-compose
+command -v rg &> /dev/null || nAlias rg grep
 
 function diff() {
   /bin/diff -u "${@}" | diff-so-fancy | /bin/less --tabs=1,5 -RF
