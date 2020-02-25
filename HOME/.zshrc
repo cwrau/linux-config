@@ -247,6 +247,18 @@ function fim() {
   [ "$?" = 0 ] && vim "$choice"
 }
 
+function hr() {
+  local HR="$1"
+  [ -f "$HR" -a -r "$HR" ] || return
+  helm3 template --namespace $(yq .spec.targetNamespace $HR) --repo $(yq .spec.chart.repository $HR) $(yq .spec.releaseName $HR) $(yq .spec.chart.name $HR) --version $(yq .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
+}
+
+function hrDiff() {
+  local HR="$1"
+  [ -f "$HR" -a -r "$HR" ] || return
+  hr "$HR" | kubectl -n $(yq .spec.targetNamespace $HR) diff -f - | diff-so-fancy | /bin/less --tabs=1,5 -RFS
+}
+
 #function release4App() {
 #  local version="$1"
 #  local newVersion="$2"
@@ -316,11 +328,10 @@ reAlias rg -S
 reAlias jq -r
 reAlias yq -r
 nAlias k kubectl
-command -v powerpill &> /dev/null && reAlias yay --pacman powerpill
+command -v powerpill &> /dev/null && reAlias yay --pacman=powerpill
 nAlias docker-run docker run --rm -it
 nAlias htop gotop
 reAlias gotop -r 4
-nAlias gradle gradle-or-gradlew --no-daemon
 reAlias feh --scale-down --auto-zoom --auto-rotate
 nAlias grep rg
 nAlias o xdg-open

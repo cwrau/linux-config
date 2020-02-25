@@ -31,8 +31,8 @@
 [credential]
 	helper = store
 [pager]
-  diff = diff-so-fancy | less --tabs=1,5 -RFS --pattern '^(Date|added|deleted|modified): '
-  show = diff-so-fancy | less --tabs=1,5 -RFS --pattern '^(Date|added|deleted|modified): '
+  diff = diff-so-fancy | less --tabs=1,5 -RFS
+  show = diff-so-fancy | less --tabs=1,5 -RFS
 [color]
 	ui = true
 [color "diff-highlight"]
