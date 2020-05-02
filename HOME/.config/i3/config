@@ -146,9 +146,6 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
-# $exaid /home/cwr/.config/polybar/launch.sh
-
-$exaid i3-msg "workspace 20:Chat; append_layout $HOME/.layouts/layout-CHATS.json
 $exaid feh --bg-fill $HOME/.config/background.jpg
 $exaid sh -c 'pgrep nm-applet || exec nm-applet'
 $exaid sh -c 'pgrep kdeconnectd | grep -v -E "pgrep|$$" || exec /usr/lib/kdeconnectd'
@@ -159,22 +156,20 @@ $exaid sh -c 'pgrep polkit-gnome-au || exec /usr/lib/polkit-gnome/polkit-gnome-a
 $exaid sh -c 'pgrep earlyoom || exec sudo earlyoom -n --avoid "i3.*|custom.sh|teams|glava|polybar|.*gpmdp.*" -m 2'
 $exaid sh -c 'pgrep slack || exec slack'
 $exaid sh -c 'pgrep telegram-deskto || exec telegram-desktop'
-$exaid sh -c 'pgrep whats-app || exec whatsapp-nativefier'
-# GooglePlayMusicDestopPlayer is broken
+$exaid sh -c 'pgrep WhatsApp || exec whatsapp-nativefier'
+$exaid sh -c 'pgrep Discord || exec /usr/local/bin/custom/discord'
 $exaid sh -c 'pgrep "Google Play Mus" || exec gpmdp'
-#$exaid sh -c 'pgrep GooglePlayMusic || exec /opt/GooglePlayMusic/GooglePlayMusic'
 $exaid sh -c 'pgrep teams-insiders || exec teams-insiders'
-#$exaid sh -c 'pgrep qtws || exec /usr/bin/qtws /usr/share/qtws-apps/netflix/netflix.qtws --disable-seccomp-filter-sandbox --register-pepper-plugins="/usr/lib/qt/plugins/ppapi/libwidevinecdmadapter.so; application/x-ppapi-widevine-cdm"'
-# switched to outlook web
-#$exaid sh -c 'pgrep mailspring || exec mailspring'
 $exaid sh -c 'pgrep chrome || exec google-chrome-stable --force-dark-mode --enable-features=OverlayScrollbar,OverlayScrollbarFlashAfterAnyScrollUpdate,OverlayScrollbarFlashWhenMouseEnter'
 #$exaid sh -c 'pkill deadd-notificat; exec deadd-notification-center'
 $exaid sh -c 'pgrep dunst || exec dunst'
+$exaid sh -c 'pgrep steam || exec steam'
 $exaid libinput-gestures-setup restart
 $exaid sh -c 'pgrep xfce4-power-man || exec xfce4-power-manager'
 
 default_border none
 for_window [class="jetbrains-toolbox"] floating enable
+for_window [class="steam_app.*"] floating enable
 for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
 for_window [class="Gnome-network-displays"] floating enable
 for_window [class="Microsoft Teams" title="Microsoft Teams Notification"] floating enable
@@ -234,7 +229,6 @@ bindsym $mod+Ctrl+o $exid /usr/local/bin/custom/audio-profile
 bindsym $mod+o $exid /usr/local/bin/custom/audio-sink
 
 # Display Manager
-bindsym $mod+p $exid autorandr --skip-option gamma --change
 bindsym $mod+Shift+p $exid /usr/local/bin/custom/rofi-randr
 #bindsym $mod+p $exid /usr/bin/lxrandr
 bindsym $mod+b $exid sh -c "sudo rfkill unblock bluetooth && /usr/local/bin/custom/bluetooth_dmenu"
@@ -248,7 +242,7 @@ bindsym $mod+i $exid networkmanager_dmenu
 # Mount-Manager
 bindsym $mod+u $exid udiskie-dmenu
 
-bindsym $mod+x $exid xkill
+bindsym $mod+x exec xkill
 
 # Clipboard-Manager
 bindsym $mod+Shift+v $exid sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i && xdotool key --clearmodifiers ctrl+shift+v'
@@ -297,8 +291,14 @@ bindsym $mod+0 workspace 10
 bindsym $mod+$alt+1 workspace 11
 bindsym $mod+$alt+2 workspace 12
 bindsym $mod+$alt+3 workspace 13
-bindsym $mod+$alt+4 workspace 14
-bindsym $mod+$alt+5 workspace 15
+
+bindsym $mod+$alt+4 workspace 14:Discord
+assign [class="discord"] 14:Discord
+for_window [class="discord"] move to workspace 14:Discord
+
+bindsym $mod+$alt+5 workspace 15:Steam
+assign [class="Steam"] 15:Steam
+for_window [class="Steam"] move to workspace 15:Steam
 
 bindsym $mod+$alt+6 workspace 16:YouTube
 assign [class="Google-chrome" title=".*YouTube$"] 16:YouTube
@@ -325,8 +325,8 @@ assign [class="Slack"] 20:Chat
 for_window [class="Slack"] move to workspace 20:Chat
 assign [class="TelegramDesktop"] 20:Chat
 for_window [class="TelegramDesktop"] move to workspace 20:Chat
-assign [class="whats-app-nativefier-.*"] 20:Chat
-for_window [class="whats-app-nativefier-.*"] move to workspace 20:Chat
+assign [class="whatsapp-nativefier-.*"] 20:Chat
+for_window [class="whatsapp-nativefier-.*"] move to workspace 20:Chat
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace 1
@@ -342,8 +342,8 @@ bindsym $mod+Shift+0 move container to workspace 10
 bindsym $mod+Shift+$alt+1 move container to workspace 11
 bindsym $mod+Shift+$alt+2 move container to workspace 12
 bindsym $mod+Shift+$alt+3 move container to workspace 13
-bindsym $mod+Shift+$alt+4 move container to workspace 14
-bindsym $mod+Shift+$alt+5 move container to workspace 15
+bindsym $mod+Shift+$alt+4 move container to workspace 14:Discord
+bindsym $mod+Shift+$alt+5 move container to workspace 15:Steam
 bindsym $mod+Shift+$alt+6 move container to workspace 16:YouTube
 bindsym $mod+Shift+$alt+7 move container to workspace 17:Netflix
 bindsym $mod+Shift+$alt+8 move container to workspace 18:GPMDP
@@ -364,6 +364,8 @@ set $internal eDP-1-1
 workspace 1 output $external
 workspace 1 output $external2
 workspace 1 output $external3
+workspace 14:Discord output $internal
+workspace 15:Steam output $internal
 workspace 16:YouTube output $internal
 workspace 17:Netflix output $internal
 workspace 18:GPMDP output $internal

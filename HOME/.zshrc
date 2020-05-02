@@ -1,6 +1,31 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
+export VISUAL=nvim
+export EDITOR="$VISUAL"
+export BROWSER="google-chrome-stable"
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+export SAVEHIST=9223372036854775807
+export HISTSIZE=9223372036854775807
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+export SDL_AUDIODRIVER="pulse"
+export FZF_ALT_C_COMMAND='fd -t d --hidden'
+export FZF_ALT_C_OPTS='--preview '\''tree -C {} | head -200'\'
+export FZF_CTRL_T_COMMAND='fd --hidden'
+export FZF_CTRL_T_OPTS='--preview '\''(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'\'
+
+[ -d /usr/local/bin/custom ] && PATH="$PATH:/usr/local/bin/custom"
+[ -d /usr/local/bin/custom/custom ] && PATH="$PATH:/usr/local/bin/custom/custom"
+
+if [[ -z "$DISPLAY" ]]; then
+  if [[ "$XDG_VTNR" -eq 1 ]]; then
+    exec startx
+  elif [[ "$XDG_VTNR" -eq 2 ]]; then
+    exec sway --my-next-gpu-wont-be-nvidia
+  fi
+fi
+
 # Path to your oh-my-zsh installation.
 ZSH=/usr/share/oh-my-zsh/
 
@@ -103,7 +128,7 @@ if [[ ! -d $ZSH_CACHE_DIR ]]; then
 fi
 
 source /usr/share/zsh/share/antigen.zsh
-plugins=(git git-auto-fetch gitfast common-aliases docker-compose docker fancy-ctrl-z fd fzf gpg-agent helm httpie kubectl mvn gradle ripgrep sudo)
+plugins=(git git-auto-fetch gitfast common-aliases docker-compose docker fancy-ctrl-z fd fzf gpg-agent helm httpie kubectl mvn gradle gradle-completion ripgrep sudo per-directory-history)
 
 antigen use oh-my-zsh
 for plugin in $plugins; do
@@ -124,9 +149,7 @@ autoload -U compinit && compinit -d $HOME/.cache/zsh/zcompdump-$ZSH_VERSION
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ -f ~/.config/p10k.zsh ]] && source ~/.config/p10k.zsh
 [[ -f /opt/azure-cli/az.completion ]] && source /opt/azure-cli/az.completion
-
-export SAVEHIST=9223372036854775807
-export HISTSIZE=9223372036854775807
+[[ -f /usr/share/LS_COLORS/dircolors.sh ]] && source /usr/share/LS_COLORS/dircolors.sh
 
 setopt INC_APPEND_HISTORY
 unsetopt HIST_IGNORE_DUPS
@@ -135,6 +158,9 @@ unsetopt share_history
 
 function command_not_found_handler() {
   echo "Command '$1' not found, but could be installed via the following packages:"
+  echo "Packages containing '$1' in name"
+  /bin/yay -Sl | rg -- $1
+  echo "Packages containg files with '$1' in their name"
   /bin/yay -Fyq -- $1
 }
 
@@ -184,6 +210,10 @@ EOF
   unset func
 done
 unset intellijTool
+
+for jdk in $(archlinux-java status | tail -n +2 | awk '{print $1}' | cut -c 6- | rev | cut -c 9- | rev); do
+  eval "alias java$jdk=/usr/lib/jvm/java-$jdk-openjdk/bin/java"
+done
 
 function diff() {
   /bin/diff -u "${@}" | diff-so-fancy | /bin/less --tabs=1,5 -RF
@@ -249,14 +279,58 @@ function fim() {
 
 function hr() {
   local HR="$1"
+  local ns
+  local rn
   [ -f "$HR" -a -r "$HR" ] || return
-  helm3 template --namespace $(yq .spec.targetNamespace $HR) --repo $(yq .spec.chart.repository $HR) $(yq .spec.releaseName $HR) $(yq .spec.chart.name $HR) --version $(yq .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
+  ns=$(yq -e .spec.targetNamespace $HR || yq -e .metadata.namespace $HR)
+  rn=$(yq -e .spec.releaseName $HR || yq -e .metadata.name $HR)
+  helm template --namespace $ns --repo $(yq -e .spec.chart.repository $HR) $rn $(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -e -y .spec.values $HR)
 }
 
 function hrDiff() {
   local HR="$1"
   [ -f "$HR" -a -r "$HR" ] || return
   hr "$HR" | kubectl -n $(yq .spec.targetNamespace $HR) diff -f - | diff-so-fancy | /bin/less --tabs=1,5 -RFS
+}
+
+function pkgSync() {
+  local packages
+  eval $(sed -n '/#startPackages/,/#endPackages/p;/#endPackages/q' $HOME/projects/linux-config/install-arch-base.sh | rg -v '#')
+  for package in $(yay -Qet | cut -f 1 -d ' ' | rg -v $(echo $packages | tr ' ' '|') | rg $(yay -Qqt | tr '\n' '|' | sed -r 's#\|$##g') | tr '\n' ' '); do
+    yay -Qi $package
+    if read -q "?remove $package? "; then
+      yay -R --noconfirm $package
+    else
+      packages="$packages $package"
+    fi
+    echo
+  done
+  newPackages=$((
+    echo '  #startPackages'
+    echo '  packages=('
+    (
+      next=
+      cur=
+      for package in $(echo $packages | tr ' ' '\n' | sort); do
+        next=$(( $(echo $cur | wc -c) + $(echo $package | wc -c) ))
+        if [ $next -gt 110 ]; then
+          echo $cur
+          cur="$package "
+          next=0
+        else
+          cur="$cur$package "
+        fi
+      done
+      echo $cur
+    ) | sed 's#^#    #g'
+    echo '  )'
+    echo '  #endPackages'
+  ) | sed -r 's#$#\\n#g' | tr -d '\n')
+  sed -i -e "/#endPackages/a \\${newPackages}" -e '/#startPackages/,/#endPackages/d' -e 's#NewPackages#Packages#g' projects/linux-config/install-arch-base.sh
+}
+
+function clip() {
+  xclip -selection clipboard
 }
 
 #function release4App() {
@@ -281,8 +355,6 @@ function hrDiff() {
 #
 #}
 
-export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-
 function reAlias() {
   nAlias $1 $1 ${@:2}
 }
@@ -302,6 +374,7 @@ function nAlias() {
 unalias fd
 nAlias :q exit
 nAlias :e nvim
+nAlias :r source $HOME/.zshrc
 reAlias env ' | sort'
 reAlias rm -i
 reAlias cp -i
@@ -323,7 +396,6 @@ reAlias fzf --ansi
 reAlias prettyping --nolegend
 nAlias ping prettyping
 nAlias du ncdu
-nAlias man tldr
 reAlias rg -S
 reAlias jq -r
 reAlias yq -r
@@ -335,6 +407,7 @@ reAlias gotop -r 4
 reAlias feh --scale-down --auto-zoom --auto-rotate
 nAlias grep rg
 nAlias o xdg-open
+nAlias makepkg docker-run -v '$PWD:/pkg whynothugo/makepkg' makepkg
 
 alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
 
@@ -345,8 +418,5 @@ nAlias krn kubectl 'config get-contexts --no-headers "$(krc)" | awk "{print \$5}
 nAlias kln kubectl 'get -o name ns | sed "s|^.*/|  |;\|$(krn)|s/ /*/"'
 nAlias kcn kubectl 'config set-context --current --namespace "$(kln | fzf -e | sed "s/^..//")"'
 
-export VISUAL=nvim
-export EDITOR="$VISUAL"
-[ -d /usr/local/bin/custom ] && PATH="$PATH:/usr/local/bin/custom"
-[ -d /usr/local/bin/custom/custom ] && PATH="$PATH:/usr/local/bin/custom/custom"
 
+autoload -U +X bashcompinit && bashcompinit

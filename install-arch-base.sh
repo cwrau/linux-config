@@ -80,13 +80,39 @@ else
   sudo sed -i -r "s#^PKGEXT.+\$#PKGEXT='.pkg.tar'#g" /etc/makepkg.conf
   sudo sed -i -r "s#^\#?BUILDDIR=.*\$#BUILDDIR=/tmp/makepkg#g" /etc/makepkg.conf
   sudo sed -i -r "s#^\#?MAKEFLAGS=.*\$#MAKEFLAGS=\"-j\\\$(nproc)\"#g" /etc/makepkg.conf
+  multilibLine=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
+  sudo sed -i -r "$multilibLine,$((( $a + 1 ))) s#^\###g" /etc/pacman.conf
 
-  #packages
-  packages=(yubico-pam feh bash-completion libu2f-host pcsclite ccid gnupg shfmt networkmanager-openvpn matcha-gtk-theme papirus-icon-theme xwinfo ttf-fira-code ttf-dejavu ttf-liberation breeze-hacked-cursor-theme clipmenu clipnotify xclip pulseaudio pulseaudio-bluetooth intel-ucode polkit polkit-gnome fzf android-udev bluez libsecret libgnome-keyring p7zip unzip xorg-xwininfo xorg-xprop xorg-xinit xorg-xinput gnome-disk-utility freetype2-cleartype linux-headers linux-firmware noto-fonts-emoji exfat-utils
-    xorg-server bc gotop-bin git ripgrep fd bat kubectl-bin kubernetes-helm2 docker docker-compose subversion git curl diff-so-fancy tldr++ prettyping ncdu youtube-dl blugon playerctl scrot i3-gaps i3lock-color perl-anyevent-i3 network-manager-applet rke-bin jq bash-git-prompt httpie dunst glances net-tools zsh antigen-git dmenu-frecency imagemagick xorg-xrandr yay-bin jdk-openjdk openjdk-src jdk8-openjdk openjdk8-src networkmanager-dmenu cht.sh splatmoji-git bind-tools whois nload gtop
-    nodejs-terminalizer dive uhk-agent-appimage hadolint-bin powertop android-tools pastebinit ausweisapp2 neovim neovim-drop-in neovim-plug python-pynvim nodejs-neovim python2-pynvim ruby-neovim bash-language-server python-language-server python-mccabe python-rope python-pyflakes python-pycodestyle yapf python-pylint flake8 dockerfile-language-server-bin vue-language-server yaml-language-server-bin kotlin-language-server java-language-server blueman pup-bin openssh gnome-keyring mupdf xarchiver gvfs gvfs-smb k9s mousepad arandr rofi rofi-dmenu udiskie-dmenu-git cups storageexplorer slit-git krew-bin rsync lxrandr yq dolphin-emu nvidia vulkan-icd-loader vlc libdvdread libdvdcss magic-wormhole python-pip python-traitlets python-notify2 glava autorandr inotify-tools xorg-xkill pkgstats
-    libinput-gestures python-virtualenv xfce4-power-manager polybar picom kdeconnect mitmproxy python-tornado nerd-fonts-complete fwupd notify-send.sh pavucontrol pcmanfm ttf-font-awesome thunderbird-extension-enigmail pamixer virt-manager dnsmasq ebtables kubebox visual-studio-code-bin google-chrome gnome-terminal slack-desktop-dark krita jetbrains-toolbox gpmdp zoom yarn xorg-xhost sxiv vue-cli telepresence remmina powerpill noto-fonts-all k3s-bin heluxup go-pie flatpak
-    earlyoom gnome-network-displays whatsapp-nativefier telegram-desktop-bin teams nvtop exo obs-studio libva-mesa-driver audacity i3-layout-manager js-beautify deluge img-bin azure-cli lab-bin)
+  #startPackages
+  packages=(
+    android-tools android-udev antigen-git arandr audacity ausweisapp2 autorandr azure-cli bash-completion 
+    bash-git-prompt bash-language-server bashtop bat bc bind-tools blueman bluez-utils blugon 
+    breeze-hacked-cursor-theme ccid cht.sh clipmenu cups curl davfs2 deluge-gtk diff-so-fancy discord dive 
+    dmenu-frecency dnsmasq docker docker-compose dockerfile-language-server-bin dolphin-emu dos2unix dunst 
+    earlyoom ebtables edex-ui efibootmgr exfat-utils exo fast fd feedthebeast feh firefox flake8 flameshot 
+    fluxctl freetype2-cleartype fwupd fzf gamehub git glances glava gnome-disk-utility gnome-keyring 
+    gnome-network-displays gnome-terminal gnupg go-pie google-chrome gotop-bin gparted gpmdp gradle groovy grub 
+    gtop gvfs-smb hadolint-bin helm heluxup highlight httpie i3-gaps i3lock-color imagemagick img-bin informant 
+    inotify-tools intel-ucode itch java-language-server jdk8-openjdk jetbrains-toolbox jq js-beautify k9s 
+    kdeconnect kotlin-language-server krew-bin krita kube-score kubebox kubectl-bin lab-bin lib32-nvidia-utils 
+    libaacs libdvdcss libdvdread libgnome-keyring libinput-gestures libsecret libu2f-host libva-mesa-driver 
+    linux-firmware linux-headers lxrandr magic-wormhole matcha-gtk-theme meta-group-base meta-group-base-devel 
+    mitmproxy moreutils mousepad multimc5 mupdf ncdu neovim-drop-in neovim-plug nerd-fonts-complete net-tools 
+    nethogs network-manager-applet networkmanager-dmenu networkmanager-openvpn nload nmap nodejs-neovim 
+    nodejs-terminalizer notify-send.sh noto-fonts-all nvidia nvidia-docker nvidia-docker-compose nvtop 
+    obs-studio openjdk-src openjdk8-src openssh p7zip pacman-contrib pamixer papirus-icon-theme pastebinit 
+    pavucontrol pcmanfm perl-anyevent-i3 picom pkgstats playerctl polkit polkit-gnome polybar powerpill 
+    powershell-bin powertop prettyping procs pulseaudio pulseaudio-modules-bt-git pup-bin pv 
+    python-language-server python-notify2 python-pip python-pylint python-pynvim python-rope python-traitlets 
+    python-virtualenv python2-pynvim remmina remmina-plugin-teamviewer ripgrep rke-bin rofi rofi-dmenu rsync 
+    ruby-neovim scrot shfmt slack-desktop slit-git splatmoji-git steam storageexplorer strace subversion sway 
+    sxiv teams-insiders telegram-desktop-bin telepresence thunderbird-extension-enigmail tig tree ttf-dejavu 
+    ttf-fira-code ttf-font-awesome ttf-liberation udiskie-dmenu-git uhk-agent-appimage unzip v4l2loopback-dkms 
+    virt-manager vlc vulkan-icd-loader whatsapp-nativefier whois xarchiver xclip xfce4-power-manager xorg-server 
+    xorg-xev xorg-xhost xorg-xinit xorg-xinput xorg-xkill xorg-xprop xorg-xwininfo xwinfo 
+    yaml-language-server-bin yapf yarn yay-bin youtube-dl yq yubico-pam zoom zsh 
+  )
+  #endPackages
 
   yay -Syu --noconfirm --needed ${packages[@]}
 
@@ -98,11 +124,6 @@ else
   kubectl krew install access-matrix konfig debug node-shell
 
   helm plugin install https://github.com/databus23/helm-diff --version master
-
-  flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-  flatpak --user install flathub com.valvesoftware.Steam
-  flatpak run com.valvesoftware.Steam
-  flatpak override com.valvesoftware.Steam --filesystem=$HOME
 
   sudo usermod -a -G docker,wheel,input cwr
 
@@ -136,14 +157,13 @@ else
   homeConfiglink .config/nvim
   homeConfiglink .config/p10k.zsh
   homeConfiglink .config/picom
+  # https://gitlab.com/SillyPill/arch-pape-maker
   homeConfiglink .config/background.jpg
   homeConfiglink .config/autorandr
   homeConfiglink .config/i3
   homeConfiglink .config/gtk-3.0
   homeConfiglink .gtkrc-2.0
   homeConfiglink .config/screenlayouts
-  mkdir -p ${HOME}/.local/share/steamApps
-  ln -s ${HOME}/.var/app/com.valvesoftware.Steam/Desktop ${HOME}/.local/share/steamApps/applications
   sudo ln -sf ${HOME}/projects/linux-config/BIN /usr/local/bin/custom
   sudo rm -rf /usr/share/icons/default
   sudo ln -sf Breeze_Hacked /usr/share/icons/default

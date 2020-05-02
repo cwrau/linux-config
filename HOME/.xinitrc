@@ -10,8 +10,6 @@ xrandr --setprovideroutputsource modesetting NVIDIA-0
 xrandr --output eDP-1-1 --dpi 92 --primary --scale 1x1 --mode 1920x1080
 autorandr --skip-option gamma --change
 
-export XDG_DATA_DIRS=$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share/applications:$HOME/.local/share/steamApps:/usr/local/share:/usr/share
-
 xset -r rate 250
 
 i3

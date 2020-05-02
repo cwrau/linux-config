@@ -49,7 +49,7 @@ then
     if [[ "$XDG_VTNR" -eq 1 ]]; then
       exec startx
     elif [[ "$XDG_VTNR" -eq 2 ]]; then
-      exec sway
+      exec sway --my-next-gpu-wont-be-nvidia
     fi
   fi
 
@@ -158,6 +158,10 @@ else
   elif [ -d /docker ]; then
     cd /docker
   fi
+
+  function root() {
+    sudo bash --rcfile /tmp/cwr.bashrc
+  }
 fi
 
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -206,7 +210,6 @@ nAlias less slit
 reAlias prettyping --nolegend
 nAlias ping prettyping
 nAlias du ncdu
-nAlias man tldr
 reAlias rg -S
 reAlias jq -r
 nAlias k kubectl
