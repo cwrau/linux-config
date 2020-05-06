@@ -407,7 +407,7 @@ reAlias gotop -r 4
 reAlias feh --scale-down --auto-zoom --auto-rotate
 nAlias grep rg
 nAlias o xdg-open
-nAlias makepkg docker-run -v '$PWD:/pkg whynothugo/makepkg' makepkg
+nAlias makepkg docker-run --network host -v '$PWD:/pkg whynothugo/makepkg' makepkg
 
 alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
 

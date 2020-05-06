@@ -24,6 +24,7 @@ Plug 'pgdouyon/vim-evanesco'
 Plug 'Zaptic/elm-vim'
 Plug 'mhinz/vim-startify'
 Plug 'PProvost/vim-ps1'
+Plug 'mechatroner/rainbow_csv'
 " au BufWrite * :Autoformat " Autoformat destroys yaml's
 noremap = :Autoformat<CR>
 Plug 'autozimu/LanguageClient-neovim', {
