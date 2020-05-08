@@ -231,7 +231,7 @@ bindsym $mod+o $exid /usr/local/bin/custom/audio-sink
 # Display Manager
 bindsym $mod+Shift+p $exid /usr/local/bin/custom/rofi-randr
 #bindsym $mod+p $exid /usr/bin/lxrandr
-bindsym $mod+b $exid sh -c "sudo rfkill unblock bluetooth && /usr/local/bin/custom/bluetooth_dmenu"
+bindsym $mod+b $exid /usr/local/bin/custom/bluetooth_dmenu
 
 # Lock
 bindsym $mod+l $exid /usr/local/bin/custom/lock
