@@ -12,4 +12,6 @@ autorandr --skip-option gamma --change
 
 xset -r rate 250
 
+sudo rfkill unblock all
+
 i3
