@@ -294,24 +294,95 @@ function hrDiff() {
 }
 
 function pkgSync() {
+  local package
   local packages
   eval $(sed -n '/#startPackages/,/#endPackages/p;/#endPackages/q' $HOME/projects/linux-config/install-arch-base.sh | rg -v '#')
-  for package in $(yay -Qet | cut -f 1 -d ' ' | rg -v $(echo $packages | tr ' ' '|') | rg $(yay -Qqt | tr '\n' '|' | sed -r 's#\|$##g') | tr '\n' ' '); do
-    yay -Qi $package
-    if read -q "?remove $package? "; then
-      yay -R --noconfirm $package
-    else
-      packages="$packages $package"
-    fi
-    echo
-  done
+
+  local currentPackages
+  currentPackages=$(yay -Qqe)
+
+  local targetPackages
+  targetPackages=$(echo $packages | tr ' ' '\n')
+  local originalPackages=$targetPackages
+
+  local missingPackages
+  missingPackages=$(echo $targetPackages | rg -v $(echo $currentPackages | tr '\n' '|' | sed 's#|$##g'))
+
+  local newPackages
+  newPackages=$(echo $currentPackages | rg -v $(echo $targetPackages | tr '\n' '|' | sed 's#|$##g'))
+
+  if [ ! -z $newPackages ]; then
+    echo "$(wc -l <<<$newPackages) new Packages"
+    while read -r package; do
+      yay -Qi $package
+      read -k 1 "choice?[A]dd, [r]emove, [d]epends or [s]kip $package? "
+      echo
+      case $choice in;
+        [Aa])
+          targetPackages="$targetPackages\\n$package"
+          ;;
+        [Rr])
+          echo "=========="
+          echo
+          yay -R --noconfirm $package
+          ;;
+        [Dd])
+          echo "=========="
+          echo
+          yay -D --asdeps $package
+          ;;
+        *)
+          :
+          ;;
+      esac
+      echo
+      echo "=========="
+      echo
+    done <<<"$newPackages"
+  else
+    echo "No new Packages"
+  fi
+
+  if [ ! -z $missingPackages ]; then
+    echo "$(wc -l <<<$missingPackages) missing Packages"
+    while read -r package; do
+      yay -Si $package
+      yay -Qi $package
+      read -k 1 "choice?[I]nstall, [r]emove, [e]xplicit or [s]kip $package? "
+      echo
+      case $choice in;
+        [Ii])
+          echo "=========="
+          echo
+          yay -S --noconfirm $package
+          ;;
+        [Rr])
+          targetPackages=$(echo $targetPackages | rg -v "^$package\$")
+          ;;
+        [Ee])
+          echo "=========="
+          echo
+          yay -D --asexplicit $package
+          ;;
+        *)
+          :
+          ;;
+      esac
+      echo
+      echo "=========="
+      echo
+    done <<<"$missingPackages"
+  else
+    echo "No missing Packages"
+  fi
+
   newPackages=$((
     echo '  #startPackages'
     echo '  packages=('
     (
       next=
       cur=
-      for package in $(echo $packages | tr ' ' '\n' | sort); do
+      for package in $(echo $targetPackages | sort); do
         next=$(( $(echo $cur | wc -c) + $(echo $package | wc -c) ))
         if [ $next -gt 110 ]; then
           echo $cur
@@ -325,8 +396,19 @@ function pkgSync() {
     ) | sed 's#^#    #g'
     echo '  )'
     echo '  #endPackages'
-  ) | sed -r 's#$#\\n#g' | tr -d '\n')
-  sed -i -e "/#endPackages/a \\${newPackages}" -e '/#startPackages/,/#endPackages/d' -e 's#NewPackages#Packages#g' projects/linux-config/install-arch-base.sh
+  ) | sed -r 's#$#\\n#g' | tr -d '\n' | sed -r 's#\\n$##g')
+
+  diff <(echo $originalPackages) <(echo $targetPackages)
+  if ! /bin/diff <(echo $originalPackages) <(echo $targetPackages) &> /dev/null; then
+    if read -q "?Commit? "; then
+      sed -i -e "/#endPackages/a \\${newPackages}" -e '/#startPackages/,/#endPackages/d' -e 's#NewPackages#Packages#g' $HOME/projects/linux-config/install-arch-base.sh
+      pushd $HOME/projects/linux-config
+      gc install-arch-base.sh
+      popd
+    fi
+  else
+    echo "No changes to be made"
+  fi
 }
 
 function clip() {
