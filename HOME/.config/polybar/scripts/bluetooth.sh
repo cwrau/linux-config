@@ -9,7 +9,7 @@ if bluetoothctl show | grep -q "Powered: yes"; then
     for mac in $(bluetoothctl paired-devices | awk '{print $2}')                                                                                                                                                                                                                  ─╯
     do
       bluetoothctl info $mac | grep -B 99 'Connected: yes' | grep Alias | cut -d ' ' -f 2-
-    done | paste -sd "," - | sed 's#,#, #g'
+    done | sort | paste -sd "," - | sed 's#,#, #g'
   else
     echo ""
   fi
