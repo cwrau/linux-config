@@ -108,6 +108,7 @@ else
     ccid
     cht.sh
     clipmenu
+    cryptsetup
     cups
     curl
     davfs2
@@ -170,6 +171,7 @@ else
     i3lock-color
     imagemagick
     img-bin
+    inetutils
     informant
     inotify-tools
     intel-ucode
@@ -189,6 +191,7 @@ else
     kubebox
     kubectl-bin
     lab-bin
+    less
     lib32-nvidia-utils
     libaacs
     libdvdcss
@@ -302,11 +305,13 @@ else
     udiskie-dmenu-git
     uhk-agent-appimage
     unzip
+    usbutils
     v4l2loopback-dkms
     virt-manager
     vlc
     vulkan-icd-loader
     whatsapp-nativefier
+    which
     whois
     xarchiver
     xclip
