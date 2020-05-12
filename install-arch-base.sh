@@ -112,6 +112,7 @@ else
     curl
     davfs2
     deluge-gtk
+    dhcpcd
     diff-so-fancy
     discord
     dive
