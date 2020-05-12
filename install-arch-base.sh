@@ -85,32 +85,248 @@ else
 
   #startPackages
   packages=(
-    android-tools android-udev antigen-git arandr audacity ausweisapp2 autorandr azure-cli bash-completion 
-    bash-git-prompt bash-language-server bashtop bat bc bind-tools blueman bluez-utils blugon 
-    breeze-hacked-cursor-theme ccid cht.sh clipmenu cups curl davfs2 deluge-gtk diff-so-fancy discord dive 
-    dnsmasq docker docker-compose dockerfile-language-server-bin dolphin-emu dos2unix dunst earlyoom ebtables 
-    edex-ui efibootmgr exfat-utils exo fast fd feh firefox flake8 flameshot fluxctl freerdp freetype2-cleartype 
-    fwupd fzf gamehub git glances glava gnome-disk-utility gnome-keyring gnome-network-displays gnome-terminal 
-    gnu-netcat gnupg go-pie google-chrome gotop-bin gparted gpmdp gradle groovy grub gtop gvfs-smb hadolint-bin 
-    helm heluxup highlight httpie i3-gaps i3lock-color imagemagick img-bin informant inotify-tools intel-ucode 
-    itch java-language-server jdk11-openjdk jdk8-openjdk jetbrains-toolbox jq js-beautify k9s kdeconnect 
-    kotlin-language-server krew-bin krita kube-score kubebox kubectl-bin lab-bin lib32-nvidia-utils libaacs 
-    libdvdcss libdvdread libgnome-keyring libinput-gestures libsecret libu2f-host libva-mesa-driver 
-    linux-firmware linux-headers lxrandr magic-wormhole matcha-gtk-theme meta-group-base meta-group-base-devel 
-    mitmproxy moreutils mousepad multimc5 mupdf ncdu neovim-drop-in neovim-plug nerd-fonts-complete net-tools 
-    nethogs network-manager-applet networkmanager-dmenu-git networkmanager-openvpn nload nmap nodejs-neovim 
-    notify-send.sh noto-fonts-all nss-mdns ntfs-3g nvidia nvidia-docker nvidia-docker-compose nvtop obs-studio 
-    openjdk-src openjdk8-src openssh p7zip pacman-contrib pamixer papirus-icon-theme pastebinit pavucontrol 
-    pcmanfm perl-anyevent-i3 picom pkgstats playerctl polkit polkit-gnome polybar powerpill powertop prettyping 
-    procs pulseaudio pulseaudio-modules-bt-git pup-bin pv python-language-server python-notify2 python-pip 
-    python-pylint python-pynvim python-rope python-traitlets python-virtualenv python2-pynvim remmina 
-    remmina-plugin-teamviewer ripgrep rke-bin rofi-dmenu rsync scrot shfmt slack-desktop slit-git socat 
-    splatmoji-git steam storageexplorer strace subversion sway sxiv systemd teams-insiders telegram-desktop-bin 
-    telepresence thunderbird-extension-enigmail tig traceroute tree ttf-dejavu ttf-fira-code ttf-font-awesome 
-    ttf-liberation udiskie-dmenu-git uhk-agent-appimage unzip v4l2loopback-dkms virt-manager vlc 
-    vulkan-icd-loader whatsapp-nativefier whois xarchiver xclip xfce4-power-manager xorg-server xorg-xev 
-    xorg-xhost xorg-xinit xorg-xinput xorg-xkill xorg-xprop xorg-xwininfo yaml-language-server-bin yapf yarn 
-    yay-bin youtube-dl yq yubico-pam zoom zsh 
+    android-tools
+    android-udev
+    antigen-git
+    arandr
+    audacity
+    ausweisapp2
+    autorandr
+    azure-cli
+    base
+    bash-completion
+    bash-git-prompt
+    bash-language-server
+    bashtop
+    bat
+    bc
+    bind-tools
+    blueman
+    bluez-utils
+    blugon
+    breeze-hacked-cursor-theme
+    ccid
+    cht.sh
+    clipmenu
+    cups
+    curl
+    davfs2
+    deluge-gtk
+    diff-so-fancy
+    discord
+    dive
+    dnsmasq
+    docker
+    docker-compose
+    dockerfile-language-server-bin
+    dolphin-emu
+    dos2unix
+    dunst
+    earlyoom
+    ebtables
+    edex-ui
+    efibootmgr
+    exfat-utils
+    exo
+    fast
+    fd
+    feh
+    firefox
+    flake8
+    flameshot
+    fluxctl
+    freerdp
+    freetype2-cleartype
+    fwupd
+    fzf
+    gamehub
+    git
+    glances
+    glava
+    gnome-disk-utility
+    gnome-keyring
+    gnome-network-displays
+    gnome-terminal
+    gnu-netcat
+    gnupg
+    go-pie
+    google-chrome
+    gotop-bin
+    gparted
+    gpmdp
+    gradle
+    groovy
+    grub
+    gtop
+    gvfs-smb
+    hadolint-bin
+    helm
+    heluxup
+    highlight
+    hsetroot
+    httpie
+    i3-gaps
+    i3lock-color
+    imagemagick
+    img-bin
+    informant
+    inotify-tools
+    intel-ucode
+    itch
+    java-language-server
+    jdk11-openjdk
+    jdk8-openjdk
+    jetbrains-toolbox
+    jq
+    js-beautify
+    k9s
+    kdeconnect
+    kotlin-language-server
+    krew-bin
+    krita
+    kube-score
+    kubebox
+    kubectl-bin
+    lab-bin
+    lib32-nvidia-utils
+    libaacs
+    libdvdcss
+    libdvdread
+    libgnome-keyring
+    libinput-gestures
+    libsecret
+    libu2f-host
+    libva-mesa-driver
+    linux-firmware
+    linux-headers
+    lscolors-git
+    lxrandr
+    magic-wormhole
+    man-db
+    man-pages
+    matcha-gtk-theme
+    meta-group-base-devel
+    mitmproxy
+    moreutils
+    mousepad
+    multimc5
+    mupdf
+    ncdu
+    neovim-drop-in
+    neovim-plug
+    nerd-fonts-complete
+    net-tools
+    nethogs
+    network-manager-applet
+    networkmanager-dmenu-git
+    networkmanager-openvpn
+    nload
+    nmap
+    nodejs-neovim
+    notify-send.sh
+    noto-fonts-all
+    nss-mdns
+    ntfs-3g
+    nvidia
+    nvidia-docker
+    nvidia-docker-compose
+    nvtop
+    obs-studio
+    openjdk-src
+    openjdk8-src
+    openssh
+    p7zip
+    pacman-contrib
+    pamixer
+    papirus-icon-theme
+    pastebinit
+    pavucontrol
+    pcmanfm
+    perl-anyevent-i3
+    picom
+    pkgstats
+    playerctl
+    polkit
+    polkit-gnome
+    polybar
+    polybar-scripts-git
+    powerpill
+    powertop
+    prettyping
+    procs
+    pulseaudio
+    pulseaudio-bluetooth
+    pup-bin
+    pv
+    python-language-server
+    python-notify2
+    python-pip
+    python-pylint
+    python-pynvim
+    python-rope
+    python-traitlets
+    python-virtualenv
+    python2-pynvim
+    remmina
+    remmina-plugin-teamviewer
+    ripgrep
+    rke-bin
+    rofi-dmenu
+    rsync
+    scrot
+    shfmt
+    siji-git
+    slack-desktop
+    slit-git
+    socat
+    splatmoji-git
+    steam
+    storageexplorer
+    strace
+    subversion
+    sway
+    sxiv
+    systemd
+    teams-insiders
+    telegram-desktop-bin
+    telepresence
+    thunderbird-extension-enigmail
+    tig
+    traceroute
+    tree
+    ttf-dejavu
+    ttf-fira-code
+    ttf-font-awesome
+    ttf-liberation
+    udiskie-dmenu-git
+    uhk-agent-appimage
+    unzip
+    v4l2loopback-dkms
+    virt-manager
+    vlc
+    vulkan-icd-loader
+    whatsapp-nativefier
+    whois
+    xarchiver
+    xclip
+    xfce4-power-manager
+    xorg-server
+    xorg-xev
+    xorg-xhost
+    xorg-xinit
+    xorg-xinput
+    xorg-xkill
+    xorg-xprop
+    xorg-xwininfo
+    yaml-language-server-bin
+    yapf
+    yarn
+    yay-bin
+    youtube-dl
+    yq
+    yubico-pam
+    zoom
+    zsh
   )
   #endPackages
 
