@@ -282,8 +282,8 @@ function hr() {
   local ns
   local rn
   [ -f "$HR" -a -r "$HR" ] || return
-  ns=$(yq -e .spec.targetNamespace $HR || yq -e .metadata.namespace $HR)
-  rn=$(yq -e .spec.releaseName $HR || yq -e .metadata.name $HR)
+  ns=$((yq -e .spec.targetNamespace $HR || yq -e .metadata.namespace $HR) | rg -v null)
+  rn=$((yq -e .spec.releaseName $HR || yq -e .metadata.name $HR) | rg -v null)
   helm template --namespace $ns --repo $(yq -e .spec.chart.repository $HR) $rn $(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -e -y .spec.values $HR)
 }
 
@@ -298,18 +298,12 @@ function pkgSync() {
   local packages
   eval $(sed -n '/#startPackages/,/#endPackages/p;/#endPackages/q' $HOME/projects/linux-config/install-arch-base.sh | rg -v '#')
 
-  local currentPackages
-  currentPackages=$(yay -Qqe)
-
   local targetPackages
   targetPackages=$(echo $packages | tr ' ' '\n')
   local originalPackages=$targetPackages
 
-  local missingPackages
-  missingPackages=$(echo $targetPackages | rg -v $(echo $currentPackages | tr '\n' '|' | sed 's#|$##g'))
-
   local newPackages
-  newPackages=$(echo $currentPackages | rg -v $(echo $targetPackages | tr '\n' '|' | sed 's#|$##g'))
+  newPackages=$(yay -Qqe | rg -xv $(echo $targetPackages | tr '\n' '|' | sed 's#|$##g'))
 
   if [ ! -z $newPackages ]; then
     echo "$(wc -l <<<$newPackages) new Packages"
@@ -343,6 +337,9 @@ function pkgSync() {
     echo "No new Packages"
   fi
 
+  local missingPackages
+  missingPackages=$(echo $targetPackages | rg -xv $(yay -Qqe | tr '\n' '|' | sed 's#|$##g'))
+
   if [ ! -z $missingPackages ]; then
     echo "$(wc -l <<<$missingPackages) missing Packages"
     while read -r package; do
@@ -357,7 +354,7 @@ function pkgSync() {
           yay -S --noconfirm $package
           ;;
         [Rr])
-          targetPackages=$(echo $targetPackages | rg -v "^$package\$")
+          targetPackages=$(echo $targetPackages | rg -xv "$package")
           ;;
         [Ee])
           echo "=========="
@@ -376,24 +373,40 @@ function pkgSync() {
     echo "No missing Packages"
   fi
 
+  local orphanedPackages
+  orphanedPackages=$(pacman -Qqtd)
+
+  if [ ! -z $orphanedPackages ]; then
+    echo "$(wc -l <<<$orphanedPackages) orphaned Packages"
+    while read -r package; do
+      yay -Qi $package
+      read -k 1 "choice?[A]dd, [r]emove or [s]kip $package? "
+      echo
+      case $choice in;
+        [Aa])
+          targetPackages="$targetPackages\\n$package"
+          ;;
+        [Rr])
+          echo "=========="
+          echo
+          yay -R --noconfirm $package
+          ;;
+        *)
+          :
+          ;;
+      esac
+      echo
+      echo "=========="
+      echo
+    done <<<"$orphanedPackages"
+  else
+    echo "No orphaned Packages"
+  fi
+
   newPackages=$((
     echo '  #startPackages'
     echo '  packages=('
-    (
-      next=
-      cur=
-      for package in $(echo $targetPackages | sort); do
-        next=$(( $(echo $cur | wc -c) + $(echo $package | wc -c) ))
-        if [ $next -gt 110 ]; then
-          echo $cur
-          cur="$package "
-          next=0
-        else
-          cur="$cur$package "
-        fi
-      done
-      echo $cur
-    ) | sed 's#^#    #g'
+    echo $targetPackages | sort | uniq | sed 's#^#    #g'
     echo '  )'
     echo '  #endPackages'
   ) | sed -r 's#$#\\n#g' | tr -d '\n' | sed -r 's#\\n$##g')
@@ -490,6 +503,7 @@ reAlias feh --scale-down --auto-zoom --auto-rotate
 nAlias grep rg
 nAlias o xdg-open
 nAlias makepkg docker-run --network host -v '$PWD:/pkg whynothugo/makepkg' makepkg
+reAlias watch ' '
 
 alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
 
