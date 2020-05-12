@@ -82,6 +82,7 @@ else
   sudo sed -i -r "s#^\#?MAKEFLAGS=.*\$#MAKEFLAGS=\"-j\\\$(nproc)\"#g" /etc/makepkg.conf
   multilibLine=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
   sudo sed -i -r "$multilibLine,$((( $a + 1 ))) s#^\###g" /etc/pacman.conf
+  sudo sed -i -r "s#^SigLevel.+\$#SigLevel = PackageRequired#g" /etc/pacman.conf
 
   #startPackages
   packages=(
@@ -170,7 +171,6 @@ else
     i3-gaps
     i3lock-color
     imagemagick
-    img-bin
     inetutils
     informant
     inotify-tools
