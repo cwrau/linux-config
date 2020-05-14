@@ -256,6 +256,7 @@ else
     polybar-scripts-git
     powerpill
     powertop
+    premid
     prettyping
     procs
     pulseaudio
