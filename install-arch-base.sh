@@ -176,7 +176,7 @@ else
     inotify-tools
     intel-ucode
     itch
-    java-language-server
+    java-openjdk-bin
     jdk11-openjdk
     jdk8-openjdk
     jetbrains-toolbox
