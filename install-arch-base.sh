@@ -152,7 +152,7 @@ else
     gnome-terminal
     gnu-netcat
     gnupg
-    go-pie
+    go
     google-chrome
     gotop-bin
     gparted
