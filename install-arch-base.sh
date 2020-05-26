@@ -176,7 +176,6 @@ else
     inotify-tools
     intel-ucode
     itch
-    java-openjdk-bin
     jdk11-openjdk
     jdk8-openjdk
     jetbrains-toolbox
@@ -237,6 +236,7 @@ else
     nvtop
     obs-studio
     openjdk-src
+    openjdk11-src
     openjdk8-src
     openssh
     p7zip
@@ -272,6 +272,7 @@ else
     python-traitlets
     python-virtualenv
     python2-pynvim
+    realvnc-vnc-viewer
     remmina
     remmina-plugin-teamviewer
     ripgrep
