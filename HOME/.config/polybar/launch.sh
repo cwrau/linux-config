@@ -8,9 +8,6 @@ do
   sleep 1
 done
 
-rm -rf /tmp/polybar
-mkdir -p /tmp/polybar
-
 for MONITOR in $(polybar -m | cut -d: -f1)
 do
   # Launch bar1 and bar2
