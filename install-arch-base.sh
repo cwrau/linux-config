@@ -309,6 +309,7 @@ else
     ttf-fira-code
     ttf-font-awesome
     ttf-liberation
+    tty-clock
     udiskie-dmenu-git
     uhk-agent-appimage
     unzip
