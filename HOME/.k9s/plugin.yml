@@ -1,0 +1,14 @@
+plugin:
+  node-shell:
+    shortCut: Ctrl-S
+    confirm: true
+    description: Open Shell in Node
+    scopes:
+      - nodes
+    background: false
+    command: kubectl
+    args:
+      - node-shell
+      - --context
+      - $CONTEXT
+      - $COL-NAME
