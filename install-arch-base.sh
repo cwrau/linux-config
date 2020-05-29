@@ -190,7 +190,6 @@ else
     kdeconnect
     kotlin-language-server
     krew-bin
-    krita
     kube-score
     kubebox
     kubectl-bin
@@ -243,6 +242,7 @@ else
     openjdk-src
     openjdk11-src
     openjdk8-src
+    openresolv
     openssh
     p7zip
     pacman-contrib
@@ -339,6 +339,7 @@ else
     youtube-dl
     yq
     yubico-pam
+    zip
     zoom
     zsh
   )
