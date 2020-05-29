@@ -1,30 +1,33 @@
 call plug#begin('$HOME/.config/nvim-plugins')
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' } " autocomplete
-Plug 'scrooloose/nerdtree' " FileBrowser
-Plug 'scrooloose/nerdcommenter' " better commenting
+Plug 'preservim/nerdtree' " FileBrowser
+Plug 'preservim/nerdcommenter' " better commenting
 Plug 'vim-syntastic/syntastic' " syntax check for most languages
 Plug 'vim-airline/vim-airline' " better monitoring
 Plug 'airblade/vim-gitgutter'
 Plug 'mhinz/vim-signify'
 Plug 'tpope/vim-fugitive'
 Plug 'jiangmiao/auto-pairs' " add eg. (->)
-Plug 'christoomey/vim-tmux-navigator' " better tmux support
+" Plug 'christoomey/vim-tmux-navigator' " better tmux support
 Plug 'kristijanhusak/vim-hybrid-material' " Dark Theme
 Plug 'tpope/vim-surround' " Easy add matching parentheses
-Plug 'ctrlpvim/ctrlp.vim' " use Fuzzy Finder to switch between Files (C-p)
-Plug 'PotatoesMaster/i3-vim-syntax' " for syntax in i3 config file
-Plug 'easymotion/vim-easymotion'
-Plug 'mxw/vim-jsx'
+" Plug 'ctrlpvim/ctrlp.vim' " use Fuzzy Finder to switch between Files (C-p)
+" Plug 'PotatoesMaster/i3-vim-syntax' " for syntax in i3 config file
+" Plug 'easymotion/vim-easymotion'
+" Plug 'mxw/vim-jsx'
 " Plug 'w0rp/ale'
-Plug 'udalov/kotlin-vim'
+" Plug 'udalov/kotlin-vim'
 Plug 'farmergreg/vim-lastplace'
 Plug 'Chiel92/vim-autoformat'
 Plug 'christoomey/vim-system-copy'
 Plug 'pgdouyon/vim-evanesco'
-Plug 'Zaptic/elm-vim'
+" Plug 'Zaptic/elm-vim'
 Plug 'mhinz/vim-startify'
-Plug 'PProvost/vim-ps1'
+" Plug 'PProvost/vim-ps1'
 Plug 'mechatroner/rainbow_csv'
+Plug '/usr/share/vim/vimfiles/plugin/fzf.vim'
+Plug 'junegunn/fzf.vim'
+" Plug 'sheerun/vim-polyglot'
 " au BufWrite * :Autoformat " Autoformat destroys yaml's
 noremap = :Autoformat<CR>
 Plug 'autozimu/LanguageClient-neovim', {
