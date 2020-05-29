@@ -1,7 +1,7 @@
 plugin:
   node-shell:
     shortCut: Ctrl-S
-    confirm: true
+    confirm: false
     description: Open Shell in Node
     scopes:
       - nodes
