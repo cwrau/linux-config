@@ -84,7 +84,7 @@ bindsym $mod+v split h
 # enter fullscreen mode for the focused container
 bindsym $mod+f fullscreen toggle
 # toggle polybar
-bindsym $mod+Shift+f $exid sh -c 'pgrep polybar | xargs -I{} polybar-msg -p {} cmd toggle'
+bindsym $mod+Shift+f $exid "sh -c 'if pgrep polybar; then pkill polybar; else $HOME/.config/polybar/launch.sh; fi'"
 
 # change container layout (stacked, tabbed, toggle split)
 bindsym $mod+t layout toggle stacking tabbed
@@ -114,6 +114,7 @@ bindsym $mod+Shift+r restart
 $exaid $HOME/.config/polybar/launch.sh
 #$exaid $HOME/.config/glava/launch.sh
 $exaid sh -c "pkill picom; exec picom --config=$HOME/.config/picom/config.conf"
+$exaid sh -c "sleep 10; sudo rfkill unblock all"
 
 #bindsym button3 nop
 #bindsym button4 nop
