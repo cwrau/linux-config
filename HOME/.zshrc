@@ -211,9 +211,11 @@ EOF
 done
 unset intellijTool
 
-for jdk in $(archlinux-java status | tail -n +2 | awk '{print $1}' | cut -c 6- | rev | cut -c 9- | rev); do
-  eval "alias java$jdk=/usr/lib/jvm/java-$jdk-openjdk/bin/java"
+for jdk in $(archlinux-java status | tail -n +2 | awk '{print $1}'); do
+  jdkVersion=$(echo $jdk | cut -d - -f 2)
+  eval "alias java$jdkVersion=/usr/lib/jvm/$jdk/bin/java"
 done
+unset jdkVersion
 
 function diff() {
   /bin/diff -u "${@}" | diff-so-fancy | /bin/less --tabs=1,5 -RF
@@ -240,6 +242,14 @@ function 4ap() {
     ssh root@${name}.4allportal.net $*
 }
 
+function fap() {
+  mkdir -p /tmp/data
+  docker pull registry.4allportal.net/4allportal:$1
+  docker run --rm -it -e DATABASE_HOST=localhost -v /tmp/data:/4allportal/data --net host \
+    --tmpfs=/4allportal/{_runtime,assets} ${@:2} \
+    registry.4allportal.net/4allportal:$1
+}
+
 function appVs() {
   ssh root@repository.4allportal.net ls /services/repository/apps/$1 -v
 }
@@ -250,14 +260,6 @@ function appV() {
 
 function getRepoVersion() {
     4ap repository find /services/repository/apps/4allportal-$1 -mindepth 1 -maxdepth 1 | sed -r 's#^.*/([^/]+)$#\1#g' | sort
-}
-
-function ss() {
-  local result
-  result="$(wiki-search "$@" | fzf | awk '{print $NF}')"
-  if [ "$?" -eq "0" ]; then
-    wiki-search $result
-  fi
 }
 
 function google() {
@@ -289,8 +291,17 @@ function hr() {
 
 function hrDiff() {
   local HR="$1"
+  local ns
+  local rn
   [ -f "$HR" -a -r "$HR" ] || return
-  hr "$HR" | kubectl -n $(yq .spec.targetNamespace $HR) diff -f - | diff-so-fancy | /bin/less --tabs=1,5 -RFS
+  ns=$((yq -e .spec.targetNamespace $HR || yq -e .metadata.namespace $HR) | rg -v null)
+  rn=$((yq -e .spec.releaseName $HR || yq -e .metadata.name $HR) | rg -v null)
+  helm repo add tmp $(yq -e .spec.chart.repository $HR)
+  helm repo update
+  helm diff upgrade --namespace $ns $rn tmp/$(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
+  helm repo remove tmp
+
+  # helm diff upgrade --namespace $ns --repo $(yq -e .spec.chart.repository $HR) $rn $(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
 }
 
 function pkgSync() {
@@ -506,8 +517,10 @@ nAlias grep rg
 nAlias o xdg-open
 nAlias makepkg docker-run --network host -v '$PWD:/pkg whynothugo/makepkg' makepkg
 reAlias watch ' '
+nAlias sc /bin/systemctl
 
 alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
+alias k9s="PATH=\"$PATH:$HOME/.krew/bin\" k9s"
 
 nAlias krc kubectl config current-context
 nAlias klc kubectl 'config get-contexts -o name | sed "s/^/  /;\|^  $(krc)$|s/ /*/"'
