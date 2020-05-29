@@ -108,8 +108,10 @@ else
     breeze-hacked-cursor-theme
     ccid
     cht.sh
+    clinfo
     clipmenu
     cryptsetup
+    cuda
     cups
     curl
     davfs2
@@ -131,6 +133,8 @@ else
     efibootmgr
     exfat-utils
     exo
+    fahcontrol
+    fahviewer
     fast
     fd
     feh
@@ -138,6 +142,7 @@ else
     flake8
     flameshot
     fluxctl
+    foldingathome
     freerdp
     freetype2-cleartype
     fwupd
