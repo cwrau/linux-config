@@ -426,11 +426,12 @@ function pkgSync() {
   if ! /bin/diff <(echo $originalPackages) <(echo $targetPackages) &> /dev/null; then
     if read -q "?Commit? "; then
       sed -i -e "/#endPackages/a \\${newPackages}" -e '/#startPackages/,/#endPackages/d' -e 's#NewPackages#Packages#g' $HOME/projects/linux-config/install-arch-base.sh
-      pushd $HOME/projects/linux-config
+      local OLDPWD=$PWD
+      cd $HOME/projects/linux-config
       gc install-arch-base.sh
       gl
       gp
-      popd
+      cd $OLDPWD
     fi
   else
     echo "No changes to be made"
