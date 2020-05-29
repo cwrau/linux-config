@@ -5,11 +5,13 @@ set -e -o pipefail
 eval $(cat $HOME/.config/polybar/colors.ini | rg '^[a-z]+ = #[0-9a-fA-F]+$' | tr -d ' ' | sed -r 's#^#color_#g')
 
 DIR=/tmp/polybar/updates
-mkdir -p $DIR
 
 function cleanUp() {
-  sudo rm $DIR/check &> /dev/null
+  sudo rm -rf $DIR &> /dev/null
 }
+
+cleanUp
+mkdir -p $DIR
 
 trap cleanUp EXIT
 
@@ -30,17 +32,16 @@ function update() {
   echo
 }
 
-update
-while true
-do
-  until interval 60
-  do
-    if [ -e $DIR/check ]
-    then
-      sudo rm -f $DIR/check &> /dev/null
-      update
-    fi
-    sleep 1
-  done
-  update
+while true; do
+  current_time=$(date +%s.%N)
+  target_time=$(date -d $(date -d 'next hour' --iso-8601=hours) +%s.%N)
+
+  sleep_seconds=$(echo "$target_time - $current_time" | bc)
+
+  sleep $sleep_seconds
+
+  if mkdir $DIR/LOCK &> /dev/null; then
+    update
+    rmdir $DIR/LOCK &> /dev/null
+  fi
 done
