@@ -424,7 +424,7 @@ else
     echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/$USER-*'"
   fi
 
-  sudo systemctl enable --now systemd-timesyncd NetworkManager bluetooth org.cups.cupsd pkgstats.timer fwupd ebtables dnsmasq libvirtd
-  systemctl --user enable --now gpg-agent blugon dunst blueman-applet
+  sudo systemctl enable --now systemd-timesyncd NetworkManager bluetooth pkgstats.timer fwupd ebtables dnsmasq foldingathome-nvidia
+  systemctl --user enable --now gpg-agent blugon dunst blueman-applet foldingathome
   sudo systemctl disable NetworkManager-wait-online
 fi
