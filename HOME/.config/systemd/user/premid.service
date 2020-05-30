@@ -1,6 +1,7 @@
 [Unit]
 Description=Premid
 After=graphical-session.target
+Requires=graphical-session.target
 
 [Service]
 Type=simple

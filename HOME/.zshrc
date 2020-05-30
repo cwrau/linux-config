@@ -523,6 +523,7 @@ nAlias o xdg-open
 nAlias makepkg docker-run --network host -v '$PWD:/pkg whynothugo/makepkg' makepkg
 reAlias watch ' '
 nAlias scu /bin/systemctl --user
+nAlias sc systemctl
 
 alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
 alias k9s="PATH=\"$PATH:$HOME/.krew/bin\" k9s"

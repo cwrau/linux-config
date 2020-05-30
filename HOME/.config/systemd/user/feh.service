@@ -1,6 +1,7 @@
 [Unit]
 Description=feh background setter
 After=graphical-session.target
+Requires=graphical-session.target
 
 [Service]
 Type=oneshot

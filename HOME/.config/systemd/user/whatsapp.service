@@ -1,6 +1,7 @@
 [Unit]
 Description=WhatsApp
 After=graphical-session.target
+Requires=graphical-session.target
 
 [Service]
 Type=simple

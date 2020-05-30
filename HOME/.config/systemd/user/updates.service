@@ -1,11 +1,11 @@
 [Unit]
-Description=Xfce4 Power Manager
+Description=Package Updates
 After=graphical-session.target
 Requires=graphical-session.target
 
 [Service]
-Type=simple
-ExecStart=/usr/bin/xfce4-power-manager --no-daemon
+Type=oneshot
+ExecStart=/home/cwr/projects/linux-config/BIN/packageUpdates
 RestartSec=0
 
 [Install]

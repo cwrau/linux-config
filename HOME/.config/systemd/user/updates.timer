@@ -1,0 +1,10 @@
+[Unit]
+Description=Package Updates
+
+[Timer]
+OnCalendar=hourly
+AccuracySec=1m
+Persistent=true
+
+[Install]
+WantedBy=default.target
