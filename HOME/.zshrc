@@ -438,6 +438,10 @@ function pkgSync() {
   fi
 }
 
+function unusedPackages() {
+  LC_ALL=C pacman -Qi | awk '/^Name/{name=$3} /^Required By/{req=$4} /^Optional For/{opt=$0} /^Install Reason/{res=$4$5} /^$/{if (req == "None" && res != "Explicitlyinstalled"){print name}}'
+}
+
 function clip() {
   xclip -selection clipboard
 }
@@ -518,7 +522,7 @@ nAlias grep rg
 nAlias o xdg-open
 nAlias makepkg docker-run --network host -v '$PWD:/pkg whynothugo/makepkg' makepkg
 reAlias watch ' '
-nAlias sc /bin/systemctl
+nAlias scu /bin/systemctl --user
 
 alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
 alias k9s="PATH=\"$PATH:$HOME/.krew/bin\" k9s"
