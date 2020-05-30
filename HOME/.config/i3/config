@@ -113,8 +113,7 @@ bindsym $mod+Shift+r restart
 # }
 $exaid $HOME/.config/polybar/launch.sh
 #$exaid $HOME/.config/glava/launch.sh
-$exaid sh -c "pkill picom; exec picom --config=$HOME/.config/picom/config.conf"
-$exaid sh -c "sleep 10; sudo rfkill unblock all"
+#$exaid sh -c "sleep 10; sudo rfkill unblock all"
 
 #bindsym button3 nop
 #bindsym button4 nop

@@ -1,0 +1,20 @@
+[Unit]
+Description=Picom
+After=graphical-session.target
+Requires=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/picom --config=%h/.config/picom/config.conf
+RestartSec=0
+
+# disallow writing to /usr, /bin, /sbin, ...
+ProtectSystem=yes
+# more paranoid security settings
+NoNewPrivileges=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictNamespaces=yes
+
+[Install]
+WantedBy=default.target
