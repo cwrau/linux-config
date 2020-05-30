@@ -1,0 +1,11 @@
+[Unit]
+Description=Xfce4 Power Manager
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/xfce4-power-manager --no-daemon
+RestartSec=0
+
+[Install]
+WantedBy=default.target

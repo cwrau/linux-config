@@ -147,27 +147,9 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
-$exaid feh --bg-fill $HOME/.config/background.jpg
-$exaid sh -c 'pgrep nm-applet || exec nm-applet'
-$exaid sh -c 'pgrep kdeconnectd | grep -v -E "pgrep|$$" || exec /usr/lib/kdeconnectd'
-$exaid sh -c 'pgrep kdeconnect-indi | grep -v -E "pgrep|$$" || exec kdeconnect-indicator'
-$exaid sh -c 'pgrep -f clipmenud | grep -v -E "pgrep|$$" || CM_MAX_CLIPS=0 CM_DIR=$HOME/.cache/clipmenud exec clipmenud'
-$exaid sh -c 'pgrep jetbrains-toolb || exec jetbrains-toolbox --window-mode --minimize'
-$exaid sh -c 'pgrep polkit-gnome-au || exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1'
+$exaid sh -c 'pgrep jetbrains-toolb || exec /opt/jetbrains-toolbox/jetbrains-toolbox $USER --minimize'
 $exaid sh -c 'pgrep earlyoom || exec sudo earlyoom -n --avoid "i3.*|custom.sh|teams|glava|polybar|.*gpmdp.*" -m 2'
-$exaid sh -c 'pgrep slack || exec slack'
-$exaid sh -c 'pgrep telegram-deskto || exec telegram-desktop'
-$exaid sh -c 'pgrep WhatsApp || exec whatsapp-nativefier'
-$exaid sh -c 'pgrep Discord || exec /usr/local/bin/custom/discord'
-$exaid sh -c 'pgrep "Google Play Mus" || exec gpmdp'
-$exaid sh -c 'pgrep teams-insiders || exec teams-insiders'
-$exaid sh -c 'pgrep chrome || exec google-chrome-stable --force-dark-mode --enable-features=OverlayScrollbar,OverlayScrollbarFlashAfterAnyScrollUpdate,OverlayScrollbarFlashWhenMouseEnter'
-#$exaid sh -c 'pkill deadd-notificat; exec deadd-notification-center'
-$exaid sh -c 'pgrep dunst || exec dunst'
-$exaid sh -c 'pgrep steam || exec steam'
 $exaid libinput-gestures-setup restart
-$exaid sh -c 'pgrep xfce4-power-man || exec xfce4-power-manager'
-$exaid sh -c 'pgrep premid || exec premid'
 
 default_border none
 for_window [class="jetbrains-toolbox"] floating enable
