@@ -432,6 +432,6 @@ else
   fi
 
   sudo systemctl enable --now systemd-timesyncd NetworkManager bluetooth pkgstats.timer fwupd ebtables dnsmasq foldingathome-nvidia rfkill-unblock@all
-  systemctl --user enable --now gpg-agent blueman-applet
+  systemctl --user enable --now gpg-agent updates.timer
   sudo systemctl disable NetworkManager-wait-online
 fi

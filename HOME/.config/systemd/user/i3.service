@@ -1,0 +1,9 @@
+[Unit]
+Description=i3
+Requires=xorg.socket
+After=xorg.socket
+
+[Service]
+Type=simple
+ExecStart=%h/.config/i3/launch.sh
+Environment=DISPLAY=:0

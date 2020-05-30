@@ -1,0 +1,9 @@
+[Unit]
+Description=Wait for Xorg at display 0
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash -c 'until [ -S /tmp/.X11-unix/X0 ]; do sleep 0.5; done; sleep 1'
+
+[Install]
+WantedBy=default.target

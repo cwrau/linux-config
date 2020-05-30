@@ -2,12 +2,6 @@
 
 set -exu
 
-while pgrep -u $UID -x polybar >/dev/null
-do
-  killall -q polybar
-  sleep 1
-done
-
 for MONITOR in $(polybar -m | cut -d: -f1)
 do
   # Launch bar1 and bar2

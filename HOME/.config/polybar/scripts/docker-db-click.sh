@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if docker inspect --type container db &> /dev/null; then
-  docker stop db
+if systemctl --user -q is-active docker-db; then
+  systemctl --user stop docker-db
 else
-  docker run --rm -it -d --network host --name db -v /tmp/docker-db:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=toor yobasystems/alpine-mariadb
+  systemctl --user start docker-db
 fi

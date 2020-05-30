@@ -21,5 +21,8 @@ xinput --map-to-output $(xinput | rg Touchscreen | sed -r 's#^.+id=([0-9]+).+$#\
 
 sudo powertop --auto-tune
 systemctl --user start xdg-user-dirs-update
-systemctl --user start blugon
-systemctl --user start blueman-applet
+systemctl --user start wait-for-x
+
+for s in blugon blueman-applet clipmenud discord dunst feh foldingathome gnome-polkit-agent google-chrome google-play-music-player kdeconnect-indicator networkmanager-applet picom premid slack steam telegram whatsapp xfce4-power-manager; do
+ scu start $s
+done
