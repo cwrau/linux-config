@@ -148,7 +148,7 @@ bindsym $mod+r mode "resize"
 
 $exaid sh -c 'pgrep jetbrains-toolb || exec /opt/jetbrains-toolbox/jetbrains-toolbox $USER --minimize'
 $exaid sh -c 'pgrep earlyoom || exec sudo earlyoom -n --avoid "i3.*|custom.sh|teams|glava|polybar|.*gpmdp.*" -m 2'
-$exaid sh -c 'pgrep teams-insiders || exec teams-insiders'
+$exaid sh -c 'pgrep teams|| exec teams'
 $exaid libinput-gestures-setup restart
 
 default_border none
@@ -300,7 +300,9 @@ for_window [class="GooglePlayMusic"] move to workspace 18:GPMDP
 
 bindsym $mod+$alt+9 workspace 19:Teams
 assign [class="Microsoft Teams - Insiders"] 19:Teams
+assign [class="Microsoft Teams"] 19:Teams
 for_window [class="Microsoft Teams - Insiders"] move to workspace 19:Teams
+for_window [class="Microsoft Teams"] move to workspace 19:Teams
 
 bindsym $mod+$alt+0 workspace 20:Chat
 assign [class="Slack"] 20:Chat
