@@ -294,11 +294,10 @@ else
     steam
     storageexplorer
     strace
-    subversion
     sway
     sxiv
     systemd
-    teams-insiders
+    teams
     telegram-desktop-bin
     telepresence
     thunderbird-extension-enigmail
