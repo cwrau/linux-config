@@ -346,8 +346,6 @@ else
 
   yay -Syu --noconfirm --needed ${packages[@]}
 
-  nvim +PlugInstall +exit +exit
-
   sudo pip install dynmem pulsectl
 
   kubectl krew update
@@ -360,47 +358,53 @@ else
   mkdir -p ${HOME}/projects
   git clone https://github.com/cwrau/linux-config ${HOME}/projects/linux-config
 
-  sudo mitmproxy &
-  sleep 5
-  kill %1
-
-  sudo cp /root/.mitmproxy/mitmproxy-ca-cert.cer /etc/ca-certificates/trust-source/anchors/mitmproxy-ca-cert.crt
-  sudo trust extract-compat
-
+  homeConfiglink .bash_completion.d
   homeConfiglink .bashrc
-  homeConfiglink .zshrc
-  homeConfiglink .xinitrc
-  sudo rm -f /root/.bashrc
-  sudo ln -sf ${HOME}/projects/linux-config/HOME/.bashrc /root/.bashrc
-  sudo mkdir -p /etc/udev/rules.d
-  sudo cp ${HOME}/projects/linux-config/ETC/udev/rules.d/20-yubikey.rules /etc/udev/rules.d/20-yubikey.rules
-  sudo cp ${HOME}/projects/linux-config/ETC/subuid /etc/subuid
-  sudo cp ${HOME}/projects/linux-config/ETC/subgid /etc/subgid
-  sudo cp ${HOME}/projects/linux-config/ETC/iptables/iptables.rules /etc/iptables/iptables.rules
-  sudo cp ${HOME}/projects/linux-config/ETC/iptables/ip6tables.rules /etc/iptables/ip6tables.rules
-  sudo ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules
-  homeConfiglink .gitconfig
-  homeConfiglink .config/i3status
-  homeConfiglink .config/polybar
-  homeConfiglink .config/glava
+  homeConfiglink .config/autorandr
+  # https://gitlab.com/SillyPill/arch-pape-maker
+  homeConfiglink .config/background.jpg
+  homeConfiglink .config/chrome-flags.conf
   homeConfiglink .config/dunst
+  homeConfiglink .config/feh
+  homeConfiglink .config/fontconfig
+  homeConfiglink .config/glava
+  homeConfiglink .config/gtk-3.0
+  homeConfiglink .config/i3
+  homeConfiglink .config/libinput-gestures.conf
   homeConfiglink .config/nvim
   homeConfiglink .config/p10k.zsh
   homeConfiglink .config/picom
-  # https://gitlab.com/SillyPill/arch-pape-maker
-  homeConfiglink .config/background.jpg
-  homeConfiglink .config/autorandr
-  homeConfiglink .config/i3
-  homeConfiglink .config/gtk-3.0
-  homeConfiglink .gtkrc-2.0
+  homeConfiglink .config/polybar
   homeConfiglink .config/screenlayouts
+  homeConfiglink .config/systemd
+  homeConfiglink .config/user-dirs.dirs
+  homeConfiglink .gitconfig
+  homeConfiglink .gtkrc-2.0.mine
+  homeConfiglink .icons
+  homeConfiglink .k9s/plugin.yml
+  homeConfiglink .layouts
+  homeConfiglink .xinitrc
+  homeConfiglink .zshrc
+
   sudo ln -sf ${HOME}/projects/linux-config/BIN /usr/local/bin/custom
   sudo rm -rf /usr/share/icons/default
   sudo ln -sf Breeze_Hacked /usr/share/icons/default
+
   for hook in ${HOME}/projects/linux-config/pacman-hooks/*; do
     sudo ln -sf ${hook} /usr/share/libalpm/hooks/$(basename ${hook})
   done
-  homeConfiglink .config/fontconfig
+
+  sudo ln -sf ${HOME}/projects/linux-config/ETC/profile.d/custom.sh /etc/profile.d/custom.sh
+  sudo rm -f /root/.bashrc
+  sudo ln -sf ${HOME}/projects/linux-config/HOME/.bashrc /root/.bashrc
+  sudo rm -f /root/.zshrc
+  sudo ln -sf ${HOME}/projects/linux-config/HOME/.zshrc /root/.zshrc
+  sudo mkdir -p /etc/udev/rules.d
+  sudo cp ${HOME}/projects/linux-config/ETC/udev/rules.d/20-yubikey.rules /etc/udev/rules.d/20-yubikey.rules
+  sudo ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules
+
+
+  nvim +PlugInstall +exit +exit
 
   echo "yes" >${HOME}/.config/gnome-initial-setup-done
 
