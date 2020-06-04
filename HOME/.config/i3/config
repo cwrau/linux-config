@@ -156,7 +156,7 @@ for_window [class="jetbrains-toolbox"] floating enable
 for_window [class="steam_app.*"] floating enable
 for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
 for_window [class="Gnome-network-displays"] floating enable
-for_window [class="Microsoft Teams" title="Microsoft Teams Notification"] floating enable
+for_window [class="Microsoft Teams" title="Microsoft Teams Notification"] floating enable no_focus
 
 $exaid $HOME/.config/i3/rc.sh
 
