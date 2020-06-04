@@ -284,6 +284,7 @@ else
     rke-bin
     rofi-dmenu
     rsync
+    s3cmd
     scrot
     shfmt
     siji-git
