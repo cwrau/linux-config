@@ -14,6 +14,7 @@ export FZF_ALT_C_COMMAND='fd -t d --hidden'
 export FZF_ALT_C_OPTS='--preview '\''tree -C {} | head -200'\'
 export FZF_CTRL_T_COMMAND='fd --hidden'
 export FZF_CTRL_T_OPTS='--preview '\''(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'\'
+export GRADLE_OPTS=-Xmx1G
 
 [ -d /usr/local/bin/custom ] && PATH="$PATH:/usr/local/bin/custom"
 [ -d /usr/local/bin/custom/custom ] && PATH="$PATH:/usr/local/bin/custom/custom"
