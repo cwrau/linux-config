@@ -1,12 +1,12 @@
 [Unit]
-Description=KDE Connect Indicator
-After=kdeconnect-daemon.service
-Requires=kdeconnect-daemon.service
+Description=KDE Connect Daemon
+After=graphical-session.target
+Requires=graphical-session.target
 
 [Service]
 Type=simple
 ExecStartPre=/usr/bin/bash -c 'until [ -S /tmp/.X11-unix/X0 ]; do sleep 0.5; done; sleep 1'
-ExecStart=/usr/bin/kdeconnect-indicator
+ExecStart=/usr/lib/kdeconnectd
 RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...
