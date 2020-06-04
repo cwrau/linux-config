@@ -213,7 +213,6 @@ else
     man-pages
     matcha-gtk-theme
     meta-group-base-devel
-    mitmproxy
     moreutils
     mousepad
     multimc5
