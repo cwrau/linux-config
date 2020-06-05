@@ -214,6 +214,7 @@ else
     matcha-gtk-theme
     meta-group-base-devel
     moreutils
+    morsetran
     mousepad
     multimc5
     mupdf
