@@ -165,9 +165,12 @@ function command_not_found_handler() {
   /bin/yay -Fyq -- $1
 }
 
+function _nop() {}
+
 function e.() {
   xdg-open . > /dev/null
 }
+compdef _nop e.
 
 function e() {
   xdg-open "$*" > /dev/null
@@ -236,12 +239,20 @@ function bsrv() {
     shift
     ssh root@buildsrv${index}.4allportal.net $*
 }
+function _bsrv() {
+  _arguments "1: :(1 2 4)"
+}
+compdef _bsrv bsrv
 
 function 4ap() {
     name="$1"
     shift
     ssh root@${name}.4allportal.net $*
 }
+function _4ap() {
+  _arguments "1: :($(cat $HOME/.ssh/known_hosts | awk '{print $1}' | tr ',' '\n' | rg '.4allportal\.net' | sed -r 's#.4allportal.net##g' | sort | uniq | xargs echo -n))"
+}
+compdef _4ap 4ap
 
 function fap() {
   mkdir -p /tmp/data
@@ -254,14 +265,20 @@ function fap() {
 function appVs() {
   ssh root@repository.4allportal.net ls /services/repository/apps/$1 -v
 }
+function _appVs() {
+  _arguments "1: :($(ssh root@repository.4allportal.net ls /services/repository/apps/ | sort | uniq | xargs echo -n))"
+}
+compdef _appVs appVs
 
 function appV() {
   echo "$1:$(ssh root@repository.4allportal.net ls /services/repository/apps/$1 -v | tail -1)"
 }
+compdef _appVs appV
 
 function getRepoVersion() {
-    4ap repository find /services/repository/apps/4allportal-$1 -mindepth 1 -maxdepth 1 | sed -r 's#^.*/([^/]+)$#\1#g' | sort
+    4ap repository find /services/repository/apps/$1 -mindepth 1 -maxdepth 1 | sed -r 's#^.*/([^/]+)$#\1#g' | sort
 }
+compdef _appVs getRepoVersion
 
 function google() {
   local IFS=+
@@ -285,18 +302,24 @@ function hr() {
   local ns
   local rn
   [ -f "$HR" -a -r "$HR" ] || return
-  ns=$((yq -e .spec.targetNamespace $HR || yq -e .metadata.namespace $HR) | rg -v null)
-  rn=$((yq -e .spec.releaseName $HR || yq -e .metadata.name $HR) | rg -v null)
+  ns=$( (yq -e .spec.targetNamespace $HR || yq -e .metadata.namespace $HR) | rg -v null)
+  rn=$( (yq -e .spec.releaseName $HR || yq -e .metadata.name $HR) | rg -v null)
   helm template --namespace $ns --repo $(yq -e .spec.chart.repository $HR) $rn $(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -e -y .spec.values $HR)
 }
+function _hr() {
+  local -a yaml_files
+  yaml_files=( **/*.{yaml,yml}  )
+  _arguments '1: :_files -g \*.\(yaml\|yml\)'
+}
+compdef _hr hr
 
 function hrDiff() {
   local HR="$1"
   local ns
   local rn
   [ -f "$HR" -a -r "$HR" ] || return
-  ns=$((yq -e .spec.targetNamespace $HR || yq -e .metadata.namespace $HR) | rg -v null)
-  rn=$((yq -e .spec.releaseName $HR || yq -e .metadata.name $HR) | rg -v null)
+  ns=$( (yq -e .spec.targetNamespace $HR || yq -e .metadata.namespace $HR) | rg -v null)
+  rn=$( (yq -e .spec.releaseName $HR || yq -e .metadata.name $HR) | rg -v null)
   helm repo add tmp $(yq -e .spec.chart.repository $HR)
   helm repo update
   helm diff upgrade --namespace $ns $rn tmp/$(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
@@ -304,6 +327,7 @@ function hrDiff() {
 
   # helm diff upgrade --namespace $ns --repo $(yq -e .spec.chart.repository $HR) $rn $(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
 }
+compdef _hr hrDiff
 
 function pkgSync() {
   local package
@@ -415,7 +439,7 @@ function pkgSync() {
     echo "No orphaned Packages"
   fi
 
-  newPackages=$((
+  newPackages=$( (
     echo '  #startPackages'
     echo '  packages=('
     echo $targetPackages | sort | uniq | sed 's#^#    #g'
@@ -429,7 +453,7 @@ function pkgSync() {
       sed -i -e "/#endPackages/a \\${newPackages}" -e '/#startPackages/,/#endPackages/d' -e 's#NewPackages#Packages#g' $HOME/projects/linux-config/install-arch-base.sh
       local OLDPWD=$PWD
       cd $HOME/projects/linux-config
-      gc install-arch-base.sh
+      gc -m pkgSync install-arch-base.sh
       gl
       gp
       cd $OLDPWD
@@ -438,14 +462,17 @@ function pkgSync() {
     echo "No changes to be made"
   fi
 }
+compdef _nop pkgSync
 
 function unusedPackages() {
   LC_ALL=C pacman -Qi | awk '/^Name/{name=$3} /^Required By/{req=$4} /^Optional For/{opt=$0} /^Install Reason/{res=$4$5} /^$/{if (req == "None" && res != "Explicitlyinstalled"){print name}}'
 }
+compdef _nop unusedPackages
 
 function clip() {
   xclip -selection clipboard
 }
+compdef _nop clip
 
 #function release4App() {
 #  local version="$1"
@@ -496,7 +523,7 @@ reAlias mv -i
 reAlias ls -phAvbl --color=always --time-style=long-iso
 reAlias nvim -b
 if [[ "$(id -u)" != 0 ]] && command -v sudo &> /dev/null; then
-  for cmd in systemctl pacman ignite ip; do
+  for cmd in systemctl pacman ip; do
     nAlias $cmd sudo $cmd
   done
 fi
@@ -515,7 +542,7 @@ reAlias jq -r
 reAlias yq -r
 nAlias k kubectl
 command -v powerpill &> /dev/null && reAlias yay --pacman=powerpill
-nAlias docker-run docker run --rm -it
+nAlias docker-run docker run --rm -i -t
 nAlias htop gotop
 reAlias gotop -r 4
 reAlias feh --scale-down --auto-zoom --auto-rotate
@@ -528,6 +555,10 @@ nAlias sc systemctl
 
 alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
 alias k9s="PATH=\"$PATH:$HOME/.krew/bin\" k9s"
+function _k9s() {
+  _arguments "--context[The name of the kubeconfig context to use]: :($(kubectl config get-contexts -o name | xargs echo -n))"
+}
+compdef _k9s k9s
 
 nAlias krc kubectl config current-context
 nAlias klc kubectl 'config get-contexts -o name | sed "s/^/  /;\|^  $(krc)$|s/ /*/"'
