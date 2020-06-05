@@ -188,6 +188,7 @@ mode $Power {
 
 bindsym $mod+period $exid sh -c 'splatmoji copy && xdotool key --clearmodifiers ctrl+shift+v'
 bindsym $mod+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
+bindsym $mod+m $exid /usr/local/bin/custom/morse
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume $exid pamixer -i 5; $exid pamixer -u #increase sound volume
