@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+morsetran $(xclip -selection clipboard -o | sed -r "s#/# / #g") | sed 's#  # #g' | xclip -selection clipboard -i
+sleep 0.5
+xdotool key --clearmodifiers ctrl+v
