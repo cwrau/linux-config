@@ -15,6 +15,7 @@ export FZF_ALT_C_OPTS='--preview '\''tree -C {} | head -200'\'
 export FZF_CTRL_T_COMMAND='fd --hidden'
 export FZF_CTRL_T_OPTS='--preview '\''(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'\'
 export GRADLE_OPTS=-Xmx1G
+export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
 
 [ -d /usr/local/bin/custom ] && PATH="$PATH:/usr/local/bin/custom"
 [ -d /usr/local/bin/custom/custom ] && PATH="$PATH:/usr/local/bin/custom/custom"
@@ -47,7 +48,7 @@ ZSH=/usr/share/oh-my-zsh/
 
 # Uncomment the following line to use hyphen-insensitive completion.
 # Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
+HYPHEN_INSENSITIVE="true"
 
 # Uncomment the following line to disable bi-weekly auto-update checks.
 DISABLE_AUTO_UPDATE="true"
@@ -71,7 +72,7 @@ DISABLE_AUTO_UPDATE="true"
 # ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
-# COMPLETION_WAITING_DOTS="true"
+COMPLETION_WAITING_DOTS="true"
 
 # Uncomment the following line if you want to disable marking untracked files
 # under VCS as dirty. This makes repository status check for large repositories
@@ -129,7 +130,7 @@ if [[ ! -d $ZSH_CACHE_DIR ]]; then
 fi
 
 source /usr/share/zsh/share/antigen.zsh
-plugins=(git git-auto-fetch gitfast common-aliases docker-compose docker fancy-ctrl-z fd fzf gpg-agent helm httpie kubectl mvn gradle gradle-completion ripgrep sudo per-directory-history)
+plugins=(git git-auto-fetch gitfast common-aliases docker-compose docker fancy-ctrl-z fd fzf gpg-agent helm httpie kubectl mvn gradle ripgrep sudo per-directory-history)
 
 antigen use oh-my-zsh
 for plugin in $plugins; do
@@ -138,14 +139,19 @@ done
 antigen bundle zsh-users/zsh-completions
 antigen bundle zsh-users/zsh-syntax-highlighting
 antigen bundle zsh-users/zsh-autosuggestions
+antigen bundle gradle/gradle-completion
 antigen theme romkatv/powerlevel10k
 antigen apply
+
+source ~/.antigen/bundles/gradle/gradle-completion/_gradle &> /dev/null
+
+autoload -U compinit && compinit -d $HOME/.cache/zsh/zcompdump-$ZSH_VERSION
+
+compdef _gradle gradle-or-gradlew
 
 #for plugin in /usr/share/zsh/plugins/*/*.plugin.zsh; do
 #  source "$plugin"
 #done
-
-autoload -U compinit && compinit -d $HOME/.cache/zsh/zcompdump-$ZSH_VERSION
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ -f ~/.config/p10k.zsh ]] && source ~/.config/p10k.zsh
@@ -453,9 +459,9 @@ function pkgSync() {
       sed -i -e "/#endPackages/a \\${newPackages}" -e '/#startPackages/,/#endPackages/d' -e 's#NewPackages#Packages#g' $HOME/projects/linux-config/install-arch-base.sh
       local OLDPWD=$PWD
       cd $HOME/projects/linux-config
-      gc -m pkgSync install-arch-base.sh
-      gl
-      gp
+      git commit -m pkgSync install-arch-base.sh
+      git pull
+      git push
       cd $OLDPWD
     fi
   else
@@ -516,7 +522,7 @@ unalias fd
 nAlias :q exit
 nAlias :e nvim
 nAlias :r source $HOME/.zshrc
-reAlias env ' | sort'
+reAlias env "-0 | sort -z | tr '\0' '\n'"
 reAlias rm -i
 reAlias cp -i
 reAlias mv -i
@@ -567,5 +573,3 @@ nAlias krn kubectl 'config get-contexts --no-headers "$(krc)" | awk "{print \$5}
 nAlias kln kubectl 'get -o name ns | sed "s|^.*/|  |;\|$(krn)|s/ /*/"'
 nAlias kcn kubectl 'config set-context --current --namespace "$(kln | fzf -e | sed "s/^..//")"'
 
-
-autoload -U +X bashcompinit && bashcompinit
