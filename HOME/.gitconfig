@@ -1,16 +1,13 @@
 [core]
   autocrlf = input
-[includeIf "gitdir:~/work/"]
-  path = .gitconfig-work
-[includeIf "gitdir:~/projects/"]
-  path = .gitconfig-private
-[includeIf "gitdir:~/go/"]
-  path = .gitconfig-private
-[gui]
-[credential]
 [user]
   signingkey = 6ADCBD3FF206F341D2CF8E2C49D1B5ACCF53CA1C
+  email = cwrau@cwrcoding.com
   name = Chris Werner Rau
+[includeIf "gitdir:~/work/"]
+  path = .gitconfig-work
+[gui]
+[credential]
 [commit]
   gpgsign = true
 [filter "lfs"]
@@ -47,3 +44,4 @@
   old = red bold
   new = green bold
   whitespace = red reverse
+
