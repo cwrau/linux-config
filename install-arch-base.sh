@@ -298,7 +298,7 @@ else
     sway
     sxiv
     systemd
-    teams
+    teams-insiders
     telegram-desktop-bin
     telepresence
     thunderbird-extension-enigmail
