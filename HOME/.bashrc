@@ -191,7 +191,7 @@ function nAlias() {
 
 nAlias :q exit
 nAlias :e vim
-reAlias env ' | sort'
+reAlias env "-0 | sort -z | tr '\0' '\n'"
 reAlias rm -i
 reAlias cp -i
 reAlias mv -i
