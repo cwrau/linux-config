@@ -8,7 +8,7 @@ function homeConfiglink() {
 
 cat - <<EOF
 Set up the base system the following way:
-EFI partition on /boot
+EFI partition on /efi
 ROOT on / (^_^)
 cryptsetup luksFormat --type luks @DISK@ #not luks2! Incompatible with grub
 EOF
@@ -65,7 +65,7 @@ EOF
   #cryptsetup luksAddKey /dev/${disk} /crypto_keyfile.bin
 
   #mkinitcpio -p linux
-  grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=Arch --recheck
+  grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=Arch --recheck
   grub-mkconfig -o /boot/grub/grub.cfg
   echo "Reboot and run this script again as other user"
 else
@@ -88,7 +88,6 @@ else
   packages=(
     android-tools
     android-udev
-    antigen-git
     arandr
     audacity
     ausweisapp2
@@ -163,6 +162,7 @@ else
     gparted
     gpmdp
     gradle
+    gradle-zsh-completion
     groovy
     grub
     gtop
@@ -239,6 +239,7 @@ else
     nvidia-docker-compose
     nvtop
     obs-studio
+    oh-my-zsh-git
     openjdk-src
     openjdk11-src
     openjdk8-src
@@ -309,6 +310,7 @@ else
     ttf-fira-code
     ttf-font-awesome
     ttf-liberation
+    ttf-meslo-nerd-font-powerlevel10k
     tty-clock
     udiskie-dmenu-git
     uhk-agent-appimage
@@ -342,6 +344,9 @@ else
     zip
     zoom
     zsh
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+    zsh-theme-powerlevel10k
   )
   #endPackages
 
