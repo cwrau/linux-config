@@ -125,33 +125,40 @@ COMPLETION_WAITING_DOTS="true"
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}'
 
 ZSH_CACHE_DIR=$HOME/.cache/oh-my-zsh
-if [[ ! -d $ZSH_CACHE_DIR ]]; then
-  mkdir $ZSH_CACHE_DIR
-fi
+ZSH_CUSTOM=/usr/share/zsh
+ZSH_THEME="../../zsh-theme-powerlevel10k/powerlevel10k"
 
-source /usr/share/zsh/share/antigen.zsh
-plugins=(git git-auto-fetch gitfast common-aliases docker-compose docker fancy-ctrl-z fd fzf gpg-agent helm httpie kubectl mvn gradle ripgrep sudo per-directory-history)
+plugins=(
+  git
+  git-auto-fetch
+  gitfast
+  common-aliases
+  docker-compose
+  docker
+  fancy-ctrl-z
+  fd
+  fzf
+  gpg-agent
+  helm
+  httpie
+  kubectl
+  mvn
+  gradle
+  ripgrep
+  sudo
+  per-directory-history
+  zsh-syntax-highlighting
+  zsh-autosuggestions
+)
 
-antigen use oh-my-zsh
-for plugin in $plugins; do
-  antigen bundle $plugin
-done
-antigen bundle zsh-users/zsh-completions
-antigen bundle zsh-users/zsh-syntax-highlighting
-antigen bundle zsh-users/zsh-autosuggestions
-antigen bundle gradle/gradle-completion
-antigen theme romkatv/powerlevel10k
-antigen apply
+source $ZSH/oh-my-zsh.sh
 
-source ~/.antigen/bundles/gradle/gradle-completion/_gradle &> /dev/null
+source /usr/share/zsh/site-functions/_gradle &> /dev/null
+source /usr/share/zsh/plugins/gradle-zsh-completion/gradle-completion.plugin.zsh
 
 autoload -U compinit && compinit -d $HOME/.cache/zsh/zcompdump-$ZSH_VERSION
 
 compdef _gradle gradle-or-gradlew
-
-#for plugin in /usr/share/zsh/plugins/*/*.plugin.zsh; do
-#  source "$plugin"
-#done
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ -f ~/.config/p10k.zsh ]] && source ~/.config/p10k.zsh
