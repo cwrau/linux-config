@@ -23,5 +23,5 @@ sudo powertop --auto-tune
 systemctl --user start xdg-user-dirs-update
 
 for s in blugon clipmenud discord dunst feh foldingathome gnome-polkit-agent google-chrome google-play-music-player kdeconnect-indicator networkmanager-applet picom premid slack steam telegram whatsapp xfce4-power-manager antimicroX updates.timer; do
- scu start $s
+  systemctl --user start $s
 done
