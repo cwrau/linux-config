@@ -207,6 +207,8 @@ else
     linux-firmware
     linux-headers
     lscolors-git
+    lutris
+    lutris-wine-meta
     lxrandr
     magic-wormhole
     man-db
