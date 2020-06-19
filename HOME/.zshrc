@@ -430,30 +430,50 @@ function pkgSync() {
   orphanedPackages=$(pacman -Qqtd)
 
   if [ ! -z $orphanedPackages ]; then
-    echo "$(wc -l <<<$orphanedPackages) orphaned Packages"
-    while read -r package; do
-      yay -Qi $package
-      read -k 1 "choice?[A]dd, [r]emove or [s]kip $package? "
-      echo
-      case $choice in;
-        [Aa])
-          targetPackages="$targetPackages\\n$package"
-          ;;
-        [Rr])
-          echo "=========="
-          echo
-          yay -R --noconfirm $package
-          ;;
-        *)
-          :
-          ;;
-      esac
-      echo
-      echo "=========="
-      echo
-    done <<<"$orphanedPackages"
+    while [ ! -z $orphanedPackages ]; do
+      echo "$(wc -l <<<$orphanedPackages) orphaned Packages"
+      while read -r package; do
+        yay -Qi $package
+        read -k 1 "choice?[A]dd, [r]emove or [s]kip $package? "
+        echo
+        case $choice in;
+          [Aa])
+            targetPackages="$targetPackages\\n$package"
+            ;;
+          [Rr])
+            echo "=========="
+            echo
+            yay -R --noconfirm $package
+            ;;
+          *)
+            :
+            ;;
+        esac
+        echo
+        echo "=========="
+        echo
+      done <<<"$orphanedPackages"
+      orphanedPackages=$(pacman -Qqtd)
+    done
   else
     echo "No orphaned Packages"
+  fi
+
+  local unusedPackages
+  unusedPackages=$(LC_ALL=C pacman -Qi | awk '/^Name/{name=$3} /^Required By/{req=$4} /^Optional For/{opt=$0} /^Install Reason/{res=$4$5} /^$/{if (req == "None" && res != "Explicitlyinstalled"){print name}}')
+
+  if [ ! -z $unusedPackages ]; then
+    echo "$(wc -l <<<$unusedPackages) unused Packages"
+    if read -q "?Remove unused packages? "; then
+      while [ ! -z $unusedPackages ]; do
+        echo "$(wc -l <<<$unusedPackages) unused Packages"
+        yay -R --noconfirm $(tr '\n' ' ' <<<$unusedPackages)
+        echo
+        unusedPackages=$(LC_ALL=C pacman -Qi | awk '/^Name/{name=$3} /^Required By/{req=$4} /^Optional For/{opt=$0} /^Install Reason/{res=$4$5} /^$/{if (req == "None" && res != "Explicitlyinstalled"){print name}}')
+      done
+    fi
+  else
+    echo "No unused Packages"
   fi
 
   newPackages=$( (
@@ -477,11 +497,6 @@ function pkgSync() {
   cd $OLDPWD
 }
 compdef _nop pkgSync
-
-function unusedPackages() {
-  LC_ALL=C pacman -Qi | awk '/^Name/{name=$3} /^Required By/{req=$4} /^Optional For/{opt=$0} /^Install Reason/{res=$4$5} /^$/{if (req == "None" && res != "Explicitlyinstalled"){print name}}'
-}
-compdef _nop unusedPackages
 
 function clip() {
   xclip -selection clipboard
