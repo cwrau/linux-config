@@ -88,6 +88,7 @@ else
   packages=(
     android-tools
     android-udev
+    antimicrox
     arandr
     audacity
     ausweisapp2
@@ -166,6 +167,7 @@ else
     groovy
     grub
     gtop
+    guake
     gvfs-smb
     hadolint-bin
     helm
@@ -181,8 +183,6 @@ else
     inotify-tools
     intel-ucode
     itch
-    jdk11-openjdk
-    jdk8-openjdk
     jetbrains-toolbox
     jq
     js-beautify
@@ -243,8 +243,6 @@ else
     obs-studio
     oh-my-zsh-git
     openjdk-src
-    openjdk11-src
-    openjdk8-src
     openresolv
     openssh
     p7zip
