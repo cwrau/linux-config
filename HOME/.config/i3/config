@@ -48,7 +48,7 @@ set $exaid exec_always --no-startup-id
 # installed.
 #bindsym $mod+d $exid j4-dmenu-desktop --usage-log=$HOME/.config/i3/j4-dmenu-desktop-usage --no-generic
 #bindsym $mod+d $exid dmenu-frecency
-bindsym $mod+d $exid i3-dmenu-desktop
+bindsym $mod+d $exid rofi -show drun
 #bindsym $mod+d $exid 'rofi -mode drun'
 
 # change focus
@@ -146,7 +146,6 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
-$exaid sh -c 'pgrep jetbrains-toolb || exec /opt/jetbrains-toolbox/jetbrains-toolbox $USER --minimize'
 $exaid sh -c 'pgrep earlyoom || exec sudo earlyoom -n --avoid "i3.*|custom.sh|teams|glava|polybar|.*gpmdp.*" -m 2'
 $exaid sh -c 'pgrep teams|| exec teams-insiders'
 $exaid libinput-gestures-setup restart
@@ -245,7 +244,7 @@ bindsym Ctrl+Shift+Print $exid "scrot $HOME/Screenshots/$(date +%FT%T.%2N).png"
 
 bindsym $mod+c exec "exo-open --launch WebBrowser"
 bindsym $mod+Shift+c exec "exo-open --launch WebBrowser --incognito"
-bindsym $mod+g exec sh -c 'xdg-open https://google.com/search\?q\=$(dmenu -p google | tr " " "+")'
+bindsym $mod+g exec sh -c 'dmenu -p google | tr " " "+" | xargs -r -I{} xdg-open https://google.com/search\?q\={}'
 
 for_window [class="jetbrains-idea" title="Debug"] floating disable
 for_window [class="java-lang-Thread" instance="java-lang-Thread"] floating enable

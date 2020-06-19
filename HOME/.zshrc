@@ -22,9 +22,9 @@ export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
 
 if [[ -z "$DISPLAY" ]]; then
   if [[ "$XDG_VTNR" -eq 1 ]]; then
-    exec startx
+    echo systemctl --user start window-manager.target
   elif [[ "$XDG_VTNR" -eq 2 ]]; then
-    exec sway --my-next-gpu-wont-be-nvidia
+    echo exec sway --my-next-gpu-wont-be-nvidia
   fi
 fi
 
@@ -122,7 +122,7 @@ COMPLETION_WAITING_DOTS="true"
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}'
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}'
 
 ZSH_CACHE_DIR=$HOME/.cache/oh-my-zsh
 ZSH_CUSTOM=/usr/share/zsh
@@ -577,6 +577,6 @@ nAlias krc kubectl config current-context
 nAlias klc kubectl 'config get-contexts -o name | sed "s/^/  /;\|^  $(krc)$|s/ /*/"'
 nAlias kcc kubectl 'config use-context "$(klc | fzf -e | sed "s/^..//")"'
 nAlias krn kubectl 'config get-contexts --no-headers "$(krc)" | awk "{print \$5}" | sed "s/^$/default/"'
-nAlias kln kubectl 'get -o name ns | sed "s|^.*/|  |;\|$(krn)|s/ /*/"'
+nAlias kln kubectl 'get -o name ns | sed "s|^.*/|  |;\|^  $(krn)$|s/ /*/"'
 nAlias kcn kubectl 'config set-context --current --namespace "$(kln | fzf -e | sed "s/^..//")"'
 
