@@ -1,0 +1,12 @@
+[Unit]
+Description=Jetbrains Toolbox
+After=graphical-session.target
+Requires=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/bin/sh -c '[ -x %h/.local/share/JetBrains/Toolbox/bin/jetbrains-toolbox ] && %h/.local/share/JetBrains/Toolbox/bin/jetbrains-toolbox %u --minimize || /opt/jetbrains-toolbox/jetbrains-toolbox %u --minimize'
+RestartSec=0
+
+[Install]
+WantedBy=default.target
