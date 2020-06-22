@@ -104,12 +104,11 @@ else
     bind-tools
     blueman
     bluez-utils
-    blugon
     breeze-hacked-cursor-theme
     ccid
     cht.sh
     clinfo
-    clipmenu
+    clipman
     cryptsetup
     cuda
     cups
@@ -126,7 +125,6 @@ else
     dockerfile-language-server-bin
     dolphin-emu
     dos2unix
-    dunst
     earlyoom
     ebtables
     edex-ui
@@ -174,6 +172,7 @@ else
     highlight
     hsetroot
     httpie
+    i3lock-color
     imagemagick
     inetutils
     informant
@@ -322,7 +321,6 @@ else
     which
     whois
     wl-clipboard
-    wofi
     xarchiver
     xclip
     xfce4-power-manager
@@ -371,19 +369,14 @@ else
   # https://gitlab.com/SillyPill/arch-pape-maker
   homeConfiglink .config/background.jpg
   homeConfiglink .config/chrome-flags.conf
-  homeConfiglink .config/dunst
-  homeConfiglink .config/feh
   homeConfiglink .config/fontconfig
   homeConfiglink .config/glava
   homeConfiglink .config/gtk-3.0
-  homeConfiglink .config/i3
   homeConfiglink .config/libinput-gestures.conf
   homeConfiglink .config/nvim
   homeConfiglink .config/p10k.zsh
-  homeConfiglink .config/picom
-  homeConfiglink .config/polybar
-  homeConfiglink .config/screenlayouts
   homeConfiglink .config/systemd
+  homeConfiglink .config/sway
   homeConfiglink .config/user-dirs.dirs
   homeConfiglink .gitconfig
   homeConfiglink .gtkrc-2.0.mine
@@ -419,7 +412,7 @@ else
 
   mkdir ${HOME}/Screenshots
 
-  sudo chmod u+s $(which i3lock)
+  sudo chmod u+s $(which swaylock)
 
   echo "$USER ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/${USER}
 
