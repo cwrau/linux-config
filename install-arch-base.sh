@@ -132,7 +132,6 @@ else
     edex-ui
     efibootmgr
     exfat-utils
-    exo
     fahcontrol
     fahviewer
     fast
@@ -164,10 +163,10 @@ else
     gpmdp
     gradle
     gradle-zsh-completion
+    grim
     groovy
     grub
     gtop
-    guake
     gvfs-smb
     hadolint-bin
     helm
@@ -175,8 +174,6 @@ else
     highlight
     hsetroot
     httpie
-    i3-gaps
-    i3lock-color
     imagemagick
     inetutils
     informant
@@ -211,6 +208,7 @@ else
     lutris-wine-meta
     lxrandr
     magic-wormhole
+    mako
     man-db
     man-pages
     matcha-gtk-theme
@@ -289,6 +287,7 @@ else
     siji-git
     slack-desktop
     slit-git
+    slurp
     socat
     splatmoji-git
     steam
@@ -318,13 +317,17 @@ else
     virt-manager
     vlc
     vulkan-icd-loader
+    waybar
     whatsapp-nativefier
     which
     whois
+    wl-clipboard
+    wofi
     xarchiver
     xclip
     xfce4-power-manager
     xorg-server
+    xorg-server-xwayland
     xorg-xev
     xorg-xhost
     xorg-xinit
