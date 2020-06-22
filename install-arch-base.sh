@@ -237,7 +237,6 @@ else
     nss-mdns
     ntfs-3g
     nvidia
-    nvidia-docker
     nvidia-docker-compose
     nvtop
     obs-studio
@@ -280,7 +279,6 @@ else
     python2-pynvim
     realvnc-vnc-viewer
     remmina
-    remmina-plugin-teamviewer
     ripgrep
     rke-bin
     rofi-dmenu
@@ -359,7 +357,7 @@ else
 
   helm plugin install https://github.com/databus23/helm-diff --version master
 
-  sudo usermod -a -G docker,wheel,input cwr
+  sudo usermod -a -G docker,wheel,uucp,input cwr
 
   mkdir -p ${HOME}/projects
   git clone https://github.com/cwrau/linux-config ${HOME}/projects/linux-config
