@@ -190,6 +190,7 @@ else
     kubebox
     kubectl-bin
     lab-bin
+    lens-bin
     less
     lib32-nvidia-utils
     libaacs
@@ -317,6 +318,7 @@ else
     vlc
     vulkan-icd-loader
     waybar
+    wdisplays
     whatsapp-nativefier
     which
     whois
