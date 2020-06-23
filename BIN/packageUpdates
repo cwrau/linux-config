@@ -9,7 +9,7 @@ AUR_UPDATES=$(yay -Qu --aur --devel 2> /dev/null | wc -l)
 
 if (( (UPDATES + AUR_UPDATES) >= 1 )) && ! pgrep -x yay &> /dev/null &> /dev/null
 then
-  notify-send.sh -t 10000 -R $DIR/NOTIFICATION_ID -u critical "$(BAR_ICON) $UPDATES | $AUR_UPDATES $(BAR_ICON)"
-  i3-msg exec "i3-sensible-terminal -- sh -c 'yay --pacman powerpill -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall'"
+  notify-send -t 10000 -u critical "$UPDATES | $AUR_UPDATES"
+  swaymsg -s /run/user/*/sway-ipc.*.*.sock exec "gnome-terminal -- sh -c 'yay --pacman powerpill -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall'"
 fi
 
