@@ -1,0 +1,9 @@
+[Unit]
+Description=sway
+BindsTo=graphical-session.target
+Wants=graphical-session-pre.target
+After=graphical-session-pre.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/sway --my-next-gpu-wont-be-nvidia

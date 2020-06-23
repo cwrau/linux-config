@@ -8,4 +8,4 @@ Persistent=true
 ExecStartPre=/usr/bin/bash -c 'until [ -S /tmp/.X11-unix/X0 ]; do sleep 0.5; done; sleep 1'
 
 [Install]
-WantedBy=default.target
+WantedBy=graphical-session.target

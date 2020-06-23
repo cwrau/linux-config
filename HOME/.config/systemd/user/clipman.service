@@ -1,11 +1,11 @@
 [Unit]
-Description=Picom
+Description=clipman
 After=graphical-session.target
 Requires=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/picom --config=%h/.config/picom/config.conf
+ExecStart=/usr/bin/wl-paste -t text --watch clipman store --histpath="%h/.local/share/clipman.json --max-items 0"
 RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...
@@ -14,7 +14,6 @@ ProtectSystem=yes
 NoNewPrivileges=yes
 ProtectKernelTunables=yes
 ProtectControlGroups=yes
-RestrictNamespaces=yes
 
 [Install]
-WantedBy=default.target
+WantedBy=graphical-session.target

@@ -15,4 +15,4 @@ ProtectKernelTunables=yes
 ProtectControlGroups=yes
 
 [Install]
-WantedBy=default.target
+WantedBy=graphical-session.target

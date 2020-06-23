@@ -435,6 +435,15 @@ else
   fi
 
   sudo systemctl enable --now systemd-timesyncd NetworkManager bluetooth pkgstats.timer fwupd ebtables dnsmasq foldingathome-nvidia rfkill-unblock@all
-  systemctl --user enable --now gpg-agent updates.timer
+  systemctl --user enable --now gpg-agent updates.timer /
+    clipman.service mako.service /
+    discord.service networkmanager-applet.service /
+    gnome-polkit-agent.service premid.service /
+    google-chrome.service slack.service /
+    google-play-music-player.service steam.service /
+    jetbrains-toolbox.service telegram.service /
+    kdeconnect-daemon.service updates.timer /
+    kdeconnect-indicator.service whatsapp.service /
+    libinput-gestures.service
   sudo systemctl disable NetworkManager-wait-online
 fi

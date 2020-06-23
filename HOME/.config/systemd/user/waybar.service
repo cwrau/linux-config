@@ -1,11 +1,11 @@
 [Unit]
-Description=guake
+Description=waybar
 After=graphical-session.target
 Requires=graphical-session.target
 
 [Service]
-Type=simple
-ExecStart=/usr/bin/guake
+Type=Simple
+ExecStart=/bin/waybar
 RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...
@@ -16,4 +16,4 @@ ProtectKernelTunables=yes
 ProtectControlGroups=yes
 
 [Install]
-WantedBy=default.target
+WantedBy=graphical-session.target

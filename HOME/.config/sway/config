@@ -1,0 +1,361 @@
+# Your preferred terminal emulator
+set $term gnome-terminal
+# Your preferred application launcher
+# Note: pass the final command to swaymsg so that the resulting window can be opened
+# on the original workspace that the command was run on.
+set $menu rofi -show drun
+
+xwayland enable
+
+input type:keyboard {
+  xkb_layout us
+  xkb_variant euro
+  repeat_delay 250
+}
+
+input type:touchpad {
+  tap enabled
+}
+
+### Output configuration
+#
+# Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
+output * bg $HOME/.config/background.jpg fill
+
+output "eDP*" scale 2
+
+set $opacity 0.9
+for_window [class=".*"] opacity $opacity
+for_window [class="Google Play Music Desktop Player"] opacity 0.7
+set $mod Mod4
+
+# Font for window titles. Will also be used by the bar unless a different font
+# is used in the bar {} block below.
+font pango:monospace 9
+
+# This font is widely installed, provides lots of unicode glyphs, right-to-left
+# text rendering and scalability on retina/hidpi displays (thanks to pango).
+#font pango:DejaVu Sans Mono 8
+
+# Before i3 v4.8, we used to recommend this one as the default:
+# font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
+# The font above is very space-efficient, that is, it looks good, sharp and
+# clear in small sizes. However, its unicode glyph coverage is limited, the old
+# X core fonts rendering does not support right-to-left and this being a bitmap
+# font, it doesn’t scale on retina/hidpi displays.
+
+# Use Mouse+$mod to drag floating windows to their wanted position
+floating_modifier $mod
+
+# focus_follows_mouse no
+#mouse_warping none
+
+set $exid exec --no-startup-id
+set $exaid exec_always --no-startup-id
+
+# start a terminal
+bindsym $mod+Return $exid gnome-terminal
+
+# kill focused window
+bindsym $mod+Shift+q kill
+
+# start dmenu (a program launcher)
+#bindsym $mod+d exec dmenu_run
+# There also is the (new) i3-dmenu-desktop which only displays applications
+# shipping a .desktop file. It is a wrapper around dmenu, so you need that
+# installed.
+#bindsym $mod+d $exid j4-dmenu-desktop --usage-log=$HOME/.config/i3/j4-dmenu-desktop-usage --no-generic
+#bindsym $mod+d $exid dmenu-frecency
+bindsym $mod+d $exid rofi -show drun -show-icons
+#bindsym $mod+d $exid 'rofi -mode drun'
+
+# change focus
+#bindsym $mod+j focus left
+#bindsym $mod+k focus down
+#bindsym $mod+l focus up
+#bindsym $mod+odiaeresis focus right
+
+# alternatively, you can use the cursor keys:
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# move focused window
+#bindsym $mod+Shift+j move left
+#bindsym $mod+Shift+k move down
+#bindsym $mod+Shift+l move up
+#bindsym $mod+Shift+odiaeresis move right
+
+# alternatively, you can use the cursor keys:
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+# split in horizontal orientation
+bindsym $mod+h split v
+
+# split in vertical orientation
+bindsym $mod+v split h
+
+# enter fullscreen mode for the focused container
+bindsym $mod+f fullscreen toggle
+# toggle polybar
+bindsym $mod+Shift+f $exid "sh -c 'if systemctl --user -q is-active polybar; then systemctl --user stop polybar; else systemctl --user start polybar; fi'"
+
+# change container layout (stacked, tabbed, toggle split)
+bindsym $mod+t layout toggle stacking tabbed
+bindsym $mod+e layout toggle split
+bindsym $mod+a focus parent
+bindsym $mod+Shift+a focus child
+
+# toggle tiling / floating
+bindsym $mod+Shift+space floating toggle
+
+# change focus between tiling / floating windows
+# bindsym $mod+space focus mode_toggle
+
+# focus the parent container
+#bindsym $mod+a focus parent
+
+# focus the child container
+#bindsym $mod+d focus child
+
+bindsym $mod+Shift+r reload
+
+# Start i3bar to display a workspace bar (plus the system information i3status
+# finds out, if available)
+# bar {
+#         status_command exec $HOME/.config/i3status/custom.sh
+#         tray_output none
+#         position bottom
+# }
+#$exaid $HOME/.config/polybar/launch.sh
+#$exaid $HOME/.config/glava/launch.sh
+#$exaid sh -c "sleep 10; sudo rfkill unblock all"
+
+#bindsym button3 nop
+#bindsym button4 nop
+#bindsym button5 nop
+
+# resize window (you can also use the mouse for that)
+mode "resize" {
+        # These bindings trigger as soon as you enter the resize mode
+        bindsym Left resize shrink width 10 px or 10 ppt
+        bindsym Up resize grow height 10 px or 10 ppt
+        bindsym Down resize shrink height 10 px or 10 ppt
+        bindsym Right resize grow width 10 px or 10 ppt
+
+        # back to normal: Enter or Escape or $mod+r
+        bindsym Escape mode "default"
+        # Enter
+        bindcode 36 mode "default"
+}
+
+bindsym $mod+r mode "resize"
+
+$exaid sh -c 'pgrep earlyoom || exec sudo earlyoom -n --avoid "i3.*|custom.sh|teams|glava|polybar|.*gpmdp.*" -m 2'
+$exaid sh -c 'pgrep teams|| exec teams-insiders'
+
+default_border none
+for_window [class="jetbrains-toolbox"] floating enable
+for_window [class="steam_app.*"] floating enable
+for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
+for_window [class="Gnome-network-displays"] floating enable
+for_window [class="Microsoft Teams" title="Microsoft Teams Notification"] floating enable no_focus
+for_window [class="Steam" title="Steam Library Folders"] floating enable
+for_window [class="Steam" title="Create or select new Steam library folder:"] floating enable
+
+#$exaid $HOME/.config/i3/rc.sh
+
+#bindsym Pause exec /usr/local/bin/custom/suspend
+#bindsym Scroll_Lock exec /usr/local/bin/custom/lock
+
+set $Power " [S]leep, [p]oweroff, [l]ogoff or [r]eboot?"
+bindsym $mod+q mode $Power
+
+mode $Power {
+    bindsym s exec /usr/local/bin/custom/suspend; mode "default"
+    bindsym p exec systemctl poweroff
+    bindsym r exec systemctl reboot
+    bindsym l exec swaymsg exit
+    bindsym Escape mode "default"
+}
+
+# Emoji Keyboard
+
+bindsym $mod+period $exid sh -c 'splatmoji -s light -m copy && wl-paste'
+bindsym $mod+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
+bindsym $mod+m $exid /usr/local/bin/custom/morse
+
+# Pulse Audio controls
+bindsym XF86AudioRaiseVolume $exid pamixer -i 5; $exid pamixer -u #increase sound volume
+bindsym XF86AudioLowerVolume $exid pamixer -d 5 #decrease sound volume
+bindsym XF86AudioMute $exid pamixer -t # mute sound
+
+# Sreen brightness controls
+bindsym XF86MonBrightnessUp $exid sudo sh -c "echo 1500 > /sys/class/backlight/intel_backlight/brightness"
+bindsym XF86MonBrightnessDown $exid sudo sh -c "echo 1 > /sys/class/backlight/intel_backlight/brightness"
+# bindsym XF86MonBrightnessUp $exid /usr/local/bin/custom/brightness up
+# bindsym XF86MonBrightnessDown $exid /usr/local/bin/custom/brightness down
+
+# Media player controls
+bindsym XF86AudioPlay $exid playerctl -i chrome play-pause
+bindsym XF86AudioPause $exid playerctl -i chrome pause
+bindcode 164 $exid playerctl -i chrome play-pause
+bindsym XF86AudioNext $exid playerctl -i chrome next
+bindsym XF86AudioPrev $exid playerctl -i chrome previous
+
+# Change Audio Settings
+bindsym $mod+Shift+o $exid /usr/local/bin/custom/audio-program-sink
+bindsym $mod+Ctrl+o $exid /usr/local/bin/custom/audio-profile
+bindsym $mod+o $exid /usr/local/bin/custom/audio-sink
+
+# Display Manager
+bindsym $mod+Shift+p $exid /usr/local/bin/custom/rofi-randr
+#bindsym $mod+p $exid /usr/bin/lxrandr
+bindsym $mod+b $exid /usr/local/bin/custom/bluetooth_dmenu
+
+# Lock
+bindsym $mod+l $exid /usr/local/bin/custom/lock
+
+# WiFi-Manager
+bindsym $mod+i $exid networkmanager_dmenu
+
+# Mount-Manager
+bindsym $mod+u $exid udiskie-dmenu
+
+bindsym $mod+x exec xkill
+
+# Clipboard-Manager
+bindsym $mod+Shift+v $exid sh -c 'clipman pick -t rofi --histpath="$HOME/.local/share/clipman.json" && wl-paste'
+bindsym $mod+Ctrl+v $exid sh -c 'clipman pick -t rofi --histpath="$HOME/.local/share/clipman.json"'
+
+# Screenshots
+# Selection > Clipboard
+bindsym Print $exid sh -c 'grim -g "$(slurp)" - | wl-copy'
+# Full Screen > Clipboard
+bindsym Shift+Print $exid sh -c 'grim - | wl-copy'
+# Selection > File
+bindsym Ctrl+Print $exid sh -c 'grim -g "$(slurp)" $HOME/Screenshots/$(date +%FT%T.%2N).png'
+# Full Screen > File
+bindsym Ctrl+Shift+Print $exid 'grim $HOME/Screenshots/$(date +%FT%T.%2N).png'
+
+bindsym $mod+c exec "$BROWSER"
+bindsym $mod+Shift+c exec "$BROWSER --incognito"
+bindsym $mod+g exec sh -c 'dmenu -p google | tr " " "+" | xargs -r -I{} xdg-open https://google.com/search\?q\={}'
+
+for_window [class="jetbrains-idea" title="Debug"] floating disable
+for_window [class="java-lang-Thread" instance="java-lang-Thread"] floating enable
+for_window [class="jetbrains-.*" title="win0"] floating enable
+
+for_window [class="Kazam"] floating enable
+
+#hide_edge_borders both
+#new_window none
+
+set $alt Alt
+
+bindsym $mod+Page_Up workspace prev
+bindsym $mod+Page_Down workspace next
+
+# switch to workspace
+bindsym $mod+1 workspace 1
+assign [class="Mailspring"] 1
+bindsym $mod+2 workspace 2
+bindsym $mod+3 workspace 3
+bindsym $mod+4 workspace 4
+bindsym $mod+5 workspace 5
+bindsym $mod+6 workspace 6
+bindsym $mod+7 workspace 7
+bindsym $mod+8 workspace 8
+bindsym $mod+9 workspace 9
+bindsym $mod+0 workspace 10
+bindsym $mod+$alt+1 workspace 11
+bindsym $mod+$alt+2 workspace 12
+bindsym $mod+$alt+3 workspace 13
+
+bindsym $mod+$alt+4 workspace 14:Discord
+assign [class="discord"] 14:Discord
+for_window [class="discord"] move to workspace 14:Discord
+
+bindsym $mod+$alt+5 workspace 15:Steam
+assign [class="Steam"] 15:Steam
+for_window [class="Steam"] move to workspace 15:Steam
+
+bindsym $mod+$alt+6 workspace 16:YouTube
+assign [class="Google-chrome" title=".*YouTube$"] 16:YouTube
+for_window [class="Google-chrome" title=".*YouTube$"] move to workspace 16:YouTube
+
+bindsym $mod+$alt+7 workspace 17:Netflix
+assign [class="Google-chrome" title="Netflix"] 17:Netflix
+for_window [class="Google-chrome" title="^Netflix$"] move to workspace 17:Netflix
+
+bindsym $mod+$alt+8 workspace 18:GPMDP
+assign [class="Google Play Music Desktop Player"] 18:GPMDP
+assign [class="GooglePlayMusic"] 18:GPMDP
+for_window [class="Google Play Music Desktop Player"] move to workspace 18:GPMDP
+for_window [class="GooglePlayMusic"] move to workspace 18:GPMDP
+
+bindsym $mod+$alt+9 workspace 19:Teams
+assign [class="Microsoft Teams - Insiders"] 19:Teams
+assign [class="Microsoft Teams"] 19:Teams
+for_window [class="Microsoft Teams - Insiders"] move to workspace 19:Teams
+for_window [class="Microsoft Teams"] move to workspace 19:Teams
+
+bindsym $mod+$alt+0 workspace 20:Chat
+assign [class="Slack"] 20:Chat
+for_window [class="Slack"] move to workspace 20:Chat
+assign [class="TelegramDesktop"] 20:Chat
+for_window [class="TelegramDesktop"] move to workspace 20:Chat
+assign [class="whatsapp-nativefier-.*"] 20:Chat
+for_window [class="whatsapp-nativefier-.*"] move to workspace 20:Chat
+
+# move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace 1
+bindsym $mod+Shift+2 move container to workspace 2
+bindsym $mod+Shift+3 move container to workspace 3
+bindsym $mod+Shift+4 move container to workspace 4
+bindsym $mod+Shift+5 move container to workspace 5
+bindsym $mod+Shift+6 move container to workspace 6
+bindsym $mod+Shift+7 move container to workspace 7
+bindsym $mod+Shift+8 move container to workspace 8
+bindsym $mod+Shift+9 move container to workspace 9
+bindsym $mod+Shift+0 move container to workspace 10
+bindsym $mod+Shift+$alt+1 move container to workspace 11
+bindsym $mod+Shift+$alt+2 move container to workspace 12
+bindsym $mod+Shift+$alt+3 move container to workspace 13
+bindsym $mod+Shift+$alt+4 move container to workspace 14:Discord
+bindsym $mod+Shift+$alt+5 move container to workspace 15:Steam
+bindsym $mod+Shift+$alt+6 move container to workspace 16:YouTube
+bindsym $mod+Shift+$alt+7 move container to workspace 17:Netflix
+bindsym $mod+Shift+$alt+8 move container to workspace 18:GPMDP
+bindsym $mod+Shift+$alt+9 move container to workspace 19:Teams
+bindsym $mod+Shift+$alt+0 move container to workspace 20:Chat
+
+# move workspace to output
+bindsym Ctrl+$mod+Right move workspace to output right
+bindsym Ctrl+$mod+Left move workspace to output left
+bindsym Ctrl+$mod+Up move workspace to output up
+bindsym Ctrl+$mod+Down move workspace to output down
+
+set $external DP-1
+set $external2 DP-2
+set $external3 DP-3
+set $internal eDP-1
+
+workspace 1 output $external$external2#external3
+workspace 14:Discord output $internal
+workspace 15:Steam output $internal
+workspace 16:YouTube output $internal
+workspace 17:Netflix output $internal
+workspace 18:GPMDP output $internal
+workspace 19:Teams output $internal
+workspace 20:Chat output $internal
+
+gaps outer 5
+gaps inner 10
+smart_borders on
+
+include /etc/sway/config.d/10-systemd.conf

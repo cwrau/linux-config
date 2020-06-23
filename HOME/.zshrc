@@ -16,16 +16,22 @@ export FZF_CTRL_T_COMMAND='fd --hidden'
 export FZF_CTRL_T_OPTS='--preview '\''(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'\'
 export GRADLE_OPTS=-Xmx1G
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
+export _JAVA_AWT_WM_NONREPARENTING=1
 
 [ -d /usr/local/bin/custom ] && PATH="$PATH:/usr/local/bin/custom"
 [ -d /usr/local/bin/custom/custom ] && PATH="$PATH:/usr/local/bin/custom/custom"
 
+
 if [[ -z "$DISPLAY" ]]; then
   if [[ "$XDG_VTNR" -eq 1 ]]; then
-    echo systemctl --user start window-manager.target
-  elif [[ "$XDG_VTNR" -eq 2 ]]; then
-    echo exec sway --my-next-gpu-wont-be-nvidia
+    sway --my-next-gpu-wont-be-nvidia
   fi
+fi
+
+if pgrep i3lock &> /dev/null; then
+  pkill -9 i3lock
+  sudo chvt 1
+  exit
 fi
 
 # Path to your oh-my-zsh installation.
@@ -219,7 +225,7 @@ function ssh() {
 for intellijTool in /usr/local/bin/custom/custom/*; do
   local func=$(cat - <<EOF
   function $(basename $intellijTool)() {
-    i3-msg "exec $intellijTool \$(realpath \${1:-.})"
+    swaymsg "exec $intellijTool \$(realpath \${1:-.})"
   }
 EOF
 )
@@ -296,18 +302,6 @@ compdef _appVs getRepoVersion
 function google() {
   local IFS=+
   xdg-open "http://google.com/search?q=${*}"
-}
-
-function grim() {
-  local choice
-  choice="$(rg $* | fzf | cut -d ':' -f 1)"
-  [ "$?" = 0 ] && vim "$choice"
-}
-
-function fim() {
-  local choice
-  choice="$(fd $* | fzf)"
-  [ "$?" = 0 ] && vim "$choice"
 }
 
 function hr() {
@@ -573,7 +567,7 @@ nAlias k kubectl
 command -v powerpill &> /dev/null && reAlias yay --pacman=powerpill
 nAlias docker-run docker run --rm -i -t
 nAlias htop gotop
-reAlias gotop -r 4
+reAlias gotop -r 250ms
 reAlias feh --scale-down --auto-zoom --auto-rotate
 nAlias grep rg
 nAlias o xdg-open
