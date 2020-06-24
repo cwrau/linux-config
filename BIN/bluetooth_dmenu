@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import subprocess
+import sys
 import notify2
 import dynmen
 
@@ -29,17 +30,18 @@ def get_choice(items, item_name, name_getter, active_selector=None):
     if len(items) == 0:
         notify("Bluethooth Script", f"No {item_name} available")
         return None
+    names = [name_getter(it) for it in items]
+    if active_selector is None:
+        selection = dmenu(names)
     else:
-        names = [name_getter(it) for it in items]
-        if active_selector is None:
-            selection = dmenu(names)
-        else:
-            selection = dmenu(names, [index for index, sink in enumerate(items) if active_selector(sink)])
+        selection = dmenu(names, [
+            index for index, sink in enumerate(items) if active_selector(sink)
+        ])
 
-        if selection is None or selection < 0:
-            return None
+    if selection is None or selection < 0:
+        return None
 
-        item = items[selection]
+    item = items[selection]
 
     return item
 
@@ -56,28 +58,41 @@ def bluetooth_command(command, args=None):
         cmdline = f"{command} {args}"
     else:
         cmdline = command
-    bluetoothCtl = subprocess.Popen(("bluetoothctl"), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    bluetoothCtl.stdin.write(cmdline.encode())
-    bluetoothCtl.stdin.close()
-    return [line.decode() for line in bluetoothCtl.stdout.readlines()]
+    bluetooth_ctl = subprocess.Popen(("bluetoothctl"),
+                                     stdin=subprocess.PIPE,
+                                     stdout=subprocess.PIPE)
+    bluetooth_ctl.stdin.write(cmdline.encode())
+    bluetooth_ctl.stdin.close()
+    bluetooth_ctl.wait()
+    return [line.decode() for line in bluetooth_ctl.stdout.readlines()]
 
 
-outPut = [line[7:-1].split(" ") for line in bluetooth_command("devices") if line.startswith("Device")]
+outPut = [
+    line[7:-1].split(" ") for line in bluetooth_command("devices")
+    if line.startswith("Device")
+]
 
 devices = []
 
 for out in outPut:
     mac = out[0]
     name = " ".join(out[1:])
-    connected = "yes" in [connected for connected in bluetooth_command("info", mac) if "Connected" in connected][0]
+    connected = "yes" in [
+        connected for connected in bluetooth_command("info", mac)
+        if "Connected" in connected
+    ][0]
     devices.append(BluetoothDevice(name, mac, connected))
 
-device = get_choice(sorted(devices, key=lambda d: (not d.connected, d.name)), "Device", lambda d: f'{d.name} ({"Connected" if d.connected else "Disconnected"})', lambda d: d.connected)
+device = get_choice(
+    sorted(devices, key=lambda d: (not d.connected, d.name)), "Device",
+    lambda d: f'{d.name} ({"Connected" if d.connected else "Disconnected"})',
+    lambda d: d.connected)
 
 if device is None:
-    exit(0)
+    sys.exit(0)
 
 if device.connected:
     bluetooth_command("disconnect", device.mac)
 else:
+    bluetooth_command("connect", device.mac)
     bluetooth_command("connect", device.mac)

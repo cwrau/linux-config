@@ -7,5 +7,5 @@ Type=simple
 ExecStart=/usr/bin/docker run --rm --network host --name %N -v /tmp/%N:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=toor mariadb
  
 [Install]
-WantedBy=default.target
+WantedBy=graphical-session.target
 	

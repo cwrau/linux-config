@@ -9,4 +9,4 @@ ExecStart=/bin/sh -c '[ -x %h/.local/share/JetBrains/Toolbox/bin/jetbrains-toolb
 RestartSec=0
 
 [Install]
-WantedBy=default.target
+WantedBy=graphical-session.target

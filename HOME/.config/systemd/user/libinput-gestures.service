@@ -1,11 +1,11 @@
 [Unit]
-Description=Google Play Music Player
+Description=libinput gestures
 After=graphical-session.target
 Requires=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/gpmdp
+ExecStart=/usr/bin/libinput-gestures
 RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...
@@ -14,7 +14,6 @@ ProtectSystem=yes
 NoNewPrivileges=yes
 ProtectKernelTunables=yes
 ProtectControlGroups=yes
-RestrictNamespaces=yes
 
 [Install]
 WantedBy=graphical-session.target

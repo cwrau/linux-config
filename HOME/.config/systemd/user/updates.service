@@ -9,4 +9,4 @@ ExecStart=/home/cwr/projects/linux-config/BIN/packageUpdates
 RestartSec=0
 
 [Install]
-WantedBy=default.target
+WantedBy=graphical-session.target

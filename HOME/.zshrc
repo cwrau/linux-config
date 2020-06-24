@@ -298,18 +298,6 @@ function google() {
   xdg-open "http://google.com/search?q=${*}"
 }
 
-function grim() {
-  local choice
-  choice="$(rg $* | fzf | cut -d ':' -f 1)"
-  [ "$?" = 0 ] && vim "$choice"
-}
-
-function fim() {
-  local choice
-  choice="$(fd $* | fzf)"
-  [ "$?" = 0 ] && vim "$choice"
-}
-
 function hr() {
   local HR="$1"
   local ns
@@ -573,7 +561,7 @@ nAlias k kubectl
 command -v powerpill &> /dev/null && reAlias yay --pacman=powerpill
 nAlias docker-run docker run --rm -i -t
 nAlias htop gotop
-reAlias gotop -r 4
+reAlias gotop -r 250ms
 reAlias feh --scale-down --auto-zoom --auto-rotate
 nAlias grep rg
 nAlias o xdg-open
