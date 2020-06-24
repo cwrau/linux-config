@@ -148,7 +148,6 @@ bindsym $mod+r mode "resize"
 
 $exaid sh -c 'pgrep earlyoom || exec sudo earlyoom -n --avoid "i3.*|custom.sh|teams|glava|polybar|.*gpmdp.*" -m 2'
 $exaid sh -c 'pgrep teams|| exec teams-insiders'
-$exaid libinput-gestures-setup restart
 
 default_border none
 for_window [class="jetbrains-toolbox"] floating enable

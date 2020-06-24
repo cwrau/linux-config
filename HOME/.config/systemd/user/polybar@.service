@@ -1,11 +1,11 @@
 [Unit]
-Description=Polybar
+Description=Polybar %I
 After=graphical-session.target
 Requires=graphical-session.target
 
 [Service]
 Type=forking
-ExecStart=%h/.config/polybar/launch.sh
+ExecStart=%h/.config/polybar/launch.sh %i
 RestartSec=0
 
 [Install]

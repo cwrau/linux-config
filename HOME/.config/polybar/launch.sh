@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+location=${1:?Must provice location: top/bottom}
+
 set -exu
 
 for MONITOR in $(polybar -m | cut -d: -f1)
@@ -7,11 +9,10 @@ do
   # Launch bar1 and bar2
   if polybar -m | grep $MONITOR | grep primary &>/dev/null
   then
-    TRAY=right
+    export TRAY=right
   else
-    TRAY=none
+    export TRAY=none
   fi
-  TRAY=$TRAY MONITOR=$MONITOR polybar -r top -c ~/.config/polybar/config-top.ini &
-  #MONITOR=$MONITOR polybar -r top-transparent -c ~/.config/polybar/config-top.ini &
-  MONITOR=$MONITOR polybar -r bottom -c ~/.config/polybar/config-bottom.ini &
+  export MONITOR
+  polybar -r $location -c ~/.config/polybar/config-$location.ini &
 done
