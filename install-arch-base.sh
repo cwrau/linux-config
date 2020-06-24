@@ -232,6 +232,7 @@ else
     nodejs-neovim
     notify-send.sh
     noto-fonts-all
+    noto-fonts-emoji-fontconfig
     nss-mdns
     ntfs-3g
     nvidia
