@@ -1,11 +1,12 @@
 [Unit]
-Description=waybar
+Description=waybar %I
 After=graphical-session.target
 Requires=graphical-session.target
 
 [Service]
-Type=Simple
-ExecStart=/bin/waybar
+Type=simple
+#Environment=GTK_DEBUG=interactive
+ExecStart=/bin/waybar -b %i -c %h/.config/waybar/config-%i.json -s %h/.config/waybar/style-%i.css 
 RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...

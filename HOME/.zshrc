@@ -24,6 +24,7 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 
 if [[ -z "$DISPLAY" ]]; then
   if [[ "$XDG_VTNR" -eq 1 ]]; then
+    export WLC_USE_EGLDEVICE=1
     sway --my-next-gpu-wont-be-nvidia
   fi
 fi

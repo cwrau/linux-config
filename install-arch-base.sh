@@ -381,7 +381,7 @@ else
   homeConfiglink .config/sway
   homeConfiglink .config/user-dirs.dirs
   homeConfiglink .gitconfig
-  homeConfiglink .gtkrc-2.0.mine
+  homeConfiglink .gtkrc-2.0
   homeConfiglink .icons
   homeConfiglink .k9s/plugin.yml
   homeConfiglink .layouts
@@ -436,7 +436,7 @@ else
     echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/$USER-*'"
   fi
 
-  sudo systemctl enable --now systemd-timesyncd NetworkManager bluetooth pkgstats.timer fwupd ebtables dnsmasq foldingathome-nvidia rfkill-unblock@all
+  sudo systemctl enable --now systemd-timesyncd NetworkManager bluetooth pkgstats.timer fwupd ebtables dnsmasq rfkill-unblock@all
   systemctl --user enable --now gpg-agent updates.timer /
     clipman.service mako.service /
     discord.service networkmanager-applet.service /
