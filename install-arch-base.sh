@@ -167,7 +167,6 @@ else
     groovy
     grub
     gtop
-    guake
     gvfs-smb
     hadolint-bin
     helm
