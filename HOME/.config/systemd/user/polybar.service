@@ -9,4 +9,4 @@ ExecStart=%h/.config/polybar/launch.sh
 RestartSec=0
 
 [Install]
-WantedBy=default.target
+WantedBy=graphical-session.target

@@ -17,4 +17,4 @@ ProtectControlGroups=yes
 RestrictNamespaces=yes
 
 [Install]
-WantedBy=default.target
+WantedBy=graphical-session.target
