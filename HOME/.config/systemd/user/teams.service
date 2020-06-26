@@ -1,0 +1,12 @@
+[Unit]
+Description=teams
+After=graphical-session.target
+Requires=graphical-session.target
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/teams-insiders
+RestartSec=0
+
+[Install]
+WantedBy=graphical-session.target

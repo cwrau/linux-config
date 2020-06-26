@@ -18,13 +18,10 @@ export GRADLE_OPTS=-Xmx1G
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
 
 [ -d /usr/local/bin/custom ] && PATH="$PATH:/usr/local/bin/custom"
-[ -d /usr/local/bin/custom/custom ] && PATH="$PATH:/usr/local/bin/custom/custom"
 
 if [[ -z "$DISPLAY" ]]; then
   if [[ "$XDG_VTNR" -eq 1 ]]; then
-    echo systemctl --user start window-manager.target
-  elif [[ "$XDG_VTNR" -eq 2 ]]; then
-    echo exec sway --my-next-gpu-wont-be-nvidia
+   startx
   fi
 fi
 
@@ -215,24 +212,6 @@ function ssh() {
     return $ret
   fi
 }
-
-for intellijTool in /usr/local/bin/custom/custom/*; do
-  local func=$(cat - <<EOF
-  function $(basename $intellijTool)() {
-    i3-msg "exec $intellijTool \$(realpath \${1:-.})"
-  }
-EOF
-)
-  eval "$func"
-  unset func
-done
-unset intellijTool
-
-for jdk in $(archlinux-java status | tail -n +2 | awk '{print $1}'); do
-  jdkVersion=$(echo $jdk | cut -d - -f 2)
-  eval "alias java$jdkVersion=/usr/lib/jvm/$jdk/bin/java"
-done
-unset jdkVersion
 
 function diff() {
   /bin/diff -u "${@}" | diff-so-fancy | /bin/less --tabs=1,5 -RF

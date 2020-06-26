@@ -10,7 +10,7 @@ cat - <<EOF
 Set up the base system the following way:
 EFI partition on /efi
 ROOT on / (^_^)
-cryptsetup luksFormat --type luks @DISK@ #not luks2! Incompatible with grub
+pacstrap /mnt base linux linux-firmware base-devel git
 EOF
 
 if [[ $(id -u) = 0 ]]; then
@@ -28,7 +28,6 @@ if [[ $(id -u) = 0 ]]; then
 ::1 localhost
 127.0.0.1 $(hostname)
 EOF
-  sed -r -i 's#^HOOKS=.+$#HOOKS=(base udev autodetect modconf block keyboard keymap encrypt filesystems)#g' /etc/mkinitcpio.conf
   sed -r -i 's#^MODULES=.+$#MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)#g' /etc/mkinitcpio.conf
   echo "cwr ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/cwr
   id -u cwr || (
@@ -72,7 +71,7 @@ else
   sudo systemctl start dhcpcd
 
   pushd /tmp
-  git clone https://aur.archlinux.org/yay.git
+  git clone https://aur.archlinux.org/yay-bin.git
   cd yay
   makepkg -si
   popd
@@ -81,7 +80,7 @@ else
   sudo sed -i -r "s#^\#?BUILDDIR=.*\$#BUILDDIR=/tmp/makepkg#g" /etc/makepkg.conf
   sudo sed -i -r "s#^\#?MAKEFLAGS=.*\$#MAKEFLAGS=\"-j\\\$(nproc)\"#g" /etc/makepkg.conf
   multilibLine=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
-  sudo sed -i -r "$multilibLine,$((( $a + 1 ))) s#^\###g" /etc/pacman.conf
+  sudo sed -i -r "$multilibLine,$((( $multilibLine + 1 ))) s#^\###g" /etc/pacman.conf
   sudo sed -i -r "s#^SigLevel.+\$#SigLevel = PackageRequired#g" /etc/pacman.conf
 
   #startPackages
@@ -114,6 +113,8 @@ else
     cuda
     cups
     curl
+    datagrip
+    datagrip-jre
     davfs2
     deluge-gtk
     dhcpcd
@@ -181,6 +182,8 @@ else
     informant
     inotify-tools
     intel-ucode
+    intellij-idea-ultimate-edition
+    intellij-idea-ultimate-edition-jre
     itch
     jetbrains-toolbox
     jq

@@ -43,6 +43,8 @@ function main() {
   done
 
   ${=xrandr_cmd}
+  systemctl --user start feh
+  systemctl --user restart 'polybar@*'
 }
 
 ################################################################################

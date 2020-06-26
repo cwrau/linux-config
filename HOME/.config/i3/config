@@ -48,7 +48,7 @@ set $exaid exec_always --no-startup-id
 # installed.
 #bindsym $mod+d $exid j4-dmenu-desktop --usage-log=$HOME/.config/i3/j4-dmenu-desktop-usage --no-generic
 #bindsym $mod+d $exid dmenu-frecency
-bindsym $mod+d $exid rofi -show drun
+bindsym $mod+d $exid rofi -show-icons -show drun
 #bindsym $mod+d $exid 'rofi -mode drun'
 
 # change focus
@@ -147,7 +147,6 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 $exaid sh -c 'pgrep earlyoom || exec sudo earlyoom -n --avoid "i3.*|custom.sh|teams|glava|polybar|.*gpmdp.*" -m 2'
-$exaid sh -c 'pgrep teams|| exec teams-insiders'
 
 default_border none
 for_window [class="jetbrains-toolbox"] floating enable
@@ -358,3 +357,5 @@ workspace 20:Chat output $internal
 gaps outer 5
 gaps inner 10
 smart_borders on
+
+exec systemctl --user start i3-session.target

@@ -10,8 +10,4 @@ then
   exit 0
 fi
 
-for i3id in $(pgrep -x i3)
-do
-  uid="$(stat -c %u /run/user/*/i3/ipc-socket.$i3id)"
-  i3-msg -s /run/user/$uid/i3/ipc-socket.$i3id exec /usr/local/bin/custom/lock
-done
+i3-msg -s /run/user/*/i3/ipc-socket.* exec /usr/local/bin/custom/lock
