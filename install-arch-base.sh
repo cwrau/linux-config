@@ -113,8 +113,6 @@ else
     cuda
     cups
     curl
-    datagrip
-    datagrip-jre
     davfs2
     deluge-gtk
     dhcpcd
@@ -182,8 +180,6 @@ else
     informant
     inotify-tools
     intel-ucode
-    intellij-idea-ultimate-edition
-    intellij-idea-ultimate-edition-jre
     itch
     jetbrains-toolbox
     jq
