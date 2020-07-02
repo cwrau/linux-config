@@ -42,27 +42,6 @@ EOF
 
   pacman -Sy --noconfirm --needed grub efibootmgr linux
 
-  answer="NO"
-  until [[ "${answer}" == "YES" ]]; do
-    disk='$$$$$$$$'
-    until [[ -e "/dev/${disk}" ]]; do
-      echo -e "Type the name of the device on which Arch is to be installed.\nMake sure to type the right one!"
-      read disk
-    done
-    echo "Is /dev/$disk correct? (YES|*)"
-    read answer
-  done
-  eval $(blkid /dev/${disk} -o export)
-  sed -r -i "s#^GRUB_CMDLINE_LINUX_DEFAULT=.+\$#GRUB_CMDLINE_LINUX_DEFAULT=\"cryptdevice=UUID=$UUID:luks-$UUID root=/dev/mapper/luks-$UUID resume=/dev/mapper/luks-$UUID nvidia-drm.modeset=1\"#g" /etc/default/grub
-  echo 'GRUB_ENABLE_CRYPTODISK=y' >>/etc/default/grub
-
-  #if [[ ! -f  /crypto_keyfile.bin ]]
-  #then
-  #  dd bs=512 count=4 if=/dev/random of=/crypto_keyfile.bin iflag=fullblock
-  #fi
-  #chmod 000 /crypto_keyfile.bin
-  #cryptsetup luksAddKey /dev/${disk} /crypto_keyfile.bin
-
   #mkinitcpio -p linux
   grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=Arch --recheck
   grub-mkconfig -o /boot/grub/grub.cfg
