@@ -18,6 +18,7 @@ export GRADLE_OPTS=-Xmx1G
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
 
 [ -d /usr/local/bin/custom ] && PATH="$PATH:/usr/local/bin/custom"
+[ -d /usr/local/bin/custom/custom ] && PATH="$PATH:/usr/local/bin/custom/custom"
 
 if [[ -z "$DISPLAY" ]]; then
   if [[ "$XDG_VTNR" -eq 1 ]]; then
@@ -66,7 +67,7 @@ DISABLE_AUTO_UPDATE="true"
 # DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
+ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 COMPLETION_WAITING_DOTS="true"
@@ -152,6 +153,7 @@ source $ZSH/oh-my-zsh.sh
 
 source /usr/share/zsh/site-functions/_gradle &> /dev/null
 source /usr/share/zsh/plugins/gradle-zsh-completion/gradle-completion.plugin.zsh
+source /usr/share/git/completion/git-completion.zsh &> /dev/null
 
 autoload -U compinit && compinit -d $HOME/.cache/zsh/zcompdump-$ZSH_VERSION
 
@@ -168,11 +170,13 @@ setopt HIST_REDUCE_BLANKS
 unsetopt share_history
 
 function command_not_found_handler() {
-  echo "Command '$1' not found, but could be installed via the following packages:"
+  echo "Command '$1' not found, but could be installed via the following package(s):"
+  yay -S --provides -- $1
+  [ $? -eq 0 ] && return
   echo "Packages containing '$1' in name"
-  /bin/yay -Sl | rg -- $1
+  yay -Slq | rg -- $1
   echo "Packages containg files with '$1' in their name"
-  /bin/yay -Fyq -- $1
+  yay -Fyq -- $1
 }
 
 function _nop() {}
@@ -187,7 +191,10 @@ function e() {
 }
 
 function ssh() {
-  if $(grep "$1" ~/.ssh/checked_hosts -q )
+  if ! ping -c 1 "${1/*@/}" &> /dev/null; then
+    /bin/ssh "$@"
+    return $?
+  elif $(grep "$1" ~/.ssh/checked_hosts -q )
   then
     name="$1"
     shift
@@ -212,6 +219,18 @@ function ssh() {
     return $ret
   fi
 }
+
+for intellijTool in /usr/local/bin/custom/custom/*; do
+  local func=$(cat - <<EOF
+  function $(basename $intellijTool)() {
+    i3-msg "exec $intellijTool \$(realpath \${1:-.})"
+  }
+EOF
+)
+  eval "$func"
+  unset func
+done
+unset intellijTool
 
 function diff() {
   /bin/diff -u "${@}" | diff-so-fancy | /bin/less --tabs=1,5 -RF
@@ -272,6 +291,25 @@ function getRepoVersion() {
 }
 compdef _appVs getRepoVersion
 
+function helmUpdates() {
+  kubectl get helmreleases -A -o json | jq -r '.items[] | select(.spec.chart.version != null) | "\(.metadata.namespace) \(.metadata.name) \(.spec.chart.repository) \(.spec.chart.name) \(.spec.chart.version)"' | while read ns name repo chart version; do
+    cat <<EOF > /tmp/repo.yaml
+apiVersion: ""
+generated: "0001-01-01T00:00:00Z"
+repositories:
+  - name: repo
+    url: "$repo"
+EOF
+
+    helm --repository-config /tmp/repo.yaml repo update &> /dev/null
+    latestVersion=$(helm --repository-config /tmp/repo.yaml --output json search repo $chart | jq -r ".[] | select(.name == \"repo/$chart\") | .version")
+    if [ "$version" != "$latestVersion" ]; then
+      echo update $ns/$name to version $latestVersion
+    fi
+  done
+  rm -f /tmp/repo.yaml
+}
+
 function google() {
   local IFS=+
   xdg-open "http://google.com/search?q=${*}"
@@ -300,10 +338,15 @@ function hrDiff() {
   [ -f "$HR" -a -r "$HR" ] || return
   ns=$( (yq -e .spec.targetNamespace $HR || yq -e .metadata.namespace $HR) | rg -v null)
   rn=$( (yq -e .spec.releaseName $HR || yq -e .metadata.name $HR) | rg -v null)
-  helm repo add tmp $(yq -e .spec.chart.repository $HR)
-  helm repo update
-  helm diff upgrade --namespace $ns $rn tmp/$(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
-  helm repo remove tmp
+    cat <<EOF > /tmp/repo.yaml
+apiVersion: ""
+generated: "0001-01-01T00:00:00Z"
+repositories:
+  - name: tmp
+    url: "$(yq -r -e .spec.chart.repository $HR)"
+EOF
+  helm --repository-config /tmp/repo.yaml repo update
+  helm --repository-config /tmp/repo.yaml diff upgrade --namespace $ns $rn tmp/$(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
 
   # helm diff upgrade --namespace $ns --repo $(yq -e .spec.chart.repository $HR) $rn $(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
 }

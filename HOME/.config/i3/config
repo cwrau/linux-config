@@ -84,7 +84,7 @@ bindsym $mod+v split h
 # enter fullscreen mode for the focused container
 bindsym $mod+f fullscreen toggle
 # toggle polybar
-bindsym $mod+Shift+f $exid "sh -c 'if systemctl --user -q is-active polybar; then systemctl --user stop polybar; else systemctl --user start polybar; fi'"
+bindsym $mod+Shift+f $exid "sh -c 'if systemctl --user -q is-active polybar@\*; then systemctl --user stop polybar@\*; else systemctl --user start polybar@\* -all; fi'"
 
 # change container layout (stacked, tabbed, toggle split)
 bindsym $mod+t layout toggle stacking tabbed
@@ -358,4 +358,5 @@ gaps outer 5
 gaps inner 10
 smart_borders on
 
-exec systemctl --user start i3-session.target
+exec --no-startup-id systemctl --user start i3-session.target
+exec_always --no-startup-id systemctl --user start feh.service

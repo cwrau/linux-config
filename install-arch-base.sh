@@ -10,7 +10,12 @@ cat - <<EOF
 Set up the base system the following way:
 EFI partition on /efi
 ROOT on / (^_^)
-pacstrap /mnt base linux linux-firmware base-devel git
+pacstrap /mnt base linux linux-firmware base-devel git grup efibootmgr
+chroot:
+  passwd root
+
+  grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=Arch --recheck
+  grub-mkconfig -o /boot/grub/grub.cfg
 EOF
 
 if [[ $(id -u) = 0 ]]; then
@@ -33,18 +38,12 @@ EOF
   id -u cwr || (
     useradd cwr -d /home/cwr -U -m
     passwd cwr
-    passwd root
   )
 
   pacman -Sy --noconfirm --needed pacman-contrib
 
   curl -s "https://www.archlinux.org/mirrorlist/?country=DE&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 10 - >/etc/pacman.d/mirrorlist
 
-  pacman -Sy --noconfirm --needed grub efibootmgr linux
-
-  #mkinitcpio -p linux
-  grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=Arch --recheck
-  grub-mkconfig -o /boot/grub/grub.cfg
   echo "Reboot and run this script again as other user"
 else
   sudo systemctl start dhcpcd
