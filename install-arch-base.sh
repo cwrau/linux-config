@@ -322,7 +322,7 @@ else
     zsh
     zsh-autosuggestions
     zsh-syntax-highlighting
-    zsh-theme-powerlevel10k
+    zsh-theme-powerlevel10k-git
   )
   #endPackages
 
