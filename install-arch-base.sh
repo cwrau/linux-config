@@ -93,7 +93,6 @@ else
     curl
     davfs2
     deluge-gtk
-    dhcpcd
     diff-so-fancy
     discord
     dive
@@ -286,7 +285,6 @@ else
     ttf-fira-code
     ttf-font-awesome
     ttf-liberation
-    ttf-meslo-nerd-font-powerlevel10k
     tty-clock
     udiskie-dmenu-git
     uhk-agent-appimage
@@ -303,7 +301,6 @@ else
     xclip
     xfce4-power-manager
     xorg-server
-    xorg-xev
     xorg-xhost
     xorg-xinit
     xorg-xinput
