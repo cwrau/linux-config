@@ -46,8 +46,6 @@ EOF
 
   echo "Reboot and run this script again as other user"
 else
-  sudo systemctl start dhcpcd
-
   pushd /tmp
   git clone https://aur.archlinux.org/yay-bin.git
   cd yay
@@ -318,6 +316,7 @@ else
     zoom
     zsh
     zsh-autosuggestions
+    zsh-completions
     zsh-syntax-highlighting
     zsh-theme-powerlevel10k-git
   )
