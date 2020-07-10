@@ -1,1 +1,0 @@
-ethernet_click_1.sh
