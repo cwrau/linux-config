@@ -41,8 +41,8 @@ let g:LanguageClient_serverCommands = {
       \   'python': ['pyls'],
       \   'dockerfile': ['docker-langserver', '--stdio'],
       \   'java': ['java-language-server'],
-      \   'yaml': ['yaml-language-server'],
       \ }
+"     \   'yaml': ['yaml-language-server'],
 
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
 let g:mkdp_browser = 'google-chrome-stable'

@@ -11,11 +11,12 @@ export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
 export SDL_AUDIODRIVER="pulse"
 export FZF_ALT_C_COMMAND='fd -t d --hidden'
-export FZF_ALT_C_OPTS='--preview '\''tree -C {} | head -200'\'
+export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 export FZF_CTRL_T_COMMAND='fd --hidden'
-export FZF_CTRL_T_OPTS='--preview '\''(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'\'
+export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
 export GRADLE_OPTS=-Xmx1G
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
+export GRADLE_USER_HOME=/tmp/gradle
 
 [ -d /usr/local/bin/custom ] && PATH="$PATH:/usr/local/bin/custom"
 [ -d /usr/local/bin/custom/custom ] && PATH="$PATH:/usr/local/bin/custom/custom"
@@ -67,7 +68,7 @@ DISABLE_AUTO_UPDATE="true"
 # DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
-ENABLE_CORRECTION="true"
+# ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 COMPLETION_WAITING_DOTS="true"
@@ -274,7 +275,7 @@ function fap() {
 }
 
 function appVs() {
-  ssh root@repository.4allportal.net ls /services/repository/apps/$1 -v
+  ssh root@repository.4allportal.net ls /services/repository/apps/$1 -v | sort -V | sed "s#^#$1:#g"
 }
 function _appVs() {
   _arguments "1: :($(ssh root@repository.4allportal.net ls /services/repository/apps/ | sort | uniq | xargs echo -n))"
@@ -282,14 +283,9 @@ function _appVs() {
 compdef _appVs appVs
 
 function appV() {
-  echo "$1:$(ssh root@repository.4allportal.net ls /services/repository/apps/$1 -v | tail -1)"
+  echo "$1:$(ssh root@repository.4allportal.net ls /services/repository/apps/$1 -v | sort -V | tail -1)"
 }
 compdef _appVs appV
-
-function getRepoVersion() {
-    4ap repository find /services/repository/apps/$1 -mindepth 1 -maxdepth 1 | sed -r 's#^.*/([^/]+)$#\1#g' | sort
-}
-compdef _appVs getRepoVersion
 
 function helmUpdates() {
   kubectl get helmreleases -A -o json | jq -r '.items[] | select(.spec.chart.version != null) | "\(.metadata.namespace) \(.metadata.name) \(.spec.chart.repository) \(.spec.chart.name) \(.spec.chart.version)"' | while read ns name repo chart version; do
@@ -554,7 +550,7 @@ function nAlias() {
 unalias fd
 nAlias :q exit
 nAlias :e nvim
-nAlias :r source $HOME/.zshrc
+nAlias :r exec zsh
 reAlias env "-0 | sort -z | tr '\0' '\n'"
 reAlias rm -i
 reAlias cp -i
@@ -591,6 +587,8 @@ nAlias makepkg docker-run --network host -v '$PWD:/pkg whynothugo/makepkg' makep
 reAlias watch ' '
 nAlias scu /bin/systemctl --user
 nAlias sc systemctl
+alias urldecode='sed "s@+@ @g;s@%@\\\\x@g" | xargs -0 printf "%b"'
+alias urlencode='jq -s -R -r @uri'
 
 alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
 alias k9s="PATH=\"$PATH:$HOME/.krew/bin\" k9s"
