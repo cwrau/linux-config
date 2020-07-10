@@ -5,7 +5,7 @@ Requires=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=/home/cwr/projects/linux-config/BIN/packageUpdates
+ExecStart=%h/BIN/packageUpdates
 RestartSec=0
 
 [Install]

@@ -4,7 +4,7 @@ set -e -o pipefail
 
 eval $(cat $HOME/.config/polybar/colors.ini | rg '^[a-z]+ = #[0-9a-fA-F]+$' | tr -d ' ' | sed -r 's#^#color_#g')
 
-cd $HOME/projects/linux-config &> /dev/null
+cd $HOME &> /dev/null
 
 function update() {
   untracked=$(git ls-files -o --exclude-standard | wc -l)

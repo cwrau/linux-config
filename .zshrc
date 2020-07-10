@@ -350,12 +350,12 @@ compdef _hr hrDiff
 
 function pkgSync() {
   local OLDPWD=$PWD
-  cd $HOME/projects/linux-config
+  cd $HOME
   git pull
 
   local package
   local packages
-  eval $(sed -n '/#startPackages/,/#endPackages/p;/#endPackages/q' $HOME/projects/linux-config/install-arch-base.sh | rg -v '#')
+  eval $(sed -n '/#startPackages/,/#endPackages/p;/#endPackages/q' $HOME/install-arch-base.sh | rg -v '#')
 
   local targetPackages
   targetPackages=$(echo $packages | tr ' ' '\n')
@@ -493,7 +493,7 @@ function pkgSync() {
   diff <(echo $originalPackages) <(echo $targetPackages)
   if ! /bin/diff <(echo $originalPackages) <(echo $targetPackages) &> /dev/null; then
     if read -q "?Commit? "; then
-      sed -i -e "/#endPackages/a \\${newPackages}" -e '/#startPackages/,/#endPackages/d' -e 's#NewPackages#Packages#g' $HOME/projects/linux-config/install-arch-base.sh
+      sed -i -e "/#endPackages/a \\${newPackages}" -e '/#startPackages/,/#endPackages/d' -e 's#NewPackages#Packages#g' $HOME/install-arch-base.sh
       git commit -m pkgSync install-arch-base.sh
       git push
     fi
