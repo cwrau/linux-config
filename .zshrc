@@ -267,9 +267,36 @@ function _4ap() {
 compdef _4ap 4ap
 
 function fap() {
-  mkdir -p /tmp/data
+  rm -rf /tmp/{apps_repository,cefs,custom,data}
+  mkdir -p /tmp/data/custom/modules/file/mounts
+  cat <<EOF > /tmp/data/custom/modules/file/mounts/data.xml
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mount enabled="true">
+    <file_module>file</file_module>
+    <folder_module>folder</folder_module>
+    <base_path>/4allportal/assets</base_path>
+    <use_fileid>false</use_fileid>
+    <use_volumeid>false</use_volumeid>
+    <read_only>false</read_only>
+    <min_index_part_size>15</min_index_part_size>
+    <max_index_part_size>150</max_index_part_size>
+    <exclude_folders>
+        <exclude_folder>layout</exclude_folder>
+    </exclude_folders>
+    <exclude_files>
+        <exclude_file>4ap_fileimport[.]xml</exclude_file>
+        <exclude_file>Thumbs[.]db</exclude_file>
+    </exclude_files>
+    <period>60</period>
+    <change_handlers>
+        <change_handler>com.cm4ap.ce.fsi.handler.FileChangeHandler</change_handler>
+        <change_handler>com.cm4ap.ce.fsi.handler.LogOutputHandler</change_handler>
+    </change_handlers>
+    <use_mod_time_millis>true</use_mod_time_millis>
+</mount>
+EOF
   docker pull registry.4allportal.net/4allportal:$1
-  docker run --rm -it -e DATABASE_HOST=localhost -v /tmp/data:/4allportal/data --net host \
+  docker run --rm -it -e DATABASE_HOST=localhost -e DATABASE_TYPE=mariadb -v /tmp/data:/4allportal/data --net host \
     --tmpfs=/4allportal/{_runtime,assets} ${@:2} \
     registry.4allportal.net/4allportal:$1
 }
