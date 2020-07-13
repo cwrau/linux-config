@@ -2,23 +2,41 @@
 
 set -ex -o pipefail
 
-cat - <<EOF
+cat - <<'EOF'
 Set up the base system the following way:
-EFI partition on /efi
+EFI partition on /boot
 ROOT on / (^_^)
-pacstrap /mnt base linux linux-firmware base-devel git grup efibootmgr
+pacstrap /mnt base linux linux-firmware base-devel git efibootmgr dhcpcd libxkbcommon inetutils
 chroot:
   passwd root
 
-  grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=Arch --recheck
-  grub-mkconfig -o /boot/grub/grub.cfg
+  id -u cwr || (
+    useradd cwr -d /home/cwr -U -m
+    passwd cwr
+  )
+  su cwr
+  cd $HOME
+  git init
+  git remote add origin https://github.com/cwrau/linux-config
+  git fetch
+  git reset origin/master
+  git switch master
+  git reset --hard
+
+  sed -r -i 's#^MODULES=.+$#MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)#g' /etc/mkinitcpio.conf
+  mkinitcpio -P
+
+  efibootmgr --disk /dev/$disk --part $part --create --label "Arch Linux" --loader /vmlinuz-linux --unicode \
+  'root=PARTUUID=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX rw initrd=\intel-ucode.img initrd=\initramfs-linux.img' --verbose
+  efibootmgr -o EFIs # 3(new entry),0,1,2
 EOF
 
 if [[ $(id -u) = 0 ]]; then
+  systemctl start dhcpcd
   timedatectl set-timezone Europe/Berlin
   hwclock --systohc
   localectl set-locale LANG=en_US.UTF-8
-  #sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
+  sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
   localectl set-locale LC_COLLATE=C
   locale-gen
   localectl set-keymap us-latin1
@@ -28,24 +46,22 @@ if [[ $(id -u) = 0 ]]; then
 127.0.0.1 localhost
 ::1 localhost
 127.0.0.1 $(hostname)
+::1 $(hostname)
 EOF
-  sed -r -i 's#^MODULES=.+$#MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)#g' /etc/mkinitcpio.conf
   echo "cwr ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/cwr
-  id -u cwr || (
-    useradd cwr -d /home/cwr -U -m
-    passwd cwr
-  )
 
   pacman -Sy --noconfirm --needed pacman-contrib
 
   curl -s "https://www.archlinux.org/mirrorlist/?country=DE&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 10 - >/etc/pacman.d/mirrorlist
 
-  echo "Reboot and run this script again as other user"
+  echo "Run this script again as other user"
 else
   pushd /tmp
-  git clone https://aur.archlinux.org/yay-bin.git
-  cd yay
-  makepkg -si
+  [ -d yay-bin ] || git clone https://aur.archlinux.org/yay-bin.git
+  cd yay-bin
+  export PKGEXT=.pkg.tar
+  [ -f yay-bin-*.pkg.tar ] || makepkg -s
+  sudo pacman -U yay-bin-*.pkg.tar --noconfirm
   popd
 
   sudo sed -i -r "s#^PKGEXT.+\$#PKGEXT='.pkg.tar'#g" /etc/makepkg.conf
@@ -147,7 +163,6 @@ else
     i3-gaps
     i3lock-color
     imagemagick
-    inetutils
     informant
     inotify-tools
     intel-ucode
@@ -318,7 +333,8 @@ else
   )
   #endPackages
 
-  yay -Syu --noconfirm --needed ${packages[@]}
+  yay -S --noconfirm powerpill
+  yay --pacman=powerpill -Syu --noconfirm --needed ${packages[@]}
 
   sudo pip install dynmem pulsectl
 
@@ -328,13 +344,6 @@ else
   helm plugin install https://github.com/databus23/helm-diff --version master
 
   sudo usermod -a -G docker,wheel,uucp,input cwr
-
-  cd $HOME
-  git init
-  git remote add origin https://github.com/cwrau/linux-config
-  git fetch
-  git reset origin/master
-  git checkout -t origin/master
 
   sudo ln -sf ${HOME}/BIN /usr/local/bin/custom
   sudo rm -rf /usr/share/icons/default
@@ -387,4 +396,6 @@ else
   sudo systemctl enable --now systemd-timesyncd NetworkManager bluetooth pkgstats.timer fwupd ebtables dnsmasq rfkill-unblock@all
   systemctl --user enable --now gpg-agent updates.timer
   sudo systemctl disable NetworkManager-wait-online
+  sudo systemctl stop dhcpcd
+  sudo pacman -R dhcpcd
 fi
