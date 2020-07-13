@@ -20,7 +20,7 @@ chroot:
   git remote add origin https://github.com/cwrau/linux-config
   git fetch
   git reset origin/master
-  git switch master
+  git switch -t origin/master 
   git reset --hard
 
   sed -r -i 's#^MODULES=.+$#MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)#g' /etc/mkinitcpio.conf
@@ -37,6 +37,7 @@ if [[ $(id -u) = 0 ]]; then
   hwclock --systohc
   localectl set-locale LANG=en_US.UTF-8
   sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
+  sed -i 's/#en_GB.UTF-8/en_GB.UTF-8/g' /etc/locale.gen
   localectl set-locale LC_COLLATE=C
   locale-gen
   localectl set-keymap us-latin1
@@ -333,7 +334,7 @@ else
   )
   #endPackages
 
-  yay -S --noconfirm powerpill
+  yay -S --noconfirm --needed powerpill
   yay --pacman=powerpill -Syu --noconfirm --needed ${packages[@]}
 
   sudo pip install dynmem pulsectl
