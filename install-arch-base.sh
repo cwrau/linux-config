@@ -49,7 +49,7 @@ if [[ $(id -u) = 0 ]]; then
 127.0.0.1 $(hostname)
 ::1 $(hostname)
 EOF
-  echo "cwr ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/cwr
+  echo "cwr ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/cwr
 
   pacman -Sy --noconfirm --needed pacman-contrib
 
@@ -57,6 +57,7 @@ EOF
 
   echo "Run this script again as other user"
 else
+  sudo pacman -S aria2
   pushd /tmp
   [ -d yay-bin ] || git clone https://aur.archlinux.org/yay-bin.git
   cd yay-bin
@@ -68,6 +69,10 @@ else
   sudo sed -i -r "s#^PKGEXT.+\$#PKGEXT='.pkg.tar'#g" /etc/makepkg.conf
   sudo sed -i -r "s#^\#?BUILDDIR=.*\$#BUILDDIR=/tmp/makepkg#g" /etc/makepkg.conf
   sudo sed -i -r "s#^\#?MAKEFLAGS=.*\$#MAKEFLAGS=\"-j\\\$(nproc)\"#g" /etc/makepkg.conf
+  sudo sed -i -r 's#ftp::/usr/bin/curl -gqfC - --ftp-pasv --retry 3 --retry-delay 3 -o %o %u#ftp::/usr/bin/aria2c -s4 %u -o %o#g' /etc/makepkg.conf
+  sudo sed -i -r 's#http::/usr/bin/curl -gqb "" -fLC - --retry 3 --retry-delay 3 -o %o %u#http::/usr/bin/aria2c -s4 %u -o %o#g' /etc/makepkg.conf
+  sudo sed -i -r 's#https::/usr/bin/curl -gqb "" -fLC - --retry 3 --retry-delay 3 -o %o %u#https::/usr/bin/aria2c -s4 %u -o %o#g' /etc/makepkg.conf
+
   multilibLine=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
   sudo sed -i -r "$multilibLine,$((( $multilibLine + 1 ))) s#^\###g" /etc/pacman.conf
   sudo sed -i -r "s#^SigLevel.+\$#SigLevel = PackageRequired#g" /etc/pacman.conf
@@ -78,6 +83,7 @@ else
     android-udev
     antimicrox
     arandr
+    aria2
     audacity
     ausweisapp2
     autorandr
@@ -99,7 +105,6 @@ else
     clinfo
     clipmenu
     cryptsetup
-    cuda
     cups
     curl
     davfs2
@@ -281,7 +286,6 @@ else
     steam
     storageexplorer
     strace
-    sway
     sxiv
     systemd
     teams-insiders
@@ -336,14 +340,16 @@ else
 
   prePackages=(
     neovim-drop-in
+    nodejs-lts-dubnium
     rofi-dmenu
-    freetype2-cleartype
   )
 
   yay -S --noconfirm --needed powerpill
-  yay --pacman=powerpill -Syu --noconfirm --needed --asdeps ${prePackages[@]}
+  # freetype2-cleartype is a problem, as one of it's dependencies, harfbuzz, depends on the original freetype2
+  yes | yay --pacman=powerpill -Syu --noconfirm --useask --needed --removemake --asdeps freetype2-cleartype
+  yay --pacman=powerpill -Syu --noconfirm --needed --removemake --asdeps ${prePackages[@]}
 
-  yay --pacman=powerpill -Syu --noconfirm --needed --asexplicit ${packages[@]}
+  yay --pacman=powerpill -Syu --noconfirm --needed --removemake --cleanafter --asexplicit ${packages[@]}
 
   sudo pip install dynmem pulsectl
 
@@ -367,22 +373,19 @@ else
   sudo ln -sf ${HOME}/.bashrc /root/.bashrc
   sudo rm -f /root/.zshrc
   sudo ln -sf ${HOME}/.zshrc /root/.zshrc
+  sudo mkdir -p /root/.config
+  sudo ln -sf ${HOME}/.config/p10k.zsh /root/.config/p10k.zsh
   sudo mkdir -p /etc/udev/rules.d
   sudo cp ${HOME}/ETC/udev/rules.d/20-yubikey.rules /etc/udev/rules.d/20-yubikey.rules
   sudo ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules
-
 
   nvim +PlugInstall +exit +exit
 
   echo "yes" >${HOME}/.config/gnome-initial-setup-done
 
-  chown ${USER}:${USER} -R ${HOME}
-
   mkdir ${HOME}/Screenshots
 
   sudo chmod u+s $(which i3lock)
-
-  echo "$USER ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/${USER}
 
   if ! grep pam_gnome_keyring.so /etc/pam.d/login &>/dev/null; then
     authSectionEnd="$(grep -n ^auth /etc/pam.d/login | sort -n | tail -1 | sed -r 's#^([0-9]+):.+$#\1#g')"
