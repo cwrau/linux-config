@@ -335,7 +335,8 @@ else
   #endPackages
 
   yay -S --noconfirm --needed powerpill
-  yay --pacman=powerpill -Syu --noconfirm --needed ${packages[@]}
+  yay --pacman=powerpill -Syu --noconfirm --needed neovim-drop-in rofi-dmenu 
+  yay --pacman=powerpill -Syu --noconfirm --needed --explicit ${packages[@]}
 
   sudo pip install dynmem pulsectl
 
