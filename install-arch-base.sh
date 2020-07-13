@@ -57,7 +57,7 @@ EOF
 
   echo "Run this script again as other user"
 else
-  sudo pacman -S aria2
+  sudo pacman -S --noconfirm --needed aria2
   pushd /tmp
   [ -d yay-bin ] || git clone https://aur.archlinux.org/yay-bin.git
   cd yay-bin
@@ -101,47 +101,36 @@ else
     blugon
     breeze-hacked-cursor-theme
     ccid
-    cht.sh
-    clinfo
     clipmenu
-    cryptsetup
     cups
     curl
+    cryptsetup
     davfs2
     deluge-gtk
     diff-so-fancy
     discord
     dive
-    dnsmasq
     docker
     docker-compose
     dockerfile-language-server-bin
     dolphin-emu
-    dos2unix
     dunst
     earlyoom
     ebtables
     edex-ui
     efibootmgr
     exfat-utils
-    exo
     fahcontrol
     fahviewer
-    fast
     fd
     feh
     firefox
-    flake8
-    flameshot
-    fluxctl
     foldingathome
     freerdp
     freetype2-cleartype
     fwupd
     fzf
-    gamehub
     git
-    glances
     glava
     gnome-disk-utility
     gnome-keyring
@@ -156,13 +145,10 @@ else
     gpmdp
     gradle
     gradle-zsh-completion
-    groovy
     grub
     gtop
-    gvfs-smb
-    hadolint-bin
     helm
-    heluxup
+    helm-diff
     highlight
     hsetroot
     httpie
@@ -175,13 +161,9 @@ else
     itch
     jetbrains-toolbox
     jq
-    js-beautify
     k9s
     kdeconnect
-    kotlin-language-server
     krew-bin
-    kube-score
-    kubebox
     kubectl-bin
     lab-bin
     lens-bin
@@ -216,11 +198,9 @@ else
     neovim-plug
     nerd-fonts-complete
     net-tools
-    nethogs
     network-manager-applet
     networkmanager-dmenu-git
     networkmanager-openvpn
-    nload
     nmap
     nodejs-neovim
     notify-send.sh
@@ -231,16 +211,12 @@ else
     nvidia
     nvidia-docker-compose
     nvtop
-    obs-studio
     oh-my-zsh-git
     openjdk-src
-    openresolv
     openssh
-    p7zip
     pacman-contrib
     pamixer
     papirus-icon-theme
-    pastebinit
     pavucontrol
     pcmanfm
     perl-anyevent-i3
@@ -258,12 +234,8 @@ else
     procs
     pulseaudio
     pulseaudio-bluetooth
-    pup-bin
-    pv
-    python-language-server
     python-notify2
     python-pip
-    python-pylint
     python-pynvim
     python-rope
     python-traitlets
@@ -284,7 +256,6 @@ else
     socat
     splatmoji-git
     steam
-    storageexplorer
     strace
     sxiv
     systemd
@@ -304,10 +275,8 @@ else
     uhk-agent-appimage
     unzip
     usbutils
-    v4l2loopback-dkms
     virt-manager
     vlc
-    vulkan-icd-loader
     whatsapp-nativefier
     which
     whois
@@ -321,8 +290,6 @@ else
     xorg-xkill
     xorg-xprop
     xorg-xwininfo
-    yaml-language-server-bin
-    yapf
     yarn
     yay-bin
     youtube-dl
@@ -346,17 +313,15 @@ else
 
   yay -S --noconfirm --needed powerpill
   # freetype2-cleartype is a problem, as one of it's dependencies, harfbuzz, depends on the original freetype2
-  yes | yay --pacman=powerpill -Syu --noconfirm --useask --needed --removemake --asdeps freetype2-cleartype
+  yes | yay --pacman=powerpill -Syu --noconfirm --useask --needed --removemake --asdeps freetype2-cleartype || true
   yay --pacman=powerpill -Syu --noconfirm --needed --removemake --asdeps ${prePackages[@]}
 
   yay --pacman=powerpill -Syu --noconfirm --needed --removemake --cleanafter --asexplicit ${packages[@]}
 
-  sudo pip install dynmem pulsectl
+  sudo pip install dynmen pulsectl
 
   kubectl krew update
   kubectl krew install access-matrix konfig debug node-shell
-
-  helm plugin install https://github.com/databus23/helm-diff --version master
 
   sudo usermod -a -G docker,wheel,uucp,input cwr
 
