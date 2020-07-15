@@ -316,7 +316,7 @@ else
   yes | yay --pacman=powerpill -Syu --noconfirm --useask --needed --removemake --asdeps freetype2-cleartype || true
   yay --pacman=powerpill -Syu --noconfirm --needed --removemake --asdeps ${prePackages[@]}
 
-  yay --pacman=powerpill -Syu --noconfirm --needed --removemake --cleanafter --asexplicit ${packages[@]}
+  yay --pacman=powerpill -Syu --noconfirm --needed --removemake --asexplicit ${packages[@]}
 
   sudo pip install dynmen pulsectl
 
