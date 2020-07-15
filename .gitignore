@@ -40,6 +40,7 @@ BIN/custom
 /.kube/
 /.lesshst
 /.local/
+/.m2/
 /.mbwarband/
 /.mitmproxy/
 /.mount-gtkrc
