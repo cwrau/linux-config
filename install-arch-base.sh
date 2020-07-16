@@ -102,9 +102,9 @@ else
     breeze-hacked-cursor-theme
     ccid
     clipmenu
+    cryptsetup
     cups
     curl
-    cryptsetup
     davfs2
     deluge-gtk
     diff-so-fancy
@@ -120,11 +120,11 @@ else
     edex-ui
     efibootmgr
     exfat-utils
+    exo
     fahcontrol
     fahviewer
     fd
     feh
-    firefox
     foldingathome
     freerdp
     freetype2-cleartype
@@ -147,6 +147,7 @@ else
     gradle-zsh-completion
     grub
     gtop
+    gvfs
     helm
     helm-diff
     highlight
