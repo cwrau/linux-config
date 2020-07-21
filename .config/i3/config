@@ -343,13 +343,11 @@ set $external2 DP-1-1
 set $external3 DP-1-1-1
 set $internal eDP-1-1
 
-workspace 1 output $external
-workspace 1 output $external2
-workspace 1 output $external3
+workspace 1 output $external $external2 $external3
 workspace 14:Discord output $internal
-workspace 15:Steam output $internal
-workspace 16:YouTube output $internal
-workspace 17:Netflix output $internal
+workspace 15:Steam output $external $external2 $external3
+workspace 16:YouTube output $external $external2 $external3
+workspace 17:Netflix output $external $external2 $external3
 workspace 18:GPMDP output $internal
 workspace 19:Teams output $internal
 workspace 20:Chat output $internal
