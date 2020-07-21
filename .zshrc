@@ -3,6 +3,7 @@
 
 export VISUAL=nvim
 export EDITOR="$VISUAL"
+export PAGER=slit
 export BROWSER="google-chrome-stable"
 export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 export SAVEHIST=9223372036854775807
@@ -122,6 +123,7 @@ COMPLETION_WAITING_DOTS="true"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}'
+zstyle ':completion:*' use-ip true
 
 ZSH_CACHE_DIR=$HOME/.cache/oh-my-zsh
 ZSH_CUSTOM=/usr/share/zsh
@@ -563,15 +565,8 @@ function reAlias() {
 }
 
 function nAlias() {
-  if command -v $2 &> /dev/null; then
-    local param="${@:2}"
-    alias "$1=${param}"
-#    if [ -r /etc/bash_completion ] ||
-#       [ -r /etc/profile.d/bash_completion.sh ] ||
-#       [ -r /usr/share/bash-completion/bash_completion ]; then
-#      complete -F _complete_alias $1
-#    fi
-  fi
+  local param="${@:2}"
+  alias "$1=${param}"
 }
 
 unalias fd
@@ -592,7 +587,7 @@ fi
 nAlias top htop
 nAlias vim nvim
 nAlias vi vim
-nAlias cat bat -p
+nAlias cat "bat -p --pager 'less -RF'"
 nAlias less slit
 nAlias ps procs
 reAlias fzf --ansi
