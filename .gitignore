@@ -28,7 +28,6 @@ BIN/custom
 /.fehbg
 /.git-credentials
 /.gnome/
-/.gnupg/
 /.gradle-kotlin-dsl/
 /.history
 /.httpie/
