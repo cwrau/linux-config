@@ -14,7 +14,7 @@ export SDL_AUDIODRIVER="pulse"
 export FZF_ALT_C_COMMAND='fd -t d --hidden'
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 export FZF_CTRL_T_COMMAND='fd --hidden'
-export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
+export FZF_CTRL_T_OPTS="--preview '(bat --color=always --pager=never -p {} 2> /dev/null || tree -C {}) 2> /dev/null | head -200'"
 export GRADLE_OPTS=-Xmx1G
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
 export GRADLE_USER_HOME=/tmp/gradle
@@ -331,6 +331,7 @@ function fapClone() {
   fap $coreVersion -e APPS_INSTALL=$appsString $@
 
   rm -rf /tmp/data
+  systemctl --user restart docker-db.service
 }
 function _fapClone() {
   local state
