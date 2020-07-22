@@ -269,7 +269,11 @@ function _4ap() {
 compdef _4ap 4ap
 
 function fap() {
-  rm -rf /tmp/{apps_repository,cefs,custom,data}
+  if nc -z localhost 8181; then
+    echo 'Port already used'
+    return 1
+  fi
+  rm -rf /tmp/{apps_repository,cefs}
   mkdir -p /tmp/data/custom/modules/file/mounts
   cat <<EOF > /tmp/data/custom/modules/file/mounts/data.xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -302,6 +306,41 @@ EOF
     --tmpfs=/4allportal/{_runtime,assets} ${@:2} \
     registry.4allportal.net/4allportal:$1
 }
+
+function fapClone() {
+  sshAccess=root@${1}
+  shift
+  if [ -z "$1" ] || [ "$1" = "" ]; then
+    installationPath=/4allportal
+  else
+    installationPath=${1}
+    shift
+  fi
+  apps="$(ssh $sshAccess -- find $installationPath/apps -name '*.4app' -exec unzip -p {} 4app.json \\\; | jq -s '.')"
+  coreVersion="$(jq -r -n --argjson v "$apps" '$v | .[] | select(.artifactId == "4allportal-core") | .artifactVersion')"
+  appsString="$(jq -r -n --argjson v "$apps" '$v | .[] | select(.artifactId != "4allportal-core") | "\(.artifactId):\(.artifactVersion)"' | paste -sd ,)"
+
+  systemctl --user restart docker-db.service
+  
+  rm -rf /tmp/data
+  mkdir -p /tmp/data/custom
+
+  ssh $sshAccess -- tar -czf - -C $installationPath/custom . | tar -xzf - -C /tmp/data/custom
+
+  echo fap $coreVersion -e APPS_INSTALL=$appsString $@
+  fap $coreVersion -e APPS_INSTALL=$appsString $@
+
+  rm -rf /tmp/data
+}
+function _fapClone() {
+  local state
+  _arguments "1: :($(cat $HOME/.ssh/known_hosts | awk '{print $1}' | tr ',' '\n' | sort | uniq | xargs echo -n))"
+  _arguments "2: :->second"
+  if [ "$state" = "second" ]; then
+    _remote_files -/ -h root@${words[2]} -- ssh
+  fi
+}
+compdef _fapClone fapClone
 
 function appVs() {
   ssh root@repository.4allportal.net ls /services/repository/apps/$1 -v | sort -V | sed "s#^#$1:#g"
@@ -609,8 +648,10 @@ nAlias makepkg docker-run --network host -v '$PWD:/pkg whynothugo/makepkg' makep
 reAlias watch ' '
 nAlias scu /bin/systemctl --user
 nAlias sc systemctl
-alias urldecode='sed "s@+@ @g;s@%@\\\\x@g" | xargs -0 printf "%b"'
-alias urlencode='jq -s -R -r @uri'
+nAlias urldecode 'sed "s@+@ @g;s@%@\\\\x@g" | xargs -0 printf "%b"'
+nAlias urlencode 'jq -s -R -r @uri'
+nAlias b base64
+nAlias bd 'base64 -d'
 
 alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
 alias k9s="PATH=\"$PATH:$HOME/.krew/bin\" k9s"
