@@ -3,7 +3,6 @@ Description=Docker DB
  
 [Service]
 Type=simple
-#ExecStart=/usr/bin/systemd-docker run --rm -it -d --network host --name %N -v /tmp/%N:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=toor mariadb
 ExecStart=/usr/bin/docker run --rm --network host --name %N --tmpfs /var/lib/mysql -e MYSQL_ROOT_PASSWORD=toor mariadb
  
 [Install]
