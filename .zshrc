@@ -301,10 +301,32 @@ function fap() {
     <use_mod_time_millis>true</use_mod_time_millis>
 </mount>
 EOF
-  docker pull registry.4allportal.net/4allportal:$1
+
+  local tag=$1
+  shift
+
+  local dockerArgs=()
+  local fapArgs=()
+
+  local next=false
+
+  for arg in "$@"; do
+    if [ "$arg" = "--" ]; then 
+      next=true
+      continue
+    fi
+
+    if [ "$next" = "false" ]; then
+      dockerArgs+=("$arg")
+    else
+      fapArgs+=("$arg")
+    fi
+  done
+
+  docker pull registry.4allportal.net/4allportal:$tag
   docker run --rm -it -e DATABASE_HOST=localhost -e DATABASE_TYPE=mariadb -v /tmp/data:/4allportal/data --net host \
-    --tmpfs=/4allportal/{_runtime,assets} ${@:2} \
-    registry.4allportal.net/4allportal:$1
+    --tmpfs=/4allportal/{_runtime,assets} $dockerArgs \
+    registry.4allportal.net/4allportal:$tag $fapArgs
 }
 
 function fapClone() {
