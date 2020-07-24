@@ -95,7 +95,7 @@ else
     bashtop
     bat
     bc
-    bind-tools
+    bind
     blueman
     bluez-utils
     blugon
@@ -150,7 +150,6 @@ else
     gvfs
     helm
     helm-diff
-    highlight
     hsetroot
     httpie
     i3-gaps
@@ -235,8 +234,10 @@ else
     procs
     pulseaudio
     pulseaudio-bluetooth
+    python-dynmen
     python-notify2
     python-pip
+    python-pulsectl
     python-pynvim
     python-rope
     python-traitlets
