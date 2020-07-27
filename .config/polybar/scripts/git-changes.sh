@@ -45,7 +45,15 @@ function update() {
 }
 
 update
-inotifywait -m -r -e modify -e move -e create -e delete ./ 2> /dev/null | while read -r _
+while :
 do
+  current_time=$(date +%s.%N)
+  next_time=$(date -d "+ 10 seconds" +%s.%N)
+  target_time=$(date -d @$( echo "$next_time - ($next_time % 10 )" | bc) +%s.%N)
+
+  sleep_seconds=$(echo "$target_time - $current_time" | bc)
+
+  sleep $sleep_seconds
+
   update
 done
