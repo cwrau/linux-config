@@ -51,9 +51,10 @@ if [[ $(id -u) = 0 ]]; then
 EOF
   echo "cwr ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/cwr
 
-  pacman -Sy --noconfirm --needed pacman-contrib
+  pacman -Sy --noconfirm --needed reflector
 
-  curl -s "https://www.archlinux.org/mirrorlist/?country=DE&protocol=https&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 10 - >/etc/pacman.d/mirrorlist
+  systemctl enable reflector.timer
+  systemctl start --wait reflector.service
 
   echo "Run this script again as other user"
 else
