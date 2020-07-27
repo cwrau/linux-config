@@ -19,7 +19,6 @@ BIN/custom
 /.cache/
 /.cargo/
 /.cert/
-/.docker/
 /.dvdcss
 /.electron-gyp/
 /.emulator_console_auth_token
@@ -36,15 +35,13 @@ BIN/custom
 /.java/
 /.krew/
 /.kscript/
-/.kube/
 /.lesshst
 /.local/
+!.local/share/gnupg/gpg.conf
 /.m2/
 /.mbwarband/
-/.mitmproxy/
 /.mount-gtkrc
 /.mozilla
-/.npm*
 /.nv
 /.nvidia-settings-rc
 /.pki/
@@ -61,7 +58,6 @@ BIN/custom
 /Arduino/
 /Downloads/
 /Screenshots/
-/go/
 /projects/
 /tmp/
 /work/

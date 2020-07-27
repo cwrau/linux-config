@@ -1,6 +1,27 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
+export XDG_CONFIG_HOME=$HOME/.config
+export XDG_CACHE_HOME=$HOME/.cache
+export XDG_DATA_HOME=$HOME/.local/share
+export XDG_RUNTIME_DIR=/tmp
+
+export GNUPGHOME=$XDG_DATA_HOME/gnupg
+export GOPATH=$XDG_DATA_HOME/go
+export ANDROID_SDK_HOME="$XDG_CONFIG_HOME"/android
+export ANDROID_AVD_HOME="$XDG_DATA_HOME"/android/ 
+export ANDROID_EMULATOR_HOME="$XDG_DATA_HOME"/android/ 
+export ADB_VENDOR_KEY="$XDG_CONFIG_HOME"/android
+export AZURE_CONFIG_DIR=$XDG_DATA_HOME/azure
+export CARGO_HOME="$XDG_DATA_HOME"/cargo
+export DOCKER_CONFIG="$XDG_CONFIG_HOME"/docker
+export DVDCSS_CACHE="$XDG_DATA_HOME"/dvdcss
+export GTK2_RC_FILES="$XDG_CONFIG_HOME"/gtk-2.0/gtkrc
+export KUBECONFIG=$XDG_CONFIG_HOME/kube/config
+alias mitmproxy="mitmproxy --set confdir=$XDG_CONFIG_HOME/mitmproxy"
+alias mitmweb="mitmweb --set confdir=$XDG_CONFIG_HOME/mitmproxy"
+export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
+
 export VISUAL=nvim
 export EDITOR="$VISUAL"
 export PAGER=slit
@@ -323,6 +344,8 @@ EOF
     fi
   done
 
+  systemctl --user restart docker-db.service
+  
   docker pull registry.4allportal.net/4allportal:$tag
   docker run --rm -it -e DATABASE_HOST=localhost -e DATABASE_TYPE=mariadb -v /tmp/data:/4allportal/data --net host \
     --tmpfs=/4allportal/{_runtime,assets} $dockerArgs \
@@ -342,8 +365,6 @@ function fapClone() {
   coreVersion="$(jq -r -n --argjson v "$apps" '$v | .[] | select(.artifactId == "4allportal-core") | .artifactVersion')"
   appsString="$(jq -r -n --argjson v "$apps" '$v | .[] | select(.artifactId != "4allportal-core") | "\(.artifactId):\(.artifactVersion)"' | paste -sd ,)"
 
-  systemctl --user restart docker-db.service
-  
   rm -rf /tmp/data
   mkdir -p /tmp/data/custom
 
@@ -667,7 +688,7 @@ reAlias gotop -r 250ms
 reAlias feh --scale-down --auto-zoom --auto-rotate
 nAlias grep rg
 nAlias o xdg-open
-nAlias makepkg docker-run --network host -v '$PWD:/pkg whynothugo/makepkg' makepkg
+nAlias dmakepkg docker-run --network host -v '$PWD:/pkg' 'whynothugo/makepkg' makepkg
 reAlias watch ' '
 nAlias scu /bin/systemctl --user
 nAlias sc systemctl
