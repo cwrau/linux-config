@@ -27,6 +27,7 @@ BIN/custom
 /.fehbg
 /.git-credentials
 /.gnome/
+/.gnupg/
 /.gradle-kotlin-dsl/
 /.history
 /.httpie/
@@ -35,6 +36,7 @@ BIN/custom
 /.java/
 /.krew/
 /.kscript/
+/.kube/
 /.lesshst
 /.local/
 !.local/share/gnupg/gpg.conf
