@@ -245,6 +245,7 @@ else
     python-virtualenv
     python2-pynvim
     realvnc-vnc-viewer
+    reflector-timer
     remmina
     ripgrep
     rke-bin
