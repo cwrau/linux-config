@@ -338,6 +338,7 @@ else
   done
 
   sudo ln -sf ${HOME}/ETC/profile.d/custom.sh /etc/profile.d/custom.sh
+  sudo ln -sf ${HOME}/ETC/conf.d/reflector.conf /etc/conf.d/reflector.conf
   sudo rm -f /root/.bashrc
   sudo ln -sf ${HOME}/.bashrc /root/.bashrc
   sudo rm -f /root/.zshrc
