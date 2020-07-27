@@ -23,6 +23,8 @@
   rebase = true
 [rebase]
   autoStash = true
+[rerere]
+  enabled = true
 [branch]
   autosetuprebase = always
 [credential]
