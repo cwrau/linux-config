@@ -1,3 +1,6 @@
 {
-  "pacmanbin": "powerpill"
+  "pacmanbin": "powerpill",
+  "cleanmenu": false,
+  "diffmenu": false,
+  "editmenu": false
 }
