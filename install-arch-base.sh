@@ -189,6 +189,7 @@ else
     man-pages
     matcha-gtk-theme
     meta-group-base-devel
+    mitmproxy
     moreutils
     morsetran
     mousepad
