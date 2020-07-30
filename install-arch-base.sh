@@ -243,7 +243,6 @@ else
     python-rope
     python-traitlets
     python-virtualenv
-    python2-pynvim
     realvnc-vnc-viewer
     reflector-timer
     remmina
