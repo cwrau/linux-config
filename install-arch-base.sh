@@ -179,7 +179,6 @@ else
     libu2f-host
     libva-mesa-driver
     linux-firmware
-    linux-headers
     lscolors-git
     lutris
     lutris-wine-meta
