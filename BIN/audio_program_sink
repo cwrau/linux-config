@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+
+from lib.audio_script import *
+
+
+def audio_program_sink():
+    prog_input = get_choice(inputs, "source",
+                            lambda
+                                i: f'{i.proplist["application.name"]} ({i.proplist["application.process.id"]})')
+
+    if prog_input is None:
+        return
+
+    sink = get_choice(sinks, "sink", lambda s: s.description,
+                      lambda s: s.index == prog_input.sink)
+
+    if sink is None:
+        return
+
+    pulse.sink_input_move(prog_input.index, sink.index)
+
+
+audio_program_sink()

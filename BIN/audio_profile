@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+
+from lib.audio_script import *
+
+
+def audio_profile():
+    card = get_choice(cards, "card", lambda c: c.proplist["device.description"])
+
+    if card is None:
+        return
+
+    profiles = [profile for profile in card.profile_list if
+                profile.available != 0]
+
+    profile = get_choice(profiles, "profile", lambda p: p.description,
+                         lambda p: p.name == card.profile_active.name)
+
+    if profile is None:
+        return
+
+    pulse.card_profile_set(card, profile)
+
+
+audio_profile()

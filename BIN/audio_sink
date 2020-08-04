@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+
+from lib.audio_script import *
+
+
+def audio_sink():
+    sink = get_choice(sinks, "sink", lambda s: s.description,
+                      lambda s: s.name == default_sink)
+
+    if sink is None:
+        return
+
+    pulse.sink_default_set(sink)
+
+    for inp in inputs:
+        pulse.sink_input_move(inp.index, sink.index)
+
+
+audio_sink()

@@ -49,6 +49,7 @@ BIN/custom
 /.pki/
 /.rnd
 /.slit/
+/.sonarlint/
 /.ssh/
 /.steam*
 /.thumbnails

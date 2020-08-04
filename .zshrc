@@ -245,7 +245,7 @@ function ssh() {
 }
 
 for intellijTool in /usr/local/bin/custom/custom/*; do
-  local func=$(cat - <<EOF
+  local func=$(<<EOF
   function $(basename $intellijTool)() {
     i3-msg "exec $intellijTool \$(realpath \${1:-.})"
   }
@@ -285,7 +285,7 @@ function 4ap() {
     ssh root@${name}.4allportal.net $*
 }
 function _4ap() {
-  _arguments "1: :($(cat $HOME/.ssh/known_hosts | awk '{print $1}' | tr ',' '\n' | rg '.4allportal\.net' | sed -r 's#.4allportal.net##g' | sort | uniq | xargs echo -n))"
+  _arguments "1: :($(< $HOME/.ssh/known_hosts | awk '{print $1}' | tr ',' '\n' | grep -E '.4allportal\.net' | sed -r 's#.4allportal.net##g' | sort | uniq | xargs echo -n))"
 }
 compdef _4ap 4ap
 
@@ -296,7 +296,7 @@ function fap() {
   fi
   rm -rf /tmp/{apps_repository,cefs}
   mkdir -p /tmp/data/custom/modules/file/mounts
-  cat <<EOF > /tmp/data/custom/modules/file/mounts/data.xml
+  <<EOF > /tmp/data/custom/modules/file/mounts/data.xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <mount enabled="true">
     <file_module>file</file_module>
@@ -348,6 +348,7 @@ EOF
   
   docker pull registry.4allportal.net/4allportal:$tag
   docker run --rm -it -e DATABASE_HOST=localhost -e DATABASE_TYPE=mariadb -v /tmp/data:/4allportal/data --net host \
+    --name="4allportal-$tag" \
     --tmpfs=/4allportal/{_runtime,assets} $dockerArgs \
     registry.4allportal.net/4allportal:$tag $fapArgs
 }
@@ -374,11 +375,11 @@ function fapClone() {
   fap $coreVersion -e APPS_INSTALL=$appsString $@
 
   rm -rf /tmp/data
-  systemctl --user restart docker-db.service
+  systemctl --user stop docker-db.service
 }
 function _fapClone() {
   local state
-  _arguments "1: :($(cat $HOME/.ssh/known_hosts | awk '{print $1}' | tr ',' '\n' | sort | uniq | xargs echo -n))"
+  _arguments "1: :($(< $HOME/.ssh/known_hosts | awk '{print $1}' | tr ',' '\n' | sort | uniq | xargs echo -n))"
   _arguments "2: :->second"
   if [ "$state" = "second" ]; then
     _remote_files -/ -h root@${words[2]} -- ssh
@@ -401,7 +402,7 @@ compdef _appVs appV
 
 function helmUpdates() {
   kubectl get helmreleases -A -o json | jq -r '.items[] | select(.spec.chart.version != null) | "\(.metadata.namespace) \(.metadata.name) \(.spec.chart.repository) \(.spec.chart.name) \(.spec.chart.version)"' | while read ns name repo chart version; do
-    cat <<EOF > /tmp/repo.yaml
+  <<EOF > /tmp/repo.yaml
 apiVersion: ""
 generated: "0001-01-01T00:00:00Z"
 repositories:
@@ -427,15 +428,19 @@ function hr() {
   local HR="$1"
   local ns
   local rn
-  [ -f "$HR" -a -r "$HR" ] || return
-  ns=$( (yq -e .spec.targetNamespace $HR || yq -e .metadata.namespace $HR) | rg -v null)
-  rn=$( (yq -e .spec.releaseName $HR || yq -e .metadata.name $HR) | rg -v null)
-  helm template --namespace $ns --repo $(yq -e .spec.chart.repository $HR) $rn $(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -e -y .spec.values $HR)
+  local yaml
+  if [ "$HR" = "-" -o "$HR" = "" ]; then
+    yaml=$(< /dev/stdin)
+  else
+    yaml=$(< "$HR")
+    [ "$?" -ne 0 ] && return 1
+  fi
+  ns=$( (echo "$yaml" | yq -er .spec.targetNamespace || echo "$yaml" | yq -er .metadata.namespace) | grep -v null)
+  rn=$( (echo "$yaml" | yq -er .spec.releaseName || echo "$yaml" | yq -er .metadata.name) | grep -v null)
+  helm template --namespace $ns --repo $(echo "$yaml" | yq -er .spec.chart.repository) $rn $(echo "$yaml" | yq -er .spec.chart.name) --version $(echo "$yaml" | yq -er .spec.chart.version) --values <(echo "$yaml" | yq -y -er .spec.values)
 }
 function _hr() {
-  local -a yaml_files
-  yaml_files=( **/*.{yaml,yml}  )
-  _arguments '1: :_files -g \*.\(yaml\|yml\)'
+  _arguments "1: :($(fd -e yaml -e yml -X rg '^kind: HelmRelease$' -l))"
 }
 compdef _hr hr
 
@@ -443,18 +448,24 @@ function hrDiff() {
   local HR="$1"
   local ns
   local rn
-  [ -f "$HR" -a -r "$HR" ] || return
-  ns=$( (yq -e .spec.targetNamespace $HR || yq -e .metadata.namespace $HR) | rg -v null)
-  rn=$( (yq -e .spec.releaseName $HR || yq -e .metadata.name $HR) | rg -v null)
-    cat <<EOF > /tmp/repo.yaml
+  local yaml
+  if [ "$HR" = "-" -o "$HR" = "" ]; then
+    yaml=$(< /dev/stdin)
+  else
+    yaml=$(< "$HR")
+    [ "$?" -ne 0 ] && return 1
+  fi
+  ns=$( (echo "$yaml" | yq -er .spec.targetNamespace || echo "$yaml" | yq -er .metadata.namespace) | grep -v null)
+  rn=$( (echo "$yaml" | yq -er .spec.releaseName || echo "$yaml" | yq -er .metadata.name) | grep -v null)
+  <<EOF > /tmp/repo.yaml
 apiVersion: ""
 generated: "0001-01-01T00:00:00Z"
 repositories:
   - name: tmp
-    url: "$(yq -r -e .spec.chart.repository $HR)"
+    url: "$(echo "$yaml" | yq -er .spec.chart.repository)"
 EOF
   helm --repository-config /tmp/repo.yaml repo update
-  helm --repository-config /tmp/repo.yaml diff upgrade --namespace $ns $rn tmp/$(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
+  helm --repository-config /tmp/repo.yaml diff upgrade --namespace $ns $rn tmp/$(echo "$yaml" | yq -er .spec.chart.name) --version $(echo "$yaml" | yq -er .spec.chart.version) --values <(echo "$yaml" | yq -y -er .spec.values)
 
   # helm diff upgrade --namespace $ns --repo $(yq -e .spec.chart.repository $HR) $rn $(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
 }
@@ -696,6 +707,7 @@ nAlias urldecode 'sed "s@+@ @g;s@%@\\\\x@g" | xargs -0 printf "%b"'
 nAlias urlencode 'jq -s -R -r @uri'
 nAlias b base64
 nAlias bd 'base64 -d'
+nAlias curl http
 
 alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
 alias k9s="PATH=\"$PATH:$HOME/.krew/bin\" k9s"

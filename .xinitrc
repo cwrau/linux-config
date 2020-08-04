@@ -13,3 +13,4 @@ autorandr --skip-option gamma --change
 xset -r rate 250
 
 i3
+systemctl --user stop graphical-session.target i3-session.target

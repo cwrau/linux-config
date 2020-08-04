@@ -206,9 +206,10 @@ bindsym XF86AudioNext $exid playerctl -i chrome next
 bindsym XF86AudioPrev $exid playerctl -i chrome previous
 
 # Change Audio Settings
-bindsym $mod+Shift+o $exid /usr/local/bin/custom/audio-program-sink
-bindsym $mod+Ctrl+o $exid /usr/local/bin/custom/audio-profile
-bindsym $mod+o $exid /usr/local/bin/custom/audio-sink
+bindsym $mod+Ctrl+Shift+o $exid /usr/local/bin/custom/audio_program_volume
+bindsym $mod+Shift+o $exid /usr/local/bin/custom/audio_program_sink
+bindsym $mod+Ctrl+o $exid /usr/local/bin/custom/audio_profile
+bindsym $mod+o $exid /usr/local/bin/custom/audio_sink
 
 # Display Manager
 bindsym $mod+Shift+p $exid /usr/local/bin/custom/rofi-randr
