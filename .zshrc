@@ -671,7 +671,7 @@ reAlias env "-0 | sort -z | tr '\0' '\n'"
 reAlias rm -i
 reAlias cp -i
 reAlias mv -i
-reAlias ls -phAvbl --color=always --time-style=long-iso
+reAlias ls --almost-all --indicator-style=slash --human-readable --sort=version --escape --format=long --color=always --time-style=long-iso
 reAlias nvim -b
 if [[ "$(id -u)" != 0 ]] && command -v sudo &> /dev/null; then
   for cmd in systemctl pacman ip; do

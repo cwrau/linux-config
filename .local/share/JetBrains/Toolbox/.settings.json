@@ -1,0 +1,33 @@
+{
+    "channel_rollback_max_history": 1,
+    "jetbrains_account": {
+        "active": "pfba415bra@pb.bib.de"
+    },
+    "privacy_policy": {
+        "eua_accepted_version": "1.2"
+    },
+    "projects": {
+    },
+    "proxy": {
+        "enabled": false
+    },
+    "shell_scripts": {
+        "enabled": true,
+        "location": "/usr/local/bin/custom/custom"
+    },
+    "signal": "settingsChanged",
+    "statistics": {
+        "allow": true
+    },
+    "tools": {
+        "update_all_automatically": true
+    },
+    "update": {
+        "filter": {
+            "quality_filter": {
+                "order_value": 10000
+            }
+        },
+        "install_automatically": true
+    }
+}
