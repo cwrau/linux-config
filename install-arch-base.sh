@@ -135,7 +135,6 @@ else
     glava
     gnome-disk-utility
     gnome-keyring
-    gnome-network-displays
     gnome-terminal
     gnu-netcat
     gnupg
