@@ -344,13 +344,15 @@ EOF
     fi
   done
 
-  systemctl --user restart docker-db.service
+  systemctl --user start docker-db.service
   
   docker pull registry.4allportal.net/4allportal:$tag
   docker run --rm -it -e DATABASE_HOST=localhost -e DATABASE_TYPE=mariadb -v /tmp/data:/4allportal/data --net host \
     --name="4allportal-$tag" \
     --tmpfs=/4allportal/{_runtime,assets} $dockerArgs \
     registry.4allportal.net/4allportal:$tag $fapArgs
+
+  systemctl --user stop docker-db.service
 }
 
 function fapClone() {
@@ -375,7 +377,6 @@ function fapClone() {
   fap $coreVersion -e APPS_INSTALL=$appsString $@
 
   rm -rf /tmp/data
-  systemctl --user stop docker-db.service
 }
 function _fapClone() {
   local state
@@ -671,7 +672,8 @@ reAlias env "-0 | sort -z | tr '\0' '\n'"
 reAlias rm -i
 reAlias cp -i
 reAlias mv -i
-reAlias ls --almost-all --indicator-style=slash --human-readable --sort=version --escape --format=long --color=always --time-style=long-iso
+#reAlias ls --almost-all --indicator-style=slash --human-readable --sort=version --escape --format=long --color=always --time-style=long-iso
+nAlias ls exa --all --classify --sort=filename --long --colour=always --time-style=long-iso
 reAlias nvim -b
 if [[ "$(id -u)" != 0 ]] && command -v sudo &> /dev/null; then
   for cmd in systemctl pacman ip; do
@@ -708,6 +710,7 @@ nAlias urlencode 'jq -s -R -r @uri'
 nAlias b base64
 nAlias bd 'base64 -d'
 nAlias curl http
+nAlias tree ls --tree
 
 alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
 alias k9s="PATH=\"$PATH:$HOME/.krew/bin\" k9s"

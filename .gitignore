@@ -1,7 +1,7 @@
 .idea
-.config/i3status/custom.d/private
-.config/polybar/scripts/private
-BIN/custom
+/.config/i3status/custom.d/private/
+/.config/polybar/scripts/private/
+/BIN/custom/
 
 *.log
 *.zwc

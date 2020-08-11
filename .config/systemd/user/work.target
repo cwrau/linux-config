@@ -1,0 +1,7 @@
+[Unit]
+Description=Work applications
+Requires=graphical-session.target
+After=graphical-session.target
+
+[Install]
+WantedBy=graphical-session.target

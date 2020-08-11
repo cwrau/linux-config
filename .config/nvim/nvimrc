@@ -26,6 +26,7 @@ Plug 'PProvost/vim-ps1'
 Plug 'mechatroner/rainbow_csv'
 Plug '/usr/share/vim/vimfiles/plugin/fzf.vim'
 Plug 'junegunn/fzf.vim'
+Plug 'stevearc/vim-arduino'
 " Plug 'sheerun/vim-polyglot'
 " au BufWrite * :Autoformat " Autoformat destroys yaml's
 noremap = :Autoformat<CR>
@@ -134,5 +135,17 @@ set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite
 let g:jsx_ext_required = 0
 set guicursor=
 
-au BufReadCmd *.4app call zip#Browse(expand("<amatch>"))
+let g:arduino_dir="/usr/share/arduino"
+
+function! ArduinoStatusLine()
+  let port = arduino#GetPort()
+  let line = '[' . g:arduino_board . '] [' . g:arduino_programmer . ']'
+  if !empty(port)
+    let line = line . ' (' . port . ':' . g:arduino_serial_baud . ')'
+  endif
+  return line
+endfunction
+
+autocmd BufReadCmd *.4app call zip#Browse(expand("<amatch>"))
+autocmd BufNewFile,BufRead *.ino let g:airline_section_y='%{ArduinoStatusLine()}'
 

@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-pactl set-source-volume alsa_input.pci-0000_00_1f.3.analog-stereo 25% &> /dev/null
+pactl set-source-volume alsa_input.usb-GN_Netcom_A_S_Jabra_LINK_230_000A36EA014A07-00.multichannel-input 300% &> /dev/null
 pactl set-card-profile bluez_card.04_5D_4B_98_04_86 a2dp_sink &> /dev/null
 
 if bluetoothctl show | grep -q "Powered: yes"; then

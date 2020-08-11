@@ -1,10 +1,10 @@
 [Unit]
-Description=Discord
-PartOf=messengers.target
+Description=Thunderbird 
+PartOf=work.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/discord
+ExecStart=/usr/bin/thunderbird
 RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...
@@ -16,4 +16,4 @@ ProtectControlGroups=yes
 Restart=always
 
 [Install]
-WantedBy=messengers.target
+WantedBy=work.target

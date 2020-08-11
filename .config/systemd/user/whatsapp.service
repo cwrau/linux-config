@@ -1,7 +1,6 @@
 [Unit]
 Description=WhatsApp
-After=graphical-session.target
-Requires=graphical-session.target
+PartOf=messengers.target
 
 [Service]
 Type=simple
@@ -15,4 +14,4 @@ ProtectKernelTunables=yes
 ProtectControlGroups=yes
 
 [Install]
-WantedBy=graphical-session.target
+WantedBy=messengers.target
