@@ -6,7 +6,7 @@ cat - <<'EOF'
 Set up the base system the following way:
 EFI partition on /boot
 ROOT on / (^_^)
-pacstrap /mnt base linux linux-firmware base-devel git efibootmgr dhcpcd libxkbcommon inetutils
+pacstrap /mnt base linux linux-firmware base-devel git efibootmgr networkmanager libxkbcommon inetutils
 chroot:
   passwd root
 
@@ -32,7 +32,7 @@ chroot:
 EOF
 
 if [[ $(id -u) = 0 ]]; then
-  systemctl start dhcpcd
+  systemctl enable --now NetworkManager
   timedatectl set-timezone Europe/Berlin
   hwclock --systohc
   localectl set-locale LANG=en_US.UTF-8
@@ -232,6 +232,7 @@ else
     premid
     prettyping
     procs
+    proton-ge-custom-stable-bin
     pulseaudio
     pulseaudio-bluetooth
     python-dynmen
@@ -373,9 +374,7 @@ else
     echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/$USER-*'"
   fi
 
-  sudo systemctl enable --now systemd-timesyncd NetworkManager bluetooth pkgstats.timer fwupd ebtables dnsmasq docker.socket
+  sudo systemctl enable --now systemd-timesyncd bluetooth pkgstats.timer fwupd ebtables dnsmasq docker.socket libvirtd.socket
   systemctl --user enable --now gpg-agent updates.timer
   sudo systemctl disable NetworkManager-wait-online
-  sudo systemctl stop dhcpcd
-  sudo pacman -R dhcpcd
 fi
