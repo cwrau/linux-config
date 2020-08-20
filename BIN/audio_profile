@@ -3,8 +3,12 @@
 from lib.audio_script import *
 
 
+def card_name_getter(card):
+    return card.proplist.get("bluez.alias") or card.proplist.get("device.description")
+
+
 def audio_profile():
-    card = get_choice(cards, "card", lambda c: c.proplist["device.description"])
+    card = get_choice(cards, "card", card_name_getter, sorter=card_name_getter)
 
     if card is None:
         return
