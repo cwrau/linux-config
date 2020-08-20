@@ -27,7 +27,6 @@
 /.fehbg
 /.git-credentials
 /.gnome/
-/.gnupg/
 /.gradle-kotlin-dsl/
 /.history
 /.httpie/
@@ -39,7 +38,6 @@
 /.kube/
 /.lesshst
 /.local/
-!.local/share/gnupg/gpg.conf
 !.local/share/JetBrains/Toolbox/.settings.json
 /.m2/
 /.mbwarband/
