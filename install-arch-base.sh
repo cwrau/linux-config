@@ -142,7 +142,6 @@ else
     go
     google-chrome
     gotop-bin
-    gparted
     gpmdp
     gradle
     gradle-zsh-completion
@@ -244,7 +243,7 @@ else
     python-traitlets
     python-virtualenv
     realvnc-vnc-viewer
-    reflector-timer
+    reflector
     remmina
     ripgrep
     rke-bin
