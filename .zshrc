@@ -1,32 +1,29 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
-export XDG_CONFIG_HOME=$HOME/.config
-export XDG_CACHE_HOME=$HOME/.cache
-export XDG_DATA_HOME=$HOME/.local/share
-export XDG_RUNTIME_DIR=/run/user/$(id -u)
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 
-export GNUPGHOME=$XDG_DATA_HOME/gnupg
-export GOPATH=$XDG_DATA_HOME/go
-export ANDROID_SDK_HOME="$XDG_CONFIG_HOME"/android
-export ANDROID_AVD_HOME="$XDG_DATA_HOME"/android/ 
-export ANDROID_EMULATOR_HOME="$XDG_DATA_HOME"/android/ 
-export ADB_VENDOR_KEY="$XDG_CONFIG_HOME"/android
-export AZURE_CONFIG_DIR=$XDG_DATA_HOME/azure
-export CARGO_HOME="$XDG_DATA_HOME"/cargo
-export DOCKER_CONFIG="$XDG_CONFIG_HOME"/docker
-export DVDCSS_CACHE="$XDG_DATA_HOME"/dvdcss
-export GTK2_RC_FILES="$XDG_CONFIG_HOME"/gtk-2.0/gtkrc
-export KUBECONFIG=$XDG_CONFIG_HOME/kube/config
-alias mitmproxy="mitmproxy --set confdir=$XDG_CONFIG_HOME/mitmproxy"
-alias mitmweb="mitmweb --set confdir=$XDG_CONFIG_HOME/mitmproxy"
-export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
+export GOPATH="$XDG_DATA_HOME/go"
+export ANDROID_SDK_HOME="$XDG_CONFIG_HOME/android"
+export ANDROID_AVD_HOME="$XDG_DATA_HOME/android"
+export ANDROID_EMULATOR_HOME="$XDG_DATA_HOME/android"
+export ADB_VENDOR_KEY="$XDG_CONFIG_HOME/android"
+export AZURE_CONFIG_DIR="$XDG_DATA_HOME/azure"
+export CARGO_HOME="$XDG_DATA_HOME/cargo"
+export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
+export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
+export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
+export KUBECONFIG="$XDG_CONFIG_HOME/kube/config"
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 
 export VISUAL=nvim
 export EDITOR="$VISUAL"
 export PAGER=slit
 export BROWSER="google-chrome-stable"
-export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
 export SAVEHIST=9223372036854775807
 export HISTSIZE=9223372036854775807
 export DOCKER_BUILDKIT=1
@@ -45,7 +42,11 @@ export GRADLE_USER_HOME=/tmp/gradle
 
 if [[ -z "$DISPLAY" ]]; then
   if [[ "$XDG_VTNR" -eq 1 ]]; then
-   startx
+    for ENV in $(declare -x +); do
+      systemctl --user import-environment $ENV
+    done
+
+    startx
   fi
 fi
 
@@ -245,14 +246,12 @@ function ssh() {
 }
 
 for intellijTool in /usr/local/bin/custom/custom/*; do
-  local func=$(<<EOF
+  eval $(<<EOF
   function $(basename $intellijTool)() {
     i3-msg "exec $intellijTool \$(realpath \${1:-.})"
   }
 EOF
 )
-  eval "$func"
-  unset func
 done
 unset intellijTool
 
@@ -270,9 +269,9 @@ function bak() {
 }
 
 function bsrv() {
-    index="$1"
-    shift
-    ssh root@buildsrv${index}.4allportal.net $*
+  index="$1"
+  shift
+  ssh root@buildsrv${index}.4allportal.net $*
 }
 function _bsrv() {
   _arguments "1: :(1 2 4)"
@@ -280,9 +279,9 @@ function _bsrv() {
 compdef _bsrv bsrv
 
 function 4ap() {
-    name="$1"
-    shift
-    ssh root@${name}.4allportal.net $*
+  name="$1"
+  shift
+  ssh root@${name}.4allportal.net $*
 }
 function _4ap() {
   _arguments "1: :($(< $HOME/.ssh/known_hosts | awk '{print $1}' | tr ',' '\n' | grep -E '.4allportal\.net' | sed -r 's#.4allportal.net##g' | sort | uniq | xargs echo -n))"
@@ -332,7 +331,7 @@ EOF
   local next=false
 
   for arg in "$@"; do
-    if [ "$arg" = "--" ]; then 
+    if [ "$arg" = "--" ]; then
       next=true
       continue
     fi
@@ -345,7 +344,7 @@ EOF
   done
 
   systemctl --user start docker-db.service
-  
+
   docker pull registry.4allportal.net/4allportal:$tag
   docker run --rm -it -e DATABASE_HOST=localhost -e DATABASE_TYPE=mariadb -v /tmp/data:/4allportal/data --net host \
     --name="4allportal-$tag" \
@@ -353,13 +352,38 @@ EOF
     registry.4allportal.net/4allportal:$tag $fapArgs
 
   systemctl --user stop docker-db.service
+  rm -rf /tmp/data
+}
+function _fap() {
+  local state
+  _arguments "1: :->core"
+  _arguments "--app: :->app"
+  case "$state" in
+    core)
+      echo core >> /tmp/com
+      _wanted coreVersion expl 'coreVersion' 'appVs 4allportal-core | sed -r "s#4allportal-core:##g"' && ret=0
+      ;;
+    app)
+      if compset -S ':*'; then
+        echo app >> /tmp/com
+        #compadd $(_getApps)
+        _wanted app expl '4apps' _getApps && ret=0
+      elif compset -P '*:'; then
+        _wanted version expl 'versions' appVs '$app' && ret=0
+      else
+        _alternative 'apps:4apps:_getApps'
+      fi
+  esac
+}
+function _4apps() {
+  _combination  apps-versions apps
 }
 
 function fapClone() {
   sshAccess=root@${1}
   shift
   if [ -z "$1" ] || [ "$1" = "" ]; then
-    installationPath=/4allportal
+    installationPath=/4allportal/data
   else
     installationPath=${1}
     shift
@@ -373,31 +397,33 @@ function fapClone() {
 
   ssh $sshAccess -- tar -czf - -C $installationPath/custom . | tar -xzf - -C /tmp/data/custom
 
-  echo fap $coreVersion -e APPS_INSTALL=$appsString $@
-  fap $coreVersion -e APPS_INSTALL=$appsString $@
+  eval $(echo fap $coreVersion -e APPS_INSTALL=$appsString $@ | tee /dev/stderr)
 
   rm -rf /tmp/data
 }
 function _fapClone() {
   local state
   _arguments "1: :($(< $HOME/.ssh/known_hosts | awk '{print $1}' | tr ',' '\n' | sort | uniq | xargs echo -n))"
-  _arguments "2: :->second"
-  if [ "$state" = "second" ]; then
+  _arguments "2: :->files"
+  if [ "$state" = "files" ]; then
     _remote_files -/ -h root@${words[2]} -- ssh
   fi
 }
 compdef _fapClone fapClone
 
 function appVs() {
-  ssh root@repository.4allportal.net ls /services/repository/apps/$1 -v | sort -V | sed "s#^#$1:#g"
+  ssh root@repository.4allportal.net ls /services/repository/apps/$1 -v | rg ${2:-.} | sort -V | sed "s#^#$1:#g"
+}
+function _getApps() {
+  ssh root@repository.4allportal.net ls /services/repository/apps/ | sort | uniq | xargs echo -n
 }
 function _appVs() {
-  _arguments "1: :($(ssh root@repository.4allportal.net ls /services/repository/apps/ | sort | uniq | xargs echo -n))"
+  _arguments "1: :($(_getApps))"
 }
 compdef _appVs appVs
 
 function appV() {
-  echo "$1:$(ssh root@repository.4allportal.net ls /services/repository/apps/$1 -v | sort -V | tail -1)"
+  echo "$1:$(ssh root@repository.4allportal.net ls /services/repository/apps/$1 -v | rg ${2:-.} | sort -V | rg -v SNAPSHOT | tail -1)"
 }
 compdef _appVs appV
 
@@ -411,11 +437,11 @@ repositories:
     url: "$repo"
 EOF
 
-    helm --repository-config /tmp/repo.yaml repo update &> /dev/null
-    latestVersion=$(helm --repository-config /tmp/repo.yaml --output json search repo $chart | jq -r ".[] | select(.name == \"repo/$chart\") | .version")
-    if [ "$version" != "$latestVersion" ]; then
-      echo update $ns/$name to version $latestVersion
-    fi
+  helm --repository-config /tmp/repo.yaml repo update &> /dev/null
+  latestVersion=$(helm --repository-config /tmp/repo.yaml --output json search repo $chart | jq -r ".[] | select(.name == \"repo/$chart\") | .version")
+  if [ "$version" != "$latestVersion" ]; then
+    echo update $ns/$name to version $latestVersion
+  fi
   done
   rm -f /tmp/repo.yaml
 }
@@ -711,6 +737,8 @@ nAlias b base64
 nAlias bd 'base64 -d'
 nAlias curl http
 nAlias tree ls --tree
+reAlias mitmproxy "--set confdir=$XDG_CONFIG_HOME/mitmproxy"
+reAlias mitmweb "--set confdir=$XDG_CONFIG_HOME/mitmproxy"
 
 alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
 alias k9s="PATH=\"$PATH:$HOME/.krew/bin\" k9s"
