@@ -5,7 +5,6 @@
 /Code/
 /Debauchee/
 /Dharkael/
-/docker/
 /ENCOM/
 /Electron/
 /FontBase/
@@ -22,6 +21,7 @@
 /Lens/
 /LosslessCut/
 /Microsoft/
+/MonoGame/
 /Mousepad/
 /NuGet/
 /Postman/
@@ -56,6 +56,7 @@
 /coc/
 /configstore/
 /containers/
+/controller-mouse.gamecontroller.amgp
 /corectrl/
 /dconf/
 /deepin/
@@ -63,6 +64,7 @@
 /discord/
 /dlv/
 /dmenu-frecency/
+/docker/
 /dolphin-emu/
 /dolphinrc
 /eDEX-UI/
@@ -125,6 +127,7 @@
 /pcmanfm/
 /periscope/
 /plugged/
+/protonfixes/
 /pulse/
 /qalculate/
 /qtws_Netflix/
@@ -165,6 +168,4 @@
 /yarn/
 /youtube-music-desktop-app/
 /yuzu/
-/controller-mouse.gamecontroller.amgp
 /zoomus.conf
-
