@@ -640,7 +640,7 @@ function pkgSync() {
     echo '  #endPackages'
   ) | sed -r 's#$#\\n#g' | tr -d '\n' | sed -r 's#\\n$##g')
 
-  diff <(echo $originalPackages) <(echo $targetPackages)
+  diff <(echo $originalPackages | sort) <(echo $targetPackages | sort)
   if ! /bin/diff <(echo $originalPackages) <(echo $targetPackages) &> /dev/null; then
     if read -q "?Commit? "; then
       sed -i -e "/#endPackages/a \\${newPackages}" -e '/#startPackages/,/#endPackages/d' -e 's#NewPackages#Packages#g' $HOME/install-arch-base.sh
