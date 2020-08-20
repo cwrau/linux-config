@@ -10,5 +10,6 @@ default_sink = info.default_sink_name
 inputs = pulse.sink_input_list()
 
 
-def get_choice(items, item_name, name_getter, active_selector=None):
-    return get_choice_shadow(items, item_name, name_getter, "Audio Script", active_selector, auto_select=True)
+def get_choice(items, item_name, name_getter, active_selector=None, sorter=lambda i: 0):
+    return get_choice_shadow(sorted(items, key=lambda i: sorter(i)), item_name, name_getter,
+                             "Audio Script", active_selector, auto_select=True)
