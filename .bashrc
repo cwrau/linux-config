@@ -1,47 +1,6 @@
-case "$-" in
-  *i*)
-    stty -ixon
-    GIT_PROMPT_THEME=Default_NoExitState
-    if command -v kubectl &> /dev/null
-    then
-      function _kubecontext() {
-        local ctx
-        ctx="$(kubectl config current-context 2>/dev/null)"
-        if [[ "$?" == "0" ]]
-        then
-          echo " ⎈ ${ctx}⎈ "
-        fi
-      }
-      GIT_PROMPT_START='\n[ \u@\h ]$(_kubecontext)'
-    else
-      GIT_PROMPT_START='\n[ \u@\h ]'
-    fi
-    GIT_PROMPT_END='\n\e[38;2;133;153;0m$PWD\e[0m\nλ '
-
-    PROMPT_COMMAND='history -a'
-    PS1="$GIT_PROMPT_START$GIT_PROMPT_END"
-
-    GIT_PROMPT_ONLY_IN_REPO=1
-
-    shopt -s checkwinsize
-
-    shopt -s autocd 2> /dev/null
-    shopt -s dirspell 2> /dev/null
-    shopt -s cdspell 2> /dev/null
-
-    bind Space:magic-space
-
-    bind "set completion-ignore-case on"
-    bind "set completion-map-case on"
-    bind "set show-all-if-ambiguous on"
-    bind "set mark-symlinked-directories on"
-
-    bind '"\e[A": history-search-backward'
-    bind '"\e[B": history-search-forward'
-    bind '"\e[C": forward-char'
-    bind '"\e[D": backward-char'
-    ;;
-esac
+if [ -f /etc/bashrc ]; then
+  . /etc/bashrc
+fi
 
 if [ "$(hostname)" = 'steve' ]
 then
@@ -164,15 +123,56 @@ else
   }
 fi
 
+case "$-" in
+  *i*)
+    stty -ixon
+    GIT_PROMPT_THEME=Default_NoExitState
+    if command -v kubectl &> /dev/null
+    then
+      function _kubecontext() {
+        local ctx
+        ctx="$(kubectl config current-context 2>/dev/null)"
+        if [[ "$?" == "0" ]]
+        then
+          echo " ⎈ ${ctx}⎈ "
+        fi
+      }
+      GIT_PROMPT_START='\n[ \u@\h ]$(_kubecontext)'
+    else
+      GIT_PROMPT_START='\n[ \u@\h ]'
+    fi
+    GIT_PROMPT_END='\n\e[38;2;133;153;0m$PWD\e[0m\nλ '
+
+    PROMPT_COMMAND='history -a'
+    PS1="$GIT_PROMPT_START$GIT_PROMPT_END"
+
+    GIT_PROMPT_ONLY_IN_REPO=1
+
+    shopt -s checkwinsize
+
+    shopt -s autocd 2> /dev/null
+    shopt -s dirspell 2> /dev/null
+    shopt -s cdspell 2> /dev/null
+
+    bind Space:magic-space
+
+    bind "set completion-ignore-case on"
+    bind "set completion-map-case on"
+    bind "set show-all-if-ambiguous on"
+    bind "set mark-symlinked-directories on"
+
+    bind '"\e[A": history-search-backward'
+    bind '"\e[B": history-search-forward'
+    bind '"\e[C": forward-char'
+    bind '"\e[D": backward-char'
+    ;;
+esac
+
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
 case "$TERM" in
   xterm-color) color_prompt=yes;;
 esac
-
-if [ -f /etc/bashrc ]; then
-  . /etc/bashrc
-fi
 
 function reAlias() {
   nAlias $1 $1 ${@:2}
