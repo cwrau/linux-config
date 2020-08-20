@@ -1,6 +1,7 @@
 [Unit]
 Description=Thunderbird 
-PartOf=work.target
+After=gpg-agent.service graphical-session.target
+Requires=gpg-agent.service graphical-session.target
 
 [Service]
 Type=simple
@@ -16,4 +17,4 @@ ProtectControlGroups=yes
 Restart=always
 
 [Install]
-WantedBy=work.target
+WantedBy=graphical-session.target
