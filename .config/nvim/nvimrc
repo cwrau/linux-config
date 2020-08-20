@@ -147,5 +147,6 @@ function! ArduinoStatusLine()
 endfunction
 
 autocmd BufReadCmd *.4app call zip#Browse(expand("<amatch>"))
+filetype on
 autocmd BufNewFile,BufRead *.ino let g:airline_section_y='%{ArduinoStatusLine()}'
 
