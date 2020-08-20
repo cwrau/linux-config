@@ -80,20 +80,13 @@ else
 
   #startPackages
   packages=(
-    android-tools
-    android-udev
-    antimicrox
     arandr
     aria2
-    audacity
-    ausweisapp2
     autorandr
-    azure-cli
     base
     bash-completion
     bash-git-prompt
     bash-language-server
-    bashtop
     bat
     bc
     bind
@@ -101,16 +94,14 @@ else
     bluez-utils
     blugon
     breeze-hacked-cursor-theme
-    ccid
     clipmenu
     cryptsetup
-    cups
     curl
     davfs2
-    deluge-gtk
     diff-so-fancy
     discord
     dive
+    dnsmasq
     docker
     docker-compose
     dockerfile-language-server-bin
@@ -118,10 +109,9 @@ else
     dunst
     earlyoom
     ebtables
-    edex-ui
+    edk2-ovmf
     efibootmgr
     exa
-    exfat-utils
     exo
     fahcontrol
     fahviewer
@@ -134,19 +124,16 @@ else
     fzf
     git
     glava
-    gnome-disk-utility
     gnome-keyring
     gnome-terminal
     gnu-netcat
     gnupg
-    go
     google-chrome
     gotop-bin
     gpmdp
     gradle
     gradle-zsh-completion
     grub
-    gtop
     gvfs
     helm
     helm-diff
@@ -166,12 +153,8 @@ else
     krew-bin
     kubectl-bin
     lab-bin
-    lens-bin
     less
     lib32-nvidia-utils
-    libaacs
-    libdvdcss
-    libdvdread
     libgnome-keyring
     libinput-gestures
     libsecret
@@ -179,10 +162,6 @@ else
     libva-mesa-driver
     linux-firmware
     lscolors-git
-    lutris
-    lutris-wine-meta
-    lxrandr
-    magic-wormhole
     man-db
     man-pages
     matcha-gtk-theme
@@ -192,7 +171,6 @@ else
     morsetran
     mousepad
     multimc5
-    mupdf
     ncdu
     neovim-drop-in
     neovim-plug
@@ -206,7 +184,6 @@ else
     notify-send.sh
     noto-fonts-all
     nss-mdns
-    ntfs-3g
     nvidia
     nvidia-docker-compose
     nvtop
@@ -242,14 +219,13 @@ else
     python-rope
     python-traitlets
     python-virtualenv
+    qemu
     realvnc-vnc-viewer
     reflector
     remmina
     ripgrep
     rke-bin
     rofi-dmenu
-    rsync
-    s3cmd
     scrot
     shfmt
     siji-git
@@ -258,14 +234,12 @@ else
     socat
     splatmoji-git
     steam
-    strace
     sxiv
     systemd
     teams-insiders
     telegram-desktop-bin
     telepresence
     thunderbird-extension-enigmail
-    tig
     traceroute
     tree
     ttf-dejavu
@@ -278,10 +252,8 @@ else
     unzip
     usbutils
     virt-manager
-    vlc
     whatsapp-nativefier
     which
-    whois
     xarchiver
     xclip
     xfce4-power-manager
@@ -292,7 +264,6 @@ else
     xorg-xkill
     xorg-xprop
     xorg-xwininfo
-    yarn
     yay-bin
     youtube-dl
     yq
