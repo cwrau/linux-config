@@ -20,7 +20,7 @@ chroot:
   git remote add origin https://github.com/cwrau/linux-config
   git fetch
   git reset origin/master
-  git switch -t origin/master 
+  git switch -t origin/master
   git reset --hard
 
   sed -r -i 's#^MODULES=.+$#MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)#g' /etc/mkinitcpio.conf
@@ -345,6 +345,5 @@ else
   fi
 
   sudo systemctl enable --now systemd-timesyncd bluetooth pkgstats.timer fwupd ebtables dnsmasq docker.socket libvirtd.socket
-  systemctl --user enable --now gpg-agent updates.timer
   sudo systemctl disable NetworkManager-wait-online
 fi
