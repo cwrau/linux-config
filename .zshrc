@@ -699,7 +699,7 @@ reAlias rm -i
 reAlias cp -i
 reAlias mv -i
 #reAlias ls --almost-all --indicator-style=slash --human-readable --sort=version --escape --format=long --color=always --time-style=long-iso
-nAlias ls exa --all --classify --sort=filename --long --colour=always --time-style=long-iso
+nAlias ls exa --all --group --classify --sort=filename --long --colour=always --time-style=long-iso
 reAlias nvim -b
 if [[ "$(id -u)" != 0 ]] && command -v sudo &> /dev/null; then
   for cmd in systemctl pacman ip; do
