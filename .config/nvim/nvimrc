@@ -126,6 +126,8 @@ syntax enable
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 set termguicolors
 set background=dark
+let g:enable_bold_font = 1
+let g:enable_italic_font = 1
 colorscheme hybrid_material
 
 map <C-n> :CHADopen<CR>
@@ -145,6 +147,12 @@ function! ArduinoStatusLine()
   endif
   return line
 endfunction
+
+hi ExtraWhitespace ctermfg=167 guifg=#cc6666 ctermbg=167 guibg=#cc6666
+autocm InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
+autocm InsertLeave * match ExtraWhitespace /\s\+$/
+match ExtraWhitespace /\s\+$/
+autocmd BufWrite * :%s/\s\+$//e
 
 autocmd BufReadCmd *.4app call zip#Browse(expand("<amatch>"))
 filetype on
