@@ -2,6 +2,10 @@
 Description=Messengers
 Requires=graphical-session.target
 After=graphical-session.target
+Wants=discord.service
+Wants=slack.service
+Wants=whatsapp.service
+Wants=telegram.service
 
 [Install]
 WantedBy=graphical-session.target

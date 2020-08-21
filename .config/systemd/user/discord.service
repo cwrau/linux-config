@@ -16,4 +16,4 @@ ProtectControlGroups=yes
 Restart=always
 
 [Install]
-WantedBy=messengers.target
+RequiredBy=messengers.target

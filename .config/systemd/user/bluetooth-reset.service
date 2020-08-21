@@ -1,0 +1,12 @@
+[Unit]
+Description=Bluetooth reset
+After=graphical-session.target
+Requires=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sh -c 'sudo systemctl restart bluetooth && sudo rfkill block all && sudo rfkill unblock all'
+RestartSec=0
+
+[Install]
+WantedBy=graphical-session.target
