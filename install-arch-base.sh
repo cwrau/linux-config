@@ -234,6 +234,7 @@ else
     socat
     splatmoji-git
     steam
+    steam-native-runtime
     sxiv
     systemd
     teams-insiders
