@@ -197,7 +197,12 @@ unsetopt share_history
 function command_not_found_handler() {
   echo "Command '$1' not found, but could be installed via the following package(s):"
   yay -S --provides -- $1
-  [ $? -eq 0 ] && return
+  if [ $? -eq 0 ] && command -v $1 &> /dev/null; then
+    $@
+    local ret=$?
+    yay -R --noconfirm $1
+    return $ret
+  fi
   echo "Packages containing '$1' in name"
   yay -Slq | rg -- $1
   echo "Packages containg files with '$1' in their name"
@@ -586,37 +591,21 @@ function pkgSync() {
   orphanedPackages=$(pacman -Qqtd)
 
   if [ ! -z $orphanedPackages ]; then
-    while [ ! -z $orphanedPackages ]; do
-      echo "$(wc -l <<<$orphanedPackages) orphaned Packages"
-      while read -r package; do
-        yay -Qi $package
-        read -k 1 "choice?[A]dd, [r]emove or [s]kip $package? "
+    echo "$(wc -l <<<$orphanedPackages) orphaned Packages"
+    if read -q "?Remove orphaned packages? "; then
+      while [ ! -z $orphanedPackages ]; do
+        echo "$(wc -l <<<$orphanedPackages) orphaned Packages"
+        yay -R --noconfirm $(tr '\n' ' ' <<<$orphanedPackages)
         echo
-        case $choice in;
-          [Aa])
-            targetPackages="$targetPackages\\n$package"
-            ;;
-          [Rr])
-            echo "=========="
-            echo
-            yay -R --noconfirm $package
-            ;;
-          *)
-            :
-            ;;
-        esac
-        echo
-        echo "=========="
-        echo
-      done <<<"$orphanedPackages"
-      orphanedPackages=$(pacman -Qqtd)
-    done
+        orphanedPackages=$(pacman -Qqtd)
+      done
+    fi
   else
     echo "No orphaned Packages"
   fi
 
   local unusedPackages
-  unusedPackages=$(LC_ALL=C pacman -Qi | awk '/^Name/{name=$3} /^Required By/{req=$4} /^Optional For/{opt=$0} /^Install Reason/{res=$4$5} /^$/{if (req == "None" && res != "Explicitlyinstalled"){print name}}')
+  unusedPackages=$(pacman -Qi | awk '/^Name/{name=$3} /^Required By/{req=$4} /^Optional For/{opt=$0} /^Install Reason/{res=$4$5} /^$/{if (req == "None" && res != "Explicitlyinstalled"){print name}}')
 
   if [ ! -z $unusedPackages ]; then
     echo "$(wc -l <<<$unusedPackages) unused Packages"
@@ -625,7 +614,7 @@ function pkgSync() {
         echo "$(wc -l <<<$unusedPackages) unused Packages"
         yay -R --noconfirm $(tr '\n' ' ' <<<$unusedPackages)
         echo
-        unusedPackages=$(LC_ALL=C pacman -Qi | awk '/^Name/{name=$3} /^Required By/{req=$4} /^Optional For/{opt=$0} /^Install Reason/{res=$4$5} /^$/{if (req == "None" && res != "Explicitlyinstalled"){print name}}')
+        unusedPackages=$(pacman -Qi | awk '/^Name/{name=$3} /^Required By/{req=$4} /^Optional For/{opt=$0} /^Install Reason/{res=$4$5} /^$/{if (req == "None" && res != "Explicitlyinstalled"){print name}}')
       done
     fi
   else
