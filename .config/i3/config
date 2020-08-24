@@ -146,8 +146,6 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
-$exaid sh -c 'pgrep earlyoom || exec sudo earlyoom -n --avoid "i3.*|custom.sh|teams|glava|polybar|.*gpmdp.*" -m 2'
-
 default_border none
 for_window [class="jetbrains-toolbox"] floating enable
 for_window [class="steam_app.*"] floating enable
