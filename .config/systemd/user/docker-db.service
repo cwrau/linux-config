@@ -1,13 +1,13 @@
 [Unit]
 Description=Docker DB
- 
+
 [Service]
 Type=simple
 ExecStartPre=-/usr/bin/docker kill %N
 ExecStartPre=-/usr/bin/docker rm %N
 ExecStart=-/usr/bin/docker run --rm --network host --name %N --tmpfs /var/lib/mysql -e MYSQL_ROOT_PASSWORD=toor mariadb
 KillSignal=SIGKILL
- 
+
 [Install]
 WantedBy=graphical-session.target
-	
+

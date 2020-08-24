@@ -7,6 +7,7 @@ Requires=kdeconnect-daemon.service
 Type=simple
 ExecStart=/usr/bin/kdeconnect-indicator
 RestartSec=0
+Restart=always
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=yes

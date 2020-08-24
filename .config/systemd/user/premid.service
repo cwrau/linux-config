@@ -6,6 +6,7 @@ Requires=graphical-session.target
 Type=simple
 ExecStart=/usr/bin/premid
 RestartSec=0
+Restart=always
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=yes

@@ -6,6 +6,7 @@ PartOf=messengers.target
 Type=simple
 ExecStart=/usr/bin/discord
 RestartSec=0
+Restart=always
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=yes
@@ -13,7 +14,4 @@ ProtectSystem=yes
 NoNewPrivileges=yes
 ProtectKernelTunables=yes
 ProtectControlGroups=yes
-Restart=always
 
-[Install]
-RequiredBy=messengers.target

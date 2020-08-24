@@ -6,6 +6,7 @@ PartOf=messengers.target
 Type=simple
 ExecStart=/usr/bin/whatsapp-nativefier
 RestartSec=0
+Restart=always
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=yes
@@ -13,5 +14,3 @@ ProtectSystem=yes
 ProtectKernelTunables=yes
 ProtectControlGroups=yes
 
-[Install]
-WantedBy=messengers.target
