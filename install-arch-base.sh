@@ -185,7 +185,6 @@ else
     noto-fonts-all
     nss-mdns
     nvidia
-    nvidia-docker-compose
     nvtop
     oh-my-zsh-git
     openjdk-src
