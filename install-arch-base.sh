@@ -6,7 +6,7 @@ cat - <<'EOF'
 Set up the base system the following way:
 EFI partition on /boot
 ROOT on / (^_^)
-pacstrap /mnt base linux linux-firmware base-devel git efibootmgr networkmanager libxkbcommon inetutils nvidia intel-ucode
+pacstrap /mnt base linux linux-firmware base-devel git networkmanager libxkbcommon inetutils nvidia intel-ucode
 genfstab -U /mnt >> /mnt/etc/fstab
 chroot:
   passwd root
@@ -15,6 +15,7 @@ chroot:
     useradd cwr -d /home/cwr -U -m
     passwd cwr
   )
+  chsh -s /usr/bin/zsh cwr
   su cwr
   cd $HOME
   git init
@@ -29,9 +30,19 @@ chroot:
   exit
 
   ls -l /dev/disk/by-partuuid
+
   efibootmgr --disk /dev/$disk --part $part --create --label "Arch Linux" --loader /vmlinuz-linux --unicode \
   'root=PARTUUID=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX rw initrd=\intel-ucode.img initrd=\initramfs-linux.img' --verbose
   efibootmgr -o EFIs # 3(new entry),0,1,2
+  # or systemd-boot
+  bootctl install
+  cat <<EOE > /boot/loader/entries/arch.conf
+title Arch Linux
+linux /vmlinuz-linux
+initrd /intel-ucode.img
+initrd /initramfs-linux.img
+options root=PARTUUID=$PARTUUID rw
+EOE
 EOF
 
 if [[ $(id -u) = 0 ]]; then
@@ -98,7 +109,6 @@ else
     blugon
     breeze-hacked-cursor-theme
     clipmenu
-    cryptsetup
     curl
     davfs2
     diff-so-fancy
@@ -160,7 +170,6 @@ else
     lib32-nvidia-utils
     libgnome-keyring
     libinput-gestures
-    libsecret
     libu2f-host
     libva-mesa-driver
     linux-firmware
@@ -238,6 +247,7 @@ else
     steam
     sxiv
     systemd
+    systemd-boot-pacman-hook
     teams-insiders
     telegram-desktop-bin
     telepresence
