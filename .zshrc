@@ -6,6 +6,7 @@ export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 
+export PULSE_COOKIE="$XDG_RUNTIME_DIR/pulse/cookie"
 export GOPATH="$XDG_DATA_HOME/go"
 export ANDROID_SDK_HOME="$XDG_CONFIG_HOME/android"
 export ANDROID_AVD_HOME="$XDG_DATA_HOME/android"
@@ -194,19 +195,31 @@ unsetopt HIST_IGNORE_DUPS
 setopt HIST_REDUCE_BLANKS
 unsetopt share_history
 
-function command_not_found_handler() {
-  echo "Command '$1' not found, but could be installed via the following package(s):"
-  yay -S --provides -- $1
+function _check_command() {
   if [ $? -eq 0 ] && command -v $1 &> /dev/null; then
     $@
     local ret=$?
-    yay -R --noconfirm $1
+    yay -R $(rg --text installed /var/log/pacman.log | tail -1 | awk '{print $4}')
     return $ret
   fi
+  return 137
+}
+
+function command_not_found_handler() {
+  local packages
+  echo "Command '$1' not found, but could be installed via the following package(s):"
+  yay -S --provides -- $1
+  _check_command $@
+  [ $? = 137 ] || return $?
   echo "Packages containing '$1' in name"
-  yay -Slq | rg -- $1
+  yay -- $1
+  _check_command $@
+  [ $? = 137 ] || return $?
   echo "Packages containg files with '$1' in their name"
-  yay -Fyq -- $1
+  packages=$(yay -Fyq -- $1)
+  yay $packages
+  _check_command $@
+  [ $? = 137 ] || return $?
 }
 
 function _nop() {}
