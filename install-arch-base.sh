@@ -6,7 +6,8 @@ cat - <<'EOF'
 Set up the base system the following way:
 EFI partition on /boot
 ROOT on / (^_^)
-pacstrap /mnt base linux linux-firmware base-devel git efibootmgr networkmanager libxkbcommon inetutils
+pacstrap /mnt base linux linux-firmware base-devel git efibootmgr networkmanager libxkbcommon inetutils nvidia intel-ucode
+genfstab -U /mnt >> /mnt/etc/fstab
 chroot:
   passwd root
 
@@ -25,6 +26,9 @@ chroot:
   sed -r -i 's#^MODULES=.+$#MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)#g' /etc/mkinitcpio.conf
   mkinitcpio -P
 
+  exit
+
+  ls -l /dev/disk/by-partuuid
   efibootmgr --disk /dev/$disk --part $part --create --label "Arch Linux" --loader /vmlinuz-linux --unicode \
   'root=PARTUUID=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX rw initrd=\intel-ucode.img initrd=\initramfs-linux.img' --verbose
   efibootmgr -o EFIs # 3(new entry),0,1,2
