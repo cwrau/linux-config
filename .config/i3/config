@@ -38,6 +38,9 @@ bindsym $mod+Return $exid gnome-terminal
 # kill focused window
 bindsym $mod+Shift+q kill
 
+# to prevent chrome from closing itself
+bindsym $alt+F4 exec --no-startup-id echo
+
 set $exid exec --no-startup-id
 set $exaid exec_always --no-startup-id
 
@@ -202,7 +205,9 @@ bindsym XF86AudioPlay $exid playerctl -i chrome play-pause
 bindsym XF86AudioPause $exid playerctl -i chrome pause
 bindcode 164 $exid playerctl -i chrome play-pause
 bindsym XF86AudioNext $exid playerctl -i chrome next
+bindsym button9 $exid playerctl -i chrome next
 bindsym XF86AudioPrev $exid playerctl -i chrome previous
+bindsym button8 $exid playerctl -i chrome previous
 
 # Change Audio Settings
 bindsym $mod+Ctrl+Shift+o $exid /usr/local/bin/custom/audio_program_volume
