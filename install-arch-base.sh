@@ -286,12 +286,12 @@ else
     rofi-dmenu
   )
 
-  yay -S --noconfirm --needed powerpill
+  yay --pacman=pacman -S --noconfirm --needed powerpill
   # freetype2-cleartype is a problem, as one of it's dependencies, harfbuzz, depends on the original freetype2
-  yes | yay --pacman=powerpill -Syu --noconfirm --useask --needed --removemake --asdeps freetype2-cleartype || true
-  yay --pacman=powerpill -Syu --noconfirm --needed --removemake --asdeps ${prePackages[@]}
+  yes | yay -Syu --noconfirm --useask --needed --removemake --asdeps freetype2-cleartype || true
+  yay -Syu --noconfirm --needed --removemake --asdeps ${prePackages[@]}
 
-  yay --pacman=powerpill -Syu --noconfirm --needed --removemake --asexplicit ${packages[@]}
+  yay -Syu --noconfirm --needed --removemake --asexplicit ${packages[@]}
 
   sudo pip install dynmen pulsectl
 
