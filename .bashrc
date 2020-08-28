@@ -134,7 +134,7 @@ case "$-" in
         ctx="$(kubectl config current-context 2>/dev/null)"
         if [[ "$?" == "0" ]]
         then
-          echo " ⎈ ${ctx}⎈ "
+          echo " ⎈ ${ctx} ⎈"
         fi
       }
       GIT_PROMPT_START='\n[ \u@\h ]$(_kubecontext)'
@@ -363,7 +363,7 @@ then
       nAlias klc 'kubectl config get-contexts -o name | sed "s/^/  /;\|^  $(krc)$|s/ /*/"'
       # Change current context
       nAlias kcc 'kubectl config use-context "$(klc | fzf -e | sed "s/^..//")"'
-      
+
       # Get current namespace
       nAlias krn 'kubectl config get-contexts --no-headers "$(krc)" | awk "{print \$5}" | sed "s/^$/default/"'
       # List all namespaces
