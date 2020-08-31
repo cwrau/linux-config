@@ -27,5 +27,3 @@ then
   sudo sh -c "echo $new > $path/brightness"
 fi
 
-percentage=$(( new / ( max / 100 ) ))
-notify-send.sh -r 62726967 -t 1000 -u INFO $percentage% "Brightness set to $percentage%"

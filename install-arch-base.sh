@@ -16,6 +16,7 @@ chroot:
     passwd cwr
   )
   chsh -s /usr/bin/zsh cwr
+  chsh -s /usr/bin/zsh root
   su cwr
   cd $HOME
   git init
@@ -331,8 +332,6 @@ else
   sudo ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules
 
   nvim +PlugInstall +exit +exit
-
-  echo "yes" >${HOME}/.config/gnome-initial-setup-done
 
   mkdir ${HOME}/Screenshots
 

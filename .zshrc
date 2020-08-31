@@ -19,12 +19,18 @@ export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
 export KUBECONFIG="$XDG_CONFIG_HOME/kube/config"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
+export CARGO_HOME="$XDG_DATA_HOME/rust"
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
+export LESSHISTFILE="$XDG_DATA_HOME/less/history"
+export SONAR_USER_HOME="$XDG_DATA_HOME/sonarlint"
+export KREW_ROOT="$XDG_DATA_HOME/krew"
+export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
+export XAUTHORITY="$XDG_CACHE_HOME/x11/authority"
 
 export VISUAL=nvim
 export EDITOR="$VISUAL"
 export PAGER=slit
 export BROWSER="google-chrome-stable"
-export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
 export SAVEHIST=9223372036854775807
 export HISTSIZE=9223372036854775807
 export DOCKER_BUILDKIT=1
@@ -148,7 +154,8 @@ COMPLETION_WAITING_DOTS="true"
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}'
 zstyle ':completion:*' use-ip true
 
-ZSH_CACHE_DIR=$HOME/.cache/oh-my-zsh
+export ZSH_CACHE_DIR=${XDG_CACHE_HOME}/oh-my-zsh
+[ -d $ZSH_CACHE_DIR ] || mkdir $ZSH_CACHE_DIR
 ZSH_CUSTOM=/usr/share/zsh
 ZSH_THEME="../../zsh-theme-powerlevel10k/powerlevel10k"
 
@@ -175,13 +182,15 @@ plugins=(
   zsh-autosuggestions
 )
 
+export ZSH_COMPDUMP="${ZSH_CACHE_DIR}/.zcompdump-${ZSH_VERSION}"
+
 source $ZSH/oh-my-zsh.sh
 
 source /usr/share/zsh/site-functions/_gradle &> /dev/null
 source /usr/share/zsh/plugins/gradle-zsh-completion/gradle-completion.plugin.zsh
 source /usr/share/git/completion/git-completion.zsh &> /dev/null
 
-autoload -U compinit && compinit -d $HOME/.cache/zsh/zcompdump-$ZSH_VERSION
+autoload -U compinit && compinit -d "$ZSH_COMPDUMP"
 
 compdef _gradle gradle-or-gradlew
 
@@ -237,7 +246,7 @@ function ssh() {
   if ! ping -c 1 "${1/*@/}" &> /dev/null; then
     /bin/ssh "$@"
     return $?
-  elif $(grep "$1" ~/.ssh/checked_hosts -q )
+  elif [[ -f ~/.ssh/checked_hosts ]] && grep "$1" ~/.ssh/checked_hosts -q
   then
     name="$1"
     shift
@@ -263,15 +272,17 @@ function ssh() {
   fi
 }
 
-for intellijTool in /usr/local/bin/custom/custom/*; do
-  eval $(<<EOF
-  function $(basename $intellijTool)() {
-    i3-msg "exec $intellijTool \$(realpath \${1:-.})"
-  }
+if [ -e /usr/local/bin/custom/custom/idea ]; then
+  for intellijTool in /usr/local/bin/custom/custom/*; do
+    eval $(<<EOF
+      function $(basename $intellijTool)() {
+        i3-msg "exec $intellijTool \$(realpath \${1:-.})"
+      }
 EOF
-)
-done
-unset intellijTool
+  )
+  done
+  unset intellijTool
+fi
 
 function diff() {
   /bin/diff -u "${@}" | diff-so-fancy | /bin/less --tabs=1,5 -RF

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
- 
+
 #i3lock -e -u -c 000000
 #exit 0
 
@@ -9,7 +9,6 @@ pgrep i3lock && exit 0
 
 sudo chmod u+s "$(command -v i3lock)"
 i3lock --blur 10 \
-    --ignore-empty-password \
     --pass-media-keys \
     --force-clock \
     --insidecolor 00000000 --insidevercolor 00000000 --insidewrongcolor 00000000 \
