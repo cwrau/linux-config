@@ -5,7 +5,7 @@ Requires=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/feh --bg-fill %h/.config/background.jpg
+ExecStart=/usr/bin/feh --bg-fill %h/.config/background.jpg --no-fehbg
 RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...

@@ -195,8 +195,8 @@ bindsym XF86AudioLowerVolume $exid pamixer -d 5 #decrease sound volume
 bindsym XF86AudioMute $exid pamixer -t # mute sound
 
 # Sreen brightness controls
-bindsym XF86MonBrightnessUp $exid sudo sh -c "echo 1500 > /sys/class/backlight/intel_backlight/brightness"
-bindsym XF86MonBrightnessDown $exid sudo sh -c "echo 1 > /sys/class/backlight/intel_backlight/brightness"
+bindsym XF86MonBrightnessUp $exid brightness up
+bindsym XF86MonBrightnessDown $exid brightness down
 # bindsym XF86MonBrightnessUp $exid /usr/local/bin/custom/brightness up
 # bindsym XF86MonBrightnessDown $exid /usr/local/bin/custom/brightness down
 
@@ -347,14 +347,15 @@ bindsym Ctrl+$mod+Down move workspace to output down
 
 set $external HDMI-1-1
 set $external2 DP-1-1
-set $external3 DP-1-1-1
+set $external3 $external4 DP-2-1
+set $external4 DP-1-1-1
 set $internal eDP-1-1
 
-workspace 1 output $external $external2 $external3
+workspace 1 output $external $external2 $external3 $external4
 workspace 14:Discord output $internal
-workspace 15:Steam output $external $external2 $external3
-workspace 16:YouTube output $external $external2 $external3
-workspace 17:Netflix output $external $external2 $external3
+workspace 15:Steam output $external $external2 $external3 $external4
+workspace 16:YouTube output $external $external2 $external3 $external4
+workspace 17:Netflix output $external $external2 $external3 $external4
 workspace 18:GPMDP output $internal
 workspace 19:Teams output $internal
 workspace 20:Chat output $internal

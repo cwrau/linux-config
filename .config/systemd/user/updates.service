@@ -8,5 +8,3 @@ Type=oneshot
 ExecStart=%h/BIN/packageUpdates
 RestartSec=0
 
-[Install]
-WantedBy=graphical-session.target
