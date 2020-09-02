@@ -12,10 +12,15 @@
 /.cache/
 /.factorio/
 /.git-credentials
+/.gnome/
 /.history
+/.kube/
 /.local/
 !.local/share/JetBrains/Toolbox/.settings.json
 /.m2/
+/.mozilla/
+/.pki/
+/.pulse-cookie
 /.slit/
 /.steam*
 /.thumbnails/

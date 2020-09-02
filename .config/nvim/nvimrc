@@ -27,6 +27,8 @@ Plug 'mechatroner/rainbow_csv'
 Plug '/usr/share/vim/vimfiles/plugin/fzf.vim'
 Plug 'junegunn/fzf.vim'
 Plug 'stevearc/vim-arduino'
+Plug 'godlygeek/tabular'
+Plug 'plasticboy/vim-markdown'
 " Plug 'sheerun/vim-polyglot'
 " au BufWrite * :Autoformat " Autoformat destroys yaml's
 noremap = :Autoformat<CR>
@@ -148,7 +150,9 @@ function! ArduinoStatusLine()
   return line
 endfunction
 
-hi ExtraWhitespace ctermfg=167 guifg=#cc6666 ctermbg=167 guibg=#cc6666
+set nofoldenable
+
+highlight ExtraWhitespace ctermfg=167 guifg=#cc6666 ctermbg=167 guibg=#cc6666
 autocm InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
 autocm InsertLeave * match ExtraWhitespace /\s\+$/
 match ExtraWhitespace /\s\+$/

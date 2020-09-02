@@ -26,6 +26,7 @@ export SONAR_USER_HOME="$XDG_DATA_HOME/sonarlint"
 export KREW_ROOT="$XDG_DATA_HOME/krew"
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
 export XAUTHORITY="$XDG_CACHE_HOME/x11/authority"
+export NUGET_PACKAGES="$XDG_DATA_HOME/NuGet"
 
 export VISUAL=nvim
 export EDITOR="$VISUAL"

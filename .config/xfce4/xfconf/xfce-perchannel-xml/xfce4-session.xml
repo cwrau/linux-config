@@ -2,6 +2,6 @@
 
 <channel name="xfce4-session" version="1.0">
   <property name="general" type="empty">
-    <property name="LockCommand" type="string" value="lock"/>
+    <property name="LockCommand" type="string" value="/usr/local/bin/custom/lock"/>
   </property>
 </channel>

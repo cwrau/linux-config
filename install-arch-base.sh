@@ -111,7 +111,6 @@ else
     breeze-hacked-cursor-theme
     clipmenu
     curl
-    davfs2
     diff-so-fancy
     discord
     dive
@@ -132,6 +131,7 @@ else
     fd
     feh
     foldingathome
+    fprintd
     freerdp
     freetype2-cleartype
     fwupd
@@ -151,6 +151,7 @@ else
     gvfs
     helm
     helm-diff
+    howdy
     hsetroot
     httpie
     i3-gaps
@@ -164,11 +165,14 @@ else
     jq
     k9s
     kdeconnect
+    kexec-tools
     krew-bin
     kubectl-bin
     lab-bin
     less
     lib32-nvidia-utils
+    libfprint-2-tod1-xps9300-bin
+    libfprint-tod-git
     libgnome-keyring
     libinput-gestures
     libu2f-host
@@ -250,7 +254,7 @@ else
     systemd
     systemd-boot-pacman-hook
     teams-insiders
-    telegram-desktop-bin
+    telegram-desktop
     telepresence
     thunderbird-extension-enigmail
     traceroute

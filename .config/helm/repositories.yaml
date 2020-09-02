@@ -1,0 +1,11 @@
+apiVersion: ""
+generated: "0001-01-01T00:00:00Z"
+repositories:
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: 4allportal
+  password: ""
+  url: https://charts.4allportal.net
+  username: ""

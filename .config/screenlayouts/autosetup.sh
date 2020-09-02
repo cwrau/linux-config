@@ -17,4 +17,4 @@ do
   xrandr --output ${monitor} --mode $(getResolutionForMonitor ${monitor})
 done
 
-feh --bg-fill $HOME/.config/background.jpg
+systemctl --user start feh.service --wait

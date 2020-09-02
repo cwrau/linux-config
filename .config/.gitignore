@@ -1,3 +1,4 @@
+/.mono/
 /Google Play Music Desktop Player/
 /JetBrains/
 /Microsoft/
@@ -10,12 +11,17 @@
 /discord/
 /docker/
 /fah/
+/freerdp/
+/google-cloud-tools-java/
 /google-chrome/
 /java/
 /kube/
 /menus/
+/NuGet/
 /pavucontrol.ini
 /pulse/
+/remmina/
 /teams-insiders/
 /uhk-agent/
 /whatsapp-nativefier-*/
+/lab.hcl
