@@ -1,6 +1,6 @@
 #!/bin/bash
 
-eval $(cat $HOME/.config/polybar/colors.ini | rg '^[a-z]+ = #[0-9a-fA-F]+$' | tr -d ' ' | sed -r 's#^#color_#g')
+eval $(cat $XDG_CONFIG_HOME/polybar/colors.ini | rg '^[a-z]+ = #[0-9a-fA-F]+$' | tr -d ' ' | sed -r 's#^#color_#g')
 
 name=${1}
 text=${2}

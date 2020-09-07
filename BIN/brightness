@@ -21,6 +21,11 @@ then
     step=$(( step / 10 ))
   fi
 
+  if [ $(( current / ( max / 100 ) )) -le 1 ]
+  then
+    step=$(( step / 10 ))
+  fi
+
   new=$(( current - step ))
   [ $new -lt 0 ] && new=0
 

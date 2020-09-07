@@ -704,6 +704,7 @@ function nAlias() {
   alias "$1=${param}"
 }
 
+nAlias $ ''
 unalias fd
 nAlias :q exit
 nAlias :e nvim
@@ -754,8 +755,8 @@ nAlias tree ls --tree
 reAlias mitmproxy "--set confdir=$XDG_CONFIG_HOME/mitmproxy"
 reAlias mitmweb "--set confdir=$XDG_CONFIG_HOME/mitmproxy"
 
-alias kubectl="PATH=\"$PATH:$HOME/.krew/bin\" kubectl"
-alias k9s="PATH=\"$PATH:$HOME/.krew/bin\" k9s"
+alias kubectl="PATH=\"$PATH:$KREW_ROOT/bin\" kubectl"
+alias k9s="PATH=\"$PATH:$KREW_ROOT/bin\" k9s"
 function _k9s() {
   _arguments "--context[The name of the kubeconfig context to use]: :($(kubectl config get-contexts -o name | xargs echo -n))"
 }

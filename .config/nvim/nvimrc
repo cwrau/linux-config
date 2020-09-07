@@ -85,7 +85,7 @@ set nobackup
 set noswapfile
 set nowrap
 set undofile
-set undodir=$HOME/.cache/nvim-undodir
+set undodir=$XDG_CACHE_HOME/nvim-undodir
 set inccommand=nosplit
 
 " fuzzy finding with vim

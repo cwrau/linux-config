@@ -8,7 +8,7 @@ set -x
 pgrep i3lock && exit 0
 
 sudo chmod u+s "$(command -v i3lock)"
-i3lock --blur 10 \
+exec i3lock --blur 10 \
     --pass-media-keys \
     --force-clock \
     --insidecolor 00000000 --insidevercolor 00000000 --insidewrongcolor 00000000 \

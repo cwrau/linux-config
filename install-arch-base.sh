@@ -177,6 +177,7 @@ else
     libinput-gestures
     libu2f-host
     libva-mesa-driver
+    linux
     linux-firmware
     lscolors-git
     man-db
@@ -312,6 +313,8 @@ else
 
   kubectl krew update
   kubectl krew install access-matrix konfig debug node-shell
+
+  helm plugin install https://github.com/databus23/helm-diff
 
   sudo usermod -a -G docker,wheel,uucp,input cwr
 

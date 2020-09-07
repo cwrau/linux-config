@@ -10,10 +10,12 @@
 /.bash_logout
 /.bash_profile
 /.cache/
+/.cert/
 /.factorio/
 /.git-credentials
 /.gnome/
 /.history
+/.java/
 /.kube/
 /.local/
 !.local/share/JetBrains/Toolbox/.settings.json
@@ -23,6 +25,7 @@
 /.pulse-cookie
 /.slit/
 /.steam*
+/.sonarlint/
 /.thumbnails/
 /Documents/
 /Downloads/

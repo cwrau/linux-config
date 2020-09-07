@@ -49,7 +49,7 @@ set $exaid exec_always --no-startup-id
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
-#bindsym $mod+d $exid j4-dmenu-desktop --usage-log=$HOME/.config/i3/j4-dmenu-desktop-usage --no-generic
+#bindsym $mod+d $exid j4-dmenu-desktop --usage-log=$XDG_CONFIG_HOME/i3/j4-dmenu-desktop-usage --no-generic
 #bindsym $mod+d $exid dmenu-frecency
 bindsym $mod+d $exid rofi -show drun
 #bindsym $mod+d $exid 'rofi -mode drun'
@@ -110,12 +110,12 @@ bindsym $mod+Shift+r restart
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
 # bar {
-#         status_command exec $HOME/.config/i3status/custom.sh
+#         status_command exec $XDG_CONFIG_HOME/i3status/custom.sh
 #         tray_output none
 #         position bottom
 # }
-#$exaid $HOME/.config/polybar/launch.sh
-#$exaid $HOME/.config/glava/launch.sh
+#$exaid $XDG_CONFIG_HOME/polybar/launch.sh
+#$exaid $XDG_CONFIG_HOME/glava/launch.sh
 #$exaid sh -c "sleep 10; sudo rfkill unblock all"
 
 #bindsym button3 nop
@@ -156,13 +156,13 @@ for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
 for_window [class="Gnome-network-displays"] floating enable
 for_window [class="Microsoft Teams" title="Microsoft Teams Notification"] floating enable no_focus
 
-$exaid $HOME/.config/i3/rc.sh
+$exaid $XDG_CONFIG_HOME/i3/rc.sh
 
 set $displayMode "Set display mode [w]ork [l]aptop"
 #bindsym $mod+x mode $displayMode
 mode $displayMode {
-    bindsym w exec $HOME/.config/screenlayouts/work.sh; mode "default"; restart
-    bindsym l exec $HOME/.config/screenlayouts/laptop.sh; mode "default"; restart
+    bindsym w exec $XDG_CONFIG_HOME/screenlayouts/work.sh; mode "default"; restart
+    bindsym l exec $XDG_CONFIG_HOME/screenlayouts/laptop.sh; mode "default"; restart
 
     bindsym Return mode "default"
     bindsym Escape mode "default"
@@ -233,8 +233,8 @@ bindsym $mod+u $exid udiskie-dmenu
 bindsym $mod+x exec xkill
 
 # Clipboard-Manager
-bindsym $mod+Shift+v $exid sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i && xdotool key --clearmodifiers ctrl+shift+v'
-bindsym $mod+Ctrl+v $exid sh -c 'CM_DIR=$HOME/.cache/clipmenud clipmenu -i'
+bindsym $mod+Shift+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i && xdotool key --clearmodifiers ctrl+shift+v'
+bindsym $mod+Ctrl+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i'
 
 # Screenshots
 # Selection > Clipboard
