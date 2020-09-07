@@ -1,0 +1,11 @@
+[Unit]
+Description=Auto lock
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/xss-lock -s ${XDG_SESSION_ID} -- /usr/local/bin/custom/lock
+
+[Install]
+WantedBy=graphical-session.target
+

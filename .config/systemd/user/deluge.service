@@ -1,12 +1,11 @@
 [Unit]
-Description=Picom
+Description=Deluge
 After=graphical-session.target
 Requires=graphical-session.target
 
 [Service]
 Type=simple
-#ExecStart=/usr/bin/picom --unredir-if-possible --backend xr_glx_hybrid --vsync --use-damage --glx-no-stencil
-ExecStart=/usr/bin/picom
+ExecStart=/usr/bin/deluge gtk
 RestartSec=0
 Restart=always
 

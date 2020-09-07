@@ -178,7 +178,7 @@ mode $Power {
     bindsym s exec /usr/local/bin/custom/suspend; mode "default"
     bindsym p exec systemctl poweroff
     bindsym r exec systemctl reboot
-    bindsym k exec systemctl kexec
+    bindsym k exec sudo systemctl kexec
     bindsym l exec i3-msg exit
     bindsym Escape mode "default"
 }

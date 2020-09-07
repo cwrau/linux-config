@@ -8,6 +8,7 @@
 /autostart/
 /cef_user_data/
 /configstore/
+/deluge/
 /discord/
 /docker/
 /fah/
@@ -25,3 +26,4 @@
 /uhk-agent/
 /whatsapp-nativefier-*/
 /lab.hcl
+/youtube-music-desktop-app/
