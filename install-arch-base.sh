@@ -111,6 +111,7 @@ else
     breeze-hacked-cursor-theme
     clipmenu
     curl
+    deluge-gtk
     diff-so-fancy
     discord
     dive
@@ -150,7 +151,6 @@ else
     grub
     gvfs
     helm
-    helm-diff
     howdy
     hsetroot
     httpie
@@ -282,6 +282,7 @@ else
     xorg-xkill
     xorg-xprop
     xorg-xwininfo
+    xss-lock-session
     yay-bin
     youtube-dl
     yq
