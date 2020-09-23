@@ -107,7 +107,6 @@ else
     bind
     blueman
     bluez-utils
-    blugon
     breeze-hacked-cursor-theme
     clipmenu
     curl
@@ -187,7 +186,6 @@ else
     mitmproxy
     moreutils
     morsetran
-    mousepad
     multimc5
     ncdu
     neovim-drop-in
@@ -204,7 +202,9 @@ else
     nss-mdns
     nvidia
     nvtop
+    ocl-icd
     oh-my-zsh-git
+    opencl-nvidia
     openjdk-src
     openssh
     pacman-contrib
@@ -238,6 +238,7 @@ else
     python-virtualenv
     qemu
     realvnc-vnc-viewer
+    redshift
     reflector
     remmina
     ripgrep
@@ -294,6 +295,7 @@ else
     zsh-completions
     zsh-syntax-highlighting
     zsh-theme-powerlevel10k-git
+    zsh-you-should-use
   )
   #endPackages
 
