@@ -1,11 +1,11 @@
 [Unit]
-Description=glava
+Description=glava %I
 After=graphical-session.target
 Requires=graphical-session.target
 
 [Service]
 Type=forking
-ExecStart=/home/cwr/.config/glava/launch.sh
+ExecStart=%h/.config/glava/launch.sh %i
 RestartSec=0
 Restart=always
 

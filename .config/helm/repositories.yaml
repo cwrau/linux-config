@@ -25,3 +25,19 @@ repositories:
   password: ""
   url: https://kubernetes-charts.storage.googleapis.com
   username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: fluxcd
+  password: ""
+  url: https://charts.fluxcd.io
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: appscode
+  password: ""
+  url: https://charts.appscode.com/stable
+  username: ""

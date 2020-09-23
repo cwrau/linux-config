@@ -1,5 +1,5 @@
 if [ -f /etc/bashrc ]; then
-  . /etc/bashrc
+  source /etc/bashrc
 fi
 
 if [ "$(hostname)" = 'steve' ]
@@ -280,7 +280,7 @@ function swap() {
 }
 
 function bak() {
-  cp -r "${1%/}" "${1%/}~"
+  cp -r "${1%/}" "${1%/}-$(date --iso-8601=seconds)"
 }
 
 function bsrv() {
@@ -328,7 +328,7 @@ fi
 
 if [ -f /usr/lib/bash-git-prompt/gitprompt.sh ] #https://github.com/magicmonty/bash-git-prompt
 then
-  . /usr/lib/bash-git-prompt/gitprompt.sh
+  source /usr/lib/bash-git-prompt/gitprompt.sh
 fi
 
 if [ -r /etc/bash_completion ] ||
@@ -379,3 +379,5 @@ export VISUAL=vim
 export EDITOR="$VISUAL"
 [ -d /usr/local/bin/custom ] && PATH="$PATH:/usr/local/bin/custom"
 [ -d /usr/local/bin/custom/custom ] && PATH="$PATH:/usr/local/bin/custom/custom"
+
+nAlias . ls

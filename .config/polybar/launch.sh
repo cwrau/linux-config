@@ -14,5 +14,5 @@ do
     export TRAY=none
   fi
   export MONITOR
-  polybar $location -c ~/.config/polybar/config-$location.ini &
+  polybar $location -c $XDG_CONFIG_HOME/polybar/config-$location.ini &
 done

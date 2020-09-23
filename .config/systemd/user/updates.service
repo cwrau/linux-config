@@ -5,6 +5,6 @@ Requires=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=%h/BIN/packageUpdates
+ExecStart=%h/BIN/packageUpdates --unattended
 RestartSec=0
 

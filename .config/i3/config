@@ -154,7 +154,8 @@ for_window [class="jetbrains-toolbox"] floating enable
 for_window [class="steam_app.*"] floating enable
 for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
 for_window [class="Gnome-network-displays"] floating enable
-for_window [class="Microsoft Teams" title="Microsoft Teams Notification"] floating enable no_focus
+for_window [class="Microsoft Teams" title="Microsoft Teams Notification"] floating enable
+no_focus [class="Microsoft Teams" title="Microsoft Teams Notification"]
 
 $exaid $XDG_CONFIG_HOME/i3/rc.sh
 
@@ -168,14 +169,14 @@ mode $displayMode {
     bindsym Escape mode "default"
 }
 
-#bindsym Pause exec /usr/local/bin/custom/suspend
-#bindsym Scroll_Lock exec /usr/local/bin/custom/lock
+#bindsym Pause exec suspend
+#bindsym Scroll_Lock exec lock
 
 set $Power " [S]leep, [p]oweroff, [l]ogoff or [r]eboot?"
 bindsym $mod+q mode $Power
 
 mode $Power {
-    bindsym s exec /usr/local/bin/custom/suspend; mode "default"
+    bindsym s exec suspend; mode "default"
     bindsym p exec systemctl poweroff
     bindsym r exec systemctl reboot
     bindsym k exec sudo systemctl kexec
@@ -188,7 +189,7 @@ mode $Power {
 bindsym $mod+period $exid sh -c 'splatmoji copy && xdotool key --clearmodifiers ctrl+v'
 bindsym $mod+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
 bindsym $mod+m $exid morse
-bindsym $mod+p $exid sh -c 'fd --no-ignore-vcs --hidden -t f --full-path \\.idea/workspace.xml $HOME -X ls --format=vertical --sort=time --time=ctime | rg -v ^$HOME/\\\\. | sed -r "s#\.idea/workspace.xml\$##g" | dmenu -i -p Project | xargs -i i3-msg "exec /usr/local/bin/custom/custom/idea {}"'
+bindsym $mod+p $exid sh -c 'fd --no-ignore-vcs --hidden -t f --full-path \\.idea/workspace.xml $HOME -X ls --format=vertical --sort=time --time=ctime | rg -v ^$HOME/\\\\. | sed -r "s#\.idea/workspace.xml\$##g" | dmenu -i -p Project | xargs -i i3-msg "exec idea {}"'
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume $exid pamixer -i 5; $exid pamixer -u #increase sound volume
@@ -198,31 +199,33 @@ bindsym XF86AudioMute $exid pamixer -t # mute sound
 # Sreen brightness controls
 bindsym XF86MonBrightnessUp $exid brightness up
 bindsym XF86MonBrightnessDown $exid brightness down
-# bindsym XF86MonBrightnessUp $exid /usr/local/bin/custom/brightness up
-# bindsym XF86MonBrightnessDown $exid /usr/local/bin/custom/brightness down
 
 # Media player controls
-bindsym XF86AudioPlay $exid playerctl -i chrome play-pause
-bindsym XF86AudioPause $exid playerctl -i chrome pause
-bindcode 164 $exid playerctl -i chrome play-pause
-bindsym XF86AudioNext $exid playerctl -i chrome next
-bindsym button9 $exid playerctl -i chrome next
-bindsym XF86AudioPrev $exid playerctl -i chrome previous
-bindsym button8 $exid playerctl -i chrome previous
+bindsym XF86AudioPlay $exid pctl play-pause
+bindcode 164 $exid pctl play-pause
+
+bindsym XF86AudioPause $exid pctl pause
+
+bindsym XF86AudioNext $exid pctl next
+bindsym button9 $exid pctl next
+
+bindsym XF86AudioPrev $exid pctl previous
+bindsym button8 $exid pctl previous
 
 # Change Audio Settings
-bindsym $mod+Ctrl+Shift+o $exid /usr/local/bin/custom/audio_program_volume
-bindsym $mod+Shift+o $exid /usr/local/bin/custom/audio_program_sink
-bindsym $mod+Ctrl+o $exid /usr/local/bin/custom/audio_profile
-bindsym $mod+o $exid /usr/local/bin/custom/audio_sink
+bindsym $mod+Ctrl+Shift+o $exid audio_program_volume
+bindsym $mod+Shift+o $exid audio_program_sink
+bindsym $mod+Ctrl+o $exid audio_profile
+bindsym $mod+o $exid audio_sink
 
 # Display Manager
-bindsym $mod+Shift+p $exid /usr/local/bin/custom/rofi-randr
+bindsym $mod+Shift+p $exid rofi-randr
+bindsym $mod+Ctrl+p $exid autorandr -c --force
 #bindsym $mod+p $exid /usr/bin/lxrandr
-bindsym $mod+b $exid /usr/local/bin/custom/bluetooth_dmenu
+bindsym $mod+b $exid bluetooth_dmenu
 
 # Lock
-bindsym $mod+l $exid /usr/local/bin/custom/lock
+bindsym $mod+l $exid loginctl lock-session
 
 # WiFi-Manager
 bindsym $mod+i $exid networkmanager_dmenu

@@ -5,6 +5,7 @@ PartOf=work.target
 [Service]
 Type=forking
 ExecStart=/usr/bin/teams-insiders
+ExecStop=/usr/bin/teams-insiders --quit
 RestartSec=0
 Restart=always
 

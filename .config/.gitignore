@@ -1,10 +1,12 @@
 /.mono/
+/0ad/
 /Google Play Music Desktop Player/
 /JetBrains/
 /Microsoft/
 /Mousepad/
-/Slack/
+/NuGet/
 /QtProject.conf
+/Slack/
 /autostart/
 /cef_user_data/
 /configstore/
@@ -13,17 +15,19 @@
 /docker/
 /fah/
 /freerdp/
-/google-cloud-tools-java/
 /google-chrome/
+/google-cloud-tools-java/
 /java/
 /kube/
+/lab.hcl
 /menus/
-/NuGet/
+/mitmproxy/
 /pavucontrol.ini
 /pulse/
 /remmina/
 /teams-insiders/
 /uhk-agent/
+/unity3d/
 /whatsapp-nativefier-*/
-/lab.hcl
 /youtube-music-desktop-app/
+/zoomus.conf

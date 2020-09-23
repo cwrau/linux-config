@@ -1,6 +1,0 @@
-#!/usr/bin/env sh
-
-set -e
-
-/usr/local/bin/custom/lock
-systemctl suspend

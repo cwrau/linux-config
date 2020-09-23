@@ -1,0 +1,9 @@
+[Unit]
+Description=Restart service %I
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl --user restart '%i*.service'
+
+[Install]
+WantedBy=graphical-session.target

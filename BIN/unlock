@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-while pgrep i3lock &>/dev/null
-do
-  sudo pkill i3lock -9
-  sleep 1
-done

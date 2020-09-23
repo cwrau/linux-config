@@ -27,6 +27,7 @@ export KREW_ROOT="$XDG_DATA_HOME/krew"
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
 export XAUTHORITY="$XDG_CACHE_HOME/x11/authority"
 export NUGET_PACKAGES="$XDG_DATA_HOME/NuGet"
+export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 
 export VISUAL=nvim
 export EDITOR="$VISUAL"
@@ -43,20 +44,40 @@ export FZF_CTRL_T_COMMAND='fd --hidden'
 export FZF_CTRL_T_OPTS="--preview '(bat --color=always --pager=never -p {} 2> /dev/null || tree -C {}) 2> /dev/null | head -200'"
 export GRADLE_OPTS=-Xmx1G
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
-export GRADLE_USER_HOME=/tmp/gradle
 
 [ -d /usr/local/bin/custom ] && PATH="$PATH:/usr/local/bin/custom"
 [ -d /usr/local/bin/custom/custom ] && PATH="$PATH:/usr/local/bin/custom/custom"
 
-if [[ -z "$DISPLAY" ]]; then
-  if [[ "$XDG_VTNR" -eq 1 ]]; then
-    for ENV in $(declare -x +); do
-      systemctl --user import-environment $ENV
-    done
-
-    startx
+if [[ $- = *i* ]]; then
+  if [[ -z "$DISPLAY" ]]; then
+    if [[ "$XDG_VTNR" -eq 1 ]]; then
+      export DISPLAY=:0
+      for ENV in $(declare -x +); do
+        systemctl --user import-environment $ENV
+      done
+      startx
+    fi
   fi
 fi
+
+#if [[ $- = *i* ]]; then
+#  if [[ -z "$DISPLAY" ]]; then
+#    if [[ "$XDG_VTNR" -eq 1 ]]; then
+#      export DISPLAY=:0
+#      for ENV in $(declare -x +); do
+#        systemctl --user import-environment $ENV
+#      done
+#      startx
+#    fi
+#  elif [ -z "$TMUX" ]; then
+#    ID="$(byobu list-sessions | grep -vm1 attached | cut -d: -f1)" # get the id of a deattached session
+#    if [[ -z "$ID" ]] ;then # if not available create a new one
+#        echo exec byobu new-session
+#    else
+#        exec byobu attach-session -t "$ID" # if available attach to it
+#    fi
+#  fi
+#fi
 
 # Path to your oh-my-zsh installation.
 ZSH=/usr/share/oh-my-zsh/
@@ -190,13 +211,14 @@ source $ZSH/oh-my-zsh.sh
 source /usr/share/zsh/site-functions/_gradle &> /dev/null
 source /usr/share/zsh/plugins/gradle-zsh-completion/gradle-completion.plugin.zsh
 source /usr/share/git/completion/git-completion.zsh &> /dev/null
+source /usr/share/zsh/plugins/zsh-you-should-use/you-should-use.plugin.zsh &> /dev/null
 
 autoload -U compinit && compinit -d "$ZSH_COMPDUMP"
 
 compdef _gradle gradle-or-gradlew
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ -f ~/.config/p10k.zsh ]] && source ~/.config/p10k.zsh
+[[ -f $XDG_CONFIG_HOME/p10k.zsh ]] && source $XDG_CONFIG_HOME/p10k.zsh
 [[ -f /opt/azure-cli/az.completion ]] && source /opt/azure-cli/az.completion
 [[ -f /usr/share/LS_COLORS/dircolors.sh ]] && source /usr/share/LS_COLORS/dircolors.sh
 
@@ -295,7 +317,7 @@ function swap() {
 }
 
 function bak() {
-  cp -r "${1%/}" "${1%/}~"
+  cp -r "${1%/}" "${1%/}-$(date --iso-8601=seconds)"
 }
 
 function bsrv() {
@@ -323,7 +345,6 @@ function fap() {
     echo 'Port already used'
     return 1
   fi
-  rm -rf /tmp/{apps_repository,cefs}
   mkdir -p /tmp/data/custom/modules/file/mounts
   <<EOF > /tmp/data/custom/modules/file/mounts/data.xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -492,9 +513,9 @@ function hr() {
     yaml=$(< "$HR")
     [ "$?" -ne 0 ] && return 1
   fi
-  ns=$( (echo "$yaml" | yq -er .spec.targetNamespace || echo "$yaml" | yq -er .metadata.namespace) | grep -v null)
-  rn=$( (echo "$yaml" | yq -er .spec.releaseName || echo "$yaml" | yq -er .metadata.name) | grep -v null)
-  helm template --namespace $ns --repo $(echo "$yaml" | yq -er .spec.chart.repository) $rn $(echo "$yaml" | yq -er .spec.chart.name) --version $(echo "$yaml" | yq -er .spec.chart.version) --values <(echo "$yaml" | yq -y -er .spec.values)
+  ns=$( (<<<"$yaml" | yq -er .spec.targetNamespace || <<<"$yaml" | yq -er .metadata.namespace) | grep -v null)
+  rn=$( (<<<"$yaml" | yq -er .spec.releaseName || echo "$ns-$(<<<"$yaml" | yq -er .metadata.name)") | grep -v null)
+  helm template --namespace $ns --repo $(<<< "$yaml" | yq -er .spec.chart.repository) $rn $(<<< "$yaml" | yq -er .spec.chart.name) --version $(<<< "$yaml" | yq -er .spec.chart.version) --values <(<<< "$yaml" | yq -y -er .spec.values)
 }
 function _hr() {
   _arguments "1: :($(fd -e yaml -e yml -X rg '^kind: HelmRelease$' -l))"
@@ -512,17 +533,17 @@ function hrDiff() {
     yaml=$(< "$HR")
     [ "$?" -ne 0 ] && return 1
   fi
-  ns=$( (echo "$yaml" | yq -er .spec.targetNamespace || echo "$yaml" | yq -er .metadata.namespace) | grep -v null)
-  rn=$( (echo "$yaml" | yq -er .spec.releaseName || echo "$yaml" | yq -er .metadata.name) | grep -v null)
+  ns=$( (<<<"$yaml" | yq -er .spec.targetNamespace || <<<"$yaml" | yq -er .metadata.namespace) | grep -v null)
+  rn=$( (<<<"$yaml" | yq -er .spec.releaseName || echo "$ns-$(<<<"$yaml" | yq -er .metadata.name)") | grep -v null)
   <<EOF > /tmp/repo.yaml
 apiVersion: ""
 generated: "0001-01-01T00:00:00Z"
 repositories:
   - name: tmp
-    url: "$(echo "$yaml" | yq -er .spec.chart.repository)"
+    url: "$(<<<"$yaml" | yq -er .spec.chart.repository)"
 EOF
   helm --repository-config /tmp/repo.yaml repo update
-  helm --repository-config /tmp/repo.yaml diff upgrade --namespace $ns $rn tmp/$(echo "$yaml" | yq -er .spec.chart.name) --version $(echo "$yaml" | yq -er .spec.chart.version) --values <(echo "$yaml" | yq -y -er .spec.values)
+  helm --repository-config /tmp/repo.yaml diff upgrade --namespace $ns $rn tmp/$(<<<"$yaml" | yq -er .spec.chart.name) --version $(<<<"$yaml" | yq -er .spec.chart.version) --values <(<<<"$yaml" | yq -y -er .spec.values) | less
 
   # helm diff upgrade --namespace $ns --repo $(yq -e .spec.chart.repository $HR) $rn $(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
 }
@@ -754,6 +775,7 @@ nAlias curl http
 nAlias tree ls --tree
 reAlias mitmproxy "--set confdir=$XDG_CONFIG_HOME/mitmproxy"
 reAlias mitmweb "--set confdir=$XDG_CONFIG_HOME/mitmproxy"
+nAlias . ls
 
 alias kubectl="PATH=\"$PATH:$KREW_ROOT/bin\" kubectl"
 alias k9s="PATH=\"$PATH:$KREW_ROOT/bin\" k9s"

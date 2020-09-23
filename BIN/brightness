@@ -1,19 +1,29 @@
 #!/usr/bin/env sh
 
-set -e
+set -ex
 
-path="/sys/class/backlight/intel_backlight"
+backlight="/sys/class/backlight/intel_backlight"
 
-max=$(sudo cat $path/max_brightness)
-current=$(sudo cat $path/brightness)
+max=$(cat $backlight/max_brightness)
+current=$(cat $backlight/brightness)
 step=$(( max / 10))
 
 if [ "$1" = "up" ]
 then
+  if [ $(( current / ( max / 100 ) )) -le 9 ]
+  then
+    step=$(( step / 10 ))
+  fi
+
+  if [ $(( current / ( max / 100 ) )) -le 0 ]
+  then
+    step=$(( step / 10 ))
+  fi
+
   new=$(( current + step ))
   [ $new -gt "$max" ] && new=$max
 
-  sudo sh -c "echo $new > $path/brightness"
+  sudo sh -c "echo $new > $backlight/brightness"
 elif [ $1 = "down" ]
 then
   if [ $(( current / ( max / 100 ) )) -le 10 ]
@@ -27,8 +37,11 @@ then
   fi
 
   new=$(( current - step ))
-  [ $new -lt 0 ] && new=0
+  [ $new -le 0 ] && new=1
+  [ $current -le 1 ] && new=0
 
-  sudo sh -c "echo $new > $path/brightness"
+  sudo sh -c "echo $new > $backlight/brightness"
 fi
 
+current=$(cat $backlight/brightness)
+notify-send.sh -R $XDG_RUNTIME_DIR/brightness-notification -t 1000 "Brightness: $(echo "scale=3; $current / $max * 100" | bc | sed -r 's#0+$##; s#^\.#0.#; s#\.$##; s#^$#0#')%"

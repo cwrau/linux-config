@@ -1,6 +1,8 @@
 [Unit]
 Description=Discord
 PartOf=messengers.target
+After=graphical-session.target
+Requires=graphical-session.target
 
 [Service]
 Type=simple

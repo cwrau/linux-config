@@ -10,4 +10,4 @@ then
   exit 0
 fi
 
-i3-msg -s $XDG_RUNTIME_DIR/i3/ipc-socket.* exec /usr/local/bin/custom/lock
+loginctl lock-session
