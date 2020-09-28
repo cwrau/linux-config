@@ -2,49 +2,54 @@
 
 set -ex -o pipefail
 
-cat - <<'EOF'
+cat - <<'EOINTRO'
 Set up the base system the following way:
 EFI partition on /boot
 ROOT on / (^_^)
-pacstrap /mnt base linux linux-firmware base-devel git networkmanager libxkbcommon inetutils nvidia intel-ucode
-genfstab -U /mnt >> /mnt/etc/fstab
-chroot:
-  passwd root
+EOINTRO
 
-  id -u cwr || (
-    useradd cwr -d /home/cwr -U -m
-    passwd cwr
-  )
-  chsh -s /usr/bin/zsh cwr
-  chsh -s /usr/bin/zsh root
-  su cwr
-  cd $HOME
-  git init
-  git remote add origin https://github.com/cwrau/linux-config
-  git fetch
-  git reset origin/master
-  git reset --hard
+if [ "$1" = "chroot" ]; then
+  pacstrap /mnt base linux-zen linux-firmware base-devel git networkmanager libxkbcommon inetutils nvidia-dkms intel-ucode
+  genfstab -U /mnt >> /mnt/etc/fstab
 
-  sed -r -i 's#^MODULES=.+$#MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)#g' /etc/mkinitcpio.conf
-  mkinitcpio -P
+  cat <<-'EOCHROOT' | arch-chroot /mnt
+	passwd root
 
-  exit
+	useradd cwr -d /home/cwr -U -m
+	passwd cwr
+	chsh -s /usr/bin/zsh cwr
+	chsh -s /usr/bin/zsh root
 
-  ls -l /dev/disk/by-partuuid
+	cat <<-'EOSUDO' | sudo -u cwr sh
+		cd $HOME
+		git init
+		git remote add origin https://github.com/cwrau/linux-config
+		git fetch
+		git reset origin/master
+		git reset --hard
+	EOSUDO
 
-  efibootmgr --disk /dev/$disk --part $part --create --label "Arch Linux" --loader /vmlinuz-linux --unicode \
-  'root=PARTUUID=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX rw initrd=\intel-ucode.img initrd=\initramfs-linux.img' --verbose
-  efibootmgr -o EFIs # 3(new entry),0,1,2
-  # or systemd-boot
-  bootctl install
-  cat <<EOE > /boot/loader/entries/arch.conf
-title Arch Linux
-linux /vmlinuz-linux
-initrd /intel-ucode.img
-initrd /initramfs-linux.img
-options root=PARTUUID=$PARTUUID rw
-EOE
-EOF
+	sed -r -i 's#^MODULES=.+$#MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)#g' /etc/mkinitcpio.conf
+	mkinitcpio -P
+
+	bootctl install
+
+	cat <<-EOENTRY > /boot/loader/entries/arch.conf
+		title Arch Linux
+		linux /vmlinuz-linux-zen
+		initrd /intel-ucode.img
+		initrd /initramfs-linux-zen.img
+		options root=UUID=$(findmnt / -o UUID -n) rw
+	EOENTRY
+
+	cat <<-EOLOADER > /boot/loader/loader.conf
+		timeout 0
+		default arch.conf
+		auto-entries 0
+		auto-firmware 0
+	EOLOADER
+EOCHROOT
+fi
 
 if [[ $(id -u) = 0 ]]; then
   systemctl enable --now NetworkManager
@@ -58,18 +63,23 @@ if [[ $(id -u) = 0 ]]; then
   localectl set-keymap us-latin1
   localectl set-x11-keymap us latin1
   hostnamectl set-hostname steve
-  cat <<EOF >/etc/hosts
-127.0.0.1 localhost
-::1 localhost
-127.0.0.1 $(hostname)
-::1 $(hostname)
-EOF
+  cat <<-EOHOSTS >/etc/hosts
+		127.0.0.1 localhost
+		::1 localhost
+		127.0.0.1 $(hostname)
+		::1 $(hostname)
+	EOHOSTS
   echo "cwr ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/cwr
 
   pacman -Sy --noconfirm --needed reflector
 
   systemctl enable reflector.timer
   systemctl start --wait reflector.service
+
+	cat <<-EOLOGIND > /etc/systemd/logind.conf.d/lid-poweroff.conf
+		[Login]
+		HandleLidSwitch=poweroff
+	EOLOGIND
 
   echo "Run this script again as other user"
 else
