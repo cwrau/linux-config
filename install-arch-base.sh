@@ -49,9 +49,7 @@ if [ "$1" = "chroot" ]; then
 		auto-firmware 0
 	EOLOADER
 EOCHROOT
-fi
-
-if [[ $(id -u) = 0 ]]; then
+elif [[ $(id -u) = 0 ]]; then
   systemctl enable --now NetworkManager
   timedatectl set-timezone Europe/Berlin
   hwclock --systohc
