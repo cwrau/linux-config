@@ -9,7 +9,7 @@ ROOT on / (^_^)
 EOINTRO
 
 if [ "$1" = "chroot" ]; then
-  pacstrap /mnt base linux-zen linux-firmware base-devel git networkmanager libxkbcommon inetutils nvidia-dkms intel-ucode
+  pacstrap /mnt --needed base linux-zen linux-zen-headers linux-firmware base-devel git networkmanager libxkbcommon inetutils nvidia-dkms intel-ucode
   genfstab -U /mnt >> /mnt/etc/fstab
 
   cat <<-'EOCHROOT' | arch-chroot /mnt
@@ -34,6 +34,7 @@ if [ "$1" = "chroot" ]; then
 
 	bootctl install
 
+  mkdir -p /boot/loader/entries
 	cat <<-EOENTRY > /boot/loader/entries/arch.conf
 		title Arch Linux
 		linux /vmlinuz-linux-zen
