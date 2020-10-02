@@ -119,6 +119,8 @@ else
     breeze-hacked-cursor-theme
     clipmenu
     curl
+    datagrip
+    datagrip-jre
     deluge-gtk
     diff-so-fancy
     discord
@@ -168,8 +170,9 @@ else
     informant
     inotify-tools
     intel-ucode
+    intellij-idea-ultimate-edition
+    intellij-idea-ultimate-edition-jre
     itch
-    jetbrains-toolbox
     jq
     k9s
     kdeconnect
@@ -185,8 +188,9 @@ else
     libinput-gestures
     libu2f-host
     libva-mesa-driver
-    linux
     linux-firmware
+    linux-zen
+    linux-zen-headers
     lscolors-git
     man-db
     man-pages
@@ -209,7 +213,7 @@ else
     notify-send.sh
     noto-fonts-all
     nss-mdns
-    nvidia
+    nvidia-dkms
     nvtop
     ocl-icd
     oh-my-zsh-git
