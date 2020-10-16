@@ -265,6 +265,7 @@ else
     socat
     splatmoji-git
     steam
+    steam-tweaks
     sxiv
     systemd
     systemd-boot-pacman-hook
@@ -288,7 +289,6 @@ else
     which
     xarchiver
     xclip
-    xfce4-power-manager
     xorg-server
     xorg-xhost
     xorg-xinit
