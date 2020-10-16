@@ -64,7 +64,7 @@
    in a rate independant method like so:
 
    val -= (gravitystep) * (seconds per update) */
-#request setgravitystep 4.2
+#request setgravitystep 2.5
 
 /* Smoothing factor. Larger values mean more smoothing in the output,
    however high values can be expensive to compute. Values are in

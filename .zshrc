@@ -19,7 +19,7 @@ export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
 export KUBECONFIG="$XDG_CONFIG_HOME/kube/config"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
-export CARGO_HOME="$XDG_DATA_HOME/rust"
+export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
 export LESSHISTFILE="$XDG_DATA_HOME/less/history"
 export SONAR_USER_HOME="$XDG_DATA_HOME/sonarlint"
@@ -295,17 +295,9 @@ function ssh() {
   fi
 }
 
-if [ -e /usr/local/bin/custom/custom/idea ]; then
-  for intellijTool in /usr/local/bin/custom/custom/*; do
-    eval $(<<EOF
-      function $(basename $intellijTool)() {
-        i3-msg "exec $intellijTool \$(realpath \${1:-.})"
-      }
-EOF
-  )
-  done
-  unset intellijTool
-fi
+function idea() {
+  i3-msg "exec intellij-idea-ultimate-edition $(realpath ${1:-.})"
+}
 
 function diff() {
   /bin/diff -u "${@}" | diff-so-fancy | /bin/less --tabs=1,5 -RF
@@ -756,7 +748,6 @@ reAlias rg -S
 reAlias jq -r
 reAlias yq -r
 nAlias k kubectl
-command -v powerpill &> /dev/null && reAlias yay --pacman=powerpill
 nAlias docker-run docker run --rm -i -t
 nAlias htop gotop
 reAlias gotop -r 250ms
@@ -776,9 +767,19 @@ nAlias tree ls --tree
 reAlias mitmproxy "--set confdir=$XDG_CONFIG_HOME/mitmproxy"
 reAlias mitmweb "--set confdir=$XDG_CONFIG_HOME/mitmproxy"
 nAlias . ls
+alias -g A='| awk'
+alias -g X='| xargs'
+alias -g C='| clip'
+alias -g Y='| yq'
+alias -g J='| jq'
+alias -g B='| base64'
+alias -g BD='B -d'
+alias -g S='| sed'
+alias -g SP='| sponge'
+nAlias wd 'while :; do .; sleep 0.1; clear; done'
 
-alias kubectl="PATH=\"$PATH:$KREW_ROOT/bin\" kubectl"
-alias k9s="PATH=\"$PATH:$KREW_ROOT/bin\" k9s"
+alias kubectl="PATH=\"\$PATH:$KREW_ROOT/bin\" kubectl"
+alias k9s="PATH=\"\$PATH:$KREW_ROOT/bin\" k9s"
 function _k9s() {
   _arguments "--context[The name of the kubeconfig context to use]: :($(kubectl config get-contexts -o name | xargs echo -n))"
 }

@@ -44,4 +44,6 @@
   old = red bold
   new = green bold
   whitespace = red reverse
+[alias]
+  cleanup = "!git branch --merged master | grep -E -v '(^*|master|dev)' | xargs -r -t echo git branch -d"
 

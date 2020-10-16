@@ -5,7 +5,7 @@ Requires=graphical-session.target
 
 [Service]
 Type=forking
-ExecStartPre=/bin/sleep 5
+ExecStartPre=/bin/bash -c 'until i3-msg; do :; done'
 ExecStart=%h/.config/polybar/launch.sh %i
 RestartSec=0
 Restart=always

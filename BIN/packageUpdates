@@ -9,10 +9,14 @@ AUR_UPDATES=$(yay -Qu --aur --devel 2> /dev/null | wc -l)
 
 if (( (UPDATES + AUR_UPDATES) >= 1 )) && ! pgrep -x yay &> /dev/null &> /dev/null
 then
-  notify-send.sh -t 10000 -u critical "$UPDATES | $AUR_UPDATES" "$(yay -Quq --devel | sed -z '$ s/\n$//' | tr '\n' ',')"
+  notify-send.sh -R $XDG_RUNTIME_DIR/updates-notification -t 120000 -u low "$UPDATES | $AUR_UPDATES" "$(yay -Quq --devel | sed -z '$ s/\n$//' | tr '\n' ',')"
 
   if [ "$1" = '--unattended' ]; then
-    yay -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall
+    if yay -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall; then
+      notify-send.sh -R $XDG_RUNTIME_DIR/updates-notification -t 10000 -u normal 'Updates done!'
+    else
+      notify-send.sh -R $XDG_RUNTIME_DIR/updates-notification -t 10000 -u critical 'Updates failed!'
+    fi
   else
     i3-msg exec "i3-sensible-terminal -- sh -c 'yay -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall'"
   fi

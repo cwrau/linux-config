@@ -189,7 +189,7 @@ mode $Power {
 bindsym $mod+period $exid sh -c 'splatmoji copy && xdotool key --clearmodifiers ctrl+v'
 bindsym $mod+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
 bindsym $mod+m $exid morse
-bindsym $mod+p $exid sh -c 'fd --no-ignore-vcs --hidden -t f --full-path \\.idea/workspace.xml $HOME -X ls --format=vertical --sort=time --time=ctime | rg -v ^$HOME/\\\\. | sed -r "s#\.idea/workspace.xml\$##g" | dmenu -i -p Project | xargs -i i3-msg "exec idea {}"'
+bindsym $mod+p $exid sh -c 'fd --no-ignore-vcs --hidden -t f --full-path \\.idea/workspace.xml $HOME -X ls --format=vertical --sort=time --time=ctime | rg -v ^$HOME/\\\\. | sed -r "s#\.idea/workspace.xml\$##g" | dmenu -i -p Project | xargs -i i3-msg "exec intellij-idea-ultimate-edition {}"'
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume $exid pamixer -i 5; $exid pamixer -u #increase sound volume

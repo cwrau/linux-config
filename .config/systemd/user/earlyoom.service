@@ -1,11 +1,11 @@
 [Unit]
 Description=Earlyoom
+After=graphical-session.target
 Requires=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/sudo /usr/bin/earlyoom -r 3600 -n --avoid "i3.*|custom.sh|teams|glava|polybar|.*gpmdp.*|Xorg" -m 2
-ExecStop=/usr/bin/sudo pkill earlyoom
+ExecStart=/usr/bin/earlyoom -r 3600 -n --avoid "i3.*|custom.sh|teams|glava|polybar|.*gpmdp.*|Xorg" -m 2
 RestartSec=0
 Restart=always
 

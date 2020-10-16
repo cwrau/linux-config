@@ -214,7 +214,7 @@ reAlias rg -S
 reAlias jq -r
 nAlias k kubectl
 reAlias yay --pacman powerpill
-nAlias docker-run docker run --rm -it -u $(id -u):$(id -g)
+nAlias docker-run docker run --rm -i -t
 nAlias htop gotop
 reAlias gotop -r 4
 nAlias dc docker-compose
