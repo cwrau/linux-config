@@ -29,7 +29,9 @@ if [ "$1" = "chroot" ]; then
 		git reset --hard
 	EOSUDO
 
-	sed -r -i 's#^MODULES=.+$#MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)#g' /etc/mkinitcpio.conf
+	#sed -r -i 's#^MODULES=.+$#MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)#g' /etc/mkinitcpio.conf
+	echo 'COMPRESSION="zstd"' >> /etc/mkinitcpio.conf
+	echo 'COMPRESSION_OPTIONS=(--ultra)' >> /etc/mkinitcpio.conf
 	mkinitcpio -P
 
 	bootctl install
@@ -157,7 +159,6 @@ else
     gotop-bin
     gpmdp
     gradle
-    gradle-zsh-completion
     grub
     gvfs
     helm
