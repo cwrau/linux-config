@@ -9,7 +9,7 @@ ROOT on / (^_^)
 EOINTRO
 
 if [ "$1" = "chroot" ]; then
-  pacstrap /mnt --needed base linux-zen linux-zen-headers linux-firmware base-devel git networkmanager libxkbcommon inetutils nvidia-dkms intel-ucode
+  pacstrap /mnt --needed base linux linux-headers linux-firmware base-devel git networkmanager libxkbcommon inetutils nvidia intel-ucode
   genfstab -U /mnt >> /mnt/etc/fstab
 
   cat <<-'EOCHROOT' | arch-chroot /mnt
@@ -39,9 +39,9 @@ if [ "$1" = "chroot" ]; then
   mkdir -p /boot/loader/entries
 	cat <<-EOENTRY > /boot/loader/entries/arch.conf
 		title Arch Linux
-		linux /vmlinuz-linux-zen
+		linux /vmlinuz-linux
 		initrd /intel-ucode.img
-		initrd /initramfs-linux-zen.img
+		initrd /initramfs-linux.img
 		options root=UUID=$(findmnt / -o UUID -n) rw
 	EOENTRY
 
@@ -106,7 +106,6 @@ else
 
   #startPackages
   packages=(
-    arandr
     aria2
     autorandr
     base
@@ -114,6 +113,7 @@ else
     bash-git-prompt
     bash-language-server
     bat
+    batsignal
     bc
     bind
     blueman
@@ -125,7 +125,7 @@ else
     datagrip-jre
     deluge-gtk
     diff-so-fancy
-    discord
+    discord-canary
     dive
     dnsmasq
     docker
@@ -189,9 +189,9 @@ else
     libinput-gestures
     libu2f-host
     libva-mesa-driver
+    linux
     linux-firmware
-    linux-zen
-    linux-zen-headers
+    linux-headers
     lscolors-git
     man-db
     man-pages
@@ -214,7 +214,7 @@ else
     notify-send.sh
     noto-fonts-all
     nss-mdns
-    nvidia-dkms
+    nvidia
     nvtop
     ocl-icd
     oh-my-zsh-git
