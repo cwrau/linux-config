@@ -115,7 +115,6 @@ else
     bat
     batsignal
     bc
-    bind
     blueman
     bluez-utils
     breeze-hacked-cursor-theme
@@ -152,6 +151,7 @@ else
     git
     glava
     gnome-keyring
+    gnome-shell-pomodoro
     gnome-terminal
     gnu-netcat
     gnupg
@@ -179,6 +179,7 @@ else
     kdeconnect
     kexec-tools
     krew-bin
+    kube-linter-bin
     kubectl-bin
     lab-bin
     less
