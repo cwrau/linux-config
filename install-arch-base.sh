@@ -42,7 +42,7 @@ if [ "$1" = "chroot" ]; then
 		linux /vmlinuz-linux
 		initrd /intel-ucode.img
 		initrd /initramfs-linux.img
-		options root=UUID=$(findmnt / -o UUID -n) rw
+		options root=UUID=$(findmnt / -o UUID -n) rw quiet vga=current nvidia-drm.modeset=1
 	EOENTRY
 
 	cat <<-EOLOADER > /boot/loader/loader.conf
