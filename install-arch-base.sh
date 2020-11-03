@@ -89,16 +89,9 @@ else
   [ -d yay-bin ] || git clone https://aur.archlinux.org/yay-bin.git
   cd yay-bin
   export PKGEXT=.pkg.tar
-  [ -f yay-bin-*.pkg.tar ] || makepkg -s
+  makepkg -fs
   sudo pacman -U yay-bin-*.pkg.tar --noconfirm
   popd
-
-  sudo sed -i -r "s#^PKGEXT.+\$#PKGEXT='.pkg.tar'#g" /etc/makepkg.conf
-  sudo sed -i -r "s#^\#?BUILDDIR=.*\$#BUILDDIR=/tmp/makepkg#g" /etc/makepkg.conf
-  sudo sed -i -r "s#^\#?MAKEFLAGS=.*\$#MAKEFLAGS=\"-j\\\$(nproc)\"#g" /etc/makepkg.conf
-  sudo sed -i -r 's#ftp::/usr/bin/curl -gqfC - --ftp-pasv --retry 3 --retry-delay 3 -o %o %u#ftp::/usr/bin/aria2c -s4 %u -o %o#g' /etc/makepkg.conf
-  sudo sed -i -r 's#http::/usr/bin/curl -gqb "" -fLC - --retry 3 --retry-delay 3 -o %o %u#http::/usr/bin/aria2c -s4 %u -o %o#g' /etc/makepkg.conf
-  sudo sed -i -r 's#https::/usr/bin/curl -gqb "" -fLC - --retry 3 --retry-delay 3 -o %o %u#https::/usr/bin/aria2c -s4 %u -o %o#g' /etc/makepkg.conf
 
   multilibLine=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
   sudo sed -i -r "$multilibLine,$((( $multilibLine + 1 ))) s#^\###g" /etc/pacman.conf
@@ -380,6 +373,6 @@ else
     echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/$USER-*'"
   fi
 
-  sudo systemctl enable --now systemd-timesyncd bluetooth pkgstats.timer fwupd ebtables dnsmasq docker.socket libvirtd.socket
+  sudo systemctl enable --now systemd-timesyncd bluetooth pkgstats.timer fwupd ebtables dnsmasq docker.socket libvirtd.socket fwupd-refresh.timer
   sudo systemctl disable NetworkManager-wait-online
 fi
