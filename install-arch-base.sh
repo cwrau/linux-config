@@ -30,8 +30,8 @@ if [ "$1" = "chroot" ]; then
 	EOSUDO
 
 	#sed -r -i 's#^MODULES=.+$#MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)#g' /etc/mkinitcpio.conf
-	echo 'COMPRESSION="zstd"' >> /etc/mkinitcpio.conf
-	echo 'COMPRESSION_OPTIONS=(--ultra)' >> /etc/mkinitcpio.conf
+  sed -r -i 's/#(COMPRESSION="zstd")/\1/' /etc/mkinitcpio.conf
+  sed -r -i 's/#(COMPRESSION_OPTIONS=)\(\)/\1(-T0 --ultra -22)/' /etc/mkinitcpio.conf
 	mkinitcpio -P
 
 	bootctl install
