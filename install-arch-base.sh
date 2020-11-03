@@ -12,7 +12,9 @@ if [ "$1" = "chroot" ]; then
   pacstrap /mnt --needed base linux linux-headers linux-firmware base-devel git zsh networkmanager libxkbcommon inetutils nvidia intel-ucode
   genfstab -U /mnt > /mnt/etc/fstab
 
-  cat <<-'EOCHROOT' | arch-chroot /mnt
+  cp $0 /mnt/
+
+  cat <<-'EOCHROOT' | arch-chroot /mnt bash -ex -o pipefail
 	if ! id cwr; then
 	  useradd cwr -d /home/cwr -U -m
 	fi
@@ -20,7 +22,7 @@ if [ "$1" = "chroot" ]; then
 	chsh -s /usr/bin/zsh root
 
 	if ! [ -d /home/cwr/.git ]; then
-	  cat <<-'EOSUDO' | sudo -u cwr sh
+	  cat <<-'EOSUDO' | sudo -u cwr bash -ex -o pipefail
 	  	cd $HOME
 	  	git init
 	  	git remote add origin https://github.com/cwrau/linux-config
@@ -37,7 +39,6 @@ if [ "$1" = "chroot" ]; then
 
 	bootctl install
 
-	mkdir -p /boot/loader/entries
 	cat <<-EOENTRY > /boot/loader/entries/arch.conf
 		title Arch Linux
 		linux /vmlinuz-linux
@@ -59,11 +60,10 @@ elif [[ $(id -u) = 0 ]]; then
   systemctl enable --now NetworkManager
   timedatectl set-timezone Europe/Berlin
   hwclock --systohc
-  localectl set-locale LANG=en_US.UTF-8
   sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
-  sed -i 's/#en_GB.UTF-8/en_GB.UTF-8/g' /etc/locale.gen
-  localectl set-locale LC_COLLATE=C
   locale-gen
+  localectl set-locale LANG=en_US.UTF-8
+  localectl set-locale LC_COLLATE=C
   localectl set-keymap us-latin1
   localectl set-x11-keymap us latin1
   hostnamectl set-hostname steve
@@ -80,12 +80,14 @@ elif [[ $(id -u) = 0 ]]; then
   systemctl enable reflector.timer
   systemctl start --wait reflector.service
 
+  mkdir /etc/systemd/logind.conf.d
 	cat <<-EOLOGIND > /etc/systemd/logind.conf.d/lid-poweroff.conf
 		[Login]
 		HandleLidSwitch=poweroff
 	EOLOGIND
 
-  echo "Run this script again as other user"
+  cd /home/cwr
+  sudo -u cwr /install-arch-base.sh
 else
   sudo pacman -S --noconfirm --needed aria2
   pushd /tmp
@@ -99,6 +101,8 @@ else
   multilibLine=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
   sudo sed -i -r "$multilibLine,$((( $multilibLine + 1 ))) s#^\###g" /etc/pacman.conf
   sudo sed -i -r "s#^SigLevel.+\$#SigLevel = PackageRequired#g" /etc/pacman.conf
+
+  sudo pacman -Sy
 
   #startPackages
   packages=(
