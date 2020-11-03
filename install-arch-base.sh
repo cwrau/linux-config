@@ -20,23 +20,25 @@ if [ "$1" = "chroot" ]; then
 	chsh -s /usr/bin/zsh cwr
 	chsh -s /usr/bin/zsh root
 
-	cat <<-'EOSUDO' | sudo -u cwr sh
-		cd $HOME
-		git init
-		git remote add origin https://github.com/cwrau/linux-config
-		git fetch
-		git reset origin/master
-		git reset --hard
-	EOSUDO
+	if ! [ -d /home/cwr/.git ]; then
+	  cat <<-'EOSUDO' | sudo -u cwr sh
+	    cd $HOME
+	    git init
+	    git remote add origin https://github.com/cwrau/linux-config
+	    git fetch
+	    git reset origin/master
+	    git reset --hard
+	  EOSUDO
+	fi
 
 	#sed -r -i 's#^MODULES=.+$#MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)#g' /etc/mkinitcpio.conf
-  sed -r -i 's/#(COMPRESSION="zstd")/\1/' /etc/mkinitcpio.conf
-  sed -r -i 's/#(COMPRESSION_OPTIONS=)\(\)/\1(-T0 --ultra -22)/' /etc/mkinitcpio.conf
+	sed -r -i 's/#(COMPRESSION="zstd")/\1/' /etc/mkinitcpio.conf
+	sed -r -i 's/#(COMPRESSION_OPTIONS=)\(\)/\1(-T0 --ultra -22)/' /etc/mkinitcpio.conf
 	mkinitcpio -P
 
 	bootctl install
 
-  mkdir -p /boot/loader/entries
+	mkdir -p /boot/loader/entries
 	cat <<-EOENTRY > /boot/loader/entries/arch.conf
 		title Arch Linux
 		linux /vmlinuz-linux
