@@ -13,10 +13,9 @@ if [ "$1" = "chroot" ]; then
   genfstab -U /mnt > /mnt/etc/fstab
 
   cat <<-'EOCHROOT' | arch-chroot /mnt
-	passwd root
-
-	useradd cwr -d /home/cwr -U -m
-	passwd cwr
+	if ! id cwr; then
+	  useradd cwr -d /home/cwr -U -m
+	fi
 	chsh -s /usr/bin/zsh cwr
 	chsh -s /usr/bin/zsh root
 
@@ -54,6 +53,8 @@ if [ "$1" = "chroot" ]; then
 		auto-firmware 0
 	EOLOADER
 EOCHROOT
+	arch-chroot /mnt passwd root
+	arch-chroot /mnt passwd cwr
 elif [[ $(id -u) = 0 ]]; then
   systemctl enable --now NetworkManager
   timedatectl set-timezone Europe/Berlin
