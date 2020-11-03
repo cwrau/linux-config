@@ -27,7 +27,7 @@ if [ "$1" = "chroot" ]; then
 	  	git fetch
 	  	git reset origin/master
 	  	git reset --hard
-	  EOSUDO
+	EOSUDO
 	fi
 
 	#sed -r -i 's#^MODULES=.+$#MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)#g' /etc/mkinitcpio.conf
