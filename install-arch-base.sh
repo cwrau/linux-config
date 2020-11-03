@@ -9,10 +9,10 @@ ROOT on / (^_^)
 EOINTRO
 
 if [ "$1" = "chroot" ]; then
-  pacstrap /mnt --needed base linux linux-headers linux-firmware base-devel git networkmanager libxkbcommon inetutils nvidia intel-ucode
+  pacstrap /mnt --needed base linux linux-headers linux-firmware base-devel git zsh networkmanager libxkbcommon inetutils nvidia intel-ucode
   genfstab -U /mnt > /mnt/etc/fstab
 
-  cat <<-'EOCHROOT' | arch-chroot /mnt
+  cat <<-'EOCHROOT'
 	if ! id cwr; then
 	  useradd cwr -d /home/cwr -U -m
 	fi
