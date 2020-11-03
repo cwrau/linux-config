@@ -10,7 +10,7 @@ EOINTRO
 
 if [ "$1" = "chroot" ]; then
   pacstrap /mnt --needed base linux linux-headers linux-firmware base-devel git networkmanager libxkbcommon inetutils nvidia intel-ucode
-  genfstab -U /mnt >> /mnt/etc/fstab
+  genfstab -U /mnt > /mnt/etc/fstab
 
   cat <<-'EOCHROOT' | arch-chroot /mnt
 	passwd root
