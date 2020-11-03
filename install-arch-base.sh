@@ -22,12 +22,12 @@ if [ "$1" = "chroot" ]; then
 
 	if ! [ -d /home/cwr/.git ]; then
 	  cat <<-'EOSUDO' | sudo -u cwr sh
-	    cd $HOME
-	    git init
-	    git remote add origin https://github.com/cwrau/linux-config
-	    git fetch
-	    git reset origin/master
-	    git reset --hard
+	  	cd $HOME
+	  	git init
+	  	git remote add origin https://github.com/cwrau/linux-config
+	  	git fetch
+	  	git reset origin/master
+	  	git reset --hard
 	  EOSUDO
 	fi
 
