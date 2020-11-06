@@ -8,88 +8,116 @@ EFI partition on /boot
 ROOT on / (^_^)
 EOINTRO
 
-if [ "$1" = "chroot" ]; then
-  pacstrap /mnt --needed base linux linux-headers linux-firmware base-devel git zsh networkmanager libxkbcommon inetutils nvidia intel-ucode
-  genfstab -U /mnt > /mnt/etc/fstab
+if [ "$1" = "iso" ]; then
+  pacstrap /mnt --needed \
+    base \
+    linux \
+    linux-headers \
+    linux-firmware \
+    base-devel \
+    git \
+    zsh \
+    networkmanager \
+    nvidia \
+    intel-ucode \
+    aria2 \
+    reflector
+  genfstab -U /mnt >/mnt/etc/fstab
 
   cp $0 /mnt/
 
-  cat <<-'EOCHROOT' | arch-chroot /mnt bash -ex -o pipefail
-	if ! id cwr; then
-	  useradd cwr -d /home/cwr -U -m
-	fi
-	chsh -s /usr/bin/zsh cwr
-	chsh -s /usr/bin/zsh root
+  arch-chroot /mnt /$(basename $0) chroot
+elif [ "$1" = "chroot" ]; then
+  if ! id cwr; then
+    useradd cwr -d /home/cwr -U -m
+    passwd root
+    passwd cwr
+    chsh -s /usr/bin/zsh cwr
+    chsh -s /usr/bin/zsh root
+  fi
 
-	if ! [ -d /home/cwr/.git ]; then
-	  cat <<-'EOSUDO' | sudo -u cwr bash -ex -o pipefail
-	  	cd $HOME
-	  	git init
-	  	git remote add origin https://github.com/cwrau/linux-config
-	  	git fetch
-	  	git reset origin/master
-	  	git reset --hard
-	EOSUDO
-	fi
+  if ! [ -d /home/cwr/.git ]; then
+    cd /home/cwr
+    git init
+    git remote add origin https://github.com/cwrau/linux-config
+    git fetch
+    git reset origin/master
+    git reset --hard
+    cd /root
+    chown -R cwr:cwr /home/cwr
 
-	#sed -r -i 's#^MODULES=.+$#MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)#g' /etc/mkinitcpio.conf
-	sed -r -i 's/#(COMPRESSION="zstd")/\1/' /etc/mkinitcpio.conf
-	sed -r -i 's/#(COMPRESSION_OPTIONS=)\(\)/\1(-T0 --ultra -22)/' /etc/mkinitcpio.conf
-	mkinitcpio -P
+    ln -sf /home/cwr/BIN /usr/local/bin/custom
 
-	bootctl install
+    for hook in /home/cwr/pacman-hooks/*; do
+      ln -sf ${hook} /usr/share/libalpm/hooks/$(basename ${hook})
+    done
 
-	cat <<-EOENTRY > /boot/loader/entries/arch.conf
-		title Arch Linux
-		linux /vmlinuz-linux
-		initrd /intel-ucode.img
-		initrd /initramfs-linux.img
-		options root=UUID=$(findmnt / -o UUID -n) rw quiet vga=current nvidia-drm.modeset=1
-	EOENTRY
+    ln -sf /home/cwr/ETC/profile.d/custom.sh /etc/profile.d/custom.sh
+    ln -sf /home/cwr/ETC/conf.d/reflector.conf /etc/conf.d/reflector.conf
+    rm -f /root/.bashrc
+    ln -sf /home/cwr/.bashrc /root/.bashrc
+    rm -f /root/.zshrc
+    ln -sf /home/cwr/.zshrc /root/.zshrc
+    mkdir -p /root/.config
+    ln -sf /home/cwr/.config/p10k.zsh /root/.config/p10k.zsh
+    mkdir -p /etc/udev/rules.d
+    cp /home/cwr/ETC/udev/rules.d/20-yubikey.rules /etc/udev/rules.d/20-yubikey.rules
+    ln -sf /dev/null /etc/udev/rules.d/80-net-setup-link.rules
+  fi
 
-	cat <<-EOLOADER > /boot/loader/loader.conf
-		timeout 0
-		default arch.conf
-		auto-entries 0
-		auto-firmware 0
-	EOLOADER
-EOCHROOT
-	arch-chroot /mnt passwd root
-	arch-chroot /mnt passwd cwr
-elif [[ $(id -u) = 0 ]]; then
-  systemctl enable --now NetworkManager
-  timedatectl set-timezone Europe/Berlin
+  sed -r -i 's/#(COMPRESSION="zstd")/\1/' /etc/mkinitcpio.conf
+  sed -r -i 's/#(COMPRESSION_OPTIONS=)\(\)/\1(-T0 --ultra -22)/' /etc/mkinitcpio.conf
+  mkinitcpio -P
+
+  bootctl install
+
+  cat <<-EOENTRY >/boot/loader/entries/arch.conf
+  	title Arch Linux
+  	linux /vmlinuz-linux
+  	initrd /intel-ucode.img
+  	initrd /initramfs-linux.img
+  	options root=UUID=$(findmnt / -o UUID -n) rw quiet vga=current nvidia-drm.modeset=1
+EOENTRY
+
+  cat <<-EOLOADER >/boot/loader/loader.conf
+  	timeout 0
+  	default arch.conf
+  	auto-entries 0
+  	auto-firmware 0
+EOLOADER
+
+  ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
   hwclock --systohc
   sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
   locale-gen
-  localectl set-locale LANG=en_US.UTF-8
-  localectl set-locale LC_COLLATE=C
-  localectl set-keymap us-latin1
-  localectl set-x11-keymap us latin1
-  hostnamectl set-hostname steve
+  echo LANG=en_US.UTF-8 >/etc/locale.conf
+  echo LC_COLLATE=C >>/etc/locale.conf
+  echo KEYMAP=us-latin1 >/etc/vconsole.conf
+  hostname=steve
+  echo $hostname >/etc/hostname
   cat <<-EOHOSTS >/etc/hosts
-		127.0.0.1 localhost
-		::1 localhost
-		127.0.0.1 $(hostname)
-		::1 $(hostname)
-	EOHOSTS
-  echo "cwr ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/cwr
+  	127.0.0.1 localhost
+  	::1 localhost
+  	127.0.0.1 $hostname
+  	::1 $hostname
+EOHOSTS
+  echo "cwr ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/cwr
 
-  pacman -Sy --noconfirm --needed reflector
+  reflector --save /etc/pacman.d/mirrorlist --protocol https --latest 5 --sort score
 
-  systemctl enable reflector.timer
-  systemctl start --wait reflector.service
+  mkdir -p /etc/systemd/logind.conf.d
+  cat <<-EOLOGIND >/etc/systemd/logind.conf.d/lid-poweroff.conf
+  	[Login]
+  	HandleLidSwitch=poweroff
+EOLOGIND
 
-  mkdir /etc/systemd/logind.conf.d
-	cat <<-EOLOGIND > /etc/systemd/logind.conf.d/lid-poweroff.conf
-		[Login]
-		HandleLidSwitch=poweroff
-	EOLOGIND
+  multilibLine=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
+  sudo sed -i -r "$multilibLine,$((($multilibLine + 1))) s#^\###g" /etc/pacman.conf
+  sudo sed -i -r "s#^SigLevel.+\$#SigLevel = PackageRequired#g" /etc/pacman.conf
 
   cd /home/cwr
   sudo -u cwr /install-arch-base.sh
 else
-  sudo pacman -S --noconfirm --needed aria2
   pushd /tmp
   [ -d yay-bin ] || git clone https://aur.archlinux.org/yay-bin.git
   cd yay-bin
@@ -98,14 +126,11 @@ else
   sudo pacman -U yay-bin-*.pkg.tar --noconfirm
   popd
 
-  multilibLine=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
-  sudo sed -i -r "$multilibLine,$((( $multilibLine + 1 ))) s#^\###g" /etc/pacman.conf
-  sudo sed -i -r "s#^SigLevel.+\$#SigLevel = PackageRequired#g" /etc/pacman.conf
-
   sudo pacman -Sy
 
   #startPackages
   packages=(
+    advcp
     aria2
     autorandr
     base
@@ -239,7 +264,7 @@ else
     powertop
     premid
     prettyping
-    procs
+    procs-bin
     proton-ge-custom-stable-bin
     pulseaudio
     pulseaudio-bluetooth
@@ -336,29 +361,12 @@ else
 
   sudo usermod -a -G docker,wheel,uucp,input cwr
 
-  sudo ln -sf ${HOME}/BIN /usr/local/bin/custom
   sudo rm -rf /usr/share/icons/default
   sudo ln -sf Breeze_Hacked /usr/share/icons/default
 
-  for hook in ${HOME}/pacman-hooks/*; do
-    sudo ln -sf ${hook} /usr/share/libalpm/hooks/$(basename ${hook})
-  done
-
-  sudo ln -sf ${HOME}/ETC/profile.d/custom.sh /etc/profile.d/custom.sh
-  sudo ln -sf ${HOME}/ETC/conf.d/reflector.conf /etc/conf.d/reflector.conf
-  sudo rm -f /root/.bashrc
-  sudo ln -sf ${HOME}/.bashrc /root/.bashrc
-  sudo rm -f /root/.zshrc
-  sudo ln -sf ${HOME}/.zshrc /root/.zshrc
-  sudo mkdir -p /root/.config
-  sudo ln -sf ${HOME}/.config/p10k.zsh /root/.config/p10k.zsh
-  sudo mkdir -p /etc/udev/rules.d
-  sudo cp ${HOME}/ETC/udev/rules.d/20-yubikey.rules /etc/udev/rules.d/20-yubikey.rules
-  sudo ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules
-
   nvim +PlugInstall +exit +exit
 
-  mkdir ${HOME}/Screenshots
+  mkdir -p ${HOME}/Screenshots
 
   sudo chmod u+s $(which i3lock)
 
@@ -380,6 +388,6 @@ else
     echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/$USER-*'"
   fi
 
-  sudo systemctl enable --now systemd-timesyncd bluetooth pkgstats.timer fwupd ebtables dnsmasq docker.socket libvirtd.socket fwupd-refresh.timer
+  sudo systemctl enable systemd-timesyncd bluetooth pkgstats.timer fwupd ebtables dnsmasq docker.socket libvirtd.socket fwupd-refresh.timer NetworkManager reflector.timer
   sudo systemctl disable NetworkManager-wait-online
 fi
