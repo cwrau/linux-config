@@ -109,6 +109,7 @@ EOHOSTS
   cat <<-EOLOGIND >/etc/systemd/logind.conf.d/lid-poweroff.conf
   	[Login]
   	HandleLidSwitch=poweroff
+  	HandleLidSwitchDocked=poweroff
 EOLOGIND
 
   multilibLine=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
@@ -176,7 +177,6 @@ else
     git
     glava
     gnome-keyring
-    gnome-shell-pomodoro
     gnome-terminal
     gnu-netcat
     gnupg
