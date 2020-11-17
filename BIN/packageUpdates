@@ -9,7 +9,7 @@ AUR_UPDATES=$(yay -Qu --aur --devel 2> /dev/null | wc -l)
 
 if (( (UPDATES + AUR_UPDATES) >= 1 )) && ! pgrep -x yay &> /dev/null &> /dev/null
 then
-  notify-send.sh -R $XDG_RUNTIME_DIR/updates-notification -t 120000 -u low "$UPDATES | $AUR_UPDATES" "$(yay -Quq --devel | sed -z '$ s/\n$//' | tr '\n' ',')"
+  notify-send.sh -R $XDG_RUNTIME_DIR/updates-notification -t 3600000 -u low "$UPDATES | $AUR_UPDATES" "$(yay -Quq --devel | sed -z '$ s/\n$//' | tr '\n' ',')"
 
   if [ "$1" = '--unattended' ]; then
     if yay -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall; then

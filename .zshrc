@@ -1,10 +1,21 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
+[ -s /etc/motd ] && cat /etc/motd
+
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export XDG_DOWNLOAD_DIR="$HOME/Downloads"
+export XDG_SCREENSHOT_DIR="$HOME/Screenshots"
+export XDG_DESKTOP_DIR="$XDG_DATA_HOME/applications"
+export XDG_TEMPLATES_DIR="$HOME/Downloads"
+export XDG_PUBLICSHARE_DIR="$HOME/Downloads"
+export XDG_DOCUMENTS_DIR="$HOME/Downloads"
+export XDG_MUSIC_DIR="$HOME/Downloads"
+export XDG_PICTURES_DIR="$HOME/Downloads"
+export XDG_VIDEOS_DIR="$HOME/Downloads"
 
 export PULSE_COOKIE="$XDG_RUNTIME_DIR/pulse/cookie"
 export GOPATH="$XDG_DATA_HOME/go"
@@ -59,25 +70,6 @@ if [[ $- = *i* ]]; then
     fi
   fi
 fi
-
-#if [[ $- = *i* ]]; then
-#  if [[ -z "$DISPLAY" ]]; then
-#    if [[ "$XDG_VTNR" -eq 1 ]]; then
-#      export DISPLAY=:0
-#      for ENV in $(declare -x +); do
-#        systemctl --user import-environment $ENV
-#      done
-#      startx
-#    fi
-#  elif [ -z "$TMUX" ]; then
-#    ID="$(byobu list-sessions | grep -vm1 attached | cut -d: -f1)" # get the id of a deattached session
-#    if [[ -z "$ID" ]] ;then # if not available create a new one
-#        echo exec byobu new-session
-#    else
-#        exec byobu attach-session -t "$ID" # if available attach to it
-#    fi
-#  fi
-#fi
 
 # Path to your oh-my-zsh installation.
 ZSH=/usr/share/oh-my-zsh/
@@ -193,7 +185,6 @@ plugins=(
   fzf
   gpg-agent
   helm
-  httpie
   kubectl
   mvn
   gradle
@@ -208,8 +199,6 @@ export ZSH_COMPDUMP="${ZSH_CACHE_DIR}/.zcompdump-${ZSH_VERSION}"
 
 source $ZSH/oh-my-zsh.sh
 
-source /usr/share/zsh/site-functions/_gradle &> /dev/null
-source /usr/share/zsh/plugins/gradle-zsh-completion/gradle-completion.plugin.zsh
 source /usr/share/git/completion/git-completion.zsh &> /dev/null
 source /usr/share/zsh/plugins/zsh-you-should-use/you-should-use.plugin.zsh &> /dev/null
 
@@ -266,10 +255,7 @@ function e() {
 }
 
 function ssh() {
-  if ! ping -c 1 "${1/*@/}" &> /dev/null; then
-    /bin/ssh "$@"
-    return $?
-  elif [[ -f ~/.ssh/checked_hosts ]] && grep "$1" ~/.ssh/checked_hosts -q
+  if [[ -f ~/.ssh/checked_hosts ]] && grep "$1" ~/.ssh/checked_hosts -q
   then
     name="$1"
     shift
@@ -332,11 +318,24 @@ function _4ap() {
 }
 compdef _4ap 4ap
 
+function fapp() {
+  gradle :assemble --parallel
+  local version
+  local apps
+  version="$(cat build/4app.json | jq -r '.dependencies[] | select(.artifactId == "4allportal-core") | .artifactVersion')"
+  apps="$(cat build/4app.json | jq -r '[.dependencies[] | select(.artifactId != "4allportal-core") | "\(.artifactId):\(.artifactVersion)"] | join(",")')"
+  rm -rf /tmp/data/apps
+  mkdir -p /tmp/data/apps
+  cp build/*.4app /tmp/data/apps
+  fap $version -e APPS_INSTALL=$apps $@
+}
+
 function fap() {
   if nc -z localhost 8181; then
     echo 'Port already used'
     return 1
   fi
+  rm -rf /tmp/data/custom/modules/file/mounts
   mkdir -p /tmp/data/custom/modules/file/mounts
   <<EOF > /tmp/data/custom/modules/file/mounts/data.xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -389,10 +388,12 @@ EOF
   systemctl --user start docker-db.service
 
   docker pull registry.4allportal.net/4allportal:$tag
+  set -x
   docker run --rm -it -e DATABASE_HOST=localhost -e DATABASE_TYPE=mariadb -v /tmp/data:/4allportal/data --net host \
     --name="4allportal-$tag" \
     --tmpfs=/4allportal/{_runtime,assets} $dockerArgs \
     registry.4allportal.net/4allportal:$tag $fapArgs
+  set +x
 
   systemctl --user stop docker-db.service
   rm -rf /tmp/data
@@ -494,20 +495,54 @@ function google() {
   xdg-open "http://google.com/search?q=${*}"
 }
 
-function hr() {
+function _hr_getYaml() {
   local HR="$1"
+
+  if [ "$HR" = "-" -o "$HR" = "" ]; then
+    < /dev/stdin
+  else
+    < "$HR"
+    [ "$?" -ne 0 ] && return 1
+  fi
+  return 0
+}
+
+function _hr_getNs() {
+  local yaml
+  yaml="$1"
+
+  <<<"$yaml" | yq -er 'if .spec.targetNamespace then .spec.targetNamespace else .metadata.namespace end'
+}
+
+function _hr_getRn() {
+  local yaml
+  local ns
+  yaml="$1"
+  ns=$(_hr_getNs "$yaml")
+
+  <<<"$yaml" | yq -er "if .spec.releaseName then .spec.releaseName else \"$ns-\\(.metadata.name)\" end"
+}
+
+function hr() {
   local ns
   local rn
   local yaml
-  if [ "$HR" = "-" -o "$HR" = "" ]; then
-    yaml=$(< /dev/stdin)
+  yaml=$(_hr_getYaml "$1")
+  [ "$?" -ne 0 ] && return 1
+  ns=$(_hr_getNs "$yaml")
+  rn=$(_hr_getRn "$yaml")
+  if <<< "$yaml" | yq -er .spec.chart.git > /dev/null; then
+    rm -rf /tmp/helm-chart
+    local gitPath
+    gitPath="$(<<< "$yaml" | yq -er 'if .spec.chart.path then .spec.chart.path else "." end')"
+    git clone --depth 1 --branch "$(<<< "$yaml" | yq -er 'if .spec.chart.ref then .spec.chart.ref else "master"')" "$(<<< "$yaml" | yq -er .spec.chart.git)" /tmp/helm-chart > /dev/null
+
+    helm dependency update "/tmp/helm-chart/$gitPath" > /dev/null
+    helm template --namespace $ns $rn "/tmp/helm-chart/$gitPath" --values <(<<< "$yaml" | yq -y -er .spec.values) ${@:2}
+    rm -rf /tmp/helm-chart
   else
-    yaml=$(< "$HR")
-    [ "$?" -ne 0 ] && return 1
+    helm template --namespace $ns --repo $(<<< "$yaml" | yq -er .spec.chart.repository) $rn $(<<< "$yaml" | yq -er .spec.chart.name) --version $(<<< "$yaml" | yq -er .spec.chart.version) --values <(<<< "$yaml" | yq -y -er .spec.values) ${@:2}
   fi
-  ns=$( (<<<"$yaml" | yq -er .spec.targetNamespace || <<<"$yaml" | yq -er .metadata.namespace) | grep -v null)
-  rn=$( (<<<"$yaml" | yq -er .spec.releaseName || echo "$ns-$(<<<"$yaml" | yq -er .metadata.name)") | grep -v null)
-  helm template --namespace $ns --repo $(<<< "$yaml" | yq -er .spec.chart.repository) $rn $(<<< "$yaml" | yq -er .spec.chart.name) --version $(<<< "$yaml" | yq -er .spec.chart.version) --values <(<<< "$yaml" | yq -y -er .spec.values)
 }
 function _hr() {
   _arguments "1: :($(fd -e yaml -e yml -X rg '^kind: HelmRelease$' -l))"
@@ -519,14 +554,10 @@ function hrDiff() {
   local ns
   local rn
   local yaml
-  if [ "$HR" = "-" -o "$HR" = "" ]; then
-    yaml=$(< /dev/stdin)
-  else
-    yaml=$(< "$HR")
-    [ "$?" -ne 0 ] && return 1
-  fi
-  ns=$( (<<<"$yaml" | yq -er .spec.targetNamespace || <<<"$yaml" | yq -er .metadata.namespace) | grep -v null)
-  rn=$( (<<<"$yaml" | yq -er .spec.releaseName || echo "$ns-$(<<<"$yaml" | yq -er .metadata.name)") | grep -v null)
+  yaml=$(_hr_getYaml "$1")
+  [ "$?" -ne 0 ] && return 1
+  ns=$(_hr_getNs "$yaml")
+  rn=$(_hr_getRn "$yaml")
   <<EOF > /tmp/repo.yaml
 apiVersion: ""
 generated: "0001-01-01T00:00:00Z"
@@ -535,7 +566,7 @@ repositories:
     url: "$(<<<"$yaml" | yq -er .spec.chart.repository)"
 EOF
   helm --repository-config /tmp/repo.yaml repo update
-  helm --repository-config /tmp/repo.yaml diff upgrade --namespace $ns $rn tmp/$(<<<"$yaml" | yq -er .spec.chart.name) --version $(<<<"$yaml" | yq -er .spec.chart.version) --values <(<<<"$yaml" | yq -y -er .spec.values) | less
+  helm --repository-config /tmp/repo.yaml diff upgrade --namespace $ns $rn tmp/$(<<<"$yaml" | yq -er .spec.chart.name) --version $(<<<"$yaml" | yq -er .spec.chart.version) --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:2} | less
 
   # helm diff upgrade --namespace $ns --repo $(yq -e .spec.chart.repository $HR) $rn $(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
 }
@@ -686,28 +717,6 @@ function clip() {
 }
 compdef _nop clip
 
-#function release4App() {
-#  local version="$1"
-#  local newVersion="$2"
-#
-#  for package in package.json cmweb-*/package.json; do
-#    cat $package | jq ".version = \"$version\"" | sponge $package
-#  done
-#
-#  mvn versions:set -DgenerateBackupPoms=false -DnewVersion=$version
-#
-#  git commit . -m 'Version Bump'
-#  git tag $version $(git rev-parse HEAD)
-#
-#  git reset --hard HEAD~1
-#
-#
-#  for package in package.json cmweb-*/package.json; do
-#    cat $package | jq ".version = \"$newVersion\"" | sponge $package
-#  done
-#
-#}
-
 function reAlias() {
   nAlias $1 $1 ${@:2}
 }
@@ -727,7 +736,7 @@ reAlias rm -i
 reAlias cp -i
 reAlias mv -i
 #reAlias ls --almost-all --indicator-style=slash --human-readable --sort=version --escape --format=long --color=always --time-style=long-iso
-nAlias ls exa --all --group --classify --sort=filename --long --colour=always --time-style=long-iso
+nAlias ls exa --all --binary --group --classify --sort=filename --long --colour=always --time-style=long-iso
 reAlias nvim -b
 if [[ "$(id -u)" != 0 ]] && command -v sudo &> /dev/null; then
   for cmd in systemctl pacman ip; do
@@ -743,11 +752,11 @@ nAlias ps procs
 reAlias fzf --ansi
 reAlias prettyping --nolegend
 nAlias ping prettyping
-nAlias du ncdu
+nAlias du ncdu --exclude-kernfs
 reAlias rg -S
 reAlias jq -r
 reAlias yq -r
-nAlias k kubectl
+nAlias k 'kubectl' # "--context=${KUBECTL_CONTEXT:-$(kubectl config current-context)}" ${KUBECTL_NAMESPACE/[[:alnum:]-]*/--namespace=${KUBECTL_NAMESPACE}}'
 nAlias docker-run docker run --rm -i -t
 nAlias htop gotop
 reAlias gotop -r 250ms
@@ -762,24 +771,30 @@ nAlias urldecode 'sed "s@+@ @g;s@%@\\\\x@g" | xargs -0 printf "%b"'
 nAlias urlencode 'jq -s -R -r @uri'
 nAlias b base64
 nAlias bd 'base64 -d'
-nAlias curl http
 nAlias tree ls --tree
 reAlias mitmproxy "--set confdir=$XDG_CONFIG_HOME/mitmproxy"
 reAlias mitmweb "--set confdir=$XDG_CONFIG_HOME/mitmproxy"
 nAlias . ls
+nAlias cp advcp -g
+nAlias mv advmv -g
+
 alias -g A='| awk'
-alias -g X='| xargs'
-alias -g C='| clip'
-alias -g Y='| yq'
-alias -g J='| jq'
 alias -g B='| base64'
 alias -g BD='B -d'
+alias -g C='| clip'
+alias -g GZ='| gzip'
+alias -g GZD='GZ -d'
+alias -g J='| jq'
 alias -g S='| sed'
 alias -g SP='| sponge'
+alias -g T='| tee'
+alias -g TD='T /dev/stderr'
+alias -g X='| xargs'
+alias -g Y='| yq'
 nAlias wd 'while :; do .; sleep 0.1; clear; done'
 
 alias kubectl="PATH=\"\$PATH:$KREW_ROOT/bin\" kubectl"
-alias k9s="PATH=\"\$PATH:$KREW_ROOT/bin\" k9s"
+alias k9s='PATH="$PATH:$KREW_ROOT/bin" k9s' # --context=${KUBECTL_CONTEXT:-$(kubectl config current-context)}'
 function _k9s() {
   _arguments "--context[The name of the kubeconfig context to use]: :($(kubectl config get-contexts -o name | xargs echo -n))"
 }

@@ -8,7 +8,9 @@ from lib.audio_script import *
 def audio_program_volume():
     prog_input = get_choice(inputs, "source",
                             lambda
-                                i: f'{i.proplist["application.name"]} ({int(i.volume.value_flat * 100)}%)')
+                                i: f'{i.proplist["application.process.binary"]} ('
+                                   f'{int(i.volume.value_flat * 100)}%'
+                                   f')')
 
     if prog_input is None:
         return

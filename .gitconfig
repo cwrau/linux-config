@@ -24,7 +24,7 @@
 [rerere]
   enabled = true
 [branch]
-  autosetuprebase = always
+  autoSetupRebase = always
 [credential]
   helper = store
 [pager]
@@ -45,5 +45,6 @@
   new = green bold
   whitespace = red reverse
 [alias]
-  cleanup = "!git branch --merged master | grep -E -v '(^*|master|dev)' | xargs -r -t echo git branch -d"
+  cleanup = "!git fetch --prune && git cleanupBranches"
+  cleanupBranches = "!git branch --merged master | grep -E -v '^\\s*(\\*|master|develop|release/)' | xargs -n 1 -r git branch -d"
 

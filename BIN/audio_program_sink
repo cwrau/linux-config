@@ -6,7 +6,8 @@ from lib.audio_script import *
 def audio_program_sink():
     prog_input = get_choice(inputs, "source",
                             lambda
-                                i: f'{i.proplist["application.name"]} ({i.proplist["application.process.id"]})')
+                                i: f'{i.proplist["application.process.binary"]} '
+                                   f'({i.proplist["application.process.id"]})')
 
     if prog_input is None:
         return
