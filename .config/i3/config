@@ -301,11 +301,9 @@ bindsym $mod+$alt+7 workspace 17:Netflix
 assign [class="Google-chrome" title="Netflix"] 17:Netflix
 for_window [class="Google-chrome" title="^Netflix$"] move to workspace 17:Netflix
 
-bindsym $mod+$alt+8 workspace 18:GPMDP
-assign [class="Google Play Music Desktop Player"] 18:GPMDP
-assign [class="GooglePlayMusic"] 18:GPMDP
-for_window [class="Google Play Music Desktop Player"] move to workspace 18:GPMDP
-for_window [class="GooglePlayMusic"] move to workspace 18:GPMDP
+bindsym $mod+$alt+8 workspace 18:YMP
+assign [class="youtube-music-desktop-app"] 18:YMP
+for_window [class="youtube-music-desktop-app"] move to workspace 18:YMP
 
 bindsym $mod+$alt+9 workspace 19:Teams
 assign [class="Microsoft Teams - Insiders"] 19:Teams
@@ -339,7 +337,7 @@ bindsym $mod+Shift+$alt+4 move container to workspace 14:Discord
 bindsym $mod+Shift+$alt+5 move container to workspace 15:Steam
 bindsym $mod+Shift+$alt+6 move container to workspace 16:YouTube
 bindsym $mod+Shift+$alt+7 move container to workspace 17:Netflix
-bindsym $mod+Shift+$alt+8 move container to workspace 18:GPMDP
+bindsym $mod+Shift+$alt+8 move container to workspace 18:YMP
 bindsym $mod+Shift+$alt+9 move container to workspace 19:Teams
 bindsym $mod+Shift+$alt+0 move container to workspace 20:Chat
 
@@ -360,7 +358,7 @@ workspace 14:Discord output $internal
 workspace 15:Steam output $external $external2 $external3 $external4
 workspace 16:YouTube output $external $external2 $external3 $external4
 workspace 17:Netflix output $external $external2 $external3 $external4
-workspace 18:GPMDP output $internal
+workspace 18:YMP output $internal
 workspace 19:Teams output $internal
 workspace 20:Chat output $internal
 

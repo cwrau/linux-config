@@ -2,4 +2,5 @@ configuration {
   modi: "drun";
   show-icons: true;
   theme: "solarized_alternate";
+  terminal: "gnome-terminal";
 }

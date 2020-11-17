@@ -3,14 +3,13 @@
 set -eu
 
 function update() {
-  for GLAVA in $(pactl list short clients | grep glava | cut -f 1)
+  for glavaId in $(pactl list clients short | grep glava | cut -f 1)
   do
-    FROM=$(pactl list source-outputs short | awk '{if ($3 == "'"$GLAVA"'") print $1;}')
-    pactl move-source-output $FROM @DEFAULT_MONITOR@
+    glavaOutputId=$(pactl list source-outputs short | awk '{if ($3 == "'"$glavaId"'") print $1;}')
+    echo "Moving $glavaOutputId to @DEFAULT_MONITOR@"
+    pactl move-source-output $glavaOutputId @DEFAULT_MONITOR@
   done
 }
-
-echo
 
 update
 

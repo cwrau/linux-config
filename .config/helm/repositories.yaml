@@ -21,14 +21,6 @@ repositories:
   certFile: ""
   insecure_skip_tls_verify: false
   keyFile: ""
-  name: stable
-  password: ""
-  url: https://kubernetes-charts.storage.googleapis.com
-  username: ""
-- caFile: ""
-  certFile: ""
-  insecure_skip_tls_verify: false
-  keyFile: ""
   name: fluxcd
   password: ""
   url: https://charts.fluxcd.io
@@ -56,4 +48,44 @@ repositories:
   name: jaeger
   password: ""
   url: https://jaegertracing.github.io/helm-charts
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: bitnami
+  password: ""
+  url: https://charts.bitnami.com/bitnami
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: cowboysysop
+  password: ""
+  url: https://cowboysysop.github.io/charts
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: gitlab
+  password: ""
+  url: https://charts.gitlab.io
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: kasten
+  password: ""
+  url: https://charts.kasten.io/
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: traefik
+  password: ""
+  url: https://helm.traefik.io/traefik
   username: ""

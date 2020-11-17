@@ -19,4 +19,4 @@ do
     glava -m radial -r "setgeometry $radialX $radialY $radialWidth $radialHeight" &
   fi
   echo
-done < <(xrandr --query | grep " connected" | sed -r 's# primary##g' | cut -d" " -f3 | tr 'x+' '  ')
+done < <(xrandr --query | grep x | grep + | grep " connected" | sed -r 's# primary##g' | cut -d" " -f3 | tr 'x+' '  ')
