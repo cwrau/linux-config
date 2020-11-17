@@ -1,11 +1,10 @@
 [Unit]
-Description=Google Play Music Player
-After=graphical-session.target
-Requires=graphical-session.target
+Description=glava output updater
+PartOf=glava.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/gpmdp
+ExecStart=%h/.config/glava/update.sh
 RestartSec=0
 Restart=always
 
@@ -15,7 +14,6 @@ ProtectSystem=yes
 NoNewPrivileges=yes
 ProtectKernelTunables=yes
 ProtectControlGroups=yes
-RestrictNamespaces=yes
 
 [Install]
 WantedBy=graphical-session.target

@@ -1,11 +1,10 @@
 [Unit]
-Description=Earlyoom
-After=graphical-session.target
-Requires=graphical-session.target
+Description=teams audio settings fix
+PartOf=work.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/earlyoom -r 3600 -n --avoid "i3.*|custom.sh|teams|glava|polybar|.*gpmdp.*|Xorg" -m 2
+ExecStart=%h/.config/teams-insiders/fix.sh
 RestartSec=0
 Restart=always
 
@@ -15,5 +14,6 @@ ProtectSystem=yes
 NoNewPrivileges=yes
 ProtectKernelTunables=yes
 ProtectControlGroups=yes
+
 [Install]
 WantedBy=graphical-session.target

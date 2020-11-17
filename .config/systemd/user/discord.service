@@ -6,7 +6,7 @@ Requires=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/discord
+ExecStart=/usr/bin/discord-canary
 RestartSec=0
 Restart=always
 

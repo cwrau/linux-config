@@ -1,8 +1,8 @@
 [Unit]
-Description=Work applications
+Description=glava bundle
 Requires=graphical-session.target
 After=graphical-session.target
-Wants=teams.service teams-audio-fix.service
+Wants=glava@bar.service glava@radial.service glava-update.service
 
 [Install]
 WantedBy=graphical-session.target

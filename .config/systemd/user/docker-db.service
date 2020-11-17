@@ -6,7 +6,7 @@ Type=simple
 ExecStartPre=-/usr/bin/docker pull mariadb
 ExecStart=-/usr/bin/docker run --rm --network host --name %N --tmpfs /var/lib/mysql -e MYSQL_ROOT_PASSWORD=toor mariadb
 ExecStop=-/usr/bin/docker kill %N
-ExecStop=-/usr/bin/docker rm %N
+ExecStopPost=-/usr/bin/docker rm %N
 KillSignal=SIGKILL
 
 [Install]

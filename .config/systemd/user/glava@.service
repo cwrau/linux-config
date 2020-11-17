@@ -1,7 +1,6 @@
 [Unit]
 Description=glava %I
-After=graphical-session.target
-Requires=graphical-session.target
+PartOf=glava.target
 
 [Service]
 Type=forking

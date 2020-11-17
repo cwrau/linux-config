@@ -1,0 +1,7 @@
+[Unit]
+Description=Wait until internet server is accessable
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'until timeout 1 curl -f https://google.com > /dev/null; do sleep 0.1; done;'
+TimeoutStartSec=60s

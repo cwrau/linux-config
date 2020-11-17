@@ -1,7 +1,7 @@
 [Unit]
 Description=Messengers
-Requires=graphical-session.target
-After=graphical-session.target
+Requires=graphical-session.target network-online.service
+After=graphical-session.target network-online.service
 Wants=discord.service
 Wants=slack.service
 Wants=whatsapp.service

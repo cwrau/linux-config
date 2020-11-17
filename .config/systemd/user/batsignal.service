@@ -1,11 +1,11 @@
 [Unit]
-Description=Earlyoom
+Description=batsignal
 After=graphical-session.target
 Requires=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/earlyoom -r 3600 -n --avoid "i3.*|custom.sh|teams|glava|polybar|.*gpmdp.*|Xorg" -m 2
+ExecStart=/usr/bin/batsignal
 RestartSec=0
 Restart=always
 

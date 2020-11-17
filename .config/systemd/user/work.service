@@ -1,0 +1,20 @@
+[Unit]
+Description=work.target trigger
+Requires=graphical-session.target network-online.service
+After=graphical-session.target network-online.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash -c 'if ip link show eth0 | grep " UP " > /dev/null; then systemctl --user start work.target; fi'
+RestartSec=0
+
+# disallow writing to /usr, /bin, /sbin, ...
+ProtectSystem=yes
+# more paranoid security settings
+NoNewPrivileges=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictNamespaces=yes
+
+[Install]
+WantedBy=graphical-session.target
