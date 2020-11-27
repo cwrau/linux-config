@@ -54,6 +54,7 @@ elif [ "$1" = "chroot" ]; then
 
     ln -sf /home/cwr/ETC/profile.d/custom.sh /etc/profile.d/custom.sh
     ln -sf /home/cwr/ETC/conf.d/reflector.conf /etc/conf.d/reflector.conf
+    ln -sf /home/cwr/ETC/sysctl.d/40-ipv6.conf /etc/sysctl.d/40-ipv6.conf
     rm -f /root/.bashrc
     ln -sf /home/cwr/.bashrc /root/.bashrc
     rm -f /root/.zshrc
@@ -117,7 +118,7 @@ EOLOGIND
   sudo sed -i -r "s#^SigLevel.+\$#SigLevel = PackageRequired#g" /etc/pacman.conf
 
   cd /home/cwr
-  sudo -u cwr /install-arch-base.sh
+  sudo -u cwr /$(basename $0)
 else
   pushd /tmp
   [ -d yay-bin ] || git clone https://aur.archlinux.org/yay-bin.git
@@ -351,8 +352,6 @@ else
   yay -Syu --noconfirm --needed --removemake --asdeps ${prePackages[@]}
 
   yay -Syu --noconfirm --needed --removemake --asexplicit ${packages[@]}
-
-  sudo pip install dynmen pulsectl
 
   kubectl krew update
   kubectl krew install access-matrix konfig debug node-shell
