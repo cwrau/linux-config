@@ -307,6 +307,7 @@ else
     yay-bin
     youtube-dl
     yq
+    ytmdesktop
     yubico-pam
     zip
     zoom
