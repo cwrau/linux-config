@@ -151,7 +151,7 @@ else
     foldingathome
     fprintd
     freerdp
-    freetype2-cleartype
+    freetype2
     fwupd
     fzf
     git
@@ -297,7 +297,6 @@ else
     xarchiver
     xclip
     xorg-server
-    xorg-xhost
     xorg-xinit
     xorg-xinput
     xorg-xkill
