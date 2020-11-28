@@ -248,6 +248,7 @@ else
     proton-ge-custom-stable-bin
     pulseaudio
     pulseaudio-bluetooth
+    pv
     python-dynmen
     python-notify2
     python-pip
