@@ -86,20 +86,11 @@ EOLOADER
   echo $hostname >/etc/hostname
   cat <<-EOHOSTS >/etc/hosts
   	127.0.0.1 localhost
-  	::1 localhost
   	127.0.0.1 $hostname
-  	::1 $hostname
 EOHOSTS
   echo "cwr ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/cwr
 
   reflector --save /etc/pacman.d/mirrorlist --protocol https --latest 5 --sort score
-
-  mkdir -p /etc/systemd/logind.conf.d
-  cat <<-EOLOGIND >/etc/systemd/logind.conf.d/lid-poweroff.conf
-  	[Login]
-  	HandleLidSwitch=poweroff
-  	HandleLidSwitchDocked=poweroff
-EOLOGIND
 
   multilibLine=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
   sudo sed -i -r "$multilibLine,$((($multilibLine + 1))) s#^\###g" /etc/pacman.conf
