@@ -3,42 +3,43 @@
 
 [ -s /etc/motd ] && cat /etc/motd
 
-export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
-export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-export XDG_DOWNLOAD_DIR="$HOME/Downloads"
-export XDG_SCREENSHOT_DIR="$HOME/Screenshots"
 export XDG_DESKTOP_DIR="$XDG_DATA_HOME/applications"
-export XDG_TEMPLATES_DIR="$HOME/Downloads"
-export XDG_PUBLICSHARE_DIR="$HOME/Downloads"
 export XDG_DOCUMENTS_DIR="$HOME/Downloads"
+export XDG_DOWNLOAD_DIR="$HOME/Downloads"
 export XDG_MUSIC_DIR="$HOME/Downloads"
 export XDG_PICTURES_DIR="$HOME/Downloads"
+export XDG_PUBLICSHARE_DIR="$HOME/Downloads"
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export XDG_SCREENSHOT_DIR="$HOME/Screenshots"
+export XDG_TEMPLATES_DIR="$HOME/Downloads"
 export XDG_VIDEOS_DIR="$HOME/Downloads"
 
-export PULSE_COOKIE="$XDG_RUNTIME_DIR/pulse/cookie"
-export GOPATH="$XDG_DATA_HOME/go"
-export ANDROID_SDK_HOME="$XDG_CONFIG_HOME/android"
+export ADB_VENDOR_KEY="$XDG_CONFIG_HOME/android"
 export ANDROID_AVD_HOME="$XDG_DATA_HOME/android"
 export ANDROID_EMULATOR_HOME="$XDG_DATA_HOME/android"
-export ADB_VENDOR_KEY="$XDG_CONFIG_HOME/android"
+export ANDROID_SDK_HOME="$XDG_CONFIG_HOME/android"
 export AZURE_CONFIG_DIR="$XDG_DATA_HOME/azure"
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
 export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
-export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
-export KUBECONFIG="$XDG_CONFIG_HOME/kube/config"
-export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
-export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
-export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
-export LESSHISTFILE="$XDG_DATA_HOME/less/history"
-export SONAR_USER_HOME="$XDG_DATA_HOME/sonarlint"
-export KREW_ROOT="$XDG_DATA_HOME/krew"
-export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
-export XAUTHORITY="$XDG_CACHE_HOME/x11/authority"
-export NUGET_PACKAGES="$XDG_DATA_HOME/NuGet"
+export GOPATH="$XDG_DATA_HOME/go"
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
+export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
+export KREW_ROOT="$XDG_DATA_HOME/krew"
+export KUBECONFIG="$XDG_CONFIG_HOME/kube/config"
+export LESSHISTFILE="$XDG_DATA_HOME/less/history"
+export MINIKUBE_HOME="$XDG_DATA_HOME/minikube"
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
+export NUGET_PACKAGES="$XDG_DATA_HOME/NuGet"
+export PULSE_COOKIE="$XDG_RUNTIME_DIR/pulse/cookie"
+export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
+export SONAR_USER_HOME="$XDG_DATA_HOME/sonarlint"
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
+export XAUTHORITY="$XDG_CACHE_HOME/x11/authority"
+export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
 
 export VISUAL=nvim
 export EDITOR="$VISUAL"
@@ -535,7 +536,7 @@ function hr() {
     rm -rf /tmp/helm-chart
     local gitPath
     gitPath="$(<<< "$yaml" | yq -er 'if .spec.chart.path then .spec.chart.path else "." end')"
-    git clone --depth 1 --branch "$(<<< "$yaml" | yq -er 'if .spec.chart.ref then .spec.chart.ref else "master"')" "$(<<< "$yaml" | yq -er .spec.chart.git)" /tmp/helm-chart > /dev/null
+    git clone --depth 1 --branch "$(<<< "$yaml" | yq -er 'if .spec.chart.ref then .spec.chart.ref else "master" end')" "$(<<< "$yaml" | yq -er .spec.chart.git)" /tmp/helm-chart > /dev/null
 
     helm dependency update "/tmp/helm-chart/$gitPath" > /dev/null
     helm template --namespace $ns $rn "/tmp/helm-chart/$gitPath" --values <(<<< "$yaml" | yq -y -er .spec.values) ${@:2}
@@ -746,7 +747,7 @@ fi
 nAlias top htop
 nAlias vim nvim
 nAlias vi vim
-nAlias cat "bat -p --pager 'less -RF'"
+nAlias cat "bat --pager 'less -RF'"
 nAlias less slit
 nAlias ps procs
 reAlias fzf --ansi

@@ -21,7 +21,8 @@ if [ "$1" = "iso" ]; then
     nvidia \
     intel-ucode \
     aria2 \
-    reflector
+    reflector \
+    fd
   genfstab -U /mnt >/mnt/etc/fstab
 
   cp $0 /mnt/
@@ -46,24 +47,11 @@ elif [ "$1" = "chroot" ]; then
     cd /root
     chown -R cwr:cwr /home/cwr
 
-    ln -sf /home/cwr/BIN /usr/local/bin/custom
-
-    for hook in /home/cwr/pacman-hooks/*; do
-      ln -sf ${hook} /usr/share/libalpm/hooks/$(basename ${hook})
+    fd --type=directory --hidden . /home/cwr/rootfs -x mkdir -p {}
+    for f in $(fd --type=symlink --type=file --hidden . /home/cwr/rootfs)
+    do
+      ln -sf ${f} -t $(dirname ${f/\/home\/cwr\/rootfs/})
     done
-
-    ln -sf /home/cwr/ETC/profile.d/custom.sh /etc/profile.d/custom.sh
-    ln -sf /home/cwr/ETC/conf.d/reflector.conf /etc/conf.d/reflector.conf
-    ln -sf /home/cwr/ETC/sysctl.d/40-ipv6.conf /etc/sysctl.d/40-ipv6.conf
-    rm -f /root/.bashrc
-    ln -sf /home/cwr/.bashrc /root/.bashrc
-    rm -f /root/.zshrc
-    ln -sf /home/cwr/.zshrc /root/.zshrc
-    mkdir -p /root/.config
-    ln -sf /home/cwr/.config/p10k.zsh /root/.config/p10k.zsh
-    mkdir -p /etc/udev/rules.d
-    cp /home/cwr/ETC/udev/rules.d/20-yubikey.rules /etc/udev/rules.d/20-yubikey.rules
-    ln -sf /dev/null /etc/udev/rules.d/80-net-setup-link.rules
   fi
 
   sed -r -i 's/#(COMPRESSION="zstd")/\1/' /etc/mkinitcpio.conf
@@ -360,7 +348,6 @@ else
 
   sudo usermod -a -G docker,wheel,uucp,input cwr
 
-  sudo rm -rf /usr/share/icons/default
   sudo ln -sf Breeze_Hacked /usr/share/icons/default
 
   nvim +PlugInstall +exit +exit

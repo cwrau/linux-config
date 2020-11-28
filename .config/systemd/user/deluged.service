@@ -1,11 +1,11 @@
 [Unit]
-Description=Deluge
+Description=Deluge Daemon
 After=graphical-session.target
 Requires=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/deluge gtk
+ExecStart=/usr/bin/deluged -d
 RestartSec=0
 Restart=always
 

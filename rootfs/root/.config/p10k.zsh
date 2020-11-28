@@ -1,0 +1,1 @@
+/home/cwr/.config/p10k.zsh

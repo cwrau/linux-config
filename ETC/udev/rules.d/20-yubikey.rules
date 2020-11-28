@@ -1,1 +1,0 @@
-ACTION=="remove", ENV{ID_BUS}=="usb", ENV{ID_MODEL_ID}=="0407|0116", ENV{ID_VENDOR_ID}=="1050", ENV{PRODUCT}=="3/1050/407/110|3/1050/116/110", RUN+="/usr/local/bin/custom/yubikey-lock"

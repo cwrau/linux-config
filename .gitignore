@@ -1,12 +1,12 @@
 .idea
 /.config/i3status/custom.d/private/
 /.config/polybar/scripts/private/
-/BIN/custom/
 
 *.log
 *.zwc
 *_history
 
+/.FAHClient/
 /.bash_logout
 /.bash_profile
 /.bitsquid/
@@ -25,9 +25,10 @@
 /.pki/
 /.pulse-cookie
 /.slit/
-/.steam*
 /.sonarlint/
+/.steam*
 /.thumbnails/
+/.zoom/
 /Documents/
 /Downloads/
 /Screenshots/

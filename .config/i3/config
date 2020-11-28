@@ -44,15 +44,7 @@ bindsym $alt+F4 exec --no-startup-id echo
 set $exid exec --no-startup-id
 set $exaid exec_always --no-startup-id
 
-# start dmenu (a program launcher)
-#bindsym $mod+d exec dmenu_run
-# There also is the (new) i3-dmenu-desktop which only displays applications
-# shipping a .desktop file. It is a wrapper around dmenu, so you need that
-# installed.
-#bindsym $mod+d $exid j4-dmenu-desktop --usage-log=$XDG_CONFIG_HOME/i3/j4-dmenu-desktop-usage --no-generic
-#bindsym $mod+d $exid dmenu-frecency
 bindsym $mod+d $exid rofi -show drun
-#bindsym $mod+d $exid 'rofi -mode drun'
 
 # change focus
 #bindsym $mod+j focus left
@@ -189,7 +181,7 @@ mode $Power {
 bindsym $mod+period $exid sh -c 'splatmoji copy && xdotool key --clearmodifiers ctrl+v'
 bindsym $mod+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
 bindsym $mod+m $exid morse
-bindsym $mod+p $exid sh -c 'fd --no-ignore-vcs --hidden -t f --full-path \\.idea/workspace.xml $HOME -X ls --format=vertical --sort=time --time=ctime | rg -v ^$HOME/\\\\. | sed -r "s#\.idea/workspace.xml\$##g" | dmenu -i -p Project | xargs -i i3-msg "exec intellij-idea-ultimate-edition {}"'
+bindsym $mod+p $exid sh -c 'fd --no-ignore-vcs --hidden -t f workspace.xml $HOME -X ls --format=vertical --sort=time --time=ctime | sed -r "s#/\.idea/workspace.xml\$##g" | sed -r "s#$HOME/##g" | grep -v "^\\." | grep -v node_modules | dmenu -i -p Project | xargs -i i3-msg "exec intellij-idea-ultimate-edition $HOME/{}"'
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume $exid pamixer -i 5; $exid pamixer -u #increase sound volume
