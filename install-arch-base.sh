@@ -2,6 +2,9 @@
 
 set -ex -o pipefail
 
+export hostname=${hostname:-steve}
+export installUser=${installUser:-cwr}
+
 cat - <<'EOINTRO'
 Set up the base system the following way:
 EFI partition on /boot
@@ -29,28 +32,28 @@ if [ "$1" = "iso" ]; then
 
   arch-chroot /mnt /$(basename $0) chroot
 elif [ "$1" = "chroot" ]; then
-  if ! id cwr; then
-    useradd cwr -d /home/cwr -U -m
+  if ! id ${installUser}; then
+    useradd ${installUser} -d /home/${installUser} -U -m
     passwd root
-    passwd cwr
-    chsh -s /usr/bin/zsh cwr
+    passwd ${installUser}
+    chsh -s /usr/bin/zsh ${installUser}
     chsh -s /usr/bin/zsh root
   fi
 
-  if ! [ -d /home/cwr/.git ]; then
-    cd /home/cwr
+  if ! [ -d /home/${installUser}/.git ]; then
+    cd /home/${installUser}
     git init
     git remote add origin https://github.com/cwrau/linux-config
     git fetch
     git reset origin/master
     git reset --hard
     cd /root
-    chown -R cwr:cwr /home/cwr
+    chown -R ${installUser}:${installUser} /home/${installUser}
 
-    fd --type=directory --hidden . /home/cwr/rootfs -x mkdir -p {}
-    for f in $(fd --type=symlink --type=file --hidden . /home/cwr/rootfs)
+    fd --type=directory --hidden . /home/${installUser}/rootfs -x mkdir -p {}
+    for f in $(fd --type=symlink --type=file --hidden . /home/${installUser}/rootfs)
     do
-      ln -sf ${f} -t $(dirname ${f/\/home\/cwr\/rootfs/})
+      ln -sf ${f} -t $(dirname ${f/\/home\/${installUser}\/rootfs/})
     done
   fi
 
@@ -82,13 +85,12 @@ EOLOADER
   echo LANG=en_US.UTF-8 >/etc/locale.conf
   echo LC_COLLATE=C >>/etc/locale.conf
   echo KEYMAP=us-latin1 >/etc/vconsole.conf
-  hostname=steve
-  echo $hostname >/etc/hostname
+  echo ${hostname} >/etc/hostname
   cat <<-EOHOSTS >/etc/hosts
   	127.0.0.1 localhost
-  	127.0.0.1 $hostname
+  	127.0.0.1 ${hostname}
 EOHOSTS
-  echo "cwr ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/cwr
+  echo "${installUser} ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/${installUser}
 
   reflector --save /etc/pacman.d/mirrorlist --protocol https --latest 5 --sort score
 
@@ -96,8 +98,8 @@ EOHOSTS
   sudo sed -i -r "$multilibLine,$((($multilibLine + 1))) s#^\###g" /etc/pacman.conf
   sudo sed -i -r "s#^SigLevel.+\$#SigLevel = PackageRequired#g" /etc/pacman.conf
 
-  cd /home/cwr
-  sudo -u cwr /$(basename $0)
+  cd /home/${installUser}
+  sudo -u ${installUser} /$(basename $0)
 else
   pushd /tmp
   [ -d yay-bin ] || git clone https://aur.archlinux.org/yay-bin.git
@@ -121,6 +123,7 @@ else
     bat
     batsignal
     bc
+    bind
     blueman
     bluez-utils
     breeze-hacked-cursor-theme
@@ -338,7 +341,7 @@ else
 
   helm plugin install https://github.com/databus23/helm-diff
 
-  sudo usermod -a -G docker,wheel,uucp,input cwr
+  sudo usermod -a -G docker,wheel,uucp,input ${installUser}
 
   sudo ln -sf Breeze_Hacked /usr/share/icons/default
 
@@ -363,7 +366,7 @@ else
   if ! grep pam_yubico.so /etc/pam.d/system-auth &>/dev/null; then
     # only make it sufficient, you're not supposed to publish the challenge response files (?)
     sudo sed '2 i \\nauth sufficient pam_yubico.so mode=challenge-response chalresp_path=/var/yubico' /etc/pam.d/system-auth -i
-    echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/$USER-*'"
+    echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/${installUser}-*'"
   fi
 
   sudo systemctl enable systemd-timesyncd bluetooth pkgstats.timer fwupd ebtables dnsmasq docker.socket libvirtd.socket fwupd-refresh.timer NetworkManager reflector.timer
