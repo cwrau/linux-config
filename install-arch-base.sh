@@ -181,7 +181,6 @@ else
     intel-ucode
     intellij-idea-ultimate-edition
     intellij-idea-ultimate-edition-jre
-    itch
     jq
     k9s
     kdeconnect
