@@ -2,8 +2,8 @@
 
 set -ex -o pipefail
 
-export hostname=${hostname:-steve}
-export installUser=${installUser:-cwr}
+export hostname=${2:-steve}
+export installUser=${3:-cwr}
 
 cat - <<'EOINTRO'
 Set up the base system the following way:
@@ -12,6 +12,18 @@ ROOT on / (^_^)
 EOINTRO
 
 if [ "$1" = "iso" ]; then
+  if grep -q -i intel /proc/cpuinfo; then
+    ucode="intel-ucode"
+  elif grep -q -i amd /proc/cpuinfo
+    ucode="amd-ucode"
+  else
+    echo "Unsupported cpu vendor"
+    exit 1
+  fi
+
+  cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.old
+  rankmirrors -n 6 /etc/pacman.d/mirrorlist.old > /etc/pacman.d/mirrorlist
+
   pacstrap /mnt --needed \
     base \
     linux \
@@ -22,15 +34,16 @@ if [ "$1" = "iso" ]; then
     zsh \
     networkmanager \
     nvidia \
-    intel-ucode \
+    ${ucode} \
     aria2 \
     reflector \
     fd
   genfstab -U /mnt >/mnt/etc/fstab
 
   cp $0 /mnt/
+  chmod +x /mnt/install.sh
 
-  arch-chroot /mnt /$(basename $0) chroot
+  arch-chroot /mnt /$(basename $0) chroot $hostname $installUser
 elif [ "$1" = "chroot" ]; then
   if ! id ${installUser}; then
     useradd ${installUser} -d /home/${installUser} -U -m
@@ -53,8 +66,11 @@ elif [ "$1" = "chroot" ]; then
     fd --type=directory --hidden . /home/${installUser}/rootfs -x mkdir -p {}
     for f in $(fd --type=symlink --type=file --hidden . /home/${installUser}/rootfs)
     do
-      ln -sf ${f} -t $(dirname ${f/\/home\/${installUser}\/rootfs/})
+      dir=$(dirname ${f/\/home\/${installUser}\/rootfs/})
+      mkdir -p $dir
+      ln -sf ${f} -t $dir
     done
+    unset dir
   fi
 
   sed -r -i 's/#(COMPRESSION="zstd")/\1/' /etc/mkinitcpio.conf
@@ -66,7 +82,7 @@ elif [ "$1" = "chroot" ]; then
   cat <<-EOENTRY >/boot/loader/entries/arch.conf
   	title Arch Linux
   	linux /vmlinuz-linux
-  	initrd /intel-ucode.img
+  	initrd /$ucode.img
   	initrd /initramfs-linux.img
   	options root=UUID=$(findmnt / -o UUID -n) rw quiet vga=current nvidia-drm.modeset=1
 EOENTRY
@@ -99,15 +115,17 @@ EOHOSTS
   sudo sed -i -r "s#^SigLevel.+\$#SigLevel = PackageRequired#g" /etc/pacman.conf
 
   cd /home/${installUser}
-  sudo -u ${installUser} /$(basename $0)
+  sudo -u ${installUser} /$(basename $0) $hostname $installUser
 else
-  pushd /tmp
-  [ -d yay-bin ] || git clone https://aur.archlinux.org/yay-bin.git
-  cd yay-bin
-  export PKGEXT=.pkg.tar
-  makepkg -fs
-  sudo pacman -U yay-bin-*.pkg.tar --noconfirm
-  popd
+  if ! yay --version; then
+    pushd /tmp
+    [ -d yay-bin ] || git clone https://aur.archlinux.org/yay-bin.git
+    cd yay-bin
+    export PKGEXT=.pkg.tar
+    makepkg -fs
+    sudo pacman -U yay-bin-*.pkg.tar --noconfirm
+    popd
+  fi
 
   sudo pacman -Sy
 
@@ -323,14 +341,14 @@ else
   #endPackages
 
   prePackages=(
+    libfprint-2-tod1-xps9300-bin
+    libfprint-tod-git
     neovim-drop-in
     nodejs-lts-dubnium
     rofi-dmenu
   )
 
   yay --pacman=pacman -S --noconfirm --needed powerpill
-  # freetype2-cleartype is a problem, as one of it's dependencies, harfbuzz, depends on the original freetype2
-  yes | yay -Syu --noconfirm --useask --needed --removemake --asdeps freetype2-cleartype || true
   yay -Syu --noconfirm --needed --removemake --asdeps ${prePackages[@]}
 
   yay -Syu --noconfirm --needed --removemake --asexplicit ${packages[@]}
@@ -338,7 +356,9 @@ else
   kubectl krew update
   kubectl krew install access-matrix konfig debug node-shell
 
-  helm plugin install https://github.com/databus23/helm-diff
+  if ! helm plugin list | grep diff; then
+    helm plugin install https://github.com/databus23/helm-diff
+  fi
 
   sudo usermod -a -G docker,wheel,uucp,input ${installUser}
 
