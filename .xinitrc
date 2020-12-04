@@ -6,9 +6,9 @@ xinput | rg Touchpad | sed -r 's#^.+id=([0-9]+).+$#\1#g' | xargs -t -n 1 -I {} s
 xinput --map-to-output $(xinput | rg Touchscreen | sed -r 's#^.+id=([0-9]+).+$#\1#g') $(xrandr | rg eDP | sed -r 's#^([^ ]+).+$#\1#g')
 
 xrandr --setprovideroutputsource modesetting NVIDIA-0
-autorandr --skip-option gamma --change
+autorandr --skip-option gamma --change --default horizontal
 
-xset -r rate 250
+xset r on r rate 250
 
 i3 &> /tmp/i3.log
 systemctl --user stop graphical-session.target i3-session.target
