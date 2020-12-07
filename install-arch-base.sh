@@ -63,7 +63,6 @@ elif [ "$1" = "chroot" ]; then
     cd /root
     chown -R ${installUser}:${installUser} /home/${installUser}
 
-    fd --type=directory --hidden . /home/${installUser}/rootfs -x mkdir -p {}
     for f in $(fd --type=symlink --type=file --hidden . /home/${installUser}/rootfs)
     do
       dir=$(dirname ${f/\/home\/${installUser}\/rootfs/})
@@ -151,7 +150,7 @@ else
     datagrip-jre
     deluge-gtk
     diff-so-fancy
-    discord-canary
+    discord-canary-electron-bin
     dive
     dnsmasq
     docker
@@ -288,7 +287,7 @@ else
     scrot
     shfmt
     siji-git
-    slack-desktop
+    slack-electron
     slit-git
     socat
     splatmoji-git
