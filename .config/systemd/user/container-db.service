@@ -1,0 +1,14 @@
+[Unit]
+Description=Container DB
+
+[Service]
+Type=notify
+NotifyAccess=all
+Delegate=true
+ExecStartPre=-/usr/bin/podman rm %N
+ExecStart=/usr/bin/podman run --log-driver journald --sdnotify container --cgroups no-conmon --detach --publish 3306:3306 --log-driver=journald --name %N --tmpfs /var/lib/mysql -e MYSQL_ROOT_PASSWORD=toor mariadb
+ExecStopPost=-/usr/bin/podman rm %N
+
+[Install]
+WantedBy=graphical-session.target
+

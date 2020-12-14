@@ -89,8 +89,8 @@ EOENTRY
   cat <<-EOLOADER >/boot/loader/loader.conf
   	timeout 0
   	default arch.conf
-  	auto-entries 0
-  	auto-firmware 0
+  	auto-entries 1
+  	auto-firmware 1
 EOLOADER
 
   ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
@@ -359,7 +359,7 @@ else
     helm plugin install https://github.com/databus23/helm-diff
   fi
 
-  sudo usermod -a -G docker,wheel,uucp,input ${installUser}
+  sudo usermod -a -G wheel,uucp,input ${installUser}
 
   sudo ln -sf Breeze_Hacked /usr/share/icons/default
 

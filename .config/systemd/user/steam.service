@@ -10,13 +10,5 @@ ExecStart=/usr/bin/steam
 RestartSec=0
 Restart=always
 
-# disallow writing to /usr, /bin, /sbin, ...
-ProtectSystem=yes
-# more paranoid security settings
-NoNewPrivileges=yes
-ProtectKernelTunables=yes
-ProtectControlGroups=yes
-RestrictNamespaces=yes
-
 [Install]
 WantedBy=graphical-session.target

@@ -5,7 +5,7 @@ After=graphical-session.target network-online.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/bash -c 'if ip link show eth0 | grep " UP " > /dev/null; then systemctl --user start work.target; fi'
+ExecStart=/usr/bin/bash -c 'if ip link show eth0 | grep " UP " > /dev/null || ip link show tun0 > /dev/null; then systemctl --user start work.target; fi'
 RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...

@@ -2,7 +2,7 @@ if [ -f /etc/bashrc ]; then
   source /etc/bashrc
 fi
 
-if [ "$(hostname)" = 'steve' ]
+if [ "$(cat /etc/hostname)" = 'steve' ]
 then
   if [[ -z "$DISPLAY" ]]; then
     if [[ "$XDG_VTNR" -eq 1 ]]; then

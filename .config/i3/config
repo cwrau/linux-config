@@ -181,7 +181,7 @@ mode $Power {
 bindsym $mod+period $exid sh -c 'splatmoji copy && xdotool key --clearmodifiers ctrl+v'
 bindsym $mod+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
 bindsym $mod+m $exid morse
-bindsym $mod+p $exid sh -c 'fd --no-ignore-vcs --hidden -t f workspace.xml $HOME -X ls --format=vertical --sort=time --time=ctime | sed -r "s#/\.idea/workspace.xml\$##g" | sed -r "s#$HOME/##g" | grep -v "^\\." | grep -v node_modules | dmenu -i -p Project | xargs -i i3-msg "exec intellij-idea-ultimate-edition $HOME/{}"'
+bindsym $mod+p $exid sh -c 'fd --no-ignore-vcs --hidden -t f workspace.xml $HOME -X ls --format=vertical --sort=time --time=ctime | sed -r "s#/\.idea/workspace.xml\$##g" | sed -r "s#$HOME/##g" | grep -v "^\\." | grep -v node_modules | dmenu -i -no-custom -p Project | xargs -i i3-msg "exec intellij-idea-ultimate-edition $HOME/{}"'
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume $exid pamixer -i 5; $exid pamixer -u #increase sound volume
@@ -212,7 +212,7 @@ bindsym $mod+o $exid audio_sink
 
 # Display Manager
 bindsym $mod+Shift+p $exid rofi-randr
-bindsym $mod+Ctrl+p $exid autorandr -c --force
+bindsym $mod+Ctrl+p $exid autorandr --change --force
 #bindsym $mod+p $exid /usr/bin/lxrandr
 bindsym $mod+b $exid bluetooth_dmenu
 
@@ -310,6 +310,8 @@ assign [class="TelegramDesktop"] 20:Chat
 for_window [class="TelegramDesktop"] move to workspace 20:Chat
 assign [class="whatsapp-nativefier-.*"] 20:Chat
 for_window [class="whatsapp-nativefier-.*"] move to workspace 20:Chat
+
+for_window [window_role="UPDATES"] move scratchpad
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace 1

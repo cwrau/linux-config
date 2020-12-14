@@ -17,6 +17,8 @@ export XDG_SCREENSHOT_DIR="$HOME/Screenshots"
 export XDG_TEMPLATES_DIR="$HOME/Downloads"
 export XDG_VIDEOS_DIR="$HOME/Downloads"
 
+declare -x | grep ^XDG | sed -r 's#=#="#; s#$#"#' > $XDG_CONFIG_HOME/user-dirs.dirs
+
 export ADB_VENDOR_KEY="$XDG_CONFIG_HOME/android"
 export ANDROID_AVD_HOME="$XDG_DATA_HOME/android"
 export ANDROID_EMULATOR_HOME="$XDG_DATA_HOME/android"
@@ -24,7 +26,6 @@ export ANDROID_SDK_HOME="$XDG_CONFIG_HOME/android"
 export AZURE_CONFIG_DIR="$XDG_DATA_HOME/azure"
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
-export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
 export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
 export GOPATH="$XDG_DATA_HOME/go"
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
@@ -48,8 +49,6 @@ export PAGER=slit
 export BROWSER="google-chrome-stable"
 export SAVEHIST=9223372036854775807
 export HISTSIZE=9223372036854775807
-export DOCKER_BUILDKIT=1
-export COMPOSE_DOCKER_CLI_BUILD=1
 export SDL_AUDIODRIVER="pulse"
 export FZF_ALT_C_COMMAND='fd -t d --hidden'
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
@@ -68,7 +67,7 @@ if [[ $- = *i* ]]; then
       for ENV in $(declare -x +); do
         systemctl --user import-environment $ENV
       done
-      startx
+      exec startx &> /tmp/x.log
     fi
   fi
 fi
@@ -180,8 +179,6 @@ plugins=(
   git-auto-fetch
   gitfast
   common-aliases
-  docker-compose
-  docker
   fancy-ctrl-z
   fd
   fzf
@@ -369,7 +366,7 @@ EOF
   local tag=$1
   shift
 
-  local dockerArgs=()
+  local podmanArgs=()
   local fapArgs=()
 
   local next=false
@@ -381,23 +378,23 @@ EOF
     fi
 
     if [ "$next" = "false" ]; then
-      dockerArgs+=("$arg")
+      podmanArgs+=("$arg")
     else
       fapArgs+=("$arg")
     fi
   done
 
-  systemctl --user start docker-db.service
+  systemctl --user start container-db.service
 
-  docker pull registry.4allportal.net/4allportal:$tag
+  podman pull registry.4allportal.net/4allportal:$tag
   set -x
-  docker run --rm -it -e DATABASE_HOST=localhost -e DATABASE_TYPE=mariadb -v /tmp/data:/4allportal/data --net host \
+  podman run --rm -it -e DATABASE_HOST=localhost -e DATABASE_TYPE=mariadb --userns keep-id -v /tmp/data:/4allportal/data --net host \
     --name="4allportal-$tag" \
-    --tmpfs=/4allportal/{_runtime,assets} $dockerArgs \
+    --tmpfs=/4allportal/{_runtime,assets} $podmanArgs \
     registry.4allportal.net/4allportal:$tag $fapArgs
   set +x
 
-  systemctl --user stop docker-db.service
+  systemctl --user stop container-db.service
   rm -rf /tmp/data
 }
 function _fap() {
@@ -728,8 +725,11 @@ function nAlias() {
   alias "$1=${param}"
 }
 
+function docker() {
+  echo "Use podman!"
+}
+
 nAlias $ ''
-unalias fd
 nAlias :q exit
 nAlias :e nvim
 nAlias :r exec zsh
@@ -759,13 +759,13 @@ reAlias rg -S
 reAlias jq -r
 reAlias yq -r
 nAlias k 'kubectl' # "--context=${KUBECTL_CONTEXT:-$(kubectl config current-context)}" ${KUBECTL_NAMESPACE/[[:alnum:]-]*/--namespace=${KUBECTL_NAMESPACE}}'
-nAlias docker-run docker run --rm -i -t
+nAlias podman-run podman run --rm -i -t
 nAlias htop gotop
 reAlias gotop -r 250ms
 reAlias feh --scale-down --auto-zoom --auto-rotate
 nAlias grep rg
 nAlias o xdg-open
-nAlias dmakepkg docker-run --network host -v '$PWD:/pkg' 'whynothugo/makepkg' makepkg
+nAlias dmakepkg podman-run --network host -v '$PWD:/pkg' 'whynothugo/makepkg' makepkg
 reAlias watch ' '
 nAlias scu /bin/systemctl --user
 nAlias sc systemctl

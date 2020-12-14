@@ -5,7 +5,7 @@ Requires=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/google-chrome-stable --force-dark-mode --enable-features=OverlayScrollbar,OverlayScrollbarFlashAfterAnyScrollUpdate,OverlayScrollbarFlashWhenMouseEnter
+ExecStart=/usr/bin/google-chrome-stable
 RestartSec=0
 Restart=always
 

@@ -4,7 +4,6 @@ PartOf=messengers.target
 
 [Service]
 Type=simple
-PreExecStart=/usr/bin/sleep 1
 ExecStart=/usr/bin/whatsapp-nativefier
 RestartSec=0
 Restart=always
