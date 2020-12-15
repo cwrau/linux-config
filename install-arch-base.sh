@@ -151,10 +151,7 @@ else
     deluge-gtk
     diff-so-fancy
     discord-canary-electron-bin
-    dive
     dnsmasq
-    docker
-    docker-compose
     dockerfile-language-server-bin
     dolphin-emu
     dunst
@@ -221,6 +218,7 @@ else
     man-db
     man-pages
     matcha-gtk-theme
+    mesa
     meta-group-base-devel
     mitmproxy
     moreutils
@@ -255,6 +253,8 @@ else
     picom
     pkgstats
     playerctl
+    podman
+    podman-compose
     polkit
     polkit-gnome
     polybar
@@ -264,7 +264,7 @@ else
     premid
     prettyping
     procs-bin
-    proton-ge-custom-stable-bin
+    proton-ge-custom-bin
     pulseaudio
     pulseaudio-bluetooth
     pv
@@ -312,7 +312,7 @@ else
     unzip
     usbutils
     virt-manager
-    whatsapp-nativefier
+    whatsapp-nativefier-arch-electron
     which
     xarchiver
     xclip
