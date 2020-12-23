@@ -143,6 +143,7 @@ else
     bind
     blueman
     bluez-utils
+    bpytop
     breeze-hacked-cursor-theme
     clipmenu
     curl
@@ -209,6 +210,7 @@ else
     libfprint-tod-git
     libgnome-keyring
     libinput-gestures
+    libopenaptx
     libu2f-host
     libva-mesa-driver
     linux
@@ -245,7 +247,6 @@ else
     openjdk-src
     openssh
     pacman-contrib
-    pamixer
     papirus-icon-theme
     pavucontrol
     pcmanfm
@@ -265,8 +266,8 @@ else
     prettyping
     procs-bin
     proton-ge-custom-bin
-    pulseaudio
-    pulseaudio-bluetooth
+    pulseaudio-bluetooth-hsphfpd
+    pulseaudio-hsphfpd
     pv
     python-dynmen
     python-notify2
