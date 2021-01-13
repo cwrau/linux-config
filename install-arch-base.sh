@@ -237,6 +237,10 @@ else
     nmap
     nodejs-neovim
     notify-send.sh
+    noto-fonts
+    noto-fonts-cjk
+    noto-fonts-emoji
+    noto-fonts-extra
     nss-mdns
     nvidia
     nvtop
