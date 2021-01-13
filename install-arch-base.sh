@@ -56,7 +56,7 @@ elif [ "$1" = "chroot" ]; then
   if ! [ -d /home/${installUser}/.git ]; then
     cd /home/${installUser}
     git init
-    git remote add origin https://github.com/cwrau/linux-config
+    git remote add origin git@github.com:cwrau/linux-config.git
     git fetch
     git reset origin/master
     git reset --hard
@@ -237,7 +237,6 @@ else
     nmap
     nodejs-neovim
     notify-send.sh
-    noto-fonts-all
     nss-mdns
     nvidia
     nvtop
@@ -266,8 +265,8 @@ else
     prettyping
     procs-bin
     proton-ge-custom-bin
-    pulseaudio-bluetooth-hsphfpd
-    pulseaudio-hsphfpd
+    pulseaudio
+    pulseaudio-bluetooth
     pv
     python-dynmen
     python-notify2
@@ -291,6 +290,7 @@ else
     slack-electron
     slit-git
     socat
+    sof-firmware
     splatmoji-git
     steam
     steam-tweaks
@@ -388,6 +388,5 @@ else
     echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/${installUser}-*'"
   fi
 
-  sudo systemctl enable systemd-timesyncd bluetooth pkgstats.timer fwupd ebtables dnsmasq docker.socket libvirtd.socket fwupd-refresh.timer NetworkManager reflector.timer
-  sudo systemctl disable NetworkManager-wait-online
+  sudo systemctl enable systemd-timesyncd bluetooth pkgstats.timer fwupd ebtables dnsmasq libvirtd.socket fwupd-refresh.timer NetworkManager reflector.timer
 fi
