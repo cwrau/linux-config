@@ -185,6 +185,7 @@ else
     grub
     gvfs
     helm
+    hexchat
     howdy
     hsetroot
     httpie
@@ -203,6 +204,7 @@ else
     krew-bin
     kube-linter-bin
     kubectl-bin
+    kubefwd-bin
     lab-bin
     less
     lib32-nvidia-utils
@@ -317,6 +319,7 @@ else
     unzip
     usbutils
     virt-manager
+    vlc
     whatsapp-nativefier-arch-electron
     which
     xarchiver
