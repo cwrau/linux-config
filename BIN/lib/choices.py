@@ -1,9 +1,13 @@
+from typing import TypeVar, Callable
+
 from .dmenu import *
 from .notify import *
 
+ITEM: TypeVar = TypeVar('ITEM')
 
-def get_choice(items, item_name, name_getter, title, active_selector=None,
-               auto_select=False):
+
+def get_choice(items: Sequence[ITEM], item_name: str, name_getter: Callable[[ITEM], str], title: str,
+               active_selector: Callable[[ITEM], bool] = None, auto_select: bool = False) -> ITEM:
     if len(items) == 0:
         notify(title, f"No {item_name} available")
         return None

@@ -2,24 +2,32 @@
 
 set -ex
 
-timeout 20 /bin/yay -Sy
+if sudo informant check; then
+  timeout 20 /bin/yay -Sy
 
-UPDATES=$(yay -Qu --repo 2>/dev/null | wc -l)
-AUR_UPDATES=$(yay -Qu --aur --devel 2> /dev/null | wc -l)
+  UPDATES=$(yay -Qu --repo 2>/dev/null | wc -l)
+  AUR_UPDATES=$(yay -Qu --aur --devel 2> /dev/null | wc -l)
 
-if (( (UPDATES + AUR_UPDATES) >= 1 )) && ! pgrep -x yay &> /dev/null &> /dev/null
-then
-  notify-send.sh -R $XDG_RUNTIME_DIR/updates-notification -t 3600000 -u low "$UPDATES | $AUR_UPDATES" "$(yay -Quq --devel | sed -z '$ s/\n$//' | tr '\n' ',')"
+  if (( (UPDATES + AUR_UPDATES) >= 1 )) && ! pgrep -x yay &> /dev/null &> /dev/null
+  then
+    notify-send.sh -R $XDG_RUNTIME_DIR/updates-notification -t 3600000 -u low "$UPDATES | $AUR_UPDATES" "$(yay -Quq --devel | sed -z '$ s/\n$//' | tr '\n' ',')"
 
-  if [ "$1" = '--unattended' ]; then
-    if i3-sensible-terminal --role=UPDATES --wait -- yay -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall; then
-      notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 10000 -u normal 'Updates done!'
+    if [ "$1" = '--unattended' ]; then
+      if i3-sensible-terminal --role=UPDATES --wait -- yay -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall; then
+        notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 10000 -u normal 'Updates done!'
+      else
+        notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 10000 -u critical 'Updates failed!'
+      fi
+      notify-send.sh -s $(cat $XDG_RUNTIME_DIR/updates-notification)
     else
-      notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 10000 -u critical 'Updates failed!'
+      i3-sensible-terminal --wait -- yay -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall
     fi
-    notify-send.sh -s $(cat $XDG_RUNTIME_DIR/updates-notification)
+  fi
+else
+  items=$?
+  if [ "$items" -gt 100 ]; then
+    notify-send.sh -R $XDG_RUNTIME_DIR/updates-check-notification -t 10000 -u normal 'Error checking Arch news!'
   else
-    i3-sensible-terminal --wait -- yay -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall
+    notify-send.sh -R $XDG_RUNTIME_DIR/updates-check-notification -t 10000 -u critical "$items Unread Arch news articles!"
   fi
 fi
-

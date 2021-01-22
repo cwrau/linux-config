@@ -4,8 +4,8 @@ from lib.audio_script import *
 
 
 def audio_sink():
-    sink = get_choice(sinks, "sink", lambda s: s.description,
-                      lambda s: s.name == default_sink)
+    sink = get_choice(items=sinks, item_name="sink", name_getter=lambda s: s.description,
+                      active_selector=lambda s: s.name == default_sink, sorter=lambda s: (s.description, s.description))
 
     if sink is None:
         return
@@ -16,4 +16,5 @@ def audio_sink():
         pulse.sink_input_move(inp.index, sink.index)
 
 
-audio_sink()
+if __name__ == "__main__":
+    audio_sink()

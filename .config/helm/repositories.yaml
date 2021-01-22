@@ -89,3 +89,11 @@ repositories:
   password: ""
   url: https://helm.traefik.io/traefik
   username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: stasico
+  password: ""
+  url: https://flypenguin.github.io/helm-stasico
+  username: ""

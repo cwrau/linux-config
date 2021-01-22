@@ -2,22 +2,24 @@
 
 import subprocess
 import sys
+from collections import Sequence, Callable
 
-from lib.choices import get_choice as get_choice_shadow
+from lib.choices import get_choice as get_choice_shadow, ITEM
 
 
-def get_choice(items, item_name, name_getter, active_selector=None):
+def get_choice(items: Sequence[ITEM], item_name: str, name_getter: Callable[[ITEM], str],
+               active_selector: Callable[[ITEM], bool] = None) -> ITEM:
     return get_choice_shadow(items, item_name, name_getter, "Bluetooth Script", active_selector, auto_select=False)
 
 
 class BluetoothDevice:
-    def __init__(self, name, mac, connected):
+    def __init__(self, name: str, mac: str, connected: bool) -> None:
         self.name = name
         self.mac = mac
         self.connected = connected
 
 
-def bluetooth_command(command, args=None):
+def bluetooth_command(command: str, args: Sequence[str] = None) -> Sequence[str]:
     if args is not None:
         cmdline = f"{command} {args}"
     else:
@@ -31,31 +33,36 @@ def bluetooth_command(command, args=None):
     return [line.decode() for line in bluetooth_ctl.stdout.readlines()]
 
 
-outPut = [
-    line[7:-1].split(" ") for line in bluetooth_command("devices")
-    if line.startswith("Device")
-]
+def bluetooth_dmenu():
+    out_put = [
+        line[7:-1].split(" ") for line in bluetooth_command("devices")
+        if line.startswith("Device")
+    ]
 
-devices = []
+    devices = []
 
-for out in outPut:
-    mac = out[0]
-    name = " ".join(out[1:])
-    connected = "yes" in [
-        connected for connected in bluetooth_command("info", mac)
-        if "Connected" in connected
-    ][0]
-    devices.append(BluetoothDevice(name, mac, connected))
+    for out in out_put:
+        mac = out[0]
+        name = " ".join(out[1:])
+        connected = "yes" in [
+            connected for connected in bluetooth_command("info", mac)
+            if "Connected" in connected
+        ][0]
+        devices.append(BluetoothDevice(name, mac, connected))
 
-device = get_choice(
-    sorted(devices, key=lambda d: (not d.connected, d.name)), "Device",
-    lambda d: f'{d.name} ({"Connected" if d.connected else "Disconnected"})', lambda d: d.connected)
+    device = get_choice(
+        sorted(devices, key=lambda d: (not d.connected, d.name)), "Device",
+        lambda d: f'{d.name} ({"Connected" if d.connected else "Disconnected"})', lambda d: d.connected)
 
-if device is None:
-    sys.exit(0)
+    if device is None:
+        sys.exit(0)
 
-if device.connected:
-    bluetooth_command("disconnect", device.mac)
-else:
-    bluetooth_command("connect", device.mac)
-    bluetooth_command("connect", device.mac)
+    if device.connected:
+        bluetooth_command("disconnect", device.mac)
+    else:
+        bluetooth_command("connect", device.mac)
+        bluetooth_command("connect", device.mac)
+
+
+if __name__ == "__main__":
+    bluetooth_dmenu()

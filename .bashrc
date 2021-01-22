@@ -218,11 +218,14 @@ nAlias docker-run docker run --rm -i -t
 nAlias htop gotop
 reAlias gotop -r 4
 nAlias dc docker-compose
+nAlias sc systemctl
 command -v rg &> /dev/null || nAlias rg grep
 
-function diff() {
-  /bin/diff -u "${@}" | diff-so-fancy | /bin/less --tabs=1,5 -RF
-}
+if command -v diff-so-fancy &> /dev/null; then
+  function diff() {
+    /bin/diff -u "${@}" | diff-so-fancy | /bin/less --tabs=1,5 -RF
+  }
+fi
 
 function idea() {
   i3-msg "exec $(which idea) $(realpath ${1:-.})"

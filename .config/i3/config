@@ -178,15 +178,17 @@ mode $Power {
 
 # Emoji Keyboard
 
-bindsym $mod+period $exid sh -c 'splatmoji copy && xdotool key --clearmodifiers ctrl+v'
+bindsym $mod+period $exid sh -c 'splatmoji copypaste'
 bindsym $mod+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
 bindsym $mod+m $exid morse
 bindsym $mod+p $exid sh -c 'fd --no-ignore-vcs --hidden -t f workspace.xml $HOME -X ls --format=vertical --sort=time --time=ctime | sed -r "s#/\.idea/workspace.xml\$##g" | sed -r "s#$HOME/##g" | grep -v "^\\." | grep -v node_modules | dmenu -i -no-custom -p Project | xargs -i i3-msg "exec intellij-idea-ultimate-edition $HOME/{}"'
 
 # Pulse Audio controls
-bindsym XF86AudioRaiseVolume $exid pamixer -i 5; $exid pamixer -u #increase sound volume
-bindsym XF86AudioLowerVolume $exid pamixer -d 5 #decrease sound volume
-bindsym XF86AudioMute $exid pamixer -t # mute sound
+bindsym XF86AudioRaiseVolume $exid pactl set-sink-volume @DEFAULT_SINK@ +5%; $exid pactl set-sink-mute @DEFAULT_SINK@ 0
+bindsym XF86AudioLowerVolume $exid pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym XF86AudioMute $exid pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym Shift+XF86AudioLowerVolume $exid pctl volume 0.05-
+bindsym Shift+XF86AudioRaiseVolume $exid pctl volume 0.05+
 
 # Sreen brightness controls
 bindsym XF86MonBrightnessUp $exid brightness up
@@ -194,6 +196,7 @@ bindsym XF86MonBrightnessDown $exid brightness down
 
 # Media player controls
 bindsym XF86AudioPlay $exid pctl play-pause
+bindsym Shift+XF86AudioPlay $exid pctl NEXT
 bindcode 164 $exid pctl play-pause
 
 bindsym XF86AudioPause $exid pctl pause
@@ -306,11 +309,14 @@ for_window [class="Microsoft Teams"] move to workspace 19:Teams
 bindsym $mod+$alt+0 workspace 20:Chat
 assign [class="Slack"] 20:Chat
 for_window [class="Slack"] move to workspace 20:Chat
+assign [class="Signal"] 20:Chat
+for_window [class="Signal"] move to workspace 20:Chat
 assign [class="TelegramDesktop"] 20:Chat
 for_window [class="TelegramDesktop"] move to workspace 20:Chat
 assign [class="whatsapp-nativefier-.*"] 20:Chat
 for_window [class="whatsapp-nativefier-.*"] move to workspace 20:Chat
 
+bindsym $mod+Shift+u [window_role="UPDATES"] scratchpad show
 for_window [window_role="UPDATES"] move scratchpad
 
 # move focused container to workspace

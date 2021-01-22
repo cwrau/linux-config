@@ -3,7 +3,9 @@ Description=Messengers
 Requires=graphical-session.target network-online.service
 After=graphical-session.target network-online.service
 Wants=discord.service
+Wants=hexchat.service
 Wants=slack.service
+Wants=signal.service
 Wants=whatsapp.service
 Wants=telegram.service
 

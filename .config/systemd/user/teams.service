@@ -6,7 +6,7 @@ PartOf=work.target
 Type=forking
 ExecStart=/usr/bin/teams-insiders
 ExecStop=/usr/bin/teams-insiders --quit
-ExecStopPost=/usr/bin/bash -c 'sleep 8; pkill teams-insiders'
+ExecStopPost=/usr/bin/bash -c 'sleep 8; kill $MAINPID'
 RestartSec=0
 Restart=always
 

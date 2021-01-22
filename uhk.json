@@ -492,7 +492,8 @@
                 {
                   "keyActionType": "keystroke",
                   "type": "basic",
-                  "scancode": 40
+                  "scancode": 40,
+                  "secondaryRoleAction": "mouse"
                 },
                 {
                   "keyActionType": "keystroke",
@@ -670,6 +671,7 @@
                 {
                   "keyActionType": "keystroke",
                   "type": "basic",
+                  "scancode": 76,
                   "modifierMask": 2
                 },
                 {
@@ -852,8 +854,16 @@
                   "type": "basic",
                   "scancode": 41
                 },
-                null,
-                null,
+                {
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 87
+                },
+                {
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 86
+                },
                 null,
                 {
                   "keyActionType": "keystroke",
@@ -1236,6 +1246,10 @@
                 null,
                 {
                   "keyActionType": "mouse",
+                  "mouseAction": "scrollUp"
+                },
+                {
+                  "keyActionType": "mouse",
                   "mouseAction": "scrollLeft"
                 },
                 {
@@ -1255,7 +1269,7 @@
                 null,
                 {
                   "keyActionType": "mouse",
-                  "mouseAction": "scrollUp"
+                  "mouseAction": "scrollDown"
                 },
                 {
                   "keyActionType": "mouse",
@@ -1275,10 +1289,6 @@
                 },
                 null,
                 null,
-                {
-                  "keyActionType": "mouse",
-                  "mouseAction": "scrollDown"
-                },
                 {
                   "keyActionType": "mouse",
                   "mouseAction": "middleClick"

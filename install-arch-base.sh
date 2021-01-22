@@ -14,7 +14,7 @@ EOINTRO
 if [ "$1" = "iso" ]; then
   if grep -q -i intel /proc/cpuinfo; then
     ucode="intel-ucode"
-  elif grep -q -i amd /proc/cpuinfo
+  elif grep -q -i amd /proc/cpuinfo; then
     ucode="amd-ucode"
   else
     echo "Unsupported cpu vendor"
@@ -38,13 +38,16 @@ if [ "$1" = "iso" ]; then
     aria2 \
     reflector \
     fd
-  genfstab -U /mnt >/mnt/etc/fstab
+
+  genfstab -U /mnt > /mnt/etc/fstab
 
   cp $0 /mnt/
-  chmod +x /mnt/install.sh
+  chmod +x /mnt/$(basename $0)
 
   arch-chroot /mnt /$(basename $0) chroot $hostname $installUser
 elif [ "$1" = "chroot" ]; then
+  hostname="$2"
+  installUser="$3"
   if ! id ${installUser}; then
     useradd ${installUser} -d /home/${installUser} -U -m
     passwd root
@@ -78,7 +81,7 @@ elif [ "$1" = "chroot" ]; then
 
   bootctl install
 
-  cat <<-EOENTRY >/boot/loader/entries/arch.conf
+  cat <<-EOENTRY > /boot/loader/entries/arch.conf
   	title Arch Linux
   	linux /vmlinuz-linux
   	initrd /$ucode.img
@@ -86,7 +89,7 @@ elif [ "$1" = "chroot" ]; then
   	options root=UUID=$(findmnt / -o UUID -n) rw quiet vga=current nvidia-drm.modeset=1
 EOENTRY
 
-  cat <<-EOLOADER >/boot/loader/loader.conf
+  cat <<-EOLOADER > /boot/loader/loader.conf
   	timeout 0
   	default arch.conf
   	auto-entries 1
@@ -95,17 +98,17 @@ EOLOADER
 
   ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
   hwclock --systohc
-  sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
+  echo en_US.UTF-8 UTF-8 > /etc/locale.gen
   locale-gen
-  echo LANG=en_US.UTF-8 >/etc/locale.conf
-  echo LC_COLLATE=C >>/etc/locale.conf
-  echo KEYMAP=us-latin1 >/etc/vconsole.conf
-  echo ${hostname} >/etc/hostname
-  cat <<-EOHOSTS >/etc/hosts
+  echo LANG=en_US.UTF-8 > /etc/locale.conf
+  echo LC_COLLATE=C >> /etc/locale.conf
+  echo KEYMAP=us-latin1 > /etc/vconsole.conf
+  echo ${hostname} > /etc/hostname
+  cat <<-EOHOSTS > /etc/hosts
   	127.0.0.1 localhost
   	127.0.0.1 ${hostname}
 EOHOSTS
-  echo "${installUser} ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/${installUser}
+  echo "${installUser} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${installUser}
 
   reflector --save /etc/pacman.d/mirrorlist --protocol https --latest 5 --sort score
 
@@ -116,6 +119,8 @@ EOHOSTS
   cd /home/${installUser}
   sudo -u ${installUser} /$(basename $0) $hostname $installUser
 else
+  hostname="$1"
+  installUser="$2"
   if ! yay --version; then
     pushd /tmp
     [ -d yay-bin ] || git clone https://aur.archlinux.org/yay-bin.git
@@ -377,7 +382,7 @@ else
 
   sudo chmod u+s $(which i3lock)
 
-  if ! grep pam_gnome_keyring.so /etc/pam.d/login &>/dev/null; then
+  if ! grep pam_gnome_keyring.so /etc/pam.d/login &> /dev/null; then
     authSectionEnd="$(grep -n ^auth /etc/pam.d/login | sort -n | tail -1 | sed -r 's#^([0-9]+):.+$#\1#g')"
     sessionSectionEnd="$(grep -n ^session /etc/pam.d/login | sort -n | tail -1 | sed -r 's#^([0-9]+):.+$#\1#g')"
 
@@ -389,7 +394,7 @@ else
     fi
   fi
 
-  if ! grep pam_yubico.so /etc/pam.d/system-auth &>/dev/null; then
+  if ! grep pam_yubico.so /etc/pam.d/system-auth &> /dev/null; then
     # only make it sufficient, you're not supposed to publish the challenge response files (?)
     sudo sed '2 i \\nauth sufficient pam_yubico.so mode=challenge-response chalresp_path=/var/yubico' /etc/pam.d/system-auth -i
     echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/${installUser}-*'"

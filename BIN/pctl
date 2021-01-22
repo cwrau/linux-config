@@ -1,3 +1,38 @@
 #!/usr/bin/env bash
 
-playerctl -i chrome,chromium $@
+set -e
+
+function next() {
+  list | awk "/$PLAYER/ {number = NR+1}; NR == number {print \$0}; NR == 1 {first = \$0}; END {if (length(number) == 0) {print first} else if (number > NR) {print first} }" | tee $XDG_RUNTIME_DIR/player
+}
+
+function list() {
+  playerctl -i chromium -l | sed -r 's#^(.+)\..+$#\1#g' | sort | uniq
+}
+
+if [ -f $XDG_RUNTIME_DIR/player ]; then
+  PLAYER=$(head -1 $XDG_RUNTIME_DIR/player | awk '{print $1}')
+else
+  PLAYER=$(next)
+fi
+
+PLAYER=$(list | awk "/$PLAYER/ {number = NR; print \$0}; NR == 1 {first = \$0}; END {if (length(number) == 0) {print first} }")
+
+if [ "$PLAYER" != "$(cat $XDG_RUNTIME_DIR/player)" ]; then
+  echo $PLAYER > $XDG_RUNTIME_DIR/player
+fi
+
+if [ "$1" = NEXT ]; then
+  PLAYER=$(next)
+  notify-send.sh -R $XDG_RUNTIME_DIR/player-notification -t 1000 -u normal "$PLAYER: $($0 status)"
+  exit 0
+elif [ "$1" = PRINT ]; then
+  if [ "$(list | wc -l)" = 1 ]; then
+    echo
+  else
+    echo $PLAYER
+  fi
+  exit 0
+fi
+
+exec playerctl -p $PLAYER $@

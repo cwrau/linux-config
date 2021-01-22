@@ -1,10 +1,11 @@
 [Unit]
-Description=Slack
+Description=Signal
 PartOf=messengers.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/slack --startup
+ExecStart=/usr/bin/signal-desktop
+ExecStop=/usr/bin/kill $MAINPID
 RestartSec=0
 Restart=always
 

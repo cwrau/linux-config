@@ -6,6 +6,7 @@
 /Mousepad/
 /NuGet/
 /QtProject.conf
+/Signal/
 /Slack/
 /Unknown Organization/AusweisApp2.conf
 /autostart/
@@ -13,14 +14,15 @@
 /configstore/
 /deluge/
 /discordcanary/
-/docker/
 /fah/
 /freerdp/
 /google-chrome/
 /google-cloud-tools-java/
+/hexchat/
 /java/
 /kube/
 /lab.hcl
+/lab/
 /menus/
 /mitmproxy/
 /pavucontrol.ini
@@ -31,6 +33,7 @@
 /uhk-agent/
 /unity3d/
 /user-dirs.dirs
+/vlc/
 /whatsapp-nativefier-*/
 /youtube-music-desktop-app/
 /zoomus.conf

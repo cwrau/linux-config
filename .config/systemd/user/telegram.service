@@ -4,7 +4,7 @@ PartOf=messengers.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/telegram-desktop
+ExecStart=/usr/bin/telegram-desktop -startintray
 RestartSec=0
 Restart=always
 

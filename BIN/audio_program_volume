@@ -23,4 +23,5 @@ def audio_program_volume():
     pulse.volume_set_all_chans(prog_input, result)
 
 
-audio_program_volume()
+if __name__ == "__main__":
+    audio_program_volume()

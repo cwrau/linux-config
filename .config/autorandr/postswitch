@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-systemctl --user restart 'polybar*.service' 'glava*.service'
+systemctl --user restart 'polybar*.service' 'glava.target'
 systemctl --user start feh

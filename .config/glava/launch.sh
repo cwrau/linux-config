@@ -14,7 +14,7 @@ do
   radialX=$(( x + ( (width / 2 ) - (radialWidth / 2 ) ) ))
 
   if [ $type = "bar" ]; then
-    glava -r "setgeometry $x $y $width $barHeight" &
+    glava -m bars -r "setgeometry $x $y $width $barHeight" &
   elif [ $type = "radial" ]; then
     glava -m radial -r "setgeometry $radialX $radialY $radialWidth $radialHeight" &
   fi

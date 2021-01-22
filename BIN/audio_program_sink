@@ -21,4 +21,5 @@ def audio_program_sink():
     pulse.sink_input_move(prog_input.index, sink.index)
 
 
-audio_program_sink()
+if __name__ == "__main__":
+    audio_program_sink()

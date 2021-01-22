@@ -3,7 +3,7 @@
 from lib.audio_script import *
 
 
-def card_name_getter(card):
+def card_name_getter(card: PulseCardInfo) -> str:
     return card.proplist.get("bluez.alias") or card.proplist.get("device.description")
 
 
@@ -25,4 +25,5 @@ def audio_profile():
     pulse.card_profile_set(card, profile)
 
 
-audio_profile()
+if __name__ == "__main__":
+    audio_profile()

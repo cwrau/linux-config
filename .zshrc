@@ -40,6 +40,7 @@ export PULSE_COOKIE="$XDG_RUNTIME_DIR/pulse/cookie"
 export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
 export SONAR_USER_HOME="$XDG_DATA_HOME/sonarlint"
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
+export STACK_ROOT="$XDG_CONFIG_HOME/stack"
 export XAUTHORITY="$XDG_CACHE_HOME/x11/authority"
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
 
@@ -254,24 +255,19 @@ function e() {
 }
 
 function ssh() {
-  if [[ -f ~/.ssh/checked_hosts ]] && grep "$1" ~/.ssh/checked_hosts -q
-  then
+  if [[ "${#@}" > 1 ]]; then
+    /usr/bin/ssh "$@"
+  elif [[ -f ~/.ssh/checked_hosts ]] && grep -q -- "$1" ~/.ssh/checked_hosts; then
     name="$1"
     shift
     scp -q ~/.bashrc ${name}:/tmp/cwr.bashrc > /dev/null
 
-    if [[ "${#@}" > 0 ]]
-    then
-      /usr/bin/ssh -q $name "$@"
-    else
-      /usr/bin/ssh $name -t "sh -c 'if which bash &> /dev/null; then bash --rcfile /tmp/cwr.bashrc -i; else if which ash &> /dev/null; then ash; else sh; fi; fi'"
-    fi
+    /usr/bin/ssh $name -t "sh -c 'if which bash &> /dev/null; then bash --rcfile /tmp/cwr.bashrc -i; else if which ash &> /dev/null; then ash; else sh; fi; fi'"
     return $?
   else
     ssh-copy-id $1
     ret=$?
-    if [ $ret -eq 0 ]
-    then
+    if [ $ret -eq 0 ]; then
       echo "$1" >> ~/.ssh/checked_hosts
       ssh "$@"
       return $?
@@ -384,7 +380,7 @@ EOF
     fi
   done
 
-  systemctl --user start container-db.service
+  systemctl --user start container-db.service || return
 
   podman pull registry.4allportal.net/4allportal:$tag
   set -x
@@ -395,7 +391,9 @@ EOF
   set +x
 
   systemctl --user stop container-db.service
-  rm -rf /tmp/data
+  if read -q "?Remove data?"; then
+    rm -rf /tmp/data
+  fi
 }
 function _fap() {
   local state
@@ -715,6 +713,10 @@ function clip() {
   xclip -selection clipboard
 }
 compdef _nop clip
+
+function releaseAur() {
+  git clean -xfd && updpkgsums && makepkg -f && makepkg --printsrcinfo > .SRCINFO && git commit -v . && git push && git clean -xfd
+}
 
 function reAlias() {
   nAlias $1 $1 ${@:2}
