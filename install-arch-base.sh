@@ -156,7 +156,7 @@ else
     datagrip-jre
     deluge-gtk
     diff-so-fancy
-    discord-canary-electron-bin
+    discord_arch_electron
     dnsmasq
     dockerfile-language-server-bin
     dolphin-emu
@@ -297,6 +297,7 @@ else
     rofi-dmenu
     scrot
     shfmt
+    signal-desktop
     siji-git
     slack-electron
     slit-git
