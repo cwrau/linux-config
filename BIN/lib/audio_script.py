@@ -8,7 +8,8 @@ from lib.choices import get_choice as get_choice_shadow, ITEM
 pulse: Pulse = pulsectl.Pulse("audio-profile-switcher")
 info: PulseServerInfo = pulse.server_info()
 cards: [PulseCardInfo] = pulse.card_list()
-sinks: [PulseSinkInfo] = [s for s in pulse.sink_list() if s.port_active.available != PulsePortAvailableEnum.no]
+sinks: [PulseSinkInfo] = [s for s in pulse.sink_list() if s.port_active is not None and
+                          s.port_active.available != PulsePortAvailableEnum.no]
 default_sink: str = info.default_sink_name
 inputs: [PulseSinkInputInfo] = pulse.sink_input_list()
 

@@ -4,16 +4,15 @@ from lib.audio_script import *
 
 
 def audio_program_sink():
-    prog_input = get_choice(inputs, "source",
-                            lambda
-                                i: f'{i.proplist["application.name"]}'
-                                   f' ({i.proplist["application.process.id"]})')
+    prog_input: PulseSinkInputInfo = get_choice(inputs, "source",
+                                                lambda i: f'{i.proplist["application.name"]}'
+                                                          f' ({i.proplist["application.process.id"]})')
 
     if prog_input is None:
         return
 
-    sink = get_choice(sinks, "sink", lambda s: s.description,
-                      lambda s: s.index == prog_input.sink)
+    sink: PulseSinkInfo = get_choice(sinks, "sink", lambda s: s.description,
+                                     lambda s: s.index == prog_input.sink)
 
     if sink is None:
         return

@@ -2,6 +2,10 @@
 
 set -ex
 
+if [ -e /var/lib/pacman/db.lck ] && [ $(($(date +%s) - $(date +%s -r /var/lib/pacman/db.lck))) -gt 1800 ]; then
+  sudo rm /var/lib/pacman/db.lck
+fi
+
 if sudo informant check; then
   timeout 20 /bin/yay -Sy
 

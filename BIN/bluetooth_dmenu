@@ -24,9 +24,9 @@ def bluetooth_command(command: str, args: Sequence[str] = None) -> Sequence[str]
         cmdline = f"{command} {args}"
     else:
         cmdline = command
-    bluetooth_ctl = subprocess.Popen("bluetoothctl",
-                                     stdin=subprocess.PIPE,
-                                     stdout=subprocess.PIPE)
+    bluetooth_ctl: subprocess.Popen[str] = subprocess.Popen("bluetoothctl",
+                                                            stdin=subprocess.PIPE,
+                                                            stdout=subprocess.PIPE)
     bluetooth_ctl.stdin.write(cmdline.encode())
     bluetooth_ctl.stdin.close()
     bluetooth_ctl.wait()
@@ -34,23 +34,23 @@ def bluetooth_command(command: str, args: Sequence[str] = None) -> Sequence[str]
 
 
 def bluetooth_dmenu():
-    out_put = [
+    out_put: Sequence[Sequence[str]] = [
         line[7:-1].split(" ") for line in bluetooth_command("devices")
         if line.startswith("Device")
     ]
 
-    devices = []
+    devices: list[BluetoothDevice] = []
 
     for out in out_put:
-        mac = out[0]
-        name = " ".join(out[1:])
-        connected = "yes" in [
+        mac: str = out[0]
+        name: str = " ".join(out[1:])
+        connected: bool = "yes" in [
             connected for connected in bluetooth_command("info", mac)
             if "Connected" in connected
         ][0]
         devices.append(BluetoothDevice(name, mac, connected))
 
-    device = get_choice(
+    device: BluetoothDevice = get_choice(
         sorted(devices, key=lambda d: (not d.connected, d.name)), "Device",
         lambda d: f'{d.name} ({"Connected" if d.connected else "Disconnected"})', lambda d: d.connected)
 
