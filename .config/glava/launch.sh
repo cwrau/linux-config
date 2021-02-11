@@ -6,15 +6,19 @@ set -exu
 
 while read -r width height x y
 do
-  barHeight=26
-  radialHeight=$(( height * 2 / 3 ))
-  radialHeight=$(( height - barHeight - 18))
+  upperBarHeight=26
+  lowerBarHeight=18
+
+  radialHeight=$(( height - upperBarHeight - lowerBarHeight))
   radialWidth=$width
-  radialY=$(( y + ( ((height + barHeight) / 2 ) - ((radialHeight + 18) / 2 ) ) ))
-  radialX=$(( x + ( (width / 2 ) - (radialWidth / 2 ) ) ))
+  radialY=$(( y + upperBarHeight ))
+  radialX=$x
+
+  lowerBarY=$(( upperBarHeight + radialHeight ))
 
   if [ $type = "bar" ]; then
-    glava -m bars -r "setgeometry $x $y $width $barHeight" &
+    glava -m bars -r "setgeometry $x $y $width $upperBarHeight" &
+    #glava -m bars -r "setgeometry $x $lowerBarY $width $lowerBarHeight" &
   elif [ $type = "radial" ]; then
     glava -m radial -r "setgeometry $radialX $radialY $radialWidth $radialHeight" &
   fi

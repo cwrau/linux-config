@@ -181,7 +181,7 @@ mode $Power {
 bindsym $mod+period $exid sh -c 'splatmoji copypaste'
 bindsym $mod+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
 bindsym $mod+m $exid morse
-bindsym $mod+p $exid sh -c 'fd --no-ignore-vcs --hidden -t f workspace.xml $HOME -X ls --format=vertical --sort=time --time=ctime | sed -r "s#/\.idea/workspace.xml\$##g" | sed -r "s#$HOME/##g" | grep -v "^\\." | grep -v node_modules | dmenu -i -no-custom -p Project | xargs -i i3-msg "exec intellij-idea-ultimate-edition $HOME/{}"'
+bindsym $mod+p $exid sh -c 'fd --no-ignore-vcs --hidden -t f workspace.xml $HOME -X ls --format=vertical --sort=time --time=ctime | sed -r "s#/\.idea/workspace.xml\$##g" | sed -r "s#$HOME/##g" | grep -v "^\\." | grep -v node_modules | dmenu -i -no-custom -p Project | xargs -i i3-msg "exec systemd-cat --stderr-priority=warning --identifier=intellij intellij-idea-ultimate-edition $HOME/{}"'
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume $exid pactl set-sink-volume @DEFAULT_SINK@ +5%; $exid pactl set-sink-mute @DEFAULT_SINK@ 0
@@ -251,6 +251,7 @@ bindsym $mod+g exec sh -c 'dmenu -p google | tr " " "+" | xargs -r -I{} xdg-open
 for_window [class="jetbrains-idea" title="Debug"] floating disable
 for_window [class="java-lang-Thread" instance="java-lang-Thread"] floating enable
 for_window [class="jetbrains-.*" title="win0"] floating enable
+for_window [class="jetbrains-.*" title="Welcome to IntelliJ IDEA"] floating enable
 
 for_window [class="Kazam"] floating enable
 

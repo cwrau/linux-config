@@ -97,3 +97,11 @@ repositories:
   password: ""
   url: https://flypenguin.github.io/helm-stasico
   username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: itzg
+  password: ""
+  url: https://itzg.github.io/minecraft-server-charts/
+  username: ""

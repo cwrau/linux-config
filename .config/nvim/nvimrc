@@ -38,13 +38,20 @@ Plug 'autozimu/LanguageClient-neovim', {
       \ }
 
 let g:LanguageClient_serverCommands = {
-      \   'kotlin': ['kotlin-language-server'],
       \   'bash': ['bash-language-server', 'start'],
-      \   'python': ['pyls'],
       \   'dockerfile': ['docker-langserver', '--stdio'],
-      \   'java': ['java-language-server'],
       \ }
-"     \   'yaml': ['yaml-language-server'],
+
+let g:LanguageClient_rootMarkers = ['stack.yaml']
+
+nnoremap <F5> :call LanguageClient_contextMenu()<CR>
+map <Leader>lk :call LanguageClient#textDocument_hover()<CR>
+map <Leader>lg :call LanguageClient#textDocument_definition()<CR>
+map <Leader>lr :call LanguageClient#textDocument_rename()<CR>
+map <Leader>lf :call LanguageClient#textDocument_formatting()<CR>
+map <Leader>lb :call LanguageClient#textDocument_references()<CR>
+map <Leader>la :call LanguageClient#textDocument_codeAction()<CR>
+map <Leader>ls :call LanguageClient#textDocument_documentSymbol()<CR>
 
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
 let g:mkdp_browser = 'google-chrome-stable'
