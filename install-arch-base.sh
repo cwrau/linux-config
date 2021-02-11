@@ -232,6 +232,8 @@ else
     mitmproxy
     moreutils
     morsetran
+    mpv
+    mpv-mpris
     multimc5
     ncdu
     neovim-drop-in
@@ -261,6 +263,7 @@ else
     pavucontrol
     pcmanfm
     perl-anyevent-i3
+    perl-file-mimeinfo
     picom
     pkgstats
     playerctl
@@ -312,7 +315,6 @@ else
     teams-insiders
     telegram-desktop
     telepresence
-    thunderbird-extension-enigmail
     traceroute
     tree
     ttf-dejavu
@@ -325,7 +327,6 @@ else
     unzip
     usbutils
     virt-manager
-    vlc
     whatsapp-nativefier-arch-electron
     which
     xarchiver
@@ -338,7 +339,6 @@ else
     xorg-xwininfo
     xss-lock-session
     yay-bin
-    youtube-dl
     yq
     ytmdesktop
     yubico-pam
