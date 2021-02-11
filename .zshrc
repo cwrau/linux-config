@@ -68,7 +68,7 @@ if [[ $- = *i* ]]; then
       for ENV in $(declare -x +); do
         systemctl --user import-environment $ENV
       done
-      exec startx &> /tmp/x.log
+      exec systemd-cat --stderr-priority=warning --identifier=xorg startx
     fi
   fi
 fi
@@ -179,7 +179,6 @@ plugins=(
   git
   git-auto-fetch
   gitfast
-  common-aliases
   fancy-ctrl-z
   fd
   fzf
@@ -246,7 +245,7 @@ function command_not_found_handler() {
 function _nop() {}
 
 function e.() {
-  xdg-open . > /dev/null
+  i3-msg "exec xdg-open $PWD"
 }
 compdef _nop e.
 
@@ -390,9 +389,9 @@ EOF
     registry.4allportal.net/4allportal:$tag $fapArgs
   set +x
 
-  systemctl --user stop container-db.service
   if read -q "?Remove data?"; then
     rm -rf /tmp/data
+    systemctl --user stop container-db.service
   fi
 }
 function _fap() {
@@ -538,6 +537,7 @@ function hr() {
     helm template --namespace $ns $rn "/tmp/helm-chart/$gitPath" --values <(<<< "$yaml" | yq -y -er .spec.values) ${@:2}
     rm -rf /tmp/helm-chart
   else
+    helm repo update
     helm template --namespace $ns --repo $(<<< "$yaml" | yq -er .spec.chart.repository) $rn $(<<< "$yaml" | yq -er .spec.chart.name) --version $(<<< "$yaml" | yq -er .spec.chart.version) --values <(<<< "$yaml" | yq -y -er .spec.values) ${@:2}
   fi
 }
@@ -786,9 +786,11 @@ alias -g A='| awk'
 alias -g B='| base64'
 alias -g BD='B -d'
 alias -g C='| clip'
+alias -g G='| grep'
 alias -g GZ='| gzip'
 alias -g GZD='GZ -d'
 alias -g J='| jq'
+alias -g L='| less'
 alias -g S='| sed'
 alias -g SP='| sponge'
 alias -g T='| tee'
