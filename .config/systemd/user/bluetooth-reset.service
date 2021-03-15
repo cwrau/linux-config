@@ -5,7 +5,10 @@ Requires=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/sh -c 'sudo systemctl restart bluetooth && sudo rfkill block bluetooth && sudo rfkill unblock bluetooth'
+ExecStart=/usr/bin/sudo systemctl restart bluetooth
+ExecStart=/usr/bin/sudo rfkill block bluetooth
+ExecStart=/usr/bin/sudo rfkill unblock bluetooth
+ExecStart=/usr/bin/bluetoothctl power on
 RestartSec=0
 
 [Install]

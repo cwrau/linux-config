@@ -9,7 +9,7 @@
 #
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 
-set $mod Mod4
+set $super Mod4
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -26,17 +26,17 @@ font pango:monospace 9
 # X core fonts rendering does not support right-to-left and this being a bitmap
 # font, it doesn’t scale on retina/hidpi displays.
 
-# Use Mouse+$mod to drag floating windows to their wanted position
-floating_modifier $mod
+# Use Mouse+$super to drag floating windows to their wanted position
+floating_modifier $super
 
 # focus_follows_mouse no
 #mouse_warping none
 
 # start a terminal
-bindsym $mod+Return $exid gnome-terminal
+bindsym $super+Return $exid gnome-terminal
 
 # kill focused window
-bindsym $mod+Shift+q kill
+bindsym $super+Shift+q kill
 
 # to prevent chrome from closing itself
 bindsym $alt+F4 exec --no-startup-id echo
@@ -44,60 +44,60 @@ bindsym $alt+F4 exec --no-startup-id echo
 set $exid exec --no-startup-id
 set $exaid exec_always --no-startup-id
 
-bindsym $mod+d $exid rofi -show drun
+bindsym $super+d $exid rofi -show drun
 
 # change focus
-#bindsym $mod+j focus left
-#bindsym $mod+k focus down
-#bindsym $mod+l focus up
-#bindsym $mod+odiaeresis focus right
+#bindsym $super+j focus left
+#bindsym $super+k focus down
+#bindsym $super+l focus up
+#bindsym $super+odiaeresis focus right
 
 # alternatively, you can use the cursor keys:
-bindsym $mod+Left focus left
-bindsym $mod+Down focus down
-bindsym $mod+Up focus up
-bindsym $mod+Right focus right
+bindsym $super+Left focus left
+bindsym $super+Down focus down
+bindsym $super+Up focus up
+bindsym $super+Right focus right
 
 # move focused window
-#bindsym $mod+Shift+j move left
-#bindsym $mod+Shift+k move down
-#bindsym $mod+Shift+l move up
-#bindsym $mod+Shift+odiaeresis move right
+#bindsym $super+Shift+j move left
+#bindsym $super+Shift+k move down
+#bindsym $super+Shift+l move up
+#bindsym $super+Shift+odiaeresis move right
 
 # alternatively, you can use the cursor keys:
-bindsym $mod+Shift+Left move left
-bindsym $mod+Shift+Down move down
-bindsym $mod+Shift+Up move up
-bindsym $mod+Shift+Right move right
+bindsym $super+Shift+Left move left
+bindsym $super+Shift+Down move down
+bindsym $super+Shift+Up move up
+bindsym $super+Shift+Right move right
 
 # split in horizontal orientation
-bindsym $mod+h split v
+bindsym $super+h split v
 
 # split in vertical orientation
-bindsym $mod+v split h
+bindsym $super+v split h
 
 # enter fullscreen mode for the focused container
-bindsym $mod+f fullscreen toggle
+bindsym $super+f fullscreen toggle
 # toggle polybar
-bindsym $mod+Shift+f $exid "sh -c 'if systemctl --user -q is-active polybar@\*; then systemctl --user stop polybar@\*; else systemctl --user start polybar@\* -all; fi'"
+bindsym $super+Shift+f $exid "sh -c 'if systemctl --user -q is-active polybar@\*; then systemctl --user stop polybar@\*; else systemctl --user start polybar@\* -all; fi'"
 
 # change container layout (stacked, tabbed, toggle split)
-bindsym $mod+t layout toggle stacking tabbed
-bindsym $mod+e layout toggle split
+bindsym $super+t layout toggle stacking tabbed
+bindsym $super+e layout toggle split
 
 # toggle tiling / floating
-bindsym $mod+Shift+space floating toggle
+bindsym $super+Shift+space floating toggle
 
 # change focus between tiling / floating windows
-# bindsym $mod+space focus mode_toggle
+# bindsym $super+space focus mode_toggle
 
 # focus the parent container
-#bindsym $mod+a focus parent
+#bindsym $super+a focus parent
 
 # focus the child container
-#bindsym $mod+d focus child
+#bindsym $super+d focus child
 
-bindsym $mod+Shift+r restart
+bindsym $super+Shift+r restart
 
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
@@ -133,13 +133,13 @@ mode "resize" {
         bindcode 111 resize shrink height 10 px or 10 ppt
         bindcode 114 resize grow width 10 px or 10 ppt
 
-        # back to normal: Enter or Escape or $mod+r
+        # back to normal: Enter or Escape or $super+r
         bindsym Escape mode "default"
         # Enter
         bindcode 36 mode "default"
 }
 
-bindsym $mod+r mode "resize"
+bindsym $super+r mode "resize"
 
 default_border none
 for_window [class="jetbrains-toolbox"] floating enable
@@ -152,7 +152,7 @@ no_focus [class="Microsoft Teams" title="Microsoft Teams Notification"]
 $exaid $XDG_CONFIG_HOME/i3/rc.sh
 
 set $displayMode "Set display mode [w]ork [l]aptop"
-#bindsym $mod+x mode $displayMode
+#bindsym $super+x mode $displayMode
 mode $displayMode {
     bindsym w exec $XDG_CONFIG_HOME/screenlayouts/work.sh; mode "default"; restart
     bindsym l exec $XDG_CONFIG_HOME/screenlayouts/laptop.sh; mode "default"; restart
@@ -165,10 +165,10 @@ mode $displayMode {
 #bindsym Scroll_Lock exec lock
 
 set $Power " [S]leep, [p]oweroff, [l]ogoff or [r]eboot?"
-bindsym $mod+q mode $Power
+bindsym $super+q mode $Power
 
 mode $Power {
-    bindsym s exec suspend; mode "default"
+    bindsym s exec systemctl suspend; mode "default"
     bindsym p exec systemctl poweroff
     bindsym r exec systemctl reboot
     bindsym k exec sudo systemctl kexec
@@ -178,10 +178,10 @@ mode $Power {
 
 # Emoji Keyboard
 
-bindsym $mod+period $exid sh -c 'splatmoji copypaste'
-bindsym $mod+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
-bindsym $mod+m $exid morse
-bindsym $mod+p $exid sh -c 'fd --no-ignore-vcs --hidden -t f workspace.xml $HOME -X ls --format=vertical --sort=time --time=ctime | sed -r "s#/\.idea/workspace.xml\$##g" | sed -r "s#$HOME/##g" | grep -v "^\\." | grep -v node_modules | dmenu -i -no-custom -p Project | xargs -i i3-msg "exec systemd-cat --stderr-priority=warning --identifier=intellij intellij-idea-ultimate-edition $HOME/{}"'
+bindsym $super+period $exid sh -c 'splatmoji copypaste'
+bindsym $super+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
+bindsym $super+m $exid morse
+bindsym $super+p $exid sh -c 'fd --no-ignore-vcs --hidden -t f workspace.xml $HOME -X ls --format=vertical --sort=time --time=ctime | sed -r "s#/\.idea/workspace.xml\$##g" | sed -r "s#$HOME/##g" | grep -v "^\\." | grep -v node_modules | dmenu -i -no-custom -p Project | xargs -i i3-msg "exec systemd-cat --stderr-priority=warning --identifier=intellij intellij-idea-ultimate-edition $HOME/{}"'
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume $exid pactl set-sink-volume @DEFAULT_SINK@ +5%; $exid pactl set-sink-mute @DEFAULT_SINK@ 0
@@ -208,31 +208,31 @@ bindsym XF86AudioPrev $exid pctl previous
 bindsym button8 $exid pctl previous
 
 # Change Audio Settings
-bindsym $mod+Ctrl+Shift+o $exid audio_program_volume
-bindsym $mod+Shift+o $exid audio_program_sink
-bindsym $mod+Ctrl+o $exid audio_profile
-bindsym $mod+o $exid audio_sink
+bindsym $super+Ctrl+Shift+o $exid audio_program_volume
+bindsym $super+Shift+o $exid audio_program_sink
+bindsym $super+Ctrl+o $exid audio_profile
+bindsym $super+o $exid audio_sink
 
 # Display Manager
-bindsym $mod+Shift+p $exid rofi-randr
-bindsym $mod+Ctrl+p $exid autorandr --change --force
-#bindsym $mod+p $exid /usr/bin/lxrandr
-bindsym $mod+b $exid bluetooth_dmenu
+bindsym $super+Shift+p $exid rofi-randr
+bindsym $super+Ctrl+p $exid autorandr --change --force
+#bindsym $super+p $exid /usr/bin/lxrandr
+bindsym $super+b $exid bluetooth_dmenu
 
 # Lock
-bindsym $mod+l $exid loginctl lock-session
+bindsym $super+l $exid loginctl lock-session
 
 # WiFi-Manager
-bindsym $mod+i $exid networkmanager_dmenu
+bindsym $super+i $exid networkmanager_dmenu
 
 # Mount-Manager
-bindsym $mod+u $exid udiskie-dmenu
+bindsym $super+u $exid udiskie-dmenu
 
-bindsym $mod+x exec xkill
+bindsym $super+x exec xkill
 
 # Clipboard-Manager
-bindsym $mod+Shift+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i && xdotool key --clearmodifiers ctrl+shift+v'
-bindsym $mod+Ctrl+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i'
+bindsym $super+Shift+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i && xdotool key --clearmodifiers ctrl+shift+v'
+bindsym $super+Ctrl+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i'
 
 # Screenshots
 # Selection > Clipboard
@@ -244,9 +244,9 @@ bindsym Ctrl+Print --release $exid "scrot -s $HOME/Screenshots/$(date +%FT%T.%2N
 # Full Screen > File
 bindsym Ctrl+Shift+Print $exid "scrot $HOME/Screenshots/$(date +%FT%T.%2N).png"
 
-bindsym $mod+c exec "exo-open --launch WebBrowser"
-bindsym $mod+Shift+c exec "exo-open --launch WebBrowser --incognito"
-bindsym $mod+g exec sh -c 'dmenu -p google | tr " " "+" | xargs -r -I{} xdg-open https://google.com/search\?q\={}'
+bindsym $super+c exec "exo-open --launch WebBrowser"
+bindsym $super+Shift+c exec "exo-open --launch WebBrowser --incognito"
+bindsym $super+g exec sh -c 'dmenu -p google | tr " " "+" | xargs -r -I{} xdg-open https://google.com/search\?q\={}'
 
 for_window [class="jetbrains-idea" title="Debug"] floating disable
 for_window [class="java-lang-Thread" instance="java-lang-Thread"] floating enable
@@ -260,54 +260,54 @@ for_window [class="Kazam"] floating enable
 
 set $alt Mod1
 
-bindsym $mod+Page_Up workspace prev
-bindsym $mod+Page_Down workspace next
+bindsym $super+Page_Up workspace prev
+bindsym $super+Page_Down workspace next
 
 # switch to workspace
-bindsym $mod+1 workspace 1
+bindsym $super+1 workspace 1
 assign [class="Thunderbird"] 1
 for_window [class="Thunderbird"] move to workspace 1
 
-bindsym $mod+2 workspace 2
-bindsym $mod+3 workspace 3
-bindsym $mod+4 workspace 4
-bindsym $mod+5 workspace 5
-bindsym $mod+6 workspace 6
-bindsym $mod+7 workspace 7
-bindsym $mod+8 workspace 8
-bindsym $mod+9 workspace 9
-bindsym $mod+0 workspace 10
-bindsym $mod+$alt+1 workspace 11
-bindsym $mod+$alt+2 workspace 12
-bindsym $mod+$alt+3 workspace 13
+bindsym $super+2 workspace 2
+bindsym $super+3 workspace 3
+bindsym $super+4 workspace 4
+bindsym $super+5 workspace 5
+bindsym $super+6 workspace 6
+bindsym $super+7 workspace 7
+bindsym $super+8 workspace 8
+bindsym $super+9 workspace 9
+bindsym $super+0 workspace 10
+bindsym $super+$alt+1 workspace 11
+bindsym $super+$alt+2 workspace 12
+bindsym $super+$alt+3 workspace 13
 
-bindsym $mod+$alt+4 workspace 14:Discord
+bindsym $super+$alt+4 workspace 14:Discord
 assign [class="discord"] 14:Discord
 for_window [class="discord"] move to workspace 14:Discord
 
-bindsym $mod+$alt+5 workspace 15:Steam
+bindsym $super+$alt+5 workspace 15:Steam
 assign [class="Steam"] 15:Steam
 for_window [class="Steam"] move to workspace 15:Steam
 
-bindsym $mod+$alt+6 workspace 16:YouTube
+bindsym $super+$alt+6 workspace 16:YouTube
 assign [class="Google-chrome" title=".*YouTube$"] 16:YouTube
 for_window [class="Google-chrome" title=".*YouTube$"] move to workspace 16:YouTube
 
-bindsym $mod+$alt+7 workspace 17:Netflix
+bindsym $super+$alt+7 workspace 17:Netflix
 assign [class="Google-chrome" title="Netflix"] 17:Netflix
 for_window [class="Google-chrome" title="^Netflix$"] move to workspace 17:Netflix
 
-bindsym $mod+$alt+8 workspace 18:YMP
+bindsym $super+$alt+8 workspace 18:YMP
 assign [class="youtube-music-desktop-app"] 18:YMP
 for_window [class="youtube-music-desktop-app"] move to workspace 18:YMP
 
-bindsym $mod+$alt+9 workspace 19:Teams
+bindsym $super+$alt+9 workspace 19:Teams
 assign [class="Microsoft Teams - Insiders"] 19:Teams
 assign [class="Microsoft Teams"] 19:Teams
 for_window [class="Microsoft Teams - Insiders"] move to workspace 19:Teams
 for_window [class="Microsoft Teams"] move to workspace 19:Teams
 
-bindsym $mod+$alt+0 workspace 20:Chat
+bindsym $super+$alt+0 workspace 20:Chat
 assign [class="Slack"] 20:Chat
 for_window [class="Slack"] move to workspace 20:Chat
 assign [class="Signal"] 20:Chat
@@ -317,36 +317,36 @@ for_window [class="TelegramDesktop"] move to workspace 20:Chat
 assign [class="whatsapp-nativefier-.*"] 20:Chat
 for_window [class="whatsapp-nativefier-.*"] move to workspace 20:Chat
 
-bindsym $mod+Shift+u [window_role="UPDATES"] scratchpad show
+bindsym $super+Shift+u [window_role="UPDATES"] scratchpad show
 for_window [window_role="UPDATES"] move scratchpad
 
 # move focused container to workspace
-bindsym $mod+Shift+1 move container to workspace 1
-bindsym $mod+Shift+2 move container to workspace 2
-bindsym $mod+Shift+3 move container to workspace 3
-bindsym $mod+Shift+4 move container to workspace 4
-bindsym $mod+Shift+5 move container to workspace 5
-bindsym $mod+Shift+6 move container to workspace 6
-bindsym $mod+Shift+7 move container to workspace 7
-bindsym $mod+Shift+8 move container to workspace 8
-bindsym $mod+Shift+9 move container to workspace 9
-bindsym $mod+Shift+0 move container to workspace 10
-bindsym $mod+Shift+$alt+1 move container to workspace 11
-bindsym $mod+Shift+$alt+2 move container to workspace 12
-bindsym $mod+Shift+$alt+3 move container to workspace 13
-bindsym $mod+Shift+$alt+4 move container to workspace 14:Discord
-bindsym $mod+Shift+$alt+5 move container to workspace 15:Steam
-bindsym $mod+Shift+$alt+6 move container to workspace 16:YouTube
-bindsym $mod+Shift+$alt+7 move container to workspace 17:Netflix
-bindsym $mod+Shift+$alt+8 move container to workspace 18:YMP
-bindsym $mod+Shift+$alt+9 move container to workspace 19:Teams
-bindsym $mod+Shift+$alt+0 move container to workspace 20:Chat
+bindsym $super+Shift+1 move container to workspace 1
+bindsym $super+Shift+2 move container to workspace 2
+bindsym $super+Shift+3 move container to workspace 3
+bindsym $super+Shift+4 move container to workspace 4
+bindsym $super+Shift+5 move container to workspace 5
+bindsym $super+Shift+6 move container to workspace 6
+bindsym $super+Shift+7 move container to workspace 7
+bindsym $super+Shift+8 move container to workspace 8
+bindsym $super+Shift+9 move container to workspace 9
+bindsym $super+Shift+0 move container to workspace 10
+bindsym $super+Shift+$alt+1 move container to workspace 11
+bindsym $super+Shift+$alt+2 move container to workspace 12
+bindsym $super+Shift+$alt+3 move container to workspace 13
+bindsym $super+Shift+$alt+4 move container to workspace 14:Discord
+bindsym $super+Shift+$alt+5 move container to workspace 15:Steam
+bindsym $super+Shift+$alt+6 move container to workspace 16:YouTube
+bindsym $super+Shift+$alt+7 move container to workspace 17:Netflix
+bindsym $super+Shift+$alt+8 move container to workspace 18:YMP
+bindsym $super+Shift+$alt+9 move container to workspace 19:Teams
+bindsym $super+Shift+$alt+0 move container to workspace 20:Chat
 
 # move workspace to output
-bindsym Ctrl+$mod+Right move workspace to output right
-bindsym Ctrl+$mod+Left move workspace to output left
-bindsym Ctrl+$mod+Up move workspace to output up
-bindsym Ctrl+$mod+Down move workspace to output down
+bindsym Ctrl+$super+Right move workspace to output right
+bindsym Ctrl+$super+Left move workspace to output left
+bindsym Ctrl+$super+Up move workspace to output up
+bindsym Ctrl+$super+Down move workspace to output down
 
 set $external HDMI-1-1
 set $external2 DP-1-1

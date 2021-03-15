@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
 
-systemctl --user restart 'polybar*.service' 'glava.target'
+for service in 'polybar*.service' 'glava.target'; do
+  if systemctl --user is-active "$service"; then
+    systemctl --user restart "$service"
+  fi
+done
+
 systemctl --user start feh

@@ -13,6 +13,7 @@ x-scheme-handler/vnc=org.remmina.Remmina.desktop
 x-scheme-handler/remmina=org.remmina.Remmina.desktop
 application/x-remmina=org.remmina.Remmina.desktop
 application/xspf+xml=vlc.desktop
+application/x-yaml=/usr/share/applications/nvim.desktop
 
 [Added Associations]
 x-scheme-handler/http=exo-web-browser.desktop;

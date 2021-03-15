@@ -2,7 +2,7 @@
 Description=Work applications
 Requires=graphical-session.target
 After=graphical-session.target
-Wants=teams.service teams-audio-fix.service
+Wants=teams.service teams-audio-fix.service vpn@crossmedia.service
 
 [Install]
 WantedBy=graphical-session.target

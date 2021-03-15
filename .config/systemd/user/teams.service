@@ -1,6 +1,8 @@
 [Unit]
 Description=teams
 PartOf=work.target
+Requires=graphical-session.target network-online.service
+After=graphical-session.target network-online.service
 
 [Service]
 Type=forking
