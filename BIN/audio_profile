@@ -10,7 +10,7 @@ def card_name_getter(card: PulseCardInfo) -> str:
 
 
 def audio_profile():
-    if default_sink != "@DEFAULT_SINK@":
+    if default_sink != "@DEFAULT_SINK@" and default_sink != "auto_null":
         default_sink_card_index: int = [s for s in sinks if s.name == default_sink][0].card
     else:
         default_sink_card_index: int = -1

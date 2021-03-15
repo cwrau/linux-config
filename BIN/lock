@@ -1,17 +1,34 @@
-#!/usr/bin/env bash
-
-#i3lock -e -u -c 000000
-#exit 0
+#!/usr/bin/bash
 
 set -x
 
-pgrep i3lock && exit 0
+function unlock() {
+  pkill -x "$@" i3lock
+}
 
-sudo chmod u+s "$(command -v i3lock)"
-exec i3lock --blur 10 \
+function lock() {
+  i3lock --blur 10 \
     --pass-media-keys \
+    --pass-screen-keys \
+    --pass-volume-keys \
     --force-clock \
     --insidecolor 00000000 --insidevercolor 00000000 --insidewrongcolor 00000000 \
     --datestr %F \
     --veriftext= --wrongtext= --noinputtext= \
     --redraw-thread
+}
+
+sudo chmod u+s "$(command -v i3lock)"
+trap unlock TERM INT
+
+if ! [[ -z "${XSS_SLEEP_LOCK_FD}" ]]; then
+  lock {XSS_SLEEP_LOCK_FD}<&-
+
+  exec {XSS_SLEEP_LOCK_FD}<&-
+else
+  lock
+fi
+
+tail --pid=$(pgrep --newest --exact i3lock) -f /dev/null &
+
+wait $!

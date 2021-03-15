@@ -2,8 +2,13 @@
 
 set -ex
 
-if [ -e /var/lib/pacman/db.lck ] && [ $(($(date +%s) - $(date +%s -r /var/lib/pacman/db.lck))) -gt 1800 ]; then
-  sudo rm /var/lib/pacman/db.lck
+if [ -e /var/lib/pacman/db.lck ]; then
+  if [ $(($(date +%s) - $(date +%s -r /var/lib/pacman/db.lck))) -gt 1800 ]; then
+    sudo rm /var/lib/pacman/db.lck
+  else
+    notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 10000 -u critical 'Updates failed! Database lock exists'
+    exit 0
+  fi
 fi
 
 if sudo informant check; then
@@ -17,7 +22,7 @@ if sudo informant check; then
     notify-send.sh -R $XDG_RUNTIME_DIR/updates-notification -t 3600000 -u low "$UPDATES | $AUR_UPDATES" "$(yay -Quq --devel | sed -z '$ s/\n$//' | tr '\n' ',')"
 
     if [ "$1" = '--unattended' ]; then
-      if i3-sensible-terminal --role=UPDATES --wait -- yay -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall; then
+      if i3-sensible-terminal --role=UPDATES --wait -- nice -n 19 yay -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall; then
         notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 10000 -u normal 'Updates done!'
       else
         notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 10000 -u critical 'Updates failed!'
