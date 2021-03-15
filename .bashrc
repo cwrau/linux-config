@@ -205,7 +205,7 @@ then
 fi
 nAlias top htop
 nAlias vi vim
-nAlias cat bat
+nAlias cat /bin/bat
 nAlias less slit
 reAlias prettyping --nolegend
 nAlias ping prettyping

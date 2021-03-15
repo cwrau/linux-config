@@ -250,7 +250,7 @@ function e.() {
 compdef _nop e.
 
 function e() {
-  xdg-open "$*" > /dev/null
+  i3-msg "exec xdg-open \"$*\""
 }
 
 function ssh() {
@@ -329,7 +329,6 @@ function fap() {
     echo 'Port already used'
     return 1
   fi
-  rm -rf /tmp/data/custom/modules/file/mounts
   mkdir -p /tmp/data/custom/modules/file/mounts
   <<EOF > /tmp/data/custom/modules/file/mounts/data.xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -365,8 +364,14 @@ EOF
   local fapArgs=()
 
   local next=false
+  local keep=false
 
   for arg in "$@"; do
+    if [ "$arg" = "-k" ]; then
+      keep=true
+      continue
+    fi
+
     if [ "$arg" = "--" ]; then
       next=true
       continue
@@ -379,8 +384,6 @@ EOF
     fi
   done
 
-  systemctl --user start container-db.service || return
-
   podman pull registry.4allportal.net/4allportal:$tag
   set -x
   podman run --rm -it -e DATABASE_HOST=localhost -e DATABASE_TYPE=mariadb --userns keep-id -v /tmp/data:/4allportal/data --net host \
@@ -389,9 +392,8 @@ EOF
     registry.4allportal.net/4allportal:$tag $fapArgs
   set +x
 
-  if read -q "?Remove data?"; then
+  if [ "$keep" = "false" ]; then
     rm -rf /tmp/data
-    systemctl --user stop container-db.service
   fi
 }
 function _fap() {
@@ -443,8 +445,8 @@ function fapClone() {
 }
 function _fapClone() {
   local state
-  _arguments "1: :($(< $HOME/.ssh/known_hosts | awk '{print $1}' | tr ',' '\n' | sort | uniq | xargs echo -n))"
-  _arguments "2: :->files"
+  _arguments "1: :($(< $HOME/.ssh/known_hosts | awk '{print $1}' | tr ',' '\n' | sort | uniq | xargs echo -n))" \
+             "2: :->files"
   if [ "$state" = "files" ]; then
     _remote_files -/ -h root@${words[2]} -- ssh
   fi
@@ -503,67 +505,90 @@ function _hr_getYaml() {
   return 0
 }
 
-function _hr_getNs() {
+function _hr_getNamespace() {
   local yaml
   yaml="$1"
 
   <<<"$yaml" | yq -er 'if .spec.targetNamespace then .spec.targetNamespace else .metadata.namespace end'
 }
 
-function _hr_getRn() {
+function _hr_getReleaseName() {
   local yaml
   local ns
   yaml="$1"
-  ns=$(_hr_getNs "$yaml")
+  ns=$(_hr_getNamespace "$yaml")
 
   <<<"$yaml" | yq -er "if .spec.releaseName then .spec.releaseName else \"$ns-\\(.metadata.name)\" end"
 }
 
 function hr() {
-  local ns
-  local rn
+  local namespace
+  local releaseName
   local yaml
+  local values
   yaml=$(_hr_getYaml "$1")
-  [ "$?" -ne 0 ] && return 1
-  ns=$(_hr_getNs "$yaml")
-  rn=$(_hr_getRn "$yaml")
-  if <<< "$yaml" | yq -er .spec.chart.git > /dev/null; then
+  [ "$?" -ne 0 ] && retureleaseName 1
+  namespace=$(_hr_getNamespace "$yaml")
+  releaseName=$(_hr_getReleaseName "$yaml")
+  values=$(<<< "$yaml" | yq -y -er .spec.values)
+  if [ -d "$2" ]; then
+    helm template --namespace $namespace $releaseName "$2" --values <(<<< "$values") ${@:3}
+  elif <<< "$yaml" | yq -er .spec.chart.git > /dev/null; then
     rm -rf /tmp/helm-chart
     local gitPath
     gitPath="$(<<< "$yaml" | yq -er 'if .spec.chart.path then .spec.chart.path else "." end')"
     git clone --depth 1 --branch "$(<<< "$yaml" | yq -er 'if .spec.chart.ref then .spec.chart.ref else "master" end')" "$(<<< "$yaml" | yq -er .spec.chart.git)" /tmp/helm-chart > /dev/null
 
     helm dependency update "/tmp/helm-chart/$gitPath" > /dev/null
-    helm template --namespace $ns $rn "/tmp/helm-chart/$gitPath" --values <(<<< "$yaml" | yq -y -er .spec.values) ${@:2}
+    helm template --namespace $namespace $releaseName "/tmp/helm-chart/$gitPath" --values <(<<< "$values") ${@:2}
     rm -rf /tmp/helm-chart
   else
-    helm repo update
-    helm template --namespace $ns --repo $(<<< "$yaml" | yq -er .spec.chart.repository) $rn $(<<< "$yaml" | yq -er .spec.chart.name) --version $(<<< "$yaml" | yq -er .spec.chart.version) --values <(<<< "$yaml" | yq -y -er .spec.values) ${@:2}
+    helm template --namespace $namespace --repo $(<<< "$yaml" | yq -er .spec.chart.repository) $releaseName $(<<< "$yaml" | yq -er .spec.chart.name) --version $(<<< "$yaml" | yq -er .spec.chart.version) --values <(<<< "$values") ${@:2}
   fi
 }
 function _hr() {
-  _arguments "1: :($(fd -e yaml -e yml -X rg '^kind: HelmRelease$' -l))"
+  #_arguments "1: :($(fd --full-path $(realpath "${${words[2]/\~/$HOME}:-$PWD}" / | xargs -i realpath {} --relative-to="$PWD") -e yaml -e yml -X rg '^kind: HelmRelease$' -l))" \
+  #_arguments "1:The helm release to template:_files -f -g '*.(yaml|yml)'" \
+  #_arguments "1:The helm release to template:($(cd $(dirname "${words[2]:-$PWD}"); fd -e yaml -e yml -X rg '^kind: HelmRelease$' -l))" \
+  #_arguments "1:The helm release to template:->release" \
+  _arguments "1:The helm release to template:($(fd -e yaml -e yml -X rg '^kind: HelmRelease$' -l))" \
+             "2::The helm chart to use for templating:_files -/"
+  case "$state" in
+    release)
+      if [ -d "${words[2]}" ]; then
+        fd --search-path="${words[2]}" -e yaml -e yml -X rg '^kind: HelmRelease$' -l #| xargs -i realpath {} --relative-to=$PWD
+      else
+        _files -f -g '*.(yaml|yml)'
+      fi
+      ;;
+  esac
 }
 compdef _hr hr
 
 function hrDiff() {
   local HR="$1"
-  local ns
-  local rn
+  local namespace
+  local releaseName
+  local chartName
   local yaml
   yaml=$(_hr_getYaml "$1")
   [ "$?" -ne 0 ] && return 1
-  ns=$(_hr_getNs "$yaml")
-  rn=$(_hr_getRn "$yaml")
-  <<EOF > /tmp/repo.yaml
+  namespace=$(_hr_getNamespace "$yaml")
+  releaseName=$(_hr_getReleaseName "$yaml")
+  chartName=$(<<<"$yaml" | yq -er .spec.chart.name)
+  if [ -d "$2" ]; then
+    helm diff upgrade --namespace $namespace $releaseName "$2" --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:3} | less
+  else
+    <<EOF > /tmp/repo.yaml
 apiVersion: ""
 generated: "0001-01-01T00:00:00Z"
 repositories:
   - name: tmp
     url: "$(<<<"$yaml" | yq -er .spec.chart.repository)"
 EOF
-  helm --repository-config /tmp/repo.yaml repo update
-  helm --repository-config /tmp/repo.yaml diff upgrade --namespace $ns $rn tmp/$(<<<"$yaml" | yq -er .spec.chart.name) --version $(<<<"$yaml" | yq -er .spec.chart.version) --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:2} | less
+    helm --repository-config /tmp/repo.yaml repo update
+    helm --repository-config /tmp/repo.yaml diff upgrade --namespace $namespace $releaseName tmp/$(<<<"$yaml" | yq -er .spec.chart.name) --version $(<<<"$yaml" | yq -er .spec.chart.version) --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:2} | less
+  fi
 
   # helm diff upgrade --namespace $ns --repo $(yq -e .spec.chart.repository $HR) $rn $(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
 }
