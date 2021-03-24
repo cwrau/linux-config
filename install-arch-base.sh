@@ -268,7 +268,6 @@ else
     pkgstats
     playerctl
     podman
-    podman-compose
     polkit
     polkit-gnome
     polybar
@@ -277,7 +276,7 @@ else
     powertop
     premid
     prettyping
-    procs-bin
+    procs
     proton-ge-custom-bin
     pulseaudio
     pulseaudio-bluetooth
