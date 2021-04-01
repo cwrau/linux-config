@@ -4,7 +4,7 @@ tar -h --exclude=.idea -cf rootfs.tar -C rootfs .
 
 pkgname=linux-config
 pkgver=0.1.0
-pkgrel=0
+pkgrel=1
 pkgdesc='linux config'
 url="https://github.com/cwrau/linux-config"
 license=('GPL3')
@@ -13,9 +13,10 @@ source=('rootfs.tar')
 noextract=('rootfs.tar')
 sha512sums=('SKIP')
   #startPackages
-  packages=(
+depends=(
     advcp
     aria2
+    ausweisapp2
     autorandr
     base
     bash-completion
@@ -31,8 +32,6 @@ sha512sums=('SKIP')
     breeze-hacked-cursor-theme
     clipmenu
     curl
-    datagrip
-    datagrip-jre
     deluge-gtk
     diff-so-fancy
     discord_arch_electron
