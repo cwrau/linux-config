@@ -4,7 +4,7 @@ tar -h --exclude=.idea -cf rootfs.tar -C rootfs .
 
 pkgname=linux-config
 pkgver=0.1.0
-pkgrel=1
+pkgrel=3
 pkgdesc='linux config'
 url="https://github.com/cwrau/linux-config"
 license=('GPL3')
@@ -36,7 +36,6 @@ depends=(
     diff-so-fancy
     discord_arch_electron
     dnsmasq
-    dockerfile-language-server-bin
     dolphin-emu
     dunst
     earlyoom
@@ -45,8 +44,6 @@ depends=(
     efibootmgr
     exa
     exo
-    fahcontrol
-    fahviewer
     fd
     feh
     foldingathome
@@ -63,7 +60,6 @@ depends=(
     gnupg
     google-chrome
     gotop-bin
-    gpmdp
     gradle
     grub
     gvfs
@@ -80,13 +76,12 @@ depends=(
     intel-ucode
     intellij-idea-ultimate-edition
     intellij-idea-ultimate-edition-jre
+    jdk
     jq
-    k9s-git
+    k9s
     kdeconnect
     kexec-tools
-    krew-bin
-    kube-linter-bin
-    kubectl-bin
+    kubectl
     kubefwd-bin
     lab-bin
     less
@@ -96,7 +91,6 @@ depends=(
     libgnome-keyring
     libinput-gestures
     libopenaptx
-    libu2f-host
     libva-mesa-driver
     linux
     linux-firmware
@@ -134,15 +128,16 @@ depends=(
     ocl-icd
     oh-my-zsh-git
     opencl-nvidia
-    openjdk-src
     openssh
     pacman-contrib
     papirus-icon-theme
+    paru-bin
     pavucontrol
     pcmanfm
     perl-anyevent-i3
     perl-file-mimeinfo
     picom
+    pipewire-pulse
     pkgstats
     playerctl
     podman
@@ -150,14 +145,11 @@ depends=(
     polkit-gnome
     polybar
     polybar-scripts-git
-    powerpill
     powertop
     premid
     prettyping
     procs
     proton-ge-custom-bin
-    pulseaudio
-    pulseaudio-bluetooth
     pv
     python-dynmen
     python-notify2
@@ -167,7 +159,6 @@ depends=(
     python-rope
     python-traitlets
     python-virtualenv
-    qemu
     realvnc-vnc-viewer
     redshift
     reflector
@@ -203,7 +194,6 @@ depends=(
     uhk-agent-appimage
     unzip
     usbutils
-    virt-manager
     which
     xarchiver
     xclip
@@ -214,7 +204,6 @@ depends=(
     xorg-xprop
     xorg-xwininfo
     xss-lock-session
-    yay-bin
     yq
     ytmdesktop
     yubico-pam
