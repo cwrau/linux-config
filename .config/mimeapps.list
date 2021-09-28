@@ -12,8 +12,10 @@ x-scheme-handler/spice=org.remmina.Remmina.desktop
 x-scheme-handler/vnc=org.remmina.Remmina.desktop
 x-scheme-handler/remmina=org.remmina.Remmina.desktop
 application/x-remmina=org.remmina.Remmina.desktop
-application/xspf+xml=vlc.desktop
+application/xspf+xml=mpv.desktop
 application/x-yaml=/usr/share/applications/nvim.desktop
+x-scheme-handler/tg=userapp-Telegram Desktop-ELHZ00.desktop
+x-scheme-handler/discord-455712169795780630=discord-455712169795780630.desktop
 
 [Added Associations]
 x-scheme-handler/http=exo-web-browser.desktop;
@@ -25,4 +27,6 @@ x-scheme-handler/spice=org.remmina.Remmina.desktop;
 x-scheme-handler/vnc=org.remmina.Remmina.desktop;
 x-scheme-handler/remmina=org.remmina.Remmina.desktop;
 application/x-remmina=org.remmina.Remmina.desktop;
-application/xspf+xml=vlc.desktop;
+application/xspf+xml=mpv.desktop;
+x-scheme-handler/tg=userapp-Telegram Desktop-ELHZ00.desktop;
+application/xml=nvim.desktop;

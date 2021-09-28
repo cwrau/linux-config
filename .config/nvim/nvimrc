@@ -160,8 +160,8 @@ endfunction
 set nofoldenable
 
 highlight ExtraWhitespace ctermfg=167 guifg=#cc6666 ctermbg=167 guibg=#cc6666
-autocm InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
-autocm InsertLeave * match ExtraWhitespace /\s\+$/
+autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
+autocmd InsertLeave * match ExtraWhitespace /\s\+$/
 match ExtraWhitespace /\s\+$/
 autocmd BufWrite * :%s/\s\+$//e
 

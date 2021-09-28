@@ -1,6 +1,6 @@
 
 /* center radius (pixels) */
-#define C_RADIUS 360
+#define C_RADIUS 300
 /* center line thickness (pixels) */
 #define C_LINE 0
 /* outline color */
@@ -34,7 +34,7 @@
 #define CENTER_OFFSET_X 0
 
 /* Gravity step, override from `smooth_parameters.glsl` */
-#request setgravitystep 3.0
+#request setgravitystep 5.5
 
 /* Smoothing factor, override from `smooth_parameters.glsl` */
 #request setsmoothfactor 0.02

@@ -141,7 +141,8 @@ mode "resize" {
 
 bindsym $super+r mode "resize"
 
-default_border none
+default_border pixel 1
+hide_edge_borders both
 for_window [class="jetbrains-toolbox"] floating enable
 for_window [class="steam_app.*"] floating enable
 for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
@@ -149,7 +150,7 @@ for_window [class="Gnome-network-displays"] floating enable
 for_window [class="Microsoft Teams" title="Microsoft Teams Notification"] floating enable
 no_focus [class="Microsoft Teams" title="Microsoft Teams Notification"]
 
-$exaid $XDG_CONFIG_HOME/i3/rc.sh
+$exid $XDG_CONFIG_HOME/i3/rc.sh
 
 set $displayMode "Set display mode [w]ork [l]aptop"
 #bindsym $super+x mode $displayMode
@@ -160,9 +161,6 @@ mode $displayMode {
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
-
-#bindsym Pause exec suspend
-#bindsym Scroll_Lock exec lock
 
 set $Power " [S]leep, [p]oweroff, [l]ogoff or [r]eboot?"
 bindsym $super+q mode $Power
@@ -215,7 +213,7 @@ bindsym $super+o $exid audio_sink
 
 # Display Manager
 bindsym $super+Shift+p $exid rofi-randr
-bindsym $super+Ctrl+p $exid autorandr --change --force
+bindsym $super+Ctrl+p $exid autorandr_dmenu
 #bindsym $super+p $exid /usr/bin/lxrandr
 bindsym $super+b $exid bluetooth_dmenu
 
@@ -236,17 +234,17 @@ bindsym $super+Ctrl+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i'
 
 # Screenshots
 # Selection > Clipboard
-bindsym Print --release $exid "scrot -s /tmp/screenshot-$(date +%FT%T.%2N).png -e 'xclip -selection clipboard -t image/png < $f'"
+bindsym Print --release $exid "scrot -s /tmp/screenshot-$(date +%FT%T.%2N%z).png -e 'xclip -selection clipboard -t image/png < $f'"
 # Full Screen > Clipboard
-bindsym Shift+Print $exid "scrot /tmp/screenshot-$(date +%FT%T.%2N).png -e 'xclip -selection clipboard -t image/png < $f'"
+bindsym Shift+Print $exid "scrot /tmp/screenshot-$(date +%FT%T.%2N%z).png -e 'xclip -selection clipboard -t image/png < $f'"
 # Selection > File
-bindsym Ctrl+Print --release $exid "scrot -s $HOME/Screenshots/$(date +%FT%T.%2N).png"
+bindsym Ctrl+Print --release $exid "scrot -s $HOME/Screenshots/$(date +%FT%T.%2N%z).png"
 # Full Screen > File
-bindsym Ctrl+Shift+Print $exid "scrot $HOME/Screenshots/$(date +%FT%T.%2N).png"
+bindsym Ctrl+Shift+Print $exid "scrot $HOME/Screenshots/$(date +%FT%T.%2N%z).png"
 
 bindsym $super+c exec "exo-open --launch WebBrowser"
 bindsym $super+Shift+c exec "exo-open --launch WebBrowser --incognito"
-bindsym $super+g exec sh -c 'dmenu -p google | tr " " "+" | xargs -r -I{} xdg-open https://google.com/search\?q\={}'
+bindsym $super+g exec sh -c 'dmenu -p google | tr " " "+" | xargs -r -I{} $BROWSER --new-window https://google.com/search\?q\={}'
 
 for_window [class="jetbrains-idea" title="Debug"] floating disable
 for_window [class="java-lang-Thread" instance="java-lang-Thread"] floating enable
@@ -255,7 +253,6 @@ for_window [class="jetbrains-.*" title="Welcome to IntelliJ IDEA"] floating enab
 
 for_window [class="Kazam"] floating enable
 
-#hide_edge_borders both
 #new_window none
 
 set $alt Mod1
@@ -267,6 +264,8 @@ bindsym $super+Page_Down workspace next
 bindsym $super+1 workspace 1
 assign [class="Thunderbird"] 1
 for_window [class="Thunderbird"] move to workspace 1
+assign [class="work"] 1
+for_window [class="work"] move to workspace 1
 
 bindsym $super+2 workspace 2
 bindsym $super+3 workspace 3
@@ -314,8 +313,8 @@ assign [class="Signal"] 20:Chat
 for_window [class="Signal"] move to workspace 20:Chat
 assign [class="TelegramDesktop"] 20:Chat
 for_window [class="TelegramDesktop"] move to workspace 20:Chat
-assign [class="whatsapp-nativefier-.*"] 20:Chat
-for_window [class="whatsapp-nativefier-.*"] move to workspace 20:Chat
+assign [class="whatsapp"] 20:Chat
+for_window [class="whatsapp"] move to workspace 20:Chat
 
 bindsym $super+Shift+u [window_role="UPDATES"] scratchpad show
 for_window [window_role="UPDATES"] move scratchpad
@@ -368,4 +367,3 @@ gaps inner 10
 smart_borders on
 
 exec --no-startup-id systemctl --user start i3-session.target
-exec_always --no-startup-id systemctl --user start feh.service

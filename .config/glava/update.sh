@@ -8,8 +8,10 @@ function update() {
     glavaOutputId=$(pactl list source-outputs short | awk '{if ($3 == "'"$glavaId"'") print $1;}')
     echo "Moving $glavaOutputId to @DEFAULT_MONITOR@"
     pactl move-source-output $glavaOutputId @DEFAULT_MONITOR@
-    pactl set-source-output-volume $glavaOutputId 50%
+    pactl set-source-output-volume $glavaOutputId 75% 75%
   done
+
+  pkill -0 -x glava
 }
 
 update

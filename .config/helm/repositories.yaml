@@ -6,6 +6,7 @@ repositories:
   insecure_skip_tls_verify: false
   keyFile: ""
   name: 4allportal
+  pass_credentials_all: false
   password: ""
   url: https://charts.4allportal.net
   username: ""
@@ -14,6 +15,7 @@ repositories:
   insecure_skip_tls_verify: false
   keyFile: ""
   name: jetstack
+  pass_credentials_all: false
   password: ""
   url: https://charts.jetstack.io
   username: ""
@@ -22,6 +24,7 @@ repositories:
   insecure_skip_tls_verify: false
   keyFile: ""
   name: fluxcd
+  pass_credentials_all: false
   password: ""
   url: https://charts.fluxcd.io
   username: ""
@@ -30,6 +33,7 @@ repositories:
   insecure_skip_tls_verify: false
   keyFile: ""
   name: appscode
+  pass_credentials_all: false
   password: ""
   url: https://charts.appscode.com/stable
   username: ""
@@ -38,6 +42,7 @@ repositories:
   insecure_skip_tls_verify: false
   keyFile: ""
   name: prometheus-community
+  pass_credentials_all: false
   password: ""
   url: https://prometheus-community.github.io/helm-charts
   username: ""
@@ -46,6 +51,7 @@ repositories:
   insecure_skip_tls_verify: false
   keyFile: ""
   name: jaeger
+  pass_credentials_all: false
   password: ""
   url: https://jaegertracing.github.io/helm-charts
   username: ""
@@ -54,6 +60,7 @@ repositories:
   insecure_skip_tls_verify: false
   keyFile: ""
   name: bitnami
+  pass_credentials_all: false
   password: ""
   url: https://charts.bitnami.com/bitnami
   username: ""
@@ -62,6 +69,7 @@ repositories:
   insecure_skip_tls_verify: false
   keyFile: ""
   name: cowboysysop
+  pass_credentials_all: false
   password: ""
   url: https://cowboysysop.github.io/charts
   username: ""
@@ -70,6 +78,7 @@ repositories:
   insecure_skip_tls_verify: false
   keyFile: ""
   name: gitlab
+  pass_credentials_all: false
   password: ""
   url: https://charts.gitlab.io
   username: ""
@@ -78,6 +87,7 @@ repositories:
   insecure_skip_tls_verify: false
   keyFile: ""
   name: kasten
+  pass_credentials_all: false
   password: ""
   url: https://charts.kasten.io/
   username: ""
@@ -86,6 +96,7 @@ repositories:
   insecure_skip_tls_verify: false
   keyFile: ""
   name: traefik
+  pass_credentials_all: false
   password: ""
   url: https://helm.traefik.io/traefik
   username: ""
@@ -94,6 +105,7 @@ repositories:
   insecure_skip_tls_verify: false
   keyFile: ""
   name: stasico
+  pass_credentials_all: false
   password: ""
   url: https://flypenguin.github.io/helm-stasico
   username: ""
@@ -102,6 +114,97 @@ repositories:
   insecure_skip_tls_verify: false
   keyFile: ""
   name: itzg
+  pass_credentials_all: false
   password: ""
   url: https://itzg.github.io/minecraft-server-charts/
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: k8ssandra
+  pass_credentials_all: false
+  password: ""
+  url: https://helm.k8ssandra.io/stable
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: stakater
+  pass_credentials_all: false
+  password: ""
+  url: https://stakater.github.io/stakater-charts
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: falcosecurity
+  pass_credentials_all: false
+  password: ""
+  url: https://falcosecurity.github.io/charts
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: kubecost
+  pass_credentials_all: false
+  password: ""
+  url: https://kubecost.github.io/cost-analyzer
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: artifact-hub
+  pass_credentials_all: false
+  password: ""
+  url: https://artifacthub.github.io/hub/chart
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: minio
+  pass_credentials_all: false
+  password: ""
+  url: https://helm.min.io/
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: descheduler
+  pass_credentials_all: false
+  password: ""
+  url: https://kubernetes-sigs.github.io/descheduler/
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: cilium
+  pass_credentials_all: false
+  password: ""
+  url: https://helm.cilium.io/
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: netdata
+  pass_credentials_all: false
+  password: ""
+  url: https://netdata.github.io/helmchart/
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: crossplane-stable
+  pass_credentials_all: false
+  password: ""
+  url: https://charts.crossplane.io/stable
   username: ""

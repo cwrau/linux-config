@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-for service in 'polybar*.service' 'glava.target'; do
+for service in 'polybar.target' 'glava.target'; do
   if systemctl --user is-active "$service"; then
-    systemctl --user restart "$service"
+    systemctl --user restart "$service" &
   fi
 done
 
-systemctl --user start feh
+systemctl --user restart feh &
+wait
