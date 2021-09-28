@@ -19,7 +19,6 @@
 /.java/
 /.kube/
 /.local/
-!.local/share/JetBrains/Toolbox/.settings.json
 /.m2/
 /.mozilla/
 /.pki/

@@ -121,13 +121,13 @@ EOHOSTS
 else
   hostname="$1"
   installUser="$2"
-  if ! yay --version; then
+  if ! paru --version; then
     pushd /tmp
-    [ -d yay-bin ] || git clone https://aur.archlinux.org/yay-bin.git
-    cd yay-bin
+    [ -d paru-bin ] || git clone https://aur.archlinux.org/paru-bin.git
+    cd paru-bin
     export PKGEXT=.pkg.tar
     makepkg -fs
-    sudo pacman -U yay-bin-*.pkg.tar --noconfirm
+    sudo pacman -U paru-bin-*.pkg.tar --noconfirm
     popd
   fi
 
@@ -272,7 +272,6 @@ else
     polkit-gnome
     polybar
     polybar-scripts-git
-    powerpill
     powertop
     premid
     prettyping
@@ -337,7 +336,7 @@ else
     xorg-xprop
     xorg-xwininfo
     xss-lock-session
-    yay-bin
+    paru-bin
     yq
     ytmdesktop
     yubico-pam
@@ -360,10 +359,9 @@ else
     rofi-dmenu
   )
 
-  yay --pacman=pacman -S --noconfirm --needed powerpill
-  yay -Syu --noconfirm --needed --removemake --asdeps ${prePackages[@]}
+  paru -Syu --noconfirm --needed --removemake --asdeps ${prePackages[@]}
 
-  yay -Syu --noconfirm --needed --removemake --asexplicit ${packages[@]}
+  paru -Syu --noconfirm --needed --removemake --asexplicit ${packages[@]}
 
   kubectl krew update
   kubectl krew install access-matrix konfig debug node-shell

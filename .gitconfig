@@ -17,6 +17,8 @@
   required = true
 [init]
   defaultBranch = master
+[log]
+  date = iso
 [push]
   default = current
 [pull]

@@ -44,7 +44,7 @@ then
 
   function command_not_found_handle {
     echo "Command '$1' not found, but could be installed via the following packages:"
-    yay -Fyq -- $1
+    paru -Fyq -- $1
   }
 
   function e.() {
@@ -118,9 +118,10 @@ else
     cd /docker
   fi
 
-  function root() {
-    sudo bash --rcfile /tmp/cwr.bashrc
-  }
+  export LANG=C
+  if [ "$UID" != 0 ]; then
+    exec sudo bash --rcfile /tmp/cwr.bashrc
+  fi
 fi
 
 case "$-" in
@@ -213,7 +214,6 @@ nAlias du ncdu
 reAlias rg -S
 reAlias jq -r
 nAlias k kubectl
-reAlias yay --pacman powerpill
 nAlias docker-run docker run --rm -i -t
 nAlias htop gotop
 reAlias gotop -r 4
@@ -380,7 +380,5 @@ then
 fi
 export VISUAL=vim
 export EDITOR="$VISUAL"
-[ -d /usr/local/bin/custom ] && PATH="$PATH:/usr/local/bin/custom"
-[ -d /usr/local/bin/custom/custom ] && PATH="$PATH:/usr/local/bin/custom/custom"
 
 nAlias . ls

@@ -30,8 +30,8 @@ export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
 export GOPATH="$XDG_DATA_HOME/go"
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
-export KREW_ROOT="$XDG_DATA_HOME/krew"
 export KUBECONFIG="$XDG_CONFIG_HOME/kube/config"
+export KONAN_DATA_DIR="$XDG_DATA_HOME/konan"
 export LESSHISTFILE="$XDG_DATA_HOME/less/history"
 export MINIKUBE_HOME="$XDG_DATA_HOME/minikube"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
@@ -57,9 +57,6 @@ export FZF_CTRL_T_COMMAND='fd --hidden'
 export FZF_CTRL_T_OPTS="--preview '(bat --color=always --pager=never -p {} 2> /dev/null || tree -C {}) 2> /dev/null | head -200'"
 export GRADLE_OPTS=-Xmx1G
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
-
-[ -d /usr/local/bin/custom ] && PATH="$PATH:/usr/local/bin/custom"
-[ -d /usr/local/bin/custom/custom ] && PATH="$PATH:/usr/local/bin/custom/custom"
 
 if [[ $- = *i* ]]; then
   if [[ -z "$DISPLAY" ]]; then
@@ -185,7 +182,6 @@ plugins=(
   gpg-agent
   helm
   kubectl
-  mvn
   gradle
   ripgrep
   sudo
@@ -194,6 +190,7 @@ plugins=(
   zsh-autosuggestions
 )
 
+export HISTORY_BASE="$XDG_CACHE_HOME/directory_history"
 export ZSH_COMPDUMP="${ZSH_CACHE_DIR}/.zcompdump-${ZSH_VERSION}"
 
 source $ZSH/oh-my-zsh.sh
@@ -219,7 +216,7 @@ function _check_command() {
   if [ $? -eq 0 ] && command -v $1 &> /dev/null; then
     $@
     local ret=$?
-    yay -R $(rg --text installed /var/log/pacman.log | tail -1 | awk '{print $4}')
+    paru -R $(rg --text installed /var/log/pacman.log | tail -1 | awk '{print $4}')
     return $ret
   fi
   return 137
@@ -228,16 +225,16 @@ function _check_command() {
 function command_not_found_handler() {
   local packages
   echo "Command '$1' not found, but could be installed via the following package(s):"
-  yay -S --provides -- $1
+  paru -Ss --provides -- $1
   _check_command $@
   [ $? = 137 ] || return $?
   echo "Packages containing '$1' in name"
-  yay -- $1
+  paru -- $1
   _check_command $@
   [ $? = 137 ] || return $?
   echo "Packages containg files with '$1' in their name"
-  packages=$(yay -Fyq -- $1)
-  yay $packages
+  packages=$(paru -Fyq -- $1)
+  paru $packages
   _check_command $@
   [ $? = 137 ] || return $?
 }
@@ -280,12 +277,13 @@ function idea() {
 }
 
 function diff() {
-  /bin/diff -u "${@}" | diff-so-fancy | /bin/less --tabs=1,5 -RF
+  /usr/bin/diff -u "${@}" | diff-so-fancy | /usr/bin/less --tabs=1,5 -RF
 }
 
 function swap() {
-  tmpfile=$(mktemp -u $(dirname "$1")/XXXXXX)
-  mv "$1" "$tmpfile" -f && mv "$2" "$1" &&  mv "$tmpfile" "$2"
+  local tmp
+  tmp=$(mktemp -u XXXXXX)
+  mv "$1" "$tmp" && mv "$2" "$1" &&  mv "$tmp" "$2"
 }
 
 function bak() {
@@ -321,7 +319,7 @@ function fapp() {
   rm -rf /tmp/data/apps
   mkdir -p /tmp/data/apps
   cp build/*.4app /tmp/data/apps
-  fap $version -e APPS_INSTALL=$apps $@
+  fap "$version" -e APPS_INSTALL=$apps $@
 }
 
 function fap() {
@@ -330,6 +328,7 @@ function fap() {
     return 1
   fi
   mkdir -p /tmp/data/custom/modules/file/mounts
+  mkdir -p /tmp/data/data
   <<EOF > /tmp/data/custom/modules/file/mounts/data.xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <mount enabled="true">
@@ -384,17 +383,25 @@ EOF
     fi
   done
 
-  podman pull registry.4allportal.net/4allportal:$tag
+  if [ "$tag" != "LOCAL" ]; then
+    podman pull registry.4allportal.net/4allportal:$tag
+  fi
+  local exitCode
   set -x
-  podman run --rm -it -e DATABASE_HOST=localhost -e DATABASE_TYPE=mariadb --userns keep-id -v /tmp/data:/4allportal/data --net host \
+  podman run --rm -it -e DATABASE_HOST=localhost -e DATABASE_TYPE=mariadb --userns keep-id --net host \
     --name="4allportal-$tag" \
-    --tmpfs=/4allportal/{_runtime,assets} $podmanArgs \
+    --read-only \
+    -v /tmp/data/data:/4allportal/data/data:ro \
+    --tmpfs=/{4allportal/{_runtime,assets},tmp} $podmanArgs \
+    -v /tmp/data:/4allportal/data \
     registry.4allportal.net/4allportal:$tag $fapArgs
+  exitCode=$?
   set +x
 
   if [ "$keep" = "false" ]; then
     rm -rf /tmp/data
   fi
+  return exitCode
 }
 function _fap() {
   local state
@@ -454,10 +461,10 @@ function _fapClone() {
 compdef _fapClone fapClone
 
 function appVs() {
-  ssh root@repository.4allportal.net ls /services/repository/apps/$1 -v | rg ${2:-.} | sort -V | sed "s#^#$1:#g"
+  ssh -o LogLevel=QUIET root@repository.4allportal.net find /services/repository/apps/$1 -mindepth 1 -maxdepth 1 -type d -exec basename {} \\\; | rg ${2:-.} | sort -V | sed "s#^#$1:#g" | tr -d '\r'
 }
 function _getApps() {
-  ssh root@repository.4allportal.net ls /services/repository/apps/ | sort | uniq | xargs echo -n
+  ssh -o LogLevel=QUIET root@repository.4allportal.net find /services/repository/apps -mindepth 1 -maxdepth 1 -type d -exec basename {} \\\; | sort | uniq | tr -d '\r'
 }
 function _appVs() {
   _arguments "1: :($(_getApps))"
@@ -465,7 +472,7 @@ function _appVs() {
 compdef _appVs appVs
 
 function appV() {
-  echo "$1:$(ssh root@repository.4allportal.net ls /services/repository/apps/$1 -v | rg ${2:-.} | sort -V | rg -v SNAPSHOT | tail -1)"
+  echo "$1:$(ssh -o LogLevel=QUIET root@repository.4allportal.net find /services/repository/apps/$1 -mindepth 1 -maxdepth 1 -type d -exec basename {} \\\; | rg ${2:-.} | sort -V | rg -v SNAPSHOT | tail -1 | tr -d '\r')"
 }
 compdef _appVs appV
 
@@ -501,7 +508,7 @@ function _hr_getYaml() {
   else
     < "$HR"
     [ "$?" -ne 0 ] && return 1
-  fi
+  fi | yq -erys '.[] | select(.kind == "HelmRelease")'
   return 0
 }
 
@@ -527,6 +534,10 @@ function hr() {
   local yaml
   local values
   yaml=$(_hr_getYaml "$1")
+  if [[ "$2" =~ -[0-9]+ ]]; then
+    yaml="$(<<<"$yaml" | yq -erys ".[${2/-}]")"
+    shift
+  fi
   [ "$?" -ne 0 ] && retureleaseName 1
   namespace=$(_hr_getNamespace "$yaml")
   releaseName=$(_hr_getReleaseName "$yaml")
@@ -566,28 +577,34 @@ function _hr() {
 compdef _hr hr
 
 function hrDiff() {
-  local HR="$1"
   local namespace
   local releaseName
   local chartName
   local yaml
   yaml=$(_hr_getYaml "$1")
+  if [[ "$2" =~ -[0-9]+ ]]; then
+    yaml="$(<<<"$yaml" | yq -erys ".[${2/-}]")"
+    shift
+  fi
   [ "$?" -ne 0 ] && return 1
   namespace=$(_hr_getNamespace "$yaml")
   releaseName=$(_hr_getReleaseName "$yaml")
   chartName=$(<<<"$yaml" | yq -er .spec.chart.name)
   if [ -d "$2" ]; then
-    helm diff upgrade --namespace $namespace $releaseName "$2" --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:3} | less
+    helm diff --show-secrets upgrade --namespace $namespace $releaseName "$2" --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:3} | grep -v helm.sh/chart | less
   else
-    <<EOF > /tmp/repo.yaml
+    local repoTmpFile
+    repoTmpFile=$(mktemp --suffix .yaml)
+    trap "rm -f $repoTmpFile" EXIT
+    <<EOF > $repoTmpFile
 apiVersion: ""
 generated: "0001-01-01T00:00:00Z"
 repositories:
   - name: tmp
     url: "$(<<<"$yaml" | yq -er .spec.chart.repository)"
 EOF
-    helm --repository-config /tmp/repo.yaml repo update
-    helm --repository-config /tmp/repo.yaml diff upgrade --namespace $namespace $releaseName tmp/$(<<<"$yaml" | yq -er .spec.chart.name) --version $(<<<"$yaml" | yq -er .spec.chart.version) --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:2} | less
+    helm --repository-config $repoTmpFile repo update
+    helm --repository-config $repoTmpFile diff --show-secrets upgrade --namespace $namespace $releaseName tmp/$(<<<"$yaml" | yq -er .spec.chart.name) --version $(<<<"$yaml" | yq -er .spec.chart.version) --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:2} | grep -v helm.sh/chart | less
   fi
 
   # helm diff upgrade --namespace $ns --repo $(yq -e .spec.chart.repository $HR) $rn $(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
@@ -598,22 +615,28 @@ function pkgSync() {
   local OLDPWD=$PWD
   cd $HOME
   git pull
+  systemctl --user daemon-reload
 
   local package
   local packages
-  eval $(sed -n '/#startPackages/,/#endPackages/p;/#endPackages/q' $HOME/install-arch-base.sh | rg -v '#')
+  local depends
+  eval $(sed -n '/#startPackages/,/#endPackages/p;/#endPackages/q' $HOME/config/PKGBUILD | rg -v '#')
+  packages=$depends
 
   local targetPackages
   targetPackages=$(echo $packages | tr ' ' '\n')
   local originalPackages=$targetPackages
 
   local newPackages
-  newPackages=$(yay -Qqe | rg -xv $(echo $targetPackages | tr '\n' '|' | sed 's#|$##g'))
+  newPackages=$(paru -Qqe | rg -xv $(echo $targetPackages | tr '\n' '|' | sed 's#|$##g'))
 
   if [ ! -z $newPackages ]; then
     echo "$(wc -l <<<$newPackages) new Packages"
     while read -r package; do
-      yay -Qi $package
+      if [ $package = "linux-config" ]; then
+        continue
+      fi
+      paru -Qi $package
       read -k 1 "choice?[A]dd, [r]emove, [d]epends or [s]kip $package? "
       echo
       case $choice in;
@@ -623,12 +646,12 @@ function pkgSync() {
         [Rr])
           echo "=========="
           echo
-          yay -R --noconfirm $package
+          paru -R --noconfirm $package
           ;;
         [Dd])
           echo "=========="
           echo
-          yay -D --asdeps $package
+          paru -D --asdeps $package
           ;;
         *)
           :
@@ -643,20 +666,20 @@ function pkgSync() {
   fi
 
   local missingPackages
-  missingPackages=$(echo $targetPackages | rg -xv $(yay -Qqe | tr '\n' '|' | sed 's#|$##g'))
+  missingPackages=$(echo $targetPackages | rg -xv $(paru -Qqe | tr '\n' '|' | sed 's#|$##g'))
 
   if [ ! -z $missingPackages ]; then
     echo "$(wc -l <<<$missingPackages) missing Packages"
     while read -r package; do
-      yay -Si $package
-      yay -Qi $package
+      paru -Si $package
+      paru -Qi $package
       read -k 1 "choice?[I]nstall, [r]emove, [e]xplicit or [s]kip $package? "
       echo
       case $choice in;
         [Ii])
           echo "=========="
           echo
-          yay -S --noconfirm $package
+          paru -S --noconfirm $package
           ;;
         [Rr])
           targetPackages=$(echo $targetPackages | rg -xv "$package")
@@ -664,7 +687,7 @@ function pkgSync() {
         [Ee])
           echo "=========="
           echo
-          yay -D --asexplicit $package
+          paru -D --asexplicit $package
           ;;
         *)
           :
@@ -686,7 +709,7 @@ function pkgSync() {
     if read -q "?Remove orphaned packages? "; then
       while [ ! -z $orphanedPackages ]; do
         echo "$(wc -l <<<$orphanedPackages) orphaned Packages"
-        yay -R --noconfirm $(tr '\n' ' ' <<<$orphanedPackages)
+        paru -R --noconfirm $(tr '\n' ' ' <<<$orphanedPackages)
         echo
         orphanedPackages=$(pacman -Qqtd)
       done
@@ -703,7 +726,7 @@ function pkgSync() {
     if read -q "?Remove unused packages? "; then
       while [ ! -z $unusedPackages ]; do
         echo "$(wc -l <<<$unusedPackages) unused Packages"
-        yay -R --noconfirm $(tr '\n' ' ' <<<$unusedPackages)
+        paru -R --noconfirm $(tr '\n' ' ' <<<$unusedPackages)
         echo
         unusedPackages=$(pacman -Qi | awk '/^Name/{name=$3} /^Required By/{req=$4} /^Optional For/{opt=$0} /^Install Reason/{res=$4$5} /^$/{if (req == "None" && res != "Explicitlyinstalled"){print name}}')
       done
@@ -714,19 +737,23 @@ function pkgSync() {
 
   newPackages=$( (
     echo '  #startPackages'
-    echo '  packages=('
+    echo 'depends=('
     echo $targetPackages | sort | uniq | sed 's#^#    #g'
     echo '  )'
     echo '  #endPackages'
   ) | sed -r 's#$#\\n#g' | tr -d '\n' | sed -r 's#\\n$##g')
 
   diff <(echo $originalPackages | sort) <(echo $targetPackages | sort)
-  if ! /bin/diff <(echo $originalPackages) <(echo $targetPackages) &> /dev/null; then
+  if ! /usr/bin/diff <(echo $originalPackages) <(echo $targetPackages) &> /dev/null; then
     if read -q "?Commit? "; then
-      sed -i -e "/#endPackages/a \\${newPackages}" -e '/#startPackages/,/#endPackages/d' -e 's#NewPackages#Packages#g' $HOME/install-arch-base.sh
-      git commit -m pkgSync install-arch-base.sh
+      sed -i -e "/#endPackages/a \\${newPackages}" -e '/#startPackages/,/#endPackages/d' -e 's#NewPackages#Packages#g' $HOME/config/PKGBUILD
+      local pkgrel
+      eval "$(grep pkgrel $HOME/config/PKGBUILD)"
+      sed -i -e "s#pkgrel=$pkgrel#pkgrel=$(( pkgrel + 1 ))#" $HOME/config/PKGBUILD
+      git commit -m pkgSync $HOME/config/PKGBUILD
       git push
     fi
+    (cd $HOME/config && makepkg -si)
   else
     echo "No changes to be made"
   fi
@@ -740,7 +767,7 @@ function clip() {
 compdef _nop clip
 
 function releaseAur() {
-  git clean -xfd && updpkgsums && makepkg -f && makepkg --printsrcinfo > .SRCINFO && git commit -v . && git push && git clean -xfd
+  git add PKGBUILD .SRCINFO && git clean -xfd && updpkgsums && makepkg -f && makepkg --printsrcinfo > .SRCINFO && git commit -v . && git push && git clean -xfd
 }
 
 function reAlias() {
@@ -752,10 +779,6 @@ function nAlias() {
   alias "$1=${param}"
 }
 
-function docker() {
-  echo "Use podman!"
-}
-
 nAlias $ ''
 nAlias :q exit
 nAlias :e nvim
@@ -765,7 +788,7 @@ reAlias rm -i
 reAlias cp -i
 reAlias mv -i
 #reAlias ls --almost-all --indicator-style=slash --human-readable --sort=version --escape --format=long --color=always --time-style=long-iso
-nAlias ls exa --all --binary --group --classify --sort=filename --long --colour=always --time-style=long-iso
+nAlias ls exa --all --binary --group --classify --sort=filename --long --colour=always --time-style=long-iso --git
 reAlias nvim -b
 if [[ "$(id -u)" != 0 ]] && command -v sudo &> /dev/null; then
   for cmd in systemctl pacman ip; do
@@ -794,10 +817,13 @@ nAlias grep rg
 nAlias o xdg-open
 nAlias dmakepkg podman-run --network host -v '$PWD:/pkg' 'whynothugo/makepkg' makepkg
 reAlias watch ' '
-nAlias scu /bin/systemctl --user
+nAlias scu /usr/bin/systemctl --user
 nAlias sc systemctl
+nAlias sru /usr/bin/systemd-run --user
+nAlias sr systemd-run
 nAlias urldecode 'sed "s@+@ @g;s@%@\\\\x@g" | xargs -0 printf "%b"'
 nAlias urlencode 'jq -s -R -r @uri'
+nAlias base64 'base64 -w 0'
 nAlias b base64
 nAlias bd 'base64 -d'
 nAlias tree ls --tree
@@ -806,6 +832,7 @@ reAlias mitmweb "--set confdir=$XDG_CONFIG_HOME/mitmproxy"
 nAlias . ls
 nAlias cp advcp -g
 nAlias mv advmv -g
+nAlias update 'paru && (if [ -f $XDG_RUNTIME_DIR/updates-notification ]; then notify-send.sh -s $(cat $XDG_RUNTIME_DIR/updates-notification); fi) && exit'
 
 alias -g A='| awk'
 alias -g B='| base64'
@@ -824,8 +851,6 @@ alias -g X='| xargs'
 alias -g Y='| yq'
 nAlias wd 'while :; do .; sleep 0.1; clear; done'
 
-alias kubectl="PATH=\"\$PATH:$KREW_ROOT/bin\" kubectl"
-alias k9s='PATH="$PATH:$KREW_ROOT/bin" k9s' # --context=${KUBECTL_CONTEXT:-$(kubectl config current-context)}'
 function _k9s() {
   _arguments "--context[The name of the kubeconfig context to use]: :($(kubectl config get-contexts -o name | xargs echo -n))"
 }
