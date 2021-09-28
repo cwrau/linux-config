@@ -44,4 +44,4 @@ then
 fi
 
 current=$(cat $backlight/brightness)
-notify-send.sh -R $XDG_RUNTIME_DIR/brightness-notification -t 1000 "Brightness: $(echo "scale=3; $current / $max * 100" | bc | sed -r 's#0+$##; s#^\.#0.#; s#\.$##; s#^$#0#')%"
+notify-send.sh -R $XDG_RUNTIME_DIR/brightness-notification -t 1001 "Brightness: $(echo "scale=3; $current / $max * 100" | bc | sed -r 's#0+$##; s#^\.#0.#; s#\.$##; s#^$#0#')%"

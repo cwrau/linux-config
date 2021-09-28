@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+set -ex
+
+if [ -e /var/lib/pacman/db.lck ]; then
+  if [ $(($(date +%s) - $(date +%s -r /var/lib/pacman/db.lck))) -gt 1800 ]; then
+    sudo rm /var/lib/pacman/db.lck
+  else
+    notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 10000 -u critical 'Updates failed! Database lock exists'
+    exit 0
+  fi
+fi
+
+if sudo informant check; then
+  timeout 20 /bin/paru -Sy
+
+  UPDATES=$(paru -Qu --repo 2>/dev/null | wc -l)
+  AUR_UPDATES=$(paru -Qu --aur --devel 2> /dev/null | wc -l)
+
+  if (( (UPDATES + AUR_UPDATES) >= 1 )) && ! pgrep -x paru &> /dev/null &> /dev/null; then
+    if [ "$1" = '--unattended' ]; then
+      if systemctl --user is-failed updates-run; then
+        systemctl --user reset-failed updates-run
+      fi
+
+      if ! systemctl --user is-active updates-run; then
+        notify-send.sh -R $XDG_RUNTIME_DIR/updates-notification -t 10000 -u low "$UPDATES | $AUR_UPDATES" "$(paru -Quq --devel | sed -z '$ s/\n$//' | tr '\n' ',')"
+
+        if systemd-inhibit --why Updates systemd-run --user --unit updates-run --wait --nice 19 --slice updates.slice -- paru -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall; then
+          notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 10000 -u normal 'Updates done!'
+        else
+          notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 1000000 -u critical 'Updates failed!'
+          i3-sensible-terminal --role=UPDATES --wait -- journalctl _SYSTEMD_INVOCATION_ID=`systemctl --user show -p InvocationID --value updates-run.service`
+          notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -f
+        fi
+
+        notify-send.sh -s $(cat $XDG_RUNTIME_DIR/updates-notification)
+      fi
+    else
+      i3-sensible-terminal --wait -- paru -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall
+    fi
+  fi
+else
+  items=$?
+  if [ "$items" -gt 100 ]; then
+    notify-send.sh -R $XDG_RUNTIME_DIR/updates-check-notification -t 10000 -u normal 'Error checking Arch news!'
+  else
+    notify-send.sh -R $XDG_RUNTIME_DIR/updates-check-notification -t 10000 -u critical "$items Unread Arch news articles!"
+  fi
+fi

@@ -5,8 +5,8 @@ from lib.audio_script import *
 
 def audio_program_sink():
     prog_input: PulseSinkInputInfo = get_choice(inputs, "source",
-                                                lambda i: f'{i.proplist["application.name"]}'
-                                                          f' ({i.proplist["application.process.id"]})')
+                                                lambda i: f'{i.proplist.get("application.name", i.proplist.get("media.name"))}'
+                                                          f' ({i.proplist.get("application.process.id")})')
 
     if prog_input is None:
         return

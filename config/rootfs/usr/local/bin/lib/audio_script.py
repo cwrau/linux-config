@@ -1,9 +1,8 @@
 from typing import Callable, Sequence, Union
 
 import pulsectl
-from pulsectl import PulsePortAvailableEnum, Pulse, PulseServerInfo, PulseCardInfo, PulseSinkInfo, PulseSinkInputInfo
-
 from lib.choices import get_choice as get_choice_shadow, ITEM
+from pulsectl import PulsePortAvailableEnum, Pulse, PulseServerInfo, PulseCardInfo, PulseSinkInfo, PulseSinkInputInfo
 
 pulse: Pulse = pulsectl.Pulse("audio-profile-switcher")
 info: PulseServerInfo = pulse.server_info()

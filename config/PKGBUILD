@@ -47,7 +47,6 @@ depends=(
     fd
     feh
     foldingathome
-    fprintd
     freerdp
     freetype2
     fwupd
@@ -86,11 +85,8 @@ depends=(
     lab-bin
     less
     lib32-nvidia-utils
-    libfprint-2-tod1-xps9300-bin
-    libfprint-tod-git
     libgnome-keyring
     libinput-gestures
-    libopenaptx
     libva-mesa-driver
     linux
     linux-firmware

@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+from typing import Dict
+
+from pulsectl import PulseCardProfileInfo
+
+from lib.audio_script import *
+
+
+def card_name_getter(card: PulseCardInfo) -> str:
+    name: str = card.proplist.get("bluez.alias") or card.proplist.get("device.description")
+    return f'{name} ({card.profile_active.description})'
+
+
+def audio_profile():
+    if default_sink != "@DEFAULT_SINK@" and default_sink != "auto_null":
+        default_sinks = [s for s in sinks if s.name == default_sink]
+        if default_sinks:
+            default_sink_card_index: int = default_sinks[0].card
+        else:
+            default_sink_card_index: int = -1
+    else:
+        default_sink_card_index: int = -1
+
+    profileCards: Dict[PulseCardInfo, Sequence[PulseCardProfileInfo]] = {card: [profile for profile in card.profile_list if profile.available != 0] for card in cards}
+    profileCards: Dict[PulseCardInfo, Sequence[PulseCardProfileInfo]] = {card: profiles for card, profiles in profileCards.items() if len(profiles) > 1}
+    card: PulseCardInfo = get_choice(list(profileCards.keys()), "card", card_name_getter, lambda c: c.index == default_sink_card_index,
+                                     card_name_getter)
+    if card is None:
+        return
+
+    profiles: Sequence[PulseCardProfileInfo] = profileCards[card]
+
+    profile: PulseCardProfileInfo = get_choice(profiles, "profile", lambda p: p.description,
+                                               lambda p: p.name == card.profile_active.name)
+
+    if profile is None:
+        return
+
+    pulse.card_profile_set(card, profile)
+
+
+if __name__ == "__main__":
+    audio_profile()

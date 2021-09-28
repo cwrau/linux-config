@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-curl --silent https://security.archlinux.org/all.json | jq '.[] | select( .status as $status | ["Fixed", "Not affected"] | index($status) | not) | select(.packages | .[] | . as $it | '"[\"$(yay -Qe | awk '{print $1}' | tr '\n' '@' | sed -r 's#@#", "#g')\"]"' | index($it) )'

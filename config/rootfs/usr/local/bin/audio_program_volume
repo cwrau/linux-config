@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+
+import dynmen
+from dynmen import Menu
+
+from lib.audio_script import *
+
+
+def audio_program_volume():
+    prog_input: PulseSinkInputInfo = get_choice([input for input in inputs if input.proplist.get("media.name") != "pulseeffects"], "source",
+                                                lambda i: f'{i.proplist.get("application.name", i.proplist.get("media.name"))}'
+                                                          f' ({i.proplist.get("application.process.id")})'
+                                                          f' ({int(i.volume.value_flat * 100)}%)')
+
+    if prog_input is None:
+        return
+
+    args: Sequence[str] = ["dmenu", "-format", "s", "-p", f'New volume percentage (current: {int(prog_input.volume.value_flat * 100)}%)', "-l", "0"]
+    menu: Menu = dynmen.Menu(args)
+
+    result: float = min(int(menu().selected) / 100, 1)
+
+    pulse.volume_set_all_chans(prog_input, result)
+
+
+if __name__ == "__main__":
+    audio_program_volume()
