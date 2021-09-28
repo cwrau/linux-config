@@ -12,4 +12,4 @@ autorandr --skip-option gamma --change --default horizontal
 xset r on r rate 250
 
 systemd-cat --stderr-priority=warning --identifier=i3 i3
-systemctl --user stop graphical-session.target i3-session.target
+systemctl --user stop graphical-session.target

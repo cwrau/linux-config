@@ -1062,7 +1062,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 4
+                  "macroIndex": 8
                 },
                 null,
                 null,
@@ -1080,7 +1080,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 5
+                  "macroIndex": 9
                 },
                 null,
                 {
@@ -1106,7 +1106,7 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 3
+                  "macroIndex": 5
                 },
                 {
                   "keyActionType": "playMacro",
@@ -2070,7 +2070,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 4
+                  "macroIndex": 8
                 },
                 null,
                 null,
@@ -2088,7 +2088,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 5
+                  "macroIndex": 11
                 },
                 null,
                 {
@@ -2114,11 +2114,11 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 3
+                  "macroIndex": 7
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 2
+                  "macroIndex": 4
                 },
                 null,
                 null,
@@ -3103,7 +3103,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 4
+                  "macroIndex": 8
                 },
                 null,
                 null,
@@ -3121,7 +3121,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 5
+                  "macroIndex": 11
                 },
                 null,
                 {
@@ -3147,11 +3147,11 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 3
+                  "macroIndex": 7
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 2
+                  "macroIndex": 4
                 },
                 null,
                 null,
@@ -3526,7 +3526,46 @@
     {
       "isLooped": false,
       "isPrivate": true,
-      "name": "ä",
+      "name": "A-umlaut",
+      "macroActions": [
+        {
+          "macroActionType": "text",
+          "text": "$ifShift exec A-umlaut-big"
+        },
+        {
+          "macroActionType": "text",
+          "text": "$ifNotShift exec A-umlaut-small"
+        }
+      ]
+    },
+    {
+      "isLooped": false,
+      "isPrivate": true,
+      "name": "A-umlaut-big",
+      "macroActions": [
+        {
+          "macroActionType": "key",
+          "action": "tap",
+          "type": "basic",
+          "scancode": 24,
+          "modifierMask": 3
+        },
+        {
+          "macroActionType": "text",
+          "text": "c4"
+        },
+        {
+          "macroActionType": "key",
+          "action": "tap",
+          "type": "basic",
+          "scancode": 44
+        }
+      ]
+    },
+    {
+      "isLooped": false,
+      "isPrivate": true,
+      "name": "A-umlaut-small",
       "macroActions": [
         {
           "macroActionType": "key",
@@ -3550,7 +3589,46 @@
     {
       "isLooped": false,
       "isPrivate": true,
-      "name": "ö",
+      "name": "O-umlaut",
+      "macroActions": [
+        {
+          "macroActionType": "text",
+          "text": "$ifShift exec O-umlaut-big"
+        },
+        {
+          "macroActionType": "text",
+          "text": "$ifNotShift exec O-umlaut-small"
+        }
+      ]
+    },
+    {
+      "isLooped": false,
+      "isPrivate": true,
+      "name": "O-umlaut-big",
+      "macroActions": [
+        {
+          "macroActionType": "key",
+          "action": "tap",
+          "type": "basic",
+          "scancode": 24,
+          "modifierMask": 3
+        },
+        {
+          "macroActionType": "text",
+          "text": "d6"
+        },
+        {
+          "macroActionType": "key",
+          "action": "tap",
+          "type": "basic",
+          "scancode": 44
+        }
+      ]
+    },
+    {
+      "isLooped": false,
+      "isPrivate": true,
+      "name": "O-umlaut-small",
       "macroActions": [
         {
           "macroActionType": "key",
@@ -3598,7 +3676,46 @@
     {
       "isLooped": false,
       "isPrivate": true,
-      "name": "ü",
+      "name": "U-umlaut",
+      "macroActions": [
+        {
+          "macroActionType": "text",
+          "text": "$ifShift exec U-umlaut-big"
+        },
+        {
+          "macroActionType": "text",
+          "text": "$ifNotShift exec U-umlaut-small"
+        }
+      ]
+    },
+    {
+      "isLooped": false,
+      "isPrivate": true,
+      "name": "U-umlaut-big",
+      "macroActions": [
+        {
+          "macroActionType": "key",
+          "action": "tap",
+          "type": "basic",
+          "scancode": 24,
+          "modifierMask": 3
+        },
+        {
+          "macroActionType": "text",
+          "text": "dc"
+        },
+        {
+          "macroActionType": "key",
+          "action": "tap",
+          "type": "basic",
+          "scancode": 44
+        }
+      ]
+    },
+    {
+      "isLooped": false,
+      "isPrivate": true,
+      "name": "U-umlaut-small",
       "macroActions": [
         {
           "macroActionType": "key",
