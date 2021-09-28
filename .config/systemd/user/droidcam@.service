@@ -1,0 +1,14 @@
+[Unit]
+Description=Droidcam@%I
+PartOf=messengers.target
+Requires=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/droidcam-cli %I 4747
+RestartSec=0
+Restart=always
+
+[Install]
+WantedBy=graphical-session.target

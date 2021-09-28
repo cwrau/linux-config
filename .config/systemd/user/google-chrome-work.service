@@ -1,0 +1,21 @@
+[Unit]
+Description=Work Google Chrome
+After=graphical-session.target
+Requires=graphical-session.target
+PartOf=work.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/google-chrome-stable --user-data-dir=%E/google-chrome-work --class=work
+RestartSec=0
+Restart=always
+
+# disallow writing to /usr, /bin, /sbin, ...
+ProtectSystem=yes
+# more paranoid security settings
+NoNewPrivileges=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+
+[Install]
+WantedBy=graphical-session.target
