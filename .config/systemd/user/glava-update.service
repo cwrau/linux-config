@@ -4,7 +4,7 @@ PartOf=glava.target
 
 [Service]
 Type=simple
-ExecStart=%h/.config/glava/update.sh
+ExecStart=%E/glava/update.sh
 RestartSec=0
 Restart=always
 

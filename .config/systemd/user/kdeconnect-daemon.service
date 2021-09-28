@@ -1,5 +1,7 @@
 [Unit]
 Description=KDE Connect Daemon
+Requires=pipewire-pulse.socket
+After=pipewire-pulse.socket
 
 [Service]
 Type=simple

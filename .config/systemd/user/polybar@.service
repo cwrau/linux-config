@@ -1,14 +1,14 @@
 [Unit]
 Description=Polybar %I
-After=graphical-session.target
-Requires=graphical-session.target
+PartOf=polybar.target
 
 [Service]
 Type=forking
 ExecStartPre=/bin/bash -c 'until i3-msg; do :; done'
-ExecStart=%h/.config/polybar/launch.sh %i
+ExecStart=%E/polybar/launch.sh %i
 RestartSec=0
 Restart=always
+KillSignal=SIGKILL
 
 [Install]
 WantedBy=graphical-session.target

@@ -4,7 +4,7 @@ PartOf=work.target
 
 [Service]
 Type=simple
-ExecStart=%h/.config/teams-insiders/fix.sh
+ExecStart=%E/teams-insiders/fix.sh
 RestartSec=0
 Restart=always
 

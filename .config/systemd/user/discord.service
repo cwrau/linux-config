@@ -2,7 +2,7 @@
 Description=Discord
 PartOf=messengers.target
 Requires=graphical-session.target network-online.service
-After=graphical-session.target network-online.service
+After=graphical-session.target network-online.service droidcam@adb.service
 
 [Service]
 Type=simple

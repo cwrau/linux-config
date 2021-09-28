@@ -1,15 +1,18 @@
 [Unit]
-Description=VPN %I
-PartOf=work.target
-After=network-online.service
-Requires=network-online.service
+Description=%I VPN
+StopWhenUnneeded=yes
 
 [Service]
-Type=oneshot
-ExecStart=/usr/bin/bash -c "nmcli connection up %I; until timeout 10 ping -c 3 $(nmcli connection show %I | grep 'IP4.DNS' | head -1 | awk '{print $2}'); do nmcli connection down %I; nmcli connection up %I; done && exit"
+Type=simple
+ExecStartPre=/usr/bin/sleep 1
+ExecStartPre=-/usr/bin/nmcli connection down %I
+ExecStartPre=/usr/bin/sleep 1
+ExecStartPre=-/usr/bin/nmcli connection up %I
+ExecStartPre=/usr/bin/sleep 5
+ExecStart=/usr/bin/bash -o pipefail -c "until ! timeout 30 ping -c 5 $(nmcli connection show %I | grep IP4.DNS | head -1 | awk '{print $2}'); do sleep 10; done; exit 1"
 ExecStop=/usr/bin/nmcli connection down %I
-RestartSec=0
-RemainAfterExit=true
+RestartSec=10
+Restart=always
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=yes

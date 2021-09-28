@@ -4,7 +4,7 @@ PartOf=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/xss-lock --transfer-sleep-lock --session ${XDG_SESSION_ID} -- /usr/local/bin/custom/lock
+ExecStart=/usr/bin/xss-lock --transfer-sleep-lock --session ${XDG_SESSION_ID} -- lock
 
 [Install]
 WantedBy=graphical-session.target

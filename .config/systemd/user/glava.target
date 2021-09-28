@@ -1,8 +1,8 @@
 [Unit]
 Description=glava bundle
-Requires=graphical-session.target pulseaudio.socket
-After=graphical-session.target pulseaudio.socket
-Wants=glava@bar.service glava@radial.service glava-update.service
+Requires=graphical-session.target pipewire-pulse.socket
+After=graphical-session.target pipewire-pulse.socket
+Wants=glava@bar.service glava-update.service
 
 [Install]
 WantedBy=graphical-session.target

@@ -6,7 +6,7 @@ After=graphical-session.target network-online.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/whatsapp-nativefier
+ExecStart=/usr/bin/google-chrome-stable --user-data-dir=%E/google-chrome-whatsapp --app=https://web.whatsapp.com --class=whatsapp
 RestartSec=0
 Restart=always
 

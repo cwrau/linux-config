@@ -2,7 +2,8 @@
 Description=Work applications
 Requires=graphical-session.target
 After=graphical-session.target
-Wants=teams.service teams-audio-fix.service vpn@crossmedia.service
+Wants=teams.service google-chrome-work.service
+PartOf=homeoffice.target
 
 [Install]
 WantedBy=graphical-session.target

@@ -5,6 +5,7 @@ Requires=graphical-session.target network-online.service
 
 [Service]
 Type=oneshot
-ExecStart=%h/BIN/packageUpdates --unattended
+ExecStart=/usr/local/bin/packageUpdates --unattended
 RestartSec=0
+Slice=updates.slice
 
