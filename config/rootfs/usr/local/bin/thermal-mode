@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -e
+
+currentMode=$(sudo smbios-thermal-ctl -g | grep -A 1 'Current Thermal Modes:' | grep -E '^\s{2,}' | sed 's#^\s\+##')
+
+if [ "$1" = "print" ]; then
+  echo "$currentMode" | head -c 1
+  exit 0
+fi
+
+modes=$(sudo smbios-thermal-ctl -i | grep -A 99 'Supported Thermal Modes:' | grep -B 99 -m 1 '^ $' | grep -E '^\s{2,}' | sed 's#^\s\+##')
+
+if [ "$1" = "next" ]; then
+  mode=$(echo "$modes" | grep -A 1 "$currentMode" | tail -1)
+  if [ "$mode" = "$currentMode" ]; then
+    mode=$(echo "$modes" | head -1)
+  fi
+elif [ "$1" = "last" ]; then
+  mode=$(echo "$modes" | grep -B 1 "$currentMode" | head -1)
+  if [ "$mode" = "$currentMode" ]; then
+    mode=$(echo "$modes" | tail -1)
+  fi
+fi
+
+mode=$(echo "$mode" | tr A-Z a-z | tr ' ' -)
+sudo smbios-thermal-ctl --set-thermal-mode="$mode"

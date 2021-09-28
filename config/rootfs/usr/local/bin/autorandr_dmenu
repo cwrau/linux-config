@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -ex
+
+autorandr | grep -E 'detected|current' | sed -r 's#^(\S+).*#\1#g' | dmenu -auto-select -i -no-custom -p Profile | xargs -r autorandr --force --load
