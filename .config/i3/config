@@ -45,6 +45,9 @@ set $exid exec --no-startup-id
 set $exaid exec_always --no-startup-id
 
 bindsym $super+d $exid rofi -show drun
+bindsym Ctrl+space $exid dunstctl close
+bindsym Ctrl+grave $exid dunstctl history-pop
+bindsym Ctrl+Shift+period $exid dunstctl action
 
 # change focus
 #bindsym $super+j focus left
