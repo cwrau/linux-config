@@ -36,3 +36,6 @@
 /tmp/
 /work/
 
+.gitsecret/keys/random_seed
+!*.secret
+.config/wireguard/wg0.conf
