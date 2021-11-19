@@ -1,6 +1,6 @@
 [Unit]
-Requires=vpn@crossmedia.service
-After=vpn@crossmedia.service
+Requires=wireguard@wg0.service
+After=wireguard@wg0.service
 
 [Service]
 ExecStart=/usr/lib/systemd/systemd-socket-proxyd --exit-idle-time=1m 10.90.45.254:6443

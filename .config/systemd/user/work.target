@@ -1,9 +1,0 @@
-[Unit]
-Description=Work applications
-Requires=graphical-session.target
-After=graphical-session.target
-Wants=teams.service google-chrome-work.service
-PartOf=homeoffice.target
-
-[Install]
-WantedBy=graphical-session.target
