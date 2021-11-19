@@ -1,5 +1,5 @@
 [global]
-font = DejaVu Sans
+font = "DejaVu Sans"
 
 # Allow a small subset of html markup:
 #   <b>bold</b>
@@ -11,7 +11,7 @@ font = DejaVu Sans
 # <http://developer.gnome.org/pango/stable/PangoMarkupFormat.html>.
 # If markup is not allowed, those tags will be stripped out of the
 # message.
-markup = yes
+markup = "yes"
 
 # The format of the message.  Possible variables are:
 #   %a  appname
@@ -24,14 +24,14 @@ markup = yes
 format = "<b>%s</b>\n%b"
 
 # Sort messages by urgency.
-sort = no
+sort = false
 
 # Show how many messages are currently hidden (because of geometry).
-indicate_hidden = yes
+indicate_hidden = true
 
 # Alignment of message text.
 # Possible values are "left", "center" and "right".
-alignment = center
+alignment = "center"
 
 # Show age of message if message is older than show_age_threshold
 # seconds.
@@ -40,13 +40,13 @@ show_age_threshold = -1
 
 # Split notifications into multiple lines if they don't fit into
 # geometry.
-word_wrap = yes
+word_wrap = true
 
 # Ignore newlines '\n' in notifications.
-ignore_newline = no
+ignore_newline = false
 
 # Hide duplicate's count and stack them
-stack_duplicates = yes
+stack_duplicates = true
 
 
 # The geometry of the window:
@@ -63,11 +63,11 @@ stack_duplicates = yes
 # screen width minus the width defined in within the geometry option.
 #geometry = "250x50-40+40"
 #geometry = "300x50-15+49"
-offset = 15x42
+offset = "15x42"
 
 # Shrink window if it's smaller than the width.  Will be ignored if
 # width is 0.
-shrink = no
+shrink = false
 
 # The transparency of the window.  Range: [0; 100].
 # This option will only work if a compositing windowmanager is
@@ -93,17 +93,17 @@ monitor = 0
 #
 # If this option is set to mouse or keyboard, the monitor option
 # will be ignored.
-follow = keyboard
+follow = "keyboard"
 
 # Should a notification popped up from history be sticky or timeout
 # as if it would normally do.
-sticky_history = yes
+sticky_history = true
 
 # Maximum amount of notifications kept in history
 history_length = 15
 
 # Display indicators for URLs (U) and actions (A).
-show_indicators = yes
+show_indicators = true
 
 # The height of a single line.  If the height is smaller than the
 # font height, it will get raised to the font height.
@@ -127,20 +127,20 @@ horizontal_padding = 6
 #  * foreground: use the same color as the foreground;
 #  * frame: use the same color as the frame;
 #  * anything else will be interpreted as a X color.
-separator_color = frame
+separator_color = "frame"
 
 # dmenu path.
-dmenu = /usr/bin/dmenu -p dunst:
+dmenu = "/usr/bin/dmenu -p dunst:"
 
 # Browser for opening urls in context menu.
-browser = /usr/bin/xdg-open
+browser = "/usr/bin/xdg-open"
 
 # Align icons left/right/off
-icon_position = left
+icon_position = "left"
 max_icon_size = 80
 
 # Paths to default icons.
-icon_path = /usr/share/icons/Papirus/16x16/mimetypes/:/usr/share/icons/Papirus/48x48/status/:/usr/share/icons/Papirus/16x16/devices/:/usr/share/icons/Papirus/48x48/notifications/:/usr/share/icons/Papirus/48x48/emblems/
+icon_path = "/usr/share/icons/Papirus/16x16/mimetypes/:/usr/share/icons/Papirus/48x48/status/:/usr/share/icons/Papirus/16x16/devices/:/usr/share/icons/Papirus/48x48/notifications/:/usr/share/icons/Papirus/48x48/emblems/"
 
 frame_width = 3
 frame_color = "#8EC07C"
