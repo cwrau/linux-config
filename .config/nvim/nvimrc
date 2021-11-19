@@ -74,6 +74,9 @@ let g:mkdp_browser = 'google-chrome-stable'
 "inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 "
 
+set modeline
+set modelines=5
+
 " call PlugInstall to install new plugins
 call plug#end()
 " basics
