@@ -30,33 +30,35 @@ export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
 export GOPATH="$XDG_DATA_HOME/go"
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
-export KUBECONFIG="$XDG_CONFIG_HOME/kube/config"
 export KONAN_DATA_DIR="$XDG_DATA_HOME/konan"
+export KUBECONFIG="$XDG_CONFIG_HOME/kube/config"
 export LESSHISTFILE="$XDG_DATA_HOME/less/history"
 export MINIKUBE_HOME="$XDG_DATA_HOME/minikube"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 export NUGET_PACKAGES="$XDG_DATA_HOME/NuGet"
 export PULSE_COOKIE="$XDG_RUNTIME_DIR/pulse/cookie"
 export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
+export SECRETS_DIR="$(realpath --relative-base=$HOME $XDG_CONFIG_HOME/gitsecret)"
 export SONAR_USER_HOME="$XDG_DATA_HOME/sonarlint"
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
 export STACK_ROOT="$XDG_CONFIG_HOME/stack"
 export XAUTHORITY="$XDG_CACHE_HOME/x11/authority"
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
 
-export VISUAL=nvim
-export EDITOR="$VISUAL"
-export PAGER=slit
 export BROWSER="google-chrome-stable"
-export SAVEHIST=9223372036854775807
-export HISTSIZE=9223372036854775807
-export SDL_AUDIODRIVER="pulse"
+export EDITOR="$VISUAL"
 export FZF_ALT_C_COMMAND='fd -t d --hidden'
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 export FZF_CTRL_T_COMMAND='fd --hidden'
 export FZF_CTRL_T_OPTS="--preview '(bat --color=always --pager=never -p {} 2> /dev/null || tree -C {}) 2> /dev/null | head -200'"
-export GRADLE_OPTS=-Xmx1G
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
+export GRADLE_OPTS=-Xmx1G
+export HISTSIZE=9223372036854775807
+export PAGER=slit
+export SAVEHIST=9223372036854775807
+export SDL_AUDIODRIVER="pulse"
+export SECRETS_EXTENSION=".gpg"
+export VISUAL=nvim
 
 if [[ $- = *i* ]]; then
   if [[ -z "$DISPLAY" ]]; then

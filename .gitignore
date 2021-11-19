@@ -36,9 +36,11 @@
 /tmp/
 /work/
 
-.gitsecret/keys/random_seed
-!*.secret
+!/.config/gitsecret/*
+/.config/gitsecret/keys/random_seed
+!*.gpg
 .config/wireguard/wg0.conf
+.config/k9s/config.yml
 .ssh/checked_hosts
 .ssh/known_hosts
 .ssh/work.config
