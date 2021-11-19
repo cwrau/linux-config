@@ -39,3 +39,6 @@
 .gitsecret/keys/random_seed
 !*.secret
 .config/wireguard/wg0.conf
+.ssh/checked_hosts
+.ssh/known_hosts
+.ssh/work.config
