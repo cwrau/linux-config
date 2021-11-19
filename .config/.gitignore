@@ -18,9 +18,9 @@
 /discord/
 /fah/
 /freerdp/
-/google-chrome/
-/google-chrome-work/
 /google-chrome-whatsapp/
+/google-chrome-work/
+/google-chrome/
 /google-cloud-tools-java/
 /hexchat/
 /java/
@@ -30,6 +30,7 @@
 /menus/
 /mitmproxy/
 /pavucontrol.ini
+/pipewire/
 /protonfixes/
 /pulse/
 /remmina/
