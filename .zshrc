@@ -388,7 +388,7 @@ EOF
   fi
   local exitCode
   set -x
-  podman run --rm -it -e DATABASE_HOST=localhost -e DATABASE_TYPE=mariadb --userns keep-id --net host \
+  podman run --rm -it -e DATABASE_HOST=localhost -e DATABASE_TYPE=mariadb -e MANAGED=true --userns keep-id --net host \
     --name="4allportal-$tag" \
     --read-only \
     -v /tmp/data/data:/4allportal/data/data:ro \
