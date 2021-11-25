@@ -29,8 +29,8 @@ if sudo informant check; then
         if systemd-inhibit --why Updates systemd-run --user --unit updates-run --wait --nice 19 --slice updates.slice -- paru -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall; then
           notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 10000 -u normal 'Updates done!'
         else
-          notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 1000000 -u critical 'Updates failed!'
-          i3-sensible-terminal --role=UPDATES --wait -- journalctl _SYSTEMD_INVOCATION_ID=`systemctl --user show -p InvocationID --value updates-run.service`
+          notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 1000000 -u critical 'Updates failed!' -o Show:'i3-msg scratchpad show'
+          i3-sensible-terminal --role=UPDATES --wait -- journalctl _SYSTEMD_INVOCATION_ID=$(systemctl --user show -p InvocationID --value updates-run.service)
           notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -f
         fi
 
