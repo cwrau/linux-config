@@ -21,7 +21,7 @@
 #define GRADIENT (d / GRADIENT_POWER + 1)
 /* Bar color */
 //#define COLOR (#3366b2 * GRADIENT)
-#define COLOR mix(#882222, #2233FF, clamp(d / GRADIENT_POWER, 0, 1))
+#define COLOR mix(#cc0000, #2233FF, clamp(d / GRADIENT_POWER, 0, 1))
 /* Direction that the bars are facing, 0 for inward, 1 for outward */
 #define DIRECTION 0
 /* Whether to switch left/right audio buffers */

@@ -17,7 +17,7 @@
 #define AMPLIFY 1440
 /* Bar color */
 #define COLOR (#cc3333 * ((d / 80) + 1))
-#define COLOR mix(#882222, #2233FF, clamp(d / 320, 0, 1))
+#define COLOR mix(#cc0000, #2233FF, clamp(d / 320, 0, 1))
 /* Angle (in radians) for how much to rotate the visualizer */
 #define ROTATE (PI / 2)
 /* Whether to switch left/right audio buffers */
