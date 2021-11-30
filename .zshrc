@@ -613,6 +613,14 @@ EOF
 }
 compdef _hr hrDiff
 
+function knodes() {
+  for node in $(kubectl get nodes -o json | jq '.items[] | "\(.metadata.name):\(.status.addresses[] | select(.type == "InternalIP") | .address)"' | sort -V); do
+    IFS=: read name ip <<< "$node"
+    echo $name >&2
+    ssh $ip $*
+  done
+}
+
 function pkgSync() {
   local OLDPWD=$PWD
   cd $HOME
