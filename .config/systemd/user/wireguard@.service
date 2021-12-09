@@ -7,7 +7,7 @@ StartLimitBurst=100
 Type=simple
 ExecStartPre=-/usr/bin/wg-quick down %E/wireguard/%I.conf
 ExecStartPre=/usr/bin/wg-quick up %E/wireguard/%I.conf
-ExecStart=/usr/bin/bash -o pipefail -c "until ! timeout 30 ping -I %I -c 5 $(grep DNS %E/wireguard/%I.conf | awk '{print $3}' | tr -d ,); do sleep 10; done; exit 1"
+ExecStart=/usr/bin/bash -ex -o pipefail -c "until ! timeout 30 ping -I %I -c 5 $(grep DNS %E/wireguard/%I.conf | awk '{print $3}' | tr -d ,); do sleep 10; done; exit 1"
 ExecStopPost=/usr/bin/wg-quick down %E/wireguard/%I.conf
 Restart=always
 
