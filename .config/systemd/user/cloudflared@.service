@@ -1,0 +1,10 @@
+[Unit]
+Description=cloudflared for %I
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/cloudflared tunnel --name=%I --origincert=%E/cloudflared/cert.pem --credentials-file=%E/cloudflared/%I.json $FLAGS
+Restart=always
+
+[Install]
+WantedBy=graphical-session.target

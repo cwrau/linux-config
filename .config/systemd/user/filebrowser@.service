@@ -1,0 +1,11 @@
+[Unit]
+Description=filebrowser for %I
+StopWhenUnneeded=yes
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/filebrowser --database=%E/filebrowser/%I.db --root=${ROOT} --port=${PORT}
+Restart=always
+
+[Install]
+WantedBy=graphical-session.target

@@ -1,0 +1,6 @@
+[Unit]
+Requires=filebrowser@%i.service
+After=filebrowser@%i.service
+
+[Service]
+ExecStart=/usr/lib/systemd/systemd-socket-proxyd --exit-idle-time=1m 127.0.0.1:${PORT}
