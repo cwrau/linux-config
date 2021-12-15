@@ -44,3 +44,5 @@
 .ssh/checked_hosts
 .ssh/known_hosts
 .ssh/work.config
+.config/cloudflared/cert.pem
+.config/cloudflared/files.json

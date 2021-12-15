@@ -2,7 +2,7 @@
 
 import subprocess
 import sys
-from collections import Sequence, Callable
+from typing import Sequence, Callable
 
 from lib.choices import get_choice as get_choice_shadow, ITEM
 

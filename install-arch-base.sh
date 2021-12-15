@@ -75,7 +75,6 @@ elif [ "$1" = "chroot" ]; then
     unset dir
   fi
 
-  sed -r -i 's/#(COMPRESSION="zstd")/\1/' /etc/mkinitcpio.conf
   sed -r -i 's/#(COMPRESSION_OPTIONS=)\(\)/\1(-T0 --ultra -22)/' /etc/mkinitcpio.conf
   mkinitcpio -P
 
