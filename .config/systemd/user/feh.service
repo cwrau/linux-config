@@ -7,7 +7,7 @@ Requires=graphical-session.target
 Type=oneshot
 ExecStart=/usr/bin/feh --bg-fill %E/background.jpg --no-fehbg
 RemainAfterExit=yes
-ExecStop=/usr/bin/feh --bg-tile %E/black.jpg
+ExecStop=/usr/bin/feh --bg-tile %E/black.jpg --no-fehbg
 RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...

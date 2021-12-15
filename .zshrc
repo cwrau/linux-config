@@ -393,6 +393,7 @@ EOF
   podman run --rm -it -e DATABASE_HOST=localhost -e DATABASE_TYPE=mariadb -e MANAGED=true --userns keep-id --net host \
     --name="4allportal-$tag" \
     --read-only \
+    --read-only-tmpfs=false \
     -v /tmp/data/data:/4allportal/data/data:ro \
     --tmpfs=/{4allportal/{_runtime,assets},tmp} $podmanArgs \
     -v /tmp/data:/4allportal/data \
