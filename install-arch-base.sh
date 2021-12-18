@@ -26,14 +26,14 @@ if [ "$1" = "iso" ]; then
 
   pacstrap /mnt --needed \
     base \
-    linux \
-    linux-headers \
+    linux-zen \
+    linux-zen-headers \
     linux-firmware \
     base-devel \
     git \
     zsh \
     networkmanager \
-    nvidia \
+    nvidia-dkms \
     ${ucode} \
     aria2 \
     reflector \
@@ -81,24 +81,7 @@ elif [ "$1" = "chroot" ]; then
   bootDisk=$(lsblk -o PKNAME $(findmnt /boot -o SOURCE -n) -n)
   bootPartition=$(lsblk -o NAME $(findmnt /boot -o SOURCE -n) -n)
 
-  efibootmgr --disk /dev/$bootDisk --part $(cat /sys/block/$bootDisk/$bootPartition/partition) --create --label 'Arch EFISTUB' --loader /vmlinuz-linux-zen --unicode "root=UUID=$(findmnt / -o UUID -n) rw initrd=\intel-ucode initrd=\initramfs-linux-zen.img quiet vga=current nvidia-drm.modeset=1 cgroup_no_v1=\"all\""
-
-  bootctl install
-
-  cat <<-EOENTRY > /boot/loader/entries/arch.conf
-  	title Arch Linux
-  	linux /vmlinuz-linux
-  	initrd /$ucode.img
-  	initrd /initramfs-linux.img
-  	options root=UUID=$(findmnt / -o UUID -n) rw quiet vga=current nvidia-drm.modeset=1
-EOENTRY
-
-  cat <<-EOLOADER > /boot/loader/loader.conf
-  	timeout 0
-  	default arch.conf
-  	auto-entries 1
-  	auto-firmware 1
-EOLOADER
+  efibootmgr --disk /dev/$bootDisk --part $(cat /sys/block/$bootDisk/$bootPartition/partition) --create --label 'Arch EFISTUB' --loader /vmlinuz-linux-zen --unicode "root=UUID=$(findmnt / -o UUID -n) rw initrd=\\$ucode.img initrd=\initramfs-linux-zen.img quiet vga=current nvidia-drm.modeset=1 cgroup_no_v1=\"all\""
 
   ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
   hwclock --systohc
@@ -402,5 +385,5 @@ else
     echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/${installUser}-*'"
   fi
 
-  sudo systemctl enable systemd-timesyncd bluetooth pkgstats.timer fwupd ebtables fwupd-refresh.timer NetworkManager reflector.timer auto-cpufreq
+  sudo systemctl enable systemd-timesyncd bluetooth pkgstats.timer fwupd ebtables fwupd-refresh.timer NetworkManager reflector.timer auto-cpufreq.service ananicy-cpp.service
 fi
