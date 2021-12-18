@@ -4,7 +4,7 @@ tar -h --exclude=.idea -cf rootfs.tar -C rootfs .
 
 pkgname=linux-config
 pkgver=0.1.0
-pkgrel=4
+pkgrel=5
 pkgdesc='linux config'
 url="https://github.com/cwrau/linux-config"
 license=('GPL3')
@@ -50,12 +50,14 @@ depends=(
     exo
     fd
     feh
+    filebrowser
     foldingathome
     freerdp
     freetype2
     fwupd
     fzf
     git
+    git-secret
     glava
     gnome-keyring
     gnome-terminal
@@ -197,6 +199,7 @@ depends=(
     unzip
     usbutils
     which
+    wireguard-tools
     xarchiver
     xclip
     xorg-server
