@@ -4,7 +4,7 @@ tar -h --exclude=.idea -cf rootfs.tar -C rootfs .
 
 pkgname=linux-config
 pkgver=0.1.0
-pkgrel=3
+pkgrel=4
 pkgdesc='linux config'
 url="https://github.com/cwrau/linux-config"
 license=('GPL3')
@@ -15,10 +15,12 @@ sha512sums=('SKIP')
   #startPackages
 depends=(
     advcp
+    ananicy-cpp
+    ananicy-rules-git
     aria2
     ausweisapp2
-    autorandr
     auto-cpufreq
+    autorandr
     base
     bash-completion
     bash-git-prompt
@@ -32,6 +34,7 @@ depends=(
     bpytop
     breeze-hacked-cursor-theme
     clipmenu
+    cloudflared-bin
     curl
     deluge-gtk
     diff-so-fancy
@@ -89,9 +92,9 @@ depends=(
     libgnome-keyring
     libinput-gestures
     libva-mesa-driver
-    linux-zen
     linux-firmware
     linux-headers
+    linux-zen
     lscolors-git
     man-db
     man-pages
@@ -151,6 +154,7 @@ depends=(
     python-dynmen
     python-notify2
     python-pip
+    python-pre-commit
     python-pulsectl
     python-pynvim
     python-rope
@@ -177,6 +181,7 @@ depends=(
     sxiv
     systemd
     systemd-boot-pacman-hook
+    systemd-resolvconf
     teams-insiders
     telegram-desktop
     telepresence
