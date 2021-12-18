@@ -78,6 +78,11 @@ elif [ "$1" = "chroot" ]; then
   sed -r -i 's/#(COMPRESSION_OPTIONS=)\(\)/\1(-T0 --ultra -22)/' /etc/mkinitcpio.conf
   mkinitcpio -P
 
+  bootDisk=$(lsblk -o PKNAME $(findmnt /boot -o SOURCE -n) -n)
+  bootPartition=$(lsblk -o NAME $(findmnt /boot -o SOURCE -n) -n)
+
+  efibootmgr --disk /dev/$bootDisk --part $(cat /sys/block/$bootDisk/$bootPartition/partition) --create --label 'Arch EFISTUB' --loader /vmlinuz-linux-zen --unicode "root=UUID=$(findmnt / -o UUID -n) rw initrd=\intel-ucode initrd=\initramfs-linux-zen.img quiet vga=current nvidia-drm.modeset=1 cgroup_no_v1=\"all\""
+
   bootctl install
 
   cat <<-EOENTRY > /boot/loader/entries/arch.conf
