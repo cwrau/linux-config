@@ -18,6 +18,7 @@ depends=(
     aria2
     ausweisapp2
     autorandr
+    auto-cpufreq
     base
     bash-completion
     bash-git-prompt
@@ -88,7 +89,7 @@ depends=(
     libgnome-keyring
     libinput-gestures
     libva-mesa-driver
-    linux
+    linux-zen
     linux-firmware
     linux-headers
     lscolors-git
@@ -119,7 +120,7 @@ depends=(
     noto-fonts-emoji
     noto-fonts-extra
     nss-mdns
-    nvidia
+    nvidia-dkms
     nvtop
     ocl-icd
     oh-my-zsh-git

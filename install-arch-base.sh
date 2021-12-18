@@ -402,5 +402,5 @@ else
     echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/${installUser}-*'"
   fi
 
-  sudo systemctl enable systemd-timesyncd bluetooth pkgstats.timer fwupd ebtables dnsmasq libvirtd.socket fwupd-refresh.timer NetworkManager reflector.timer
+  sudo systemctl enable systemd-timesyncd bluetooth pkgstats.timer fwupd ebtables fwupd-refresh.timer NetworkManager reflector.timer auto-cpufreq
 fi
