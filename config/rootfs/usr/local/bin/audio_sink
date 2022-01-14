@@ -4,7 +4,7 @@ from lib.audio_script import *
 
 
 def audio_sink():
-    sink: PulseSinkInfo = get_choice(sinks, "sink", lambda s: f'{s.description} {s.port_active.description}',
+    sink: PulseSinkInfo = get_choice(sinks, "sink", lambda s: f'{s.description} ({s.port_active.description})',
                                      lambda s: s.name == default_sink, lambda s: (s.description, s.description))
 
     if sink is None:

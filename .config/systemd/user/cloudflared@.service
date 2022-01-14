@@ -1,9 +1,11 @@
 [Unit]
 Description=cloudflared for %I
+After=network-online.service
+Requires=network-online.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/cloudflared tunnel --name=%I --origincert=%E/cloudflared/cert.pem --credentials-file=%E/cloudflared/%I.json $FLAGS
+ExecStart=/usr/bin/cloudflared tunnel --no-autoupdate --name=%I --origincert=%E/cloudflared/cert.pem --credentials-file=%E/cloudflared/%I.json $FLAGS
 Restart=always
 
 [Install]

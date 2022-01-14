@@ -153,7 +153,7 @@ for_window [class="Gnome-network-displays"] floating enable
 for_window [class="Microsoft Teams" title="Microsoft Teams Notification"] floating enable
 no_focus [class="Microsoft Teams" title="Microsoft Teams Notification"]
 
-$exid $XDG_CONFIG_HOME/i3/rc.sh
+$exaid $XDG_CONFIG_HOME/i3/rc.sh
 
 set $displayMode "Set display mode [w]ork [l]aptop"
 #bindsym $super+x mode $displayMode
@@ -224,7 +224,7 @@ bindsym $super+b $exid bluetooth_dmenu
 bindsym $super+l $exid loginctl lock-session
 
 # WiFi-Manager
-bindsym $super+i $exid networkmanager_dmenu
+bindsym $super+i $exid networkmanager_dmenu -i
 
 # Mount-Manager
 bindsym $super+u $exid udiskie-dmenu

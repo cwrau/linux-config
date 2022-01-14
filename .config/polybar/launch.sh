@@ -14,5 +14,5 @@ do
     export TRAY=none
   fi
   export MONITOR
-  polybar $location -c $XDG_CONFIG_HOME/polybar/config-$location.ini &
+  systemd-run --user --unit polybar-$location@$MONITOR --nice 19 --setenv TRAY --setenv MONITOR --slice polybar-$location.slice -- polybar $location -c $XDG_CONFIG_HOME/polybar/config-$location.ini
 done

@@ -96,12 +96,14 @@ elif [ "$1" = "chroot" ]; then
   	127.0.0.1 ${hostname}
 EOHOSTS
   echo "${installUser} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${installUser}
+  echo "${installUser}:10000:65536" | tee /etc/subuid /etc/subgid
 
   reflector --save /etc/pacman.d/mirrorlist --protocol https --latest 5 --sort score
 
   multilibLine=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
   sudo sed -i -r "$multilibLine,$((($multilibLine + 1))) s#^\###g" /etc/pacman.conf
-  sudo sed -i -r "s#^SigLevel.+\$#SigLevel = PackageRequired#g" /etc/pacman.conf
+  sudo sed -i -r "s#^SigLevel.+\$#SigLevel = Required DatabaseOptional#g" /etc/pacman.conf
+  sudo sed -i -r "s#^LocalFileSigLevel.+\$#LocalFileSigLevel = Required DatabaseOptional#g" /etc/pacman.conf
 
   cd /home/${installUser}
   sudo -u ${installUser} /$(basename $0) $hostname $installUser

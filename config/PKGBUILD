@@ -14,7 +14,7 @@ noextract=('rootfs.tar')
 sha512sums=('SKIP')
   #startPackages
 depends=(
-    advcp
+    advcpmv
     ananicy-cpp
     ananicy-rules-git
     aria2
@@ -81,7 +81,7 @@ depends=(
     intel-ucode
     intellij-idea-ultimate-edition
     intellij-idea-ultimate-edition-jre
-    jdk
+    jdk-openjdk
     jq
     k9s
     kdeconnect
@@ -95,8 +95,8 @@ depends=(
     libinput-gestures
     libva-mesa-driver
     linux-firmware
-    linux-headers
     linux-zen
+    linux-zen-headers
     lscolors-git
     man-db
     man-pages

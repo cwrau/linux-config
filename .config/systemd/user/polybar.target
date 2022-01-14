@@ -4,6 +4,5 @@ Requires=graphical-session.target pipewire-pulse.socket
 After=graphical-session.target pipewire-pulse.socket
 Wants=polybar@bottom.service polybar@top.service pipewire-pulse.socket
 
-
 [Install]
 WantedBy=graphical-session.target

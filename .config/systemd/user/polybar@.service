@@ -1,13 +1,15 @@
 [Unit]
 Description=Polybar %I
 PartOf=polybar.target
+Slice=polybar.slice
 
 [Service]
-Type=forking
+Type=oneshot
+RemainAfterExit=yes
 ExecStartPre=/bin/bash -c 'until i3-msg; do :; done'
 ExecStart=%E/polybar/launch.sh %i
+ExecStop=%E/polybar/stop.sh %i
 RestartSec=0
-Restart=always
 KillSignal=SIGKILL
 
 [Install]

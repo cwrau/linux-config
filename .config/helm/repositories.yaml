@@ -208,3 +208,12 @@ repositories:
   password: ""
   url: https://charts.crossplane.io/stable
   username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: cloudflare-exporter
+  pass_credentials_all: false
+  password: ""
+  url: https://lablabs.github.io/cloudflare-exporter/
+  username: ""

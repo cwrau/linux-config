@@ -6,7 +6,7 @@ if [ -e /var/lib/pacman/db.lck ]; then
   if [ $(($(date +%s) - $(date +%s -r /var/lib/pacman/db.lck))) -gt 1800 ]; then
     sudo rm /var/lib/pacman/db.lck
   else
-    notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 10000 -u critical 'Updates failed! Database lock exists'
+    notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 10000 -u critical 'Updates aborted! Database lock exists'
     exit 0
   fi
 fi
@@ -30,7 +30,7 @@ if sudo informant check; then
           notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 10000 -u normal 'Updates done!'
         else
           notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -t 1000000 -u critical 'Updates failed!' -o Show:"i3-msg -s $(echo -n /run/user/$UID/i3/ipc-socket.*) scratchpad show"
-          i3-sensible-terminal --role=UPDATES --wait -- journalctl _SYSTEMD_INVOCATION_ID=$(systemctl --user show -p InvocationID --value updates-run.service)
+          timeout 55m i3-sensible-terminal --role=UPDATES --wait -- journalctl _SYSTEMD_INVOCATION_ID=$(systemctl --user show -p InvocationID --value updates-run.service)
           notify-send.sh -R $XDG_RUNTIME_DIR/updates-finished-notification -f -t 0 ''
         fi
 
