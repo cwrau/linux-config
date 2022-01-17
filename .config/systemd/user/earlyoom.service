@@ -5,7 +5,7 @@ Requires=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/earlyoom -r 3600 -n --avoid "i3.*|teams|glava|polybar|.*electron.*|Xorg" -m 2
+ExecStart=/usr/bin/earlyoom -r 3600 -n --avoid "i3.*|teams|glava|polybar|.*electron.*|.*steam.*|Xorg" -m 2
 RestartSec=0
 Restart=always
 
