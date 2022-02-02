@@ -1,12 +1,11 @@
 [Unit]
-Description=Work Google Chrome
+Description=%I Google Chrome
 After=graphical-session.target
 Requires=graphical-session.target
-PartOf=work.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/google-chrome-stable --user-data-dir=%E/google-chrome-work --class=work
+ExecStart=/usr/bin/google-chrome-stable --user-data-dir=%E/google-chrome-%i --class=%i
 RestartSec=0
 Restart=always
 

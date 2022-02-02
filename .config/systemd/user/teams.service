@@ -2,13 +2,17 @@
 Description=teams
 PartOf=work.target
 Requires=graphical-session.target network-online.service
-After=graphical-session.target network-online.service droidcam@adb.service
+After=graphical-session.target network-online.service
 
 [Service]
-Type=forking
-ExecStart=/usr/bin/teams-insiders
-ExecStop=/usr/bin/teams-insiders --quit
-ExecStopPost=/usr/bin/bash -c 'sleep 8; kill $MAINPID'
+Type=simple
+ExecStart=/usr/bin/google-chrome-stable --user-data-dir=%E/google-chrome-teams --app=https://teams.microsoft.com --class=teams
 RestartSec=0
 Restart=always
+
+# disallow writing to /usr, /bin, /sbin, ...
+ProtectSystem=yes
+# more paranoid security settings
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
 

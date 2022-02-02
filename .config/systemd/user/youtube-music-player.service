@@ -8,6 +8,7 @@ Type=simple
 ExecStart=/usr/bin/ytmdesktop
 RestartSec=0
 Restart=always
+MemoryMax=2G
 
 [Install]
 WantedBy=graphical-session.target

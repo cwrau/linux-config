@@ -5,7 +5,7 @@ Requires=graphical-session.target
 
 [Service]
 Type=simple
-ExecStartPre=-/usr/bin/steam-config
+ExecStartPre=-/usr/bin/steam-tweaks
 ExecStart=/usr/bin/steam
 RestartSec=0
 Restart=always
