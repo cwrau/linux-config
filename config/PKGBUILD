@@ -4,7 +4,7 @@ tar -h --exclude=.idea -cf rootfs.tar -C rootfs .
 
 pkgname=linux-config
 pkgver=0.1.0
-pkgrel=6
+pkgrel=7
 pkgdesc='linux config'
 url="https://github.com/cwrau/linux-config"
 license=('GPL3')
@@ -69,6 +69,7 @@ depends=(
     grub
     gvfs
     helm
+    helm-diff
     helm-docs
     hexchat
     howdy
@@ -88,6 +89,7 @@ depends=(
     kdeconnect
     kexec-tools
     kubectl
+    kubectl-node-shell
     kubefwd-bin
     lab-bin
     less

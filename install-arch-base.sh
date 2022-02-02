@@ -101,15 +101,13 @@ EOHOSTS
   reflector --save /etc/pacman.d/mirrorlist --protocol https --latest 5 --sort score
 
   multilibLine=$(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:)
-  sudo sed -i -r "$multilibLine,$((($multilibLine + 1))) s#^\###g" /etc/pacman.conf
-  sudo sed -i -r "s#^SigLevel.+\$#SigLevel = Required DatabaseOptional#g" /etc/pacman.conf
-  sudo sed -i -r "s#^LocalFileSigLevel.+\$#LocalFileSigLevel = Required DatabaseOptional#g" /etc/pacman.conf
+  sed -i -r "$multilibLine,$((($multilibLine + 1))) s#^\###g" /etc/pacman.conf
+  sed -i -r "s#^SigLevel.+\$#SigLevel = PackageRequired#g" /etc/pacman.conf
 
   cd /home/${installUser}
   sudo -u ${installUser} /$(basename $0) $hostname $installUser
 else
   hostname="$1"
-  installUser="$2"
   if ! paru --version; then
     pushd /tmp
     [ -d paru-bin ] || git clone https://aur.archlinux.org/paru-bin.git
@@ -195,7 +193,6 @@ else
     k9s
     kdeconnect
     kexec-tools
-    krew-bin
     kube-linter-bin
     kubectl-bin
     kubefwd-bin
@@ -352,14 +349,7 @@ else
 
   paru -Syu --noconfirm --needed --removemake --asexplicit ${packages[@]}
 
-  kubectl krew update
-  kubectl krew install access-matrix konfig debug node-shell
-
-  if ! helm plugin list | grep diff; then
-    helm plugin install https://github.com/databus23/helm-diff
-  fi
-
-  sudo usermod -a -G wheel,uucp,input ${installUser}
+  sudo usermod -a -G wheel,uucp,input,video $USER
 
   sudo ln -sf Breeze_Hacked /usr/share/icons/default
 
@@ -379,12 +369,6 @@ else
     else
       sudo sed -i -r "$(($sessionSectionEnd + 1))i session    optional     pam_gnome_keyring.so auto_start" /etc/pam.d/login
     fi
-  fi
-
-  if ! grep pam_yubico.so /etc/pam.d/system-auth &> /dev/null; then
-    # only make it sufficient, you're not supposed to publish the challenge response files (?)
-    sudo sed '2 i \\nauth sufficient pam_yubico.so mode=challenge-response chalresp_path=/var/yubico' /etc/pam.d/system-auth -i
-    echo "Please run 'ykpamcfg -2 -v' for each yubikey and move the '~/.yubico/challenge-*' files to '/var/yubico/${installUser}-*'"
   fi
 
   sudo systemctl enable systemd-timesyncd bluetooth pkgstats.timer fwupd ebtables fwupd-refresh.timer NetworkManager reflector.timer auto-cpufreq.service ananicy-cpp.service

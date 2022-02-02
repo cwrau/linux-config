@@ -30,6 +30,7 @@ export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
 export GOPATH="$XDG_DATA_HOME/go"
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
+export HELM_PLUGINS="/usr/lib/helm/plugins"
 export KONAN_DATA_DIR="$XDG_DATA_HOME/konan"
 export KUBECONFIG="$XDG_CONFIG_HOME/kube/config"
 export LESSHISTFILE="$XDG_DATA_HOME/less/history"
@@ -226,10 +227,6 @@ function _check_command() {
 
 function command_not_found_handler() {
   local packages
-  echo "Command '$1' not found, but could be installed via the following package(s):"
-  paru -Ss --provides -- $1
-  _check_command $@
-  [ $? = 137 ] || return $?
   echo "Packages containing '$1' in name"
   paru -- $1
   _check_command $@
