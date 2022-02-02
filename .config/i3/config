@@ -150,8 +150,6 @@ for_window [class="jetbrains-toolbox"] floating enable
 for_window [class="steam_app.*"] floating enable
 for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
 for_window [class="Gnome-network-displays"] floating enable
-for_window [class="Microsoft Teams" title="Microsoft Teams Notification"] floating enable
-no_focus [class="Microsoft Teams" title="Microsoft Teams Notification"]
 
 $exaid $XDG_CONFIG_HOME/i3/rc.sh
 
@@ -304,10 +302,8 @@ assign [class="youtube-music-desktop-app"] 18:YMP
 for_window [class="youtube-music-desktop-app"] move to workspace 18:YMP
 
 bindsym $super+$alt+9 workspace 19:Teams
-assign [class="Microsoft Teams - Insiders"] 19:Teams
-assign [class="Microsoft Teams"] 19:Teams
-for_window [class="Microsoft Teams - Insiders"] move to workspace 19:Teams
-for_window [class="Microsoft Teams"] move to workspace 19:Teams
+assign [class="teams"] 19:Teams
+for_window [class="teams"] move to workspace 19:Teams
 
 bindsym $super+$alt+0 workspace 20:Chat
 assign [class="Slack"] 20:Chat
