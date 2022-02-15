@@ -1,0 +1,18 @@
+[Unit]
+Description=Gaming Mode
+
+[Service]
+Type=oneshot
+Environment="SERVICES=feh.service polybar.target glava.target picom.service"
+ExecStart=/usr/bin/systemctl --user stop $SERVICES work.target
+RemainAfterExit=yes
+ExecStop=/usr/bin/systemctl --user start $SERVICES
+RestartSec=0
+
+# disallow writing to /usr, /bin, /sbin, ...
+ProtectSystem=yes
+# more paranoid security settings
+NoNewPrivileges=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictNamespaces=yes

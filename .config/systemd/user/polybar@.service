@@ -1,16 +1,17 @@
 [Unit]
 Description=Polybar %I
 PartOf=polybar.target
-Slice=polybar.slice
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
 ExecStartPre=/bin/bash -c 'until i3-msg; do :; done'
 ExecStart=%E/polybar/launch.sh %i
+ExecReload=%E/polybar/launch.sh %i restart
 ExecStop=%E/polybar/stop.sh %i
 RestartSec=0
 KillSignal=SIGKILL
+Slice=polybar.slice
 
 [Install]
 WantedBy=graphical-session.target

@@ -1,5 +1,5 @@
 [Unit]
-Description=glava bundle
+Description=glava
 Requires=graphical-session.target pipewire-pulse.socket
 After=graphical-session.target pipewire-pulse.socket
 Wants=glava@bar.service glava-update.service

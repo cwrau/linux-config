@@ -9,6 +9,7 @@ Type=simple
 ExecStart=/usr/bin/google-chrome-stable --user-data-dir=%E/google-chrome-whatsapp --app=https://web.whatsapp.com --class=whatsapp
 RestartSec=0
 Restart=always
+Slice=messengers.slice
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=yes

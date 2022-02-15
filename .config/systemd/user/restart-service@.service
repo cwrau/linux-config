@@ -3,7 +3,7 @@ Description=Restart service %I
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/systemctl --user reload-or-restart '%i*.service'
+ExecStart=/usr/bin/systemctl --user reload-or-restart '%i.service'
 
 [Install]
 WantedBy=graphical-session.target

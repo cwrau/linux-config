@@ -9,7 +9,7 @@ Delegate=true
 ExecStartPre=-/usr/bin/podman rm %N
 #ExecStartPre=/bin/rm -f %t/containers/container-%N.pid %t/containers/container-%N.ctr-id
 #ExecStart=/usr/bin/podman run --conmon-pidfile %t/containers/container-%N.pid --cidfile %t/containers/container-%N.ctr-id --log-driver journald --sdnotify container --cgroups no-conmon --detach --publish 127.0.0.2:3306:3306 --log-driver=journald --name %N --tmpfs /var/lib/mysql -e MYSQL_ROOT_PASSWORD=toor mariadb
-ExecStart=/usr/bin/podman run --log-driver journald --sdnotify conmon --cgroups no-conmon --detach --publish 127.0.0.2:3306:3306 --log-driver=journald --name %N --tmpfs /var/lib/mysql -e MARIADB_ROOT_PASSWORD=toor mariadb
+ExecStart=/usr/bin/podman run --log-driver journald --sdnotify container --cgroups no-conmon --detach --publish 127.0.0.2:3306:3306 --log-driver=journald --name %N --tmpfs /var/lib/mysql -e MARIADB_ROOT_PASSWORD=toor mariadb
 #ExecStop=/usr/bin/podman stop --ignore --cidfile %t/containers/container-%N.ctr-id -t 10
 #ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile %t/containers/container-%N.ctr-id
 #PIDFile=%t/containers/container-%N.pid

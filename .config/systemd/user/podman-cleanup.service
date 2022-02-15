@@ -1,0 +1,7 @@
+[Unit]
+Description=Clean podman storage
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/podman system prune --all --force --volumes
+SuccessExitStatus=0 125

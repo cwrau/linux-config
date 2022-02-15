@@ -1,8 +1,9 @@
 [Unit]
-Description=polybar bundle
-Requires=graphical-session.target pipewire-pulse.socket
-After=graphical-session.target pipewire-pulse.socket
-Wants=polybar@bottom.service polybar@top.service pipewire-pulse.socket
+Description=polybar
+Requires=graphical-session.target
+After=graphical-session.target
+Wants=polybar@top.service
+Wants=polybar@bottom.service
 
 [Install]
 WantedBy=graphical-session.target

@@ -8,7 +8,6 @@ RemainAfterExit=yes
 ExecStart=%E/glava/launch.sh %i
 ExecStop=%E/glava/stop.sh %i
 RestartSec=0
-KillSignal=SIGKILL
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=yes

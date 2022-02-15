@@ -10,6 +10,7 @@ ExecStart=/usr/bin/signal-desktop
 ExecStop=/usr/bin/kill $MAINPID
 RestartSec=0
 Restart=always
+Slice=messengers.slice
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=yes
