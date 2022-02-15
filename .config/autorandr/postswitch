@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 
-for service in 'polybar.target' 'glava.target'; do
-  if systemctl --user is-active "$service"; then
-    systemctl --user restart "$service" &
-  fi
-done
-
-systemctl --user restart feh &
-wait
+systemctl --user try-reload-or-restart polybar.target glava.target feh.service
 
 xrandr --dpi 100

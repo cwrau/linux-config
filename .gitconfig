@@ -29,6 +29,7 @@
   enabled = true
 [branch]
   autoSetupRebase = always
+  autoSetupMerge = true
 [credential]
   helper = store
 [pager]

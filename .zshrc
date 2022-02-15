@@ -53,7 +53,7 @@ export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 export FZF_CTRL_T_COMMAND='fd --hidden'
 export FZF_CTRL_T_OPTS="--preview '(bat --color=always --pager=never -p {} 2> /dev/null || tree -C {}) 2> /dev/null | head -200'"
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
-export GRADLE_OPTS=-Xmx1G
+export GRADLE_OPTS=-Dorg.gradle.jvmargs=-Xmx1G
 export HISTSIZE=9223372036854775807
 export PAGER=slit
 export SAVEHIST=9223372036854775807
@@ -591,7 +591,7 @@ function hrDiff() {
   releaseName=$(_hr_getReleaseName "$yaml")
   chartName=$(<<<"$yaml" | yq -er .spec.chart.name)
   if [ -d "$2" ]; then
-    helm diff --show-secrets upgrade --namespace $namespace $releaseName "$2" --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:3} | grep -v helm.sh/chart | less
+    helm diff --color --show-secrets upgrade --namespace $namespace $releaseName "$2" --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:3} | grep -v helm.sh/chart | less
   else
     local repoTmpFile
     repoTmpFile=$(mktemp --suffix .yaml)
@@ -604,7 +604,7 @@ repositories:
     url: "$(<<<"$yaml" | yq -er .spec.chart.repository)"
 EOF
     helm --repository-config $repoTmpFile repo update
-    helm --repository-config $repoTmpFile diff --show-secrets upgrade --namespace $namespace $releaseName tmp/$(<<<"$yaml" | yq -er .spec.chart.name) --version $(<<<"$yaml" | yq -er .spec.chart.version) --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:2} | grep -v helm.sh/chart | less
+    helm --repository-config $repoTmpFile diff --color --show-secrets upgrade --namespace $namespace $releaseName tmp/$(<<<"$yaml" | yq -er .spec.chart.name) --version $(<<<"$yaml" | yq -er .spec.chart.version) --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:2} | grep -v helm.sh/chart | less
   fi
 
   # helm diff upgrade --namespace $ns --repo $(yq -e .spec.chart.repository $HR) $rn $(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
