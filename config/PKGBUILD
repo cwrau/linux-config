@@ -4,7 +4,7 @@ tar -h --exclude=.idea -cf rootfs.tar -C rootfs .
 
 pkgname=linux-config
 pkgver=0.1.0
-pkgrel=7
+pkgrel=8
 pkgdesc='linux config'
 url="https://github.com/cwrau/linux-config"
 license=('GPL3')
@@ -39,7 +39,9 @@ depends=(
     deluge-gtk
     diff-so-fancy
     discord_arch_electron
+    dive-bin
     dnsmasq
+    dockerfile-language-server-bin
     dolphin-emu
     dunst
     earlyoom
@@ -87,8 +89,12 @@ depends=(
     jq
     k9s
     kdeconnect
+    kernel-modules-hook
     kexec-tools
     kubectl
+    kubectl-access-matrix-bin
+    kubectl-konfig
+    kubectl-neat-diff
     kubectl-node-shell
     kubefwd-bin
     lab-bin
@@ -201,6 +207,7 @@ depends=(
     uhk-agent-appimage
     unzip
     usbutils
+    v4l2loopback-dkms
     which
     wireguard-tools
     xarchiver
@@ -212,6 +219,8 @@ depends=(
     xorg-xprop
     xorg-xwininfo
     xss-lock-session
+    yaml-language-server
+    yamllint
     yq
     ytmdesktop
     yubico-pam
