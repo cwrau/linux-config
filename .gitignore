@@ -46,3 +46,4 @@
 .ssh/work.config
 .config/cloudflared/cert.pem
 .config/cloudflared/files.json
+.config/kube/config.yaml

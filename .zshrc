@@ -32,7 +32,7 @@ export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
 export HELM_PLUGINS="/usr/lib/helm/plugins"
 export KONAN_DATA_DIR="$XDG_DATA_HOME/konan"
-export KUBECONFIG="$XDG_CONFIG_HOME/kube/config"
+export KUBECONFIG="$XDG_CONFIG_HOME/kube/config.yaml"
 export LESSHISTFILE="$XDG_DATA_HOME/less/history"
 export MINIKUBE_HOME="$XDG_DATA_HOME/minikube"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
@@ -43,6 +43,7 @@ export SECRETS_DIR="$(realpath --relative-base=$HOME $XDG_CONFIG_HOME/gitsecret)
 export SONAR_USER_HOME="$XDG_DATA_HOME/sonarlint"
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
 export STACK_ROOT="$XDG_CONFIG_HOME/stack"
+export TALOSCONFIG="$XDG_CONFIG_HOME/talos/config.yaml"
 export XAUTHORITY="$XDG_CACHE_HOME/x11/authority"
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
 
@@ -202,6 +203,7 @@ source /usr/share/git/completion/git-completion.zsh &> /dev/null
 source /usr/share/zsh/plugins/zsh-you-should-use/you-should-use.plugin.zsh &> /dev/null
 
 autoload -U compinit && compinit -d "$ZSH_COMPDUMP"
+autoload -U bashcompinit && bashcompinit -d "$ZSH_COMPDUMP"
 
 compdef _gradle gradle-or-gradlew
 
@@ -250,7 +252,7 @@ function e() {
 }
 
 function ssh() {
-  if [[ "${#@}" > 1 ]]; then
+  if [[ "${#@}" > 1 ]] || [[ "${#@}" == 0 ]]; then
     /usr/bin/ssh "$@"
   elif [[ -f ~/.ssh/checked_hosts ]] && grep -q -- "$1" ~/.ssh/checked_hosts; then
     name="$1"
@@ -328,6 +330,7 @@ function fap() {
   fi
   mkdir -p /tmp/data/custom/modules/file/mounts
   mkdir -p /tmp/data/data
+  mkdir -p /tmp/data/assets
   <<EOF > /tmp/data/custom/modules/file/mounts/data.xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <mount enabled="true">
@@ -346,7 +349,7 @@ function fap() {
         <exclude_file>4ap_fileimport[.]xml</exclude_file>
         <exclude_file>Thumbs[.]db</exclude_file>
     </exclude_files>
-    <period>60</period>
+    <period>1</period>
     <change_handlers>
         <change_handler>com.cm4ap.ce.fsi.handler.FileChangeHandler</change_handler>
         <change_handler>com.cm4ap.ce.fsi.handler.LogOutputHandler</change_handler>
@@ -392,7 +395,8 @@ EOF
     --read-only \
     --read-only-tmpfs=false \
     -v /tmp/data/data:/4allportal/data/data:ro \
-    --tmpfs=/{4allportal/{_runtime,assets},tmp} $podmanArgs \
+    -v /tmp/data/assets:/4allportal/assets \
+    --tmpfs=/{4allportal/_runtime,tmp} $podmanArgs \
     -v /tmp/data:/4allportal/data \
     registry.4allportal.net/4allportal:$tag $fapArgs
   exitCode=$?
@@ -548,7 +552,11 @@ function hr() {
     rm -rf /tmp/helm-chart
     local gitPath
     gitPath="$(<<< "$yaml" | yq -er 'if .spec.chart.path then .spec.chart.path else "." end')"
-    git clone --depth 1 --branch "$(<<< "$yaml" | yq -er 'if .spec.chart.ref then .spec.chart.ref else "master" end')" "$(<<< "$yaml" | yq -er .spec.chart.git)" /tmp/helm-chart > /dev/null
+    (
+      git clone "$(<<< "$yaml" | yq -er .spec.chart.git)" /tmp/helm-chart
+      cd /tmp/helm-chart
+      git checkout "$(<<< "$yaml" | yq -er 'if .spec.chart.ref then .spec.chart.ref else "master" end')"
+    ) > /dev/null
 
     helm dependency update "/tmp/helm-chart/$gitPath" > /dev/null
     helm template --namespace $namespace $releaseName "/tmp/helm-chart/$gitPath" --values <(<<< "$values") ${@:2}
@@ -591,21 +599,10 @@ function hrDiff() {
   releaseName=$(_hr_getReleaseName "$yaml")
   chartName=$(<<<"$yaml" | yq -er .spec.chart.name)
   if [ -d "$2" ]; then
-    helm diff --color --show-secrets upgrade --namespace $namespace $releaseName "$2" --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:3} | grep -v helm.sh/chart | less
+    helm diff --color --show-secrets upgrade --namespace $namespace $releaseName "$2" --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:3}
   else
-    local repoTmpFile
-    repoTmpFile=$(mktemp --suffix .yaml)
-    trap "rm -f $repoTmpFile" EXIT
-    <<EOF > $repoTmpFile
-apiVersion: ""
-generated: "0001-01-01T00:00:00Z"
-repositories:
-  - name: tmp
-    url: "$(<<<"$yaml" | yq -er .spec.chart.repository)"
-EOF
-    helm --repository-config $repoTmpFile repo update
-    helm --repository-config $repoTmpFile diff --color --show-secrets upgrade --namespace $namespace $releaseName tmp/$(<<<"$yaml" | yq -er .spec.chart.name) --version $(<<<"$yaml" | yq -er .spec.chart.version) --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:2} | grep -v helm.sh/chart | less
-  fi
+    helm diff --color --show-secrets upgrade --namespace $namespace $releaseName --repo "$(<<<"$yaml" | yq -er .spec.chart.repository)" $(<<<"$yaml" | yq -er .spec.chart.name) --version $(<<<"$yaml" | yq -er .spec.chart.version) --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:2}
+  fi | grep -v helm.sh/chart | less
 
   # helm diff upgrade --namespace $ns --repo $(yq -e .spec.chart.repository $HR) $rn $(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
 }
@@ -864,6 +861,23 @@ function _k9s() {
   _arguments "--context[The name of the kubeconfig context to use]: :($(kubectl config get-contexts -o name | xargs echo -n))"
 }
 compdef _k9s k9s
+
+if command -v kubectl-neat-diff > /dev/null; then
+  export KUBECTL_EXTERNAL_DIFF=kubectl-neat-diff
+fi
+
+if command -v cilium > /dev/null; then
+  source <(cilium completion zsh)
+  compdef _cilium cilium
+fi
+if command -v hubble > /dev/null; then
+  source <(hubble completion zsh)
+  compdef _hubble hubble
+fi
+if command -v k0sctl > /dev/null; then
+  source <(k0sctl completion zsh)
+  compdef _k0sctl_zsh_autocomplete k0sctl
+fi
 
 nAlias krc kubectl config current-context
 nAlias klc kubectl 'config get-contexts -o name | sed "s/^/  /;\|^  $(krc)$|s/ /*/"'

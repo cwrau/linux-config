@@ -14,6 +14,8 @@ function update() {
   pkill -0 -x glava
 }
 
+sleep 5
+
 update
 
 LANG=C pactl subscribe | grep "Event 'change' on server" --line-buffered | while read p

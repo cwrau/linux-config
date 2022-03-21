@@ -217,3 +217,21 @@ repositories:
   password: ""
   url: https://lablabs.github.io/cloudflare-exporter/
   username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: loki
+  pass_credentials_all: false
+  password: ""
+  url: https://grafana.github.io/helm-charts
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: longhorn
+  pass_credentials_all: false
+  password: ""
+  url: https://charts.longhorn.io
+  username: ""

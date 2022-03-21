@@ -7,8 +7,8 @@ Requires=graphical-session.target
 Type=oneshot
 ExecStart=/usr/bin/sudo modprobe -r btusb
 ExecStart=/usr/bin/sudo modprobe btusb
+ExecStart=/usr/bin/sleep 1
 ExecStart=/usr/bin/bluetoothctl power on
-RestartSec=0
 
 [Install]
 WantedBy=graphical-session.target
