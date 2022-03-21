@@ -33,7 +33,7 @@ exec 5<>$LOCKDIR/message-lock
 trap unlock EXIT
 
 if flock -n 4; then
-  flock 5
+  flock -x 5
   if bluetoothctl show | grep -q "Powered: yes"; then
     echo -n "%{F#2193ff}"
     if bluetoothctl info | grep -q 'Device'; then
