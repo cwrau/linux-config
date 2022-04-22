@@ -186,8 +186,8 @@ bindsym $super+p $exid sh -c 'fd --no-ignore-vcs --hidden -t f workspace.xml $HO
 bindsym XF86AudioRaiseVolume $exid pactl set-sink-volume @DEFAULT_SINK@ +5%; $exid pactl set-sink-mute @DEFAULT_SINK@ 0
 bindsym XF86AudioLowerVolume $exid pactl set-sink-volume @DEFAULT_SINK@ -5%
 bindsym XF86AudioMute $exid pactl set-sink-mute @DEFAULT_SINK@ toggle
-bindsym Shift+XF86AudioLowerVolume $exid pctl volume 0.05-
-bindsym Shift+XF86AudioRaiseVolume $exid pctl volume 0.05+
+bindsym Shift+XF86AudioLowerVolume $exid pctl volume 0.1-
+bindsym Shift+XF86AudioRaiseVolume $exid pctl volume 0.1+
 
 # Sreen brightness controls
 bindsym XF86MonBrightnessUp $exid brightness up

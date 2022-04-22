@@ -39,4 +39,4 @@ elif [ "$1" = PRINT ]; then
   exit 0
 fi
 
-exec playerctl -p $PLAYER $@
+exec playerctl -p "$PLAYER" $@

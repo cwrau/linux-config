@@ -382,3 +382,5 @@ export VISUAL=vim
 export EDITOR="$VISUAL"
 
 nAlias . ls
+
+complete -C /usr/bin/mcli mcli
