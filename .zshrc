@@ -506,30 +506,52 @@ function google() {
 
 function _hr_getYaml() {
   local HR="$1"
+  local index="$2"
 
   if [ "$HR" = "-" -o "$HR" = "" ]; then
     < /dev/stdin
   else
     < "$HR"
     [ "$?" -ne 0 ] && return 1
-  fi | yq -erys '.[] | select(.kind == "HelmRelease")'
+  fi | yq -erys '[.[] | select(.kind == "HelmRelease")][0]'
   return 0
 }
 
 function _hr_getNamespace() {
-  local yaml
-  yaml="$1"
+  local yaml="$1"
 
   <<<"$yaml" | yq -er 'if .spec.targetNamespace then .spec.targetNamespace else .metadata.namespace end'
 }
 
 function _hr_getReleaseName() {
-  local yaml
+  local yaml="$1"
   local ns
-  yaml="$1"
-  ns=$(_hr_getNamespace "$yaml")
 
-  <<<"$yaml" | yq -er "if .spec.releaseName then .spec.releaseName else \"$ns-\\(.metadata.name)\" end"
+  if <<<"$yaml" | yq -e '.apiVersion == "helm.fluxcd.io/v1" or .spec.targetNamespace' > /dev/null; then
+    <<<"$yaml" | yq -er "if .spec.releaseName then .spec.releaseName else \"$(_hr_getNamespace "$yaml")-\\(.metadata.name)\" end"
+  else
+    <<<"$yaml" | yq -er 'if .spec.releaseName then .spec.releaseName else .metadata.name end'
+  fi
+}
+
+function _hr_git() {
+  local gitUrl="$1"
+  local gitRef="$2"
+  local gitPath="$3"
+  local namespace="$4"
+  local releaseName="$5"
+  local values="$6"
+
+  rm -rf /tmp/helm-chart
+  (
+    git clone "$gitUrl" /tmp/helm-chart
+    cd /tmp/helm-chart
+    git checkout "$gitRef"
+  ) > /dev/null
+
+  helm dependency build "/tmp/helm-chart/$gitPath" > /dev/null
+  helm template --namespace $namespace $releaseName "/tmp/helm-chart/$gitPath" --values <(<<< "$values") ${@:7}
+  rm -rf /tmp/helm-chart
 }
 
 function hr() {
@@ -537,32 +559,66 @@ function hr() {
   local releaseName
   local yaml
   local values
-  yaml=$(_hr_getYaml "$1")
+  local index=0
   if [[ "$2" =~ -[0-9]+ ]]; then
-    yaml="$(<<<"$yaml" | yq -erys ".[${2/-}]")"
+    index="$2"
     shift
   fi
+  yaml=$(_hr_getYaml "$1" "$index")
   [ "$?" -ne 0 ] && retureleaseName 1
   namespace=$(_hr_getNamespace "$yaml")
   releaseName=$(_hr_getReleaseName "$yaml")
   values=$(<<< "$yaml" | yq -y -er .spec.values)
   if [ -d "$2" ]; then
     helm template --namespace $namespace $releaseName "$2" --values <(<<< "$values") ${@:3}
-  elif <<< "$yaml" | yq -er .spec.chart.git > /dev/null; then
-    rm -rf /tmp/helm-chart
-    local gitPath
-    gitPath="$(<<< "$yaml" | yq -er 'if .spec.chart.path then .spec.chart.path else "." end')"
-    (
-      git clone "$(<<< "$yaml" | yq -er .spec.chart.git)" /tmp/helm-chart
-      cd /tmp/helm-chart
-      git checkout "$(<<< "$yaml" | yq -er 'if .spec.chart.ref then .spec.chart.ref else "master" end')"
-    ) > /dev/null
-
-    helm dependency update "/tmp/helm-chart/$gitPath" > /dev/null
-    helm template --namespace $namespace $releaseName "/tmp/helm-chart/$gitPath" --values <(<<< "$values") ${@:2}
-    rm -rf /tmp/helm-chart
+  elif <<< "$yaml" | yq -e '.apiVersion == "helm.fluxcd.io/v1"' > /dev/null; then
+    if <<< "$yaml" | yq -e .spec.chart.git > /dev/null; then
+      local gitPath
+      local gitUrl
+      local gitRef
+      gitPath="$(<<< "$yaml" | yq -er 'if .spec.chart.path then .spec.chart.path else "." end')"
+      gitUrl="$(<<< "$yaml" | yq -er .spec.chart.git)"
+      gitRef="$(<<< "$yaml" | yq -er 'if .spec.chart.ref then .spec.chart.ref else "master" end')"
+      _hr_git "$gitUrl" "$gitRef" "$gitPath" "$namespace" "$releaseName" "$values"
+    else
+      helm template --namespace $namespace --repo $(<<< "$yaml" | yq -er .spec.chart.repository) $releaseName $(<<< "$yaml" | yq -er .spec.chart.name) --version $(<<< "$yaml" | yq -er .spec.chart.version) --values <(<<< "$values") ${@:2}
+    fi
   else
-    helm template --namespace $namespace --repo $(<<< "$yaml" | yq -er .spec.chart.repository) $releaseName $(<<< "$yaml" | yq -er .spec.chart.name) --version $(<<< "$yaml" | yq -er .spec.chart.version) --values <(<<< "$values") ${@:2}
+    local sourceNamespace
+    local sourceName
+    local sourceKind
+    local sourceResource
+    local chartName
+    sourceNamespace=$(<<< "$yaml" | yq -er "if .spec.chart.spec.sourceRef.namespace then .spec.chart.spec.sourceRef.namespace else \"$namespace\" end")
+    sourceName=$(<<< "$yaml" | yq -er .spec.chart.spec.sourceRef.name)
+    sourceKind=$(<<< "$yaml" | yq -er .spec.chart.spec.sourceRef.kind)
+    sourceResource=$(kubectl --namespace=$sourceNamespace get $sourceKind $sourceName -o yaml)
+    if [[ "$?" != 0 ]]; then
+      local helmrepositoryUrl="https://charts.4allportal.net"
+      echo "Source resource $sourceNamespace/$sourceKind/$sourceName not found"
+      vared -p "Please specify Helm Repository URL: " helmrepositoryUrl
+      sourceKind=HelmRepository
+      sourceResource=$'spec:\n  url: '"$helmrepositoryUrl"
+    fi
+    chartName="$(<<< "$yaml" | yq -er .spec.chart.spec.chart)"
+    case "$sourceKind" in
+      GitRepository)
+        local gitUrl
+        local gitRef
+        gitUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
+        gitRef="$(<<< "$sourceResource" | yq -er '.spec.ref | if .branch then .branch elif .tag then .tag elif .semver then .semver elif .commit then .commit else "master" end')"
+        _hr_git "$gitUrl" "$gitRef" "$chartName" "$namespace" "$releaseName" "$values"
+        ;;
+      HelmRepository)
+        local helmrepositoryUrl
+        local chartVersion
+        helmrepositoryUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
+        chartVersion="$(<<< "$yaml" | yq -er .spec.chart.spec.version)"
+        helm template --namespace $namespace --repo "$helmrepositoryUrl" $releaseName "$chartName" --version "$chartVersion" --values <(<<< "$values") ${@:2}
+        ;;
+      *)
+        echo "'$sourceKind' is not implemented" >&2
+    esac
   fi
 }
 function _hr() {
