@@ -177,6 +177,7 @@ ZSH_CUSTOM=/usr/share/zsh
 ZSH_THEME="../../zsh-theme-powerlevel10k/powerlevel10k"
 
 plugins=(
+  direnv
   git
   git-auto-fetch
   gitfast

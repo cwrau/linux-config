@@ -247,8 +247,8 @@ bindsym $super+c exec "exo-open --launch WebBrowser"
 bindsym $super+Shift+c exec "exo-open --launch WebBrowser --incognito"
 bindsym $super+g exec sh -c 'dmenu -p google | tr " " "+" | xargs -r -I{} $BROWSER --new-window https://google.com/search\?q\={}'
 
-for_window [class="jetbrains-idea" title="Debug"] floating disable
 for_window [class="java-lang-Thread" instance="java-lang-Thread"] floating enable
+for_window [class="jetbrains-.*" title="Debug"] floating disable
 for_window [class="jetbrains-.*" title="win0"] floating enable
 for_window [class="jetbrains-.*" title="Welcome to IntelliJ IDEA"] floating enable
 
