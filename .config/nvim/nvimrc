@@ -34,20 +34,8 @@ Plug 'plasticboy/vim-markdown'
 " Plug 'sheerun/vim-polyglot'
 " au BufWrite * :Autoformat " Autoformat destroys yaml's
 noremap = :Autoformat<CR>
-Plug 'autozimu/LanguageClient-neovim', {
-      \   'branch': 'next',
-      \   'do': 'bash install.sh',
-      \ }
-
-let g:LanguageClient_serverCommands = {
-      \   'bash': ['bash-language-server', 'start'],
-      \   'dockerfile': ['docker-langserver', '--stdio'],
-      \   'yaml': ['yaml-language-server'],
-      \   'java': ['java-language-server'],
-      \   'kotlin': ['kotlin-language-server'],
-      \ }
-
-let g:LanguageClient_rootMarkers = ['stack.yaml']
+Plug 'williamboman/nvim-lsp-installer'
+Plug 'neovim/nvim-lspconfig'
 
 let g:syntastic_dockerfile_checkers = ['hadolint']
 let g:syntastic_yaml_checkers = ['yamllint']
@@ -55,15 +43,6 @@ let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_jump = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
-
-nnoremap <F5> :call LanguageClient_contextMenu()<CR>
-map <Leader>lk :call LanguageClient#textDocument_hover()<CR>
-map <Leader>lg :call LanguageClient#textDocument_definition()<CR>
-map <Leader>lr :call LanguageClient#textDocument_rename()<CR>
-map <Leader>lf :call LanguageClient#textDocument_formatting()<CR>
-map <Leader>lb :call LanguageClient#textDocument_references()<CR>
-map <Leader>la :call LanguageClient#textDocument_codeAction()<CR>
-map <Leader>ls :call LanguageClient#textDocument_documentSymbol()<CR>
 
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
 let g:mkdp_browser = 'google-chrome-stable'
@@ -178,7 +157,7 @@ endfunction
 
 autocmd VimEnter * call AirlineInit()
 
-lua <<EOF
+lua <<EOCONFIG
 require'nvim-treesitter.configs'.setup {
   -- One of "all", "maintained" (parsers with maintainers), or a list of languages
   ensure_installed = "maintained",
@@ -212,7 +191,20 @@ require'nvim-treesitter.configs'.setup {
     },
   },
 }
-EOF
+EOCONFIG
+
+lua <<EOCONFIG
+require'nvim-lsp-installer'.setup {
+  automatic_installation = true,
+}
+EOCONFIG
+
+lua <<EOLSSETUP
+local servers = { 'bashls', 'dockerls', 'jsonls', 'jdtls', 'kotlin_language_server', 'terraformls', 'yamlls', 'vimls' }
+for _, lsp in pairs(servers) do
+  require('lspconfig')[lsp].setup {}
+end
+EOLSSETUP
 
 set nofoldenable
 set foldmethod=expr
