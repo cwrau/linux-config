@@ -41,7 +41,7 @@ if sudo informant check; then
       if ! sudo systemctl is-active updates-run; then
         notification-send $XDG_RUNTIME_DIR/updates-notification -t 10000 -u low "$UPDATES | $AUR_UPDATES" "$(paru -Quq --devel | sed -z '$ s/\n$//' | tr '\n' ',')"
 
-        if systemd-inhibit --why Updates sudo systemd-run --uid $USER --unit updates-run --wait --nice 19 --slice updates.slice -- paru -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall; then
+        if systemd-inhibit --why Updates --mode block --what shutdown sudo systemd-run --uid $USER --unit updates-run --wait --nice 19 --slice updates.slice -- paru -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall; then
           notification-send $XDG_RUNTIME_DIR/updates-finished-notification -t 10000 -u normal 'Updates done!'
         else
           if [[ "$(notification-send $XDG_RUNTIME_DIR/updates-finished-notification -t 3590000 -u critical 'Updates failed!' -A Show,Show)" == "Show" ]]; then
