@@ -42,8 +42,11 @@
 .config/wireguard/wg0.conf
 .config/k9s/config.yml
 .ssh/checked_hosts
+.ssh/known_hosts.old
 .ssh/known_hosts
 .ssh/work.config
 .config/cloudflared/cert.pem
 .config/cloudflared/files.json
 .config/kube/config.yaml
+.android/adbkey
+

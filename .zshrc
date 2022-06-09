@@ -73,6 +73,7 @@ if [[ $- = *i* ]]; then
     fi
   fi
 fi
+set +x
 
 # Path to your oh-my-zsh installation.
 ZSH=/usr/share/oh-my-zsh/
@@ -514,7 +515,7 @@ function _hr_getYaml() {
   else
     < "$HR"
     [ "$?" -ne 0 ] && return 1
-  fi | yq -erys '[.[] | select(.kind == "HelmRelease")][0]'
+  fi | yq -erys "[.[] | select(.kind == \"HelmRelease\")][$index]"
   return 0
 }
 
@@ -529,9 +530,9 @@ function _hr_getReleaseName() {
   local ns
 
   if <<<"$yaml" | yq -e '.apiVersion == "helm.fluxcd.io/v1" or .spec.targetNamespace' > /dev/null; then
-    <<<"$yaml" | yq -er "if .spec.releaseName then .spec.releaseName else \"$(_hr_getNamespace "$yaml")-\\(.metadata.name)\" end"
+    <<<"$yaml" | yq -er ".spec.releaseName // \"$(_hr_getNamespace "$yaml")-\\(.metadata.name)\""
   else
-    <<<"$yaml" | yq -er 'if .spec.releaseName then .spec.releaseName else .metadata.name end'
+    <<<"$yaml" | yq -er '.spec.releaseName // .metadata.name'
   fi
 }
 
@@ -566,7 +567,7 @@ function hr() {
     shift
   fi
   yaml=$(_hr_getYaml "$1" "$index")
-  [ "$?" -ne 0 ] && retureleaseName 1
+  [ "$?" -ne 0 ] && return 1
   namespace=$(_hr_getNamespace "$yaml")
   releaseName=$(_hr_getReleaseName "$yaml")
   values=$(<<< "$yaml" | yq -y -er .spec.values)
@@ -577,9 +578,9 @@ function hr() {
       local gitPath
       local gitUrl
       local gitRef
-      gitPath="$(<<< "$yaml" | yq -er 'if .spec.chart.path then .spec.chart.path else "." end')"
+      gitPath="$(<<< "$yaml" | yq -er '.spec.chart.path // "."')"
       gitUrl="$(<<< "$yaml" | yq -er .spec.chart.git)"
-      gitRef="$(<<< "$yaml" | yq -er 'if .spec.chart.ref then .spec.chart.ref else "master" end')"
+      gitRef="$(<<< "$yaml" | yq -er '.spec.chart.ref // "master"')"
       _hr_git "$gitUrl" "$gitRef" "$gitPath" "$namespace" "$releaseName" "$values"
     else
       helm template --namespace $namespace --repo $(<<< "$yaml" | yq -er .spec.chart.repository) $releaseName $(<<< "$yaml" | yq -er .spec.chart.name) --version $(<<< "$yaml" | yq -er .spec.chart.version) --values <(<<< "$values") ${@:2}
@@ -590,7 +591,7 @@ function hr() {
     local sourceKind
     local sourceResource
     local chartName
-    sourceNamespace=$(<<< "$yaml" | yq -er "if .spec.chart.spec.sourceRef.namespace then .spec.chart.spec.sourceRef.namespace else \"$namespace\" end")
+    sourceNamespace=$(<<< "$yaml" | yq -er ".spec.chart.spec.sourceRef.namespace // \"$namespace\"")
     sourceName=$(<<< "$yaml" | yq -er .spec.chart.spec.sourceRef.name)
     sourceKind=$(<<< "$yaml" | yq -er .spec.chart.spec.sourceRef.kind)
     sourceResource=$(kubectl --namespace=$sourceNamespace get $sourceKind $sourceName -o yaml)
@@ -654,14 +655,59 @@ function hrDiff() {
   [ "$?" -ne 0 ] && return 1
   namespace=$(_hr_getNamespace "$yaml")
   releaseName=$(_hr_getReleaseName "$yaml")
-  chartName=$(<<<"$yaml" | yq -er .spec.chart.name)
-  if [ -d "$2" ]; then
-    helm diff --color --show-secrets upgrade --namespace $namespace $releaseName "$2" --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:3}
-  else
-    helm diff --color --show-secrets upgrade --namespace $namespace $releaseName --repo "$(<<<"$yaml" | yq -er .spec.chart.repository)" $(<<<"$yaml" | yq -er .spec.chart.name) --version $(<<<"$yaml" | yq -er .spec.chart.version) --values <(<<<"$yaml" | yq -y -er .spec.values) ${@:2}
-  fi | grep -v helm.sh/chart | less
+  values=$(<<< "$yaml" | yq -y -er .spec.values)
 
-  # helm diff upgrade --namespace $ns --repo $(yq -e .spec.chart.repository $HR) $rn $(yq -e .spec.chart.name $HR) --version $(yq -e .spec.chart.version $HR) --values <(yq -y .spec.values $HR)
+  if [ -d "$2" ]; then
+    helm diff --color --show-secrets upgrade --namespace $namespace $releaseName "$2" --values <(<<< "$values") ${@:3}
+  elif <<< "$yaml" | yq -e '.apiVersion == "helm.fluxcd.io/v1"' > /dev/null; then
+    if <<< "$yaml" | yq -e .spec.chart.git > /dev/null; then
+      local gitPath
+      local gitUrl
+      local gitRef
+      gitPath="$(<<< "$yaml" | yq -er '.spec.chart.path // "."')"
+      gitUrl="$(<<< "$yaml" | yq -er .spec.chart.git)"
+      gitRef="$(<<< "$yaml" | yq -er '.spec.chart.ref // "master"')"
+      _hr_git "$gitUrl" "$gitRef" "$gitPath" "$namespace" "$releaseName" "$values"
+    else
+      helm diff --color --show-secrets upgrade --namespace $namespace --repo $(<<< "$yaml" | yq -er .spec.chart.repository) $releaseName $(<<< "$yaml" | yq -er .spec.chart.name) --version $(<<< "$yaml" | yq -er .spec.chart.version) --values <(<<< "$values") ${@:2}
+    fi
+  else
+    local sourceNamespace
+    local sourceName
+    local sourceKind
+    local sourceResource
+    local chartName
+    sourceNamespace=$(<<< "$yaml" | yq -er ".spec.chart.spec.sourceRef.namespace // \"$namespace\"")
+    sourceName=$(<<< "$yaml" | yq -er .spec.chart.spec.sourceRef.name)
+    sourceKind=$(<<< "$yaml" | yq -er .spec.chart.spec.sourceRef.kind)
+    sourceResource=$(kubectl --namespace=$sourceNamespace get $sourceKind $sourceName -o yaml)
+    if [[ "$?" != 0 ]]; then
+      local helmrepositoryUrl="https://charts.4allportal.net"
+      echo "Source resource $sourceNamespace/$sourceKind/$sourceName not found"
+      vared -p "Please specify Helm Repository URL: " helmrepositoryUrl
+      sourceKind=HelmRepository
+      sourceResource=$'spec:\n  url: '"$helmrepositoryUrl"
+    fi
+    chartName="$(<<< "$yaml" | yq -er .spec.chart.spec.chart)"
+    case "$sourceKind" in
+      GitRepository2)
+        local gitUrl
+        local gitRef
+        gitUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
+        gitRef="$(<<< "$sourceResource" | yq -er '.spec.ref | if .branch then .branch elif .tag then .tag elif .semver then .semver elif .commit then .commit else "master" end')"
+        _hr_git "$gitUrl" "$gitRef" "$chartName" "$namespace" "$releaseName" "$values"
+        ;;
+      HelmRepository)
+        local helmrepositoryUrl
+        local chartVersion
+        helmrepositoryUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
+        chartVersion="$(<<< "$yaml" | yq -er .spec.chart.spec.version)"
+        helm diff --color --show-secrets upgrade --namespace $namespace --repo "$helmrepositoryUrl" $releaseName "$chartName" --version "$chartVersion" --values <(<<< "$values") ${@:2}
+        ;;
+      *)
+        echo "'$sourceKind' is not implemented" >&2
+    esac
+  fi | grep -v helm.sh/chart | less
 }
 compdef _hr hrDiff
 
@@ -926,10 +972,6 @@ fi
 if command -v cilium > /dev/null; then
   source <(cilium completion zsh)
   compdef _cilium cilium
-fi
-if command -v hubble > /dev/null; then
-  source <(hubble completion zsh)
-  compdef _hubble hubble
 fi
 if command -v k0sctl > /dev/null; then
   source <(k0sctl completion zsh)

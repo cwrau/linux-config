@@ -117,7 +117,6 @@ depends=(
     morsetran
     mpv
     mpv-mpris
-    multimc5
     ncdu
     neovim-drop-in
     neovim-plug
@@ -156,6 +155,7 @@ depends=(
     polkit-gnome
     polybar
     polybar-scripts-git
+    polymc-bin
     powertop
     premid
     prettyping
@@ -172,7 +172,6 @@ depends=(
     python-traitlets
     python-virtualenv
     realvnc-vnc-viewer
-    redshift
     reflector
     remmina
     ripgrep
@@ -195,7 +194,7 @@ depends=(
     systemd-resolvconf
     teams-insiders
     telegram-desktop
-    telepresence
+    telepresence2
     traceroute
     tree
     ttf-dejavu

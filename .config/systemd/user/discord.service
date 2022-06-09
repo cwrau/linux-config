@@ -10,7 +10,7 @@ ExecStart=/usr/bin/discord
 RestartSec=0
 Restart=always
 MemoryMax=2G
-CPUQuota=50%
+CPUQuota=200%
 Slice=messengers.slice
 
 # disallow writing to /usr, /bin, /sbin, ...

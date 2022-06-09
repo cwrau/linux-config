@@ -5,7 +5,7 @@ PartOf=polybar.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStartPre=/bin/bash -c 'until i3-msg; do :; done'
+ExecStartPre=/bin/bash -c 'until i3-msg; do sleep 1; done'
 ExecStart=%E/polybar/launch.sh %i
 ExecReload=%E/polybar/launch.sh %i restart
 ExecStop=%E/polybar/stop.sh %i
