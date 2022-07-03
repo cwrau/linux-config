@@ -8,11 +8,13 @@
 /Mousepad/
 /NuGet/
 /QtProject.conf
+/Rocket.Chat
 /Signal/
 /Slack/
 /Unknown Organization/AusweisApp2.conf
 /autostart/
 /cef_user_data/
+/cni/net.d/cni.lock
 /configstore/
 /deluge/
 /discord/

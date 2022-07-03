@@ -6,8 +6,12 @@
   name = Chris Werner Rau
 [includeIf "gitdir:~/work/"]
   path = .gitconfig-work
+[includeIf "gitdir:~/.local/share/gopass/"]
+  path = .gitconfig-work
 [gui]
 [credential]
+[global]
+ program = gpg2
 [commit]
   gpgsign = true
 [filter "lfs"]

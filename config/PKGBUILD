@@ -187,7 +187,6 @@ depends=(
     slit-git
     snap-pac
     socat
-    sof-firmware
     splatmoji-git
     steam
     steam-tweaks

@@ -301,9 +301,9 @@ bindsym $super+$alt+8 workspace 18:YMP
 assign [class="youtube-music-desktop-app"] 18:YMP
 for_window [class="youtube-music-desktop-app"] move to workspace 18:YMP
 
-bindsym $super+$alt+9 workspace 19:Teams
-assign [class="teams"] 19:Teams
-for_window [class="teams"] move to workspace 19:Teams
+bindsym $super+$alt+9 workspace 19:RocketChat
+assign [class="Rocket.Chat"] 19:RocketChat
+for_window [class="Rocket.Chat"] move to workspace 19:RocketChat
 
 bindsym $super+$alt+0 workspace 20:Chat
 assign [class="Slack"] 20:Chat
@@ -337,7 +337,7 @@ bindsym $super+Shift+$alt+5 move container to workspace 15:Steam
 bindsym $super+Shift+$alt+6 move container to workspace 16:YouTube
 bindsym $super+Shift+$alt+7 move container to workspace 17:Netflix
 bindsym $super+Shift+$alt+8 move container to workspace 18:YMP
-bindsym $super+Shift+$alt+9 move container to workspace 19:Teams
+bindsym $super+Shift+$alt+9 move container to workspace 19:RocketChat
 bindsym $super+Shift+$alt+0 move container to workspace 20:Chat
 
 # move workspace to output
@@ -358,7 +358,7 @@ workspace 15:Steam output $external $external2 $external3 $external4
 workspace 16:YouTube output $external $external2 $external3 $external4
 workspace 17:Netflix output $external $external2 $external3 $external4
 workspace 18:YMP output $internal
-workspace 19:Teams output $internal
+workspace 19:RocketChat output $internal
 workspace 20:Chat output $internal
 
 gaps outer 5
