@@ -3,7 +3,6 @@ Description=Messengers
 Requires=graphical-session.target
 After=graphical-session.target
 Wants=discord.service
-Wants=signal.service
 Wants=whatsapp.service
 Wants=telegram.service
 

@@ -6,7 +6,7 @@ After=graphical-session.target network-online.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/telegram-desktop -startintray
+ExecStart=/usr/bin/telegram-desktop
 RestartSec=0
 Restart=always
 Slice=messengers.slice
