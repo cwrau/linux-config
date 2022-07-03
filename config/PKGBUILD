@@ -4,7 +4,7 @@ tar -h --exclude=.idea -cf rootfs.tar -C rootfs .
 
 pkgname=linux-config
 pkgver=0.1.0
-pkgrel=9
+pkgrel=10
 pkgdesc='linux config'
 url="https://github.com/cwrau/linux-config"
 license=('GPL3')
@@ -22,6 +22,7 @@ depends=(
     auto-cpufreq
     autorandr
     base
+    base-devel-meta
     bash-completion
     bash-git-prompt
     bash-language-server
@@ -33,6 +34,7 @@ depends=(
     bluez-utils
     bpytop
     breeze-hacked-cursor-theme
+    btrfs-progs
     clipmenu
     cloudflared-bin
     curl
@@ -46,7 +48,6 @@ depends=(
     dolphin-emu
     dunst
     earlyoom
-    ebtables
     edk2-ovmf
     efibootmgr
     exa
@@ -60,8 +61,8 @@ depends=(
     fwupd
     fzf
     git
-    git-secret
     github-cli
+    git-secret
     glava
     gnome-keyring
     gnome-terminal
@@ -84,9 +85,9 @@ depends=(
     i3lock-color
     informant
     inotify-tools
-    intel-ucode
     intellij-idea-ultimate-edition
     intellij-idea-ultimate-edition-jre
+    intel-ucode
     jdk-openjdk
     jq
     k9s
@@ -184,6 +185,7 @@ depends=(
     siji-git
     slack-electron
     slit-git
+    snap-pac
     socat
     sof-firmware
     splatmoji-git
