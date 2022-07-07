@@ -296,16 +296,6 @@ function bak() {
   cp -r "${1%/}" "${1%/}-$(date --iso-8601=seconds)"
 }
 
-function bsrv() {
-  index="$1"
-  shift
-  ssh root@buildsrv${index}.4allportal.net $*
-}
-function _bsrv() {
-  _arguments "1: :(1 2 4)"
-}
-compdef _bsrv bsrv
-
 function helmUpdates() {
   kubectl get helmreleases -A -o json | jq -r '.items[] | select(.spec.chart.version != null) | "\(.metadata.namespace) \(.metadata.name) \(.spec.chart.repository) \(.spec.chart.name) \(.spec.chart.version)"' | while read ns name repo chart version; do
   <<EOF > /tmp/repo.yaml
@@ -551,11 +541,45 @@ function gop(){
   fi
   gopass ls --flat | /bin/grep -E -v 'kube.?config' | fzf --preview "gopass show {}" | xargs -r gopass show $GOPASS_FLAG
 }
+compdef _nop gop
+
+function kdiff () {
+  kustomize build --enable-alpha-plugins . | kubectl diff -f - | diff-so-fancy
+}
+compdef _nop kdiff
+
+function kapply () {
+  kustomize build --enable-alpha-plugins . | kubectl apply -f -
+}
+compdef _nop kapply
+
+function cwatch () {
+  local ns=$1
+  local cluster=$2
+  while true; do
+    clear
+    clusterctl describe cluster --show-conditions=All -n $ns $cluster
+    sleep 10
+  done
+}
+function _cwatch() {
+  _arguments "1: :($(kubectl get namespaces --no-headers -o custom-columns=:metadata.name))"
+  _arguments "2: :->cluster"
+
+  if [[ "$state" == "cluster" ]]; then
+    compadd $(kubectl --namespace ${words[2]} get clusters --no-headers -o custom-columns=:metadata.name)
+  fi
+}
+compdef _cwatch cwatch
 
 function kconfig() {
 	local CONFIG
   local CONTEXT
-  CONFIG="$(gopass ls -flat | /bin/grep -E 'kube.?config' | fzf)"
+  if [[ -f "$XDG_RUNTIME_DIR/gopass/$1" ]]; then
+    CONFIG="$1"
+  else
+    CONFIG="$(gopass ls -flat | /bin/grep -E 'kube.?config' | fzf)"
+  fi
 	if [[ "$?" == 0 ]]; then
     md $XDG_RUNTIME_DIR/gopass-cache/$CONFIG
     export KUBECONFIG=$XDG_RUNTIME_DIR/gopass-cache/$CONFIG/kubeconfig.yaml
@@ -823,8 +847,27 @@ alias -g X='| xargs'
 alias -g Y='| yq'
 nAlias wd 'while :; do .; sleep 0.1; clear; done'
 
+function k9s() {
+  if [[ "${@[#]}" == 2 ]]; then
+    kconfig $1
+    command k9s --context $2
+  elif [[ "${@[#]}" == 1 ]]; then
+    command k9s --context $1
+  else
+    command k9s
+  fi
+}
 function _k9s() {
-  _arguments "--context[The name of the kubeconfig context to use]: :($(kubectl config get-contexts -o name | xargs echo -n))"
+  if [[ -f $KUBECONFIG ]]; then
+    _arguments "1:The name of the kubeconfig context to use:($(kubectl config get-contexts --no-headers -o name))"
+  else
+    _arguments "1:The path of the kubeconfig file to use:($(gopass ls -flat | /bin/grep -E 'kube.?config'))"
+    _arguments "2:The name of the kubeconfig context to use:->context"
+  fi
+
+  if [[ "$state" == "context" ]]; then
+    compadd $(kubectl --kubeconfig $XDG_RUNTIME_DIR/gopass/${words[2]} config get-contexts --no-headers -o name)
+  fi
 }
 compdef _k9s k9s
 
@@ -836,7 +879,12 @@ if command -v cilium > /dev/null; then
   source <(cilium completion zsh)
   compdef _cilium cilium
 fi
+
 if command -v k0sctl > /dev/null; then
   source <(k0sctl completion zsh)
   compdef _k0sctl_zsh_autocomplete k0sctl
+fi
+
+if command -v clusterctl > /dev/null; then
+  source <(clusterctl completion zsh)
 fi
