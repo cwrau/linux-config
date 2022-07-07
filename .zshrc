@@ -32,7 +32,7 @@ export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
 export HELM_PLUGINS="/usr/lib/helm/plugins"
 export KONAN_DATA_DIR="$XDG_DATA_HOME/konan"
-export KUBECONFIG="$XDG_CONFIG_HOME/kube/config.yaml"
+export KUBECONFIG=$(fd . $XDG_RUNTIME_DIR/gopass-cache -x stat -c '%y %n' | sort -r | head -1 | awk '{print $NF}')
 export LESSHISTFILE="$XDG_DATA_HOME/less/history"
 export MINIKUBE_HOME="$XDG_DATA_HOME/minikube"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
@@ -63,13 +63,16 @@ export SECRETS_EXTENSION=".gpg"
 export VISUAL=nvim
 
 if [[ $- = *i* ]]; then
-  if [[ -z "$DISPLAY" ]]; then
+  if [[ -z "$XDG_CURRENT_DESKTOP" ]]; then
     if [[ "$XDG_VTNR" -eq 1 ]]; then
-      export DISPLAY=:0
-      for ENV in $(declare -x +); do
-        systemctl --user import-environment $ENV
-      done
-      exec systemd-cat --stderr-priority=warning --identifier=xorg startx
+      export XDG_CURRENT_DESKTOP=sway
+      export GBM_BACKEND=nvidia-drm
+      export __GLX_VENDOR_LIBRARY_NAME=nvidia
+      export MOZ_ENABLE_WAYLAND=1
+      export XDG_SESSION_TYPE=wayland
+      export WLR_DRM_NO_MODIFIERS=1
+      systemctl --user import-environment 2> /dev/null
+      exec systemd-cat --stderr-priority=warning --identifier=sway sway --unsupported-gpu
     fi
   fi
 fi
@@ -302,185 +305,6 @@ function _bsrv() {
   _arguments "1: :(1 2 4)"
 }
 compdef _bsrv bsrv
-
-function 4ap() {
-  name="$1"
-  shift
-  ssh root@${name}.4allportal.net $*
-}
-function _4ap() {
-  _arguments "1: :($(< $HOME/.ssh/known_hosts | awk '{print $1}' | tr ',' '\n' | grep -E '.4allportal\.net' | sed -r 's#.4allportal.net##g' | sort | uniq | xargs echo -n))"
-}
-compdef _4ap 4ap
-
-function fapp() {
-  gradle :assemble --parallel
-  local version
-  local apps
-  version="$(cat build/4app.json | jq -r '.dependencies[] | select(.artifactId == "4allportal-core") | .artifactVersion')"
-  apps="$(cat build/4app.json | jq -r '[.dependencies[] | select(.artifactId != "4allportal-core") | "\(.artifactId):\(.artifactVersion)"] | join(",")')"
-  rm -rf /tmp/data/apps
-  mkdir -p /tmp/data/apps
-  cp build/*.4app /tmp/data/apps
-  fap "$version" -e APPS_INSTALL=$apps $@
-}
-
-function fap() {
-  if nc -z localhost 8181; then
-    echo 'Port already used'
-    return 1
-  fi
-  mkdir -p /tmp/data/custom/modules/file/mounts
-  mkdir -p /tmp/data/data
-  mkdir -p /tmp/data/assets
-  <<EOF > /tmp/data/custom/modules/file/mounts/data.xml
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<mount enabled="true">
-    <file_module>file</file_module>
-    <folder_module>folder</folder_module>
-    <base_path>/4allportal/assets</base_path>
-    <use_fileid>false</use_fileid>
-    <use_volumeid>false</use_volumeid>
-    <read_only>false</read_only>
-    <min_index_part_size>15</min_index_part_size>
-    <max_index_part_size>150</max_index_part_size>
-    <exclude_folders>
-        <exclude_folder>layout</exclude_folder>
-    </exclude_folders>
-    <exclude_files>
-        <exclude_file>4ap_fileimport[.]xml</exclude_file>
-        <exclude_file>Thumbs[.]db</exclude_file>
-    </exclude_files>
-    <period>1</period>
-    <change_handlers>
-        <change_handler>com.cm4ap.ce.fsi.handler.FileChangeHandler</change_handler>
-        <change_handler>com.cm4ap.ce.fsi.handler.LogOutputHandler</change_handler>
-    </change_handlers>
-    <use_mod_time_millis>true</use_mod_time_millis>
-</mount>
-EOF
-
-  local tag=$1
-  shift
-
-  local podmanArgs=()
-  local fapArgs=()
-
-  local next=false
-  local keep=false
-
-  for arg in "$@"; do
-    if [ "$arg" = "-k" ]; then
-      keep=true
-      continue
-    fi
-
-    if [ "$arg" = "--" ]; then
-      next=true
-      continue
-    fi
-
-    if [ "$next" = "false" ]; then
-      podmanArgs+=("$arg")
-    else
-      fapArgs+=("$arg")
-    fi
-  done
-
-  if [ "$tag" != "LOCAL" ]; then
-    podman pull registry.4allportal.net/4allportal:$tag
-  fi
-  local exitCode
-  set -x
-  podman run --rm -it -e DATABASE_HOST=localhost -e DATABASE_TYPE=mariadb -e MANAGED=true --userns keep-id --net host \
-    --name="4allportal-$tag" \
-    --read-only \
-    --read-only-tmpfs=false \
-    -v /tmp/data/data:/4allportal/data/data:ro \
-    -v /tmp/data/assets:/4allportal/assets \
-    --tmpfs=/{4allportal/_runtime,tmp} $podmanArgs \
-    -v /tmp/data:/4allportal/data \
-    registry.4allportal.net/4allportal:$tag $fapArgs
-  exitCode=$?
-  set +x
-
-  if [ "$keep" = "false" ]; then
-    rm -rf /tmp/data
-  fi
-  return exitCode
-}
-function _fap() {
-  local state
-  _arguments "1: :->core"
-  _arguments "--app: :->app"
-  case "$state" in
-    core)
-      echo core >> /tmp/com
-      _wanted coreVersion expl 'coreVersion' 'appVs 4allportal-core | sed -r "s#4allportal-core:##g"' && ret=0
-      ;;
-    app)
-      if compset -S ':*'; then
-        echo app >> /tmp/com
-        #compadd $(_getApps)
-        _wanted app expl '4apps' _getApps && ret=0
-      elif compset -P '*:'; then
-        _wanted version expl 'versions' appVs '$app' && ret=0
-      else
-        _alternative 'apps:4apps:_getApps'
-      fi
-  esac
-}
-function _4apps() {
-  _combination  apps-versions apps
-}
-
-function fapClone() {
-  sshAccess=root@${1}
-  shift
-  if [ -z "$1" ] || [ "$1" = "" ]; then
-    installationPath=/4allportal/data
-  else
-    installationPath=${1}
-    shift
-  fi
-  apps="$(ssh $sshAccess -- find $installationPath/apps -name '*.4app' -exec unzip -p {} 4app.json \\\; | jq -s '.')"
-  coreVersion="$(jq -r -n --argjson v "$apps" '$v | .[] | select(.artifactId == "4allportal-core") | .artifactVersion')"
-  appsString="$(jq -r -n --argjson v "$apps" '$v | .[] | select(.artifactId != "4allportal-core") | "\(.artifactId):\(.artifactVersion)"' | paste -sd ,)"
-
-  rm -rf /tmp/data
-  mkdir -p /tmp/data/custom
-
-  ssh $sshAccess -- tar -czf - -C $installationPath/custom . | tar -xzf - -C /tmp/data/custom
-
-  eval $(echo fap $coreVersion -e APPS_INSTALL=$appsString $@ | tee /dev/stderr)
-
-  rm -rf /tmp/data
-}
-function _fapClone() {
-  local state
-  _arguments "1: :($(< $HOME/.ssh/known_hosts | awk '{print $1}' | tr ',' '\n' | sort | uniq | xargs echo -n))" \
-             "2: :->files"
-  if [ "$state" = "files" ]; then
-    _remote_files -/ -h root@${words[2]} -- ssh
-  fi
-}
-compdef _fapClone fapClone
-
-function appVs() {
-  ssh -o LogLevel=QUIET root@repository.4allportal.net find /services/repository/apps/$1 -mindepth 1 -maxdepth 1 -type d -exec basename {} \\\; | rg ${2:-.} | sort -V | sed "s#^#$1:#g" | tr -d '\r'
-}
-function _getApps() {
-  ssh -o LogLevel=QUIET root@repository.4allportal.net find /services/repository/apps -mindepth 1 -maxdepth 1 -type d -exec basename {} \\\; | sort | uniq | tr -d '\r'
-}
-function _appVs() {
-  _arguments "1: :($(_getApps))"
-}
-compdef _appVs appVs
-
-function appV() {
-  echo "$1:$(ssh -o LogLevel=QUIET root@repository.4allportal.net find /services/repository/apps/$1 -mindepth 1 -maxdepth 1 -type d -exec basename {} \\\; | rg ${2:-.} | sort -V | rg -v SNAPSHOT | tail -1 | tr -d '\r')"
-}
-compdef _appVs appV
 
 function helmUpdates() {
   kubectl get helmreleases -A -o json | jq -r '.items[] | select(.spec.chart.version != null) | "\(.metadata.namespace) \(.metadata.name) \(.spec.chart.repository) \(.spec.chart.name) \(.spec.chart.version)"' | while read ns name repo chart version; do
@@ -718,6 +542,45 @@ function knodes() {
     echo $name >&2
     ssh $ip $@
   done
+}
+
+function gop(){
+  local GOPASS_FLAG="-C"
+  if ! [ -t 1 ]; then
+      GOPASS_FLAG=""
+  fi
+  gopass ls --flat | /bin/grep -E -v 'kube.?config' | fzf --preview "gopass show {}" | xargs -r gopass show $GOPASS_FLAG
+}
+
+function kconfig() {
+	local CONFIG
+  local CONTEXT
+  CONFIG="$(gopass ls -flat | /bin/grep -E 'kube.?config' | fzf)"
+	if [[ "$?" == 0 ]]; then
+    md $XDG_RUNTIME_DIR/gopass-cache/$CONFIG
+    export KUBECONFIG=$XDG_RUNTIME_DIR/gopass-cache/$CONFIG/kubeconfig.yaml
+    if ! [ -f $KUBECONFIG ]; then
+      cp -f $XDG_RUNTIME_DIR/gopass/$CONFIG $KUBECONFIG
+    fi
+    chmod u+w $KUBECONFIG
+    chmod og-rwx $KUBECONFIG
+	fi
+}
+
+function krc() {
+  kubectl config current-context
+}
+
+function klc() {
+  kubectl config get-contexts -o name | sed "s/^/  /;\|^  $(krc)$|s/ /*/"
+}
+
+function kcc() {
+  local CONTEXT
+  CONTEXT="$(klc | fzf -1 | awk '{print $NF}')"
+  if [[ "$?" == 0 ]]; then
+    kubectl config use-context $CONTEXT
+  fi
 }
 
 function pkgSync() {
@@ -977,11 +840,3 @@ if command -v k0sctl > /dev/null; then
   source <(k0sctl completion zsh)
   compdef _k0sctl_zsh_autocomplete k0sctl
 fi
-
-nAlias krc kubectl config current-context
-nAlias klc kubectl 'config get-contexts -o name | sed "s/^/  /;\|^  $(krc)$|s/ /*/"'
-nAlias kcc kubectl 'config use-context "$(klc | fzf -e | sed "s/^..//")"'
-nAlias krn kubectl 'config get-contexts --no-headers "$(krc)" | awk "{print \$5}" | sed "s/^$/default/"'
-nAlias kln kubectl 'get -o name ns | sed "s|^.*/|  |;\|^  $(krn)$|s/ /*/"'
-nAlias kcn kubectl 'config set-context --current --namespace "$(kln | fzf -e | sed "s/^..//")"'
-
