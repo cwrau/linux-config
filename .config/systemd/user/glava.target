@@ -1,8 +1,8 @@
 [Unit]
 Description=glava
-Requires=graphical-session.target pipewire-pulse.socket
-After=graphical-session.target pipewire-pulse.socket
-Wants=glava@bar.service glava-update.service
+Requires=i3-session.target pipewire-pulse.socket
+After=i3-session.target pipewire-pulse.socket
+Wants=glava@bars.service glava-update.service
 
 [Install]
-WantedBy=graphical-session.target
+WantedBy=i3-session.target

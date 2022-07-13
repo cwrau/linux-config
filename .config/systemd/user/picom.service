@@ -1,7 +1,7 @@
 [Unit]
 Description=Picom
-After=graphical-session.target
-Requires=graphical-session.target
+After=i3-session.target
+Requires=i3-session.target
 
 [Service]
 Type=simple
@@ -20,4 +20,4 @@ ProtectControlGroups=yes
 RestrictNamespaces=yes
 
 [Install]
-WantedBy=graphical-session.target
+WantedBy=i3-session.target

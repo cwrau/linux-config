@@ -16,4 +16,4 @@ ProtectKernelTunables=yes
 ProtectControlGroups=yes
 
 [Install]
-WantedBy=graphical-session.target
+WantedBy=i3-session.target

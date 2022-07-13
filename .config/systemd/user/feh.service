@@ -1,11 +1,12 @@
 [Unit]
 Description=feh background setter
-After=graphical-session.target
-Requires=graphical-session.target
+After=i3-session.target
+Requires=i3-session.target
 
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/feh --bg-fill %E/background.jpg --no-fehbg
+ExecReload=/usr/bin/feh --bg-fill %E/background.jpg --no-fehbg
 RemainAfterExit=yes
 ExecStop=/usr/bin/feh --bg-tile %E/black.jpg --no-fehbg
 RestartSec=0
@@ -19,4 +20,4 @@ ProtectControlGroups=yes
 RestrictNamespaces=yes
 
 [Install]
-WantedBy=graphical-session.target
+WantedBy=i3-session.target

@@ -1,0 +1,22 @@
+[Unit]
+Description=swaybg background setter
+After=sway-session.target
+Requires=sway-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/swaymsg output '*' background '%E/background.jpg' fill
+RemainAfterExit=yes
+ExecStop=/usr/bin/swaymsg output '*' background '#000000' solid_color
+RestartSec=0
+
+# disallow writing to /usr, /bin, /sbin, ...
+ProtectSystem=yes
+# more paranoid security settings
+NoNewPrivileges=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictNamespaces=yes
+
+[Install]
+WantedBy=sway-session.target

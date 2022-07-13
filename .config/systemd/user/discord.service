@@ -2,7 +2,7 @@
 Description=Discord
 PartOf=messengers.target
 Requires=graphical-session.target network-online.service
-After=graphical-session.target network-online.service droidcam@adb.service
+After=graphical-session.target network-online.service
 
 [Service]
 Type=simple
@@ -12,11 +12,3 @@ Restart=always
 MemoryMax=2G
 CPUQuota=200%
 Slice=messengers.slice
-
-# disallow writing to /usr, /bin, /sbin, ...
-ProtectSystem=yes
-# more paranoid security settings
-NoNewPrivileges=yes
-ProtectKernelTunables=yes
-ProtectControlGroups=yes
-

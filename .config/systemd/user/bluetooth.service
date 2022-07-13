@@ -5,9 +5,6 @@ Requires=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/sudo modprobe -r btusb
-ExecStart=/usr/bin/sudo modprobe btusb
-ExecStart=/usr/bin/sleep 1
 ExecStart=/usr/bin/bluetoothctl power on
 
 [Install]

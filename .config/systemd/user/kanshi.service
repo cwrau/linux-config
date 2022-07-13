@@ -1,0 +1,13 @@
+[Unit]
+Description=kanshi
+After=sway-session.target
+Requires=sway-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/kanshi
+RestartSec=0
+Restart=always
+
+[Install]
+WantedBy=sway-session.target
