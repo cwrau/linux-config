@@ -26,13 +26,13 @@ export ANDROID_SDK_HOME="$XDG_CONFIG_HOME/android"
 export AZURE_CONFIG_DIR="$XDG_DATA_HOME/azure"
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
+export CLUSTERCTL_DISABLE_VERSIONCHECK=true
 export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
 export GOPATH="$XDG_DATA_HOME/go"
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
 export HELM_PLUGINS="/usr/lib/helm/plugins"
 export KONAN_DATA_DIR="$XDG_DATA_HOME/konan"
-export KUBECONFIG=$(fd . $XDG_RUNTIME_DIR/gopass-cache -x stat -c '%y %n' | sort -r | head -1 | awk '{print $NF}')
 export LESSHISTFILE="$XDG_DATA_HOME/less/history"
 export MINIKUBE_HOME="$XDG_DATA_HOME/minikube"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
@@ -63,16 +63,24 @@ export SECRETS_EXTENSION=".gpg"
 export VISUAL=nvim
 
 if [[ $- = *i* ]]; then
-  if [[ -z "$XDG_CURRENT_DESKTOP" ]]; then
-    if [[ "$XDG_VTNR" -eq 1 ]]; then
-      export XDG_CURRENT_DESKTOP=sway
-      export GBM_BACKEND=nvidia-drm
-      export __GLX_VENDOR_LIBRARY_NAME=nvidia
-      export MOZ_ENABLE_WAYLAND=1
-      export XDG_SESSION_TYPE=wayland
-      export WLR_DRM_NO_MODIFIERS=1
+  if false; then
+    if [[ -z "$XDG_CURRENT_DESKTOP" ]]; then
+      if [[ "$XDG_VTNR" -eq 1 ]]; then
+        export XDG_CURRENT_DESKTOP=sway
+        export GBM_BACKEND=nvidia-drm
+        export __GLX_VENDOR_LIBRARY_NAME=nvidia
+        export MOZ_ENABLE_WAYLAND=1
+        export XDG_SESSION_TYPE=wayland
+        export WLR_DRM_NO_MODIFIERS=1
+        systemctl --user import-environment 2> /dev/null
+        exec systemd-cat --stderr-priority=warning --identifier=sway sway --unsupported-gpu
+      fi
+    fi
+  else
+    if [[ -z "$DISPLAY" ]]; then
+      export DISPLAY=:0
       systemctl --user import-environment 2> /dev/null
-      exec systemd-cat --stderr-priority=warning --identifier=sway sway --unsupported-gpu
+      exec systemd-cat --stderr-priority=warning --identifier=xorg startx
     fi
   fi
 fi
@@ -279,7 +287,7 @@ function ssh() {
 }
 
 function idea() {
-  i3-msg "exec intellij-idea-ultimate-edition $(realpath ${1:-.})"
+  systemd-run --user --unit=intellij-$(uuidgen) --setenv=_JAVA_AWT_WM_NONREPARENTING=1 -- intellij-idea-ultimate-edition "$(realpath ${1:-.})"
 }
 
 function diff() {
@@ -376,9 +384,16 @@ function hr() {
   local yaml
   local values
   local index=0
+  local sourceParameter
+  local oldOne="$1"
   if [[ "$2" =~ -[0-9]+ ]]; then
     index="$2"
     shift
+    1="$oldOne"
+  elif ! [[ -z "$2" ]]; then
+    sourceParameter="$2"
+    shift
+    1="$oldOne"
   fi
   yaml=$(_hr_getYaml "$1" "$index")
   [ "$?" -ne 0 ] && return 1
@@ -409,12 +424,14 @@ function hr() {
     sourceName=$(<<< "$yaml" | yq -er .spec.chart.spec.sourceRef.name)
     sourceKind=$(<<< "$yaml" | yq -er .spec.chart.spec.sourceRef.kind)
     sourceResource=$(kubectl --namespace=$sourceNamespace get $sourceKind $sourceName -o yaml)
-    if [[ "$?" != 0 ]]; then
+    if [[ "$?" != 0 ]] && [[ -z "$sourceParameter" ]]; then
       local helmrepositoryUrl="https://charts.4allportal.net"
       echo "Source resource $sourceNamespace/$sourceKind/$sourceName not found"
       vared -p "Please specify Helm Repository URL: " helmrepositoryUrl
       sourceKind=HelmRepository
       sourceResource=$'spec:\n  url: '"$helmrepositoryUrl"
+    elif ! [[ -z "$sourceParameter" ]]; then
+      sourceResource=$'spec:\n  url: '"$sourceParameter"
     fi
     chartName="$(<<< "$yaml" | yq -er .spec.chart.spec.chart)"
     case "$sourceKind" in
@@ -556,11 +573,7 @@ compdef _nop kapply
 function cwatch () {
   local ns=$1
   local cluster=$2
-  while true; do
-    clear
-    clusterctl describe cluster --show-conditions=All -n $ns $cluster
-    sleep 10
-  done
+  watch -d --color -n 1 ~/projects/cluster-api/clusterctl describe cluster --show-conditions all --echo -n $ns $cluster
 }
 function _cwatch() {
   _arguments "1: :($(kubectl get namespaces --no-headers -o custom-columns=:metadata.name))"
@@ -581,13 +594,8 @@ function kconfig() {
     CONFIG="$(gopass ls -flat | /bin/grep -E 'kube.?config' | fzf)"
   fi
 	if [[ "$?" == 0 ]]; then
-    md $XDG_RUNTIME_DIR/gopass-cache/$CONFIG
-    export KUBECONFIG=$XDG_RUNTIME_DIR/gopass-cache/$CONFIG/kubeconfig.yaml
-    if ! [ -f $KUBECONFIG ]; then
-      cp -f $XDG_RUNTIME_DIR/gopass/$CONFIG $KUBECONFIG
-    fi
-    chmod u+w $KUBECONFIG
-    chmod og-rwx $KUBECONFIG
+    echo $CONFIG > $XDG_RUNTIME_DIR/current_kubeconfig
+    export KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$CONFIG
 	fi
 }
 
@@ -829,6 +837,7 @@ nAlias . ls
 nAlias cp advcp -g
 nAlias mv advmv -g
 nAlias update 'paru && (if [ -f $XDG_RUNTIME_DIR/updates-notification ]; then notify-send.sh -s $(cat $XDG_RUNTIME_DIR/updates-notification); fi) && exit'
+reAlias code '--user-data-dir $XDG_DATA_HOME/vscode --extensions-dir $XDG_DATA_HOME/vscode/extensions'
 
 alias -g A='| awk'
 alias -g B='| base64'
@@ -847,13 +856,20 @@ alias -g X='| xargs'
 alias -g Y='| yq'
 nAlias wd 'while :; do .; sleep 0.1; clear; done'
 
+if [[ -f $XDG_CONFIG_HOME/kube/config.yaml ]]; then
+  export KUBECONFIG="$XDG_CONFIG_HOME/kube/config.yaml"
+elif [[ -f $XDG_RUNTIME_DIR/current_kubeconfig ]]; then
+  kconfig $(cat $XDG_RUNTIME_DIR/current_kubeconfig)
+fi
+
 function k9s() {
   if [[ "${@[#]}" == 2 ]]; then
     kconfig $1
     command k9s --context $2
   elif [[ "${@[#]}" == 1 ]]; then
     command k9s --context $1
-  else
+  elif [[ -z "$KUBECONFIG" ]]; then
+    kconfig
     command k9s
   fi
 }
@@ -887,4 +903,8 @@ fi
 
 if command -v clusterctl > /dev/null; then
   source <(clusterctl completion zsh)
+fi
+
+if command -v flux > /dev/null; then
+  source <(flux completion zsh)
 fi

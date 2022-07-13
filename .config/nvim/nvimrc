@@ -44,7 +44,7 @@ let g:syntastic_auto_jump = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 
-Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 let g:mkdp_browser = 'google-chrome-stable'
 
 "
@@ -117,6 +117,7 @@ vnoremap > >gv
 
 " deoplete
 let g:deoplete#enable_at_startup = 1
+let g:python3_host_prog = '/usr/bin/python'
 " use tab to forward cycle
 "inoremap <silent><expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
 " use tab to backward cycle
@@ -160,7 +161,7 @@ autocmd VimEnter * call AirlineInit()
 lua <<EOCONFIG
 require'nvim-treesitter.configs'.setup {
   -- One of "all", "maintained" (parsers with maintainers), or a list of languages
-  ensure_installed = "maintained",
+  ensure_installed = "all",
 
   highlight = {
     -- `false` will disable the whole extension

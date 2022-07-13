@@ -41,6 +41,8 @@
   show = diff-so-fancy | less --tabs=1,5 -RFS
 [interactive]
   diffFilter = diff-so-fancy --patch
+[add "interactive"]
+	useBuiltin = false
 [color]
   ui = true
 [color "diff-highlight"]
@@ -58,4 +60,3 @@
 [alias]
   cleanup = "!git fetch --prune && git cleanupBranches"
   cleanupBranches = "!git branch --merged master | grep -E -v '^\\s*(\\*|master|develop|release/)' | xargs -n 1 -r git branch -d"
-

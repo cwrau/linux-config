@@ -22,4 +22,3 @@
 #xinput set-prop $touchPad $typingProperty 0
 #xinput --map-to-output $(xinput | rg Touchscreen | sed -r 's#^.+id=([0-9]+).+$#\1#g') $(xrandr | rg eDP | sed -r 's#^([^ ]+).+$#\1#g')
 
-xrandr --dpi 100

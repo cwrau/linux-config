@@ -200,7 +200,6 @@ depends=(
     traceroute
     tree
     ttf-dejavu
-    ttf-fira-code
     ttf-font-awesome
     ttf-liberation
     tty-clock

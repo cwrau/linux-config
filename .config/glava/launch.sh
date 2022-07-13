@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-type=${1:?Must provide type: bar/radial}
+type=${1:?Must provide type: bars/radial}
 
 set -exu
 
 while read -r monitor width height x y
 do
-  upperBarHeight=26
-  lowerBarHeight=18
+  upperBarHeight="$(echo "scale=0; $height * 0.025 / 1" | bc)"
+  lowerBarHeight="$(echo "scale=0; $height * 0.02 / 1" | bc)"
 
   radialHeight=$(( height - upperBarHeight - lowerBarHeight))
   radialWidth=$width
@@ -16,11 +16,14 @@ do
 
   lowerBarY=$(( upperBarHeight + radialHeight ))
 
-  if [ $type = "bar" ]; then
-    systemd-run --user --unit glava-$type@$monitor --nice 19 --setenv TRAY --setenv MONITOR --slice glava-$type.slice -- glava -m bars -r "setgeometry $x $y $width $upperBarHeight" &
+  if [ $type = "bars" ]; then
+    geometry="$x $y $width $upperBarHeight"
     #glava -m bars -r "setgeometry $x $lowerBarY $width $lowerBarHeight" &
   elif [ $type = "radial" ]; then
-    systemd-run --user --unit glava-$type@$monitor --nice 19 --setenv TRAY --setenv MONITOR --slice glava-$type.slice -- glava -m radial -r "setgeometry $radialX $radialY $radialWidth $radialHeight" &
+    geometry="$radialX $radialY $radialWidth $radialHeight"
   fi
-  echo
+  if systemctl --user is-active --quiet glava-$type@$monitor; then
+    systemctl --user stop glava-$type@$monitor
+  fi
+  systemd-run --user --unit glava-$type@$monitor --nice 19 --setenv TRAY --setenv MONITOR --slice glava-$type.slice -- glava -m $type -r "setgeometry $geometry" &
 done < <(xrandr --query | grep x | grep + | grep " connected" | sed -r 's# primary##g' | cut -d" " -f1,3 | tr 'x+' '  ')

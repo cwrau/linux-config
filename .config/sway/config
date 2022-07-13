@@ -9,6 +9,8 @@
 #
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 
+xwayland enable
+
 set $super Mod4
 
 # Font for window titles. Will also be used by the bar unless a different font
@@ -32,22 +34,19 @@ floating_modifier $super
 # focus_follows_mouse no
 #mouse_warping none
 
-# start a terminal
-bindsym $super+Return $exid gnome-terminal
-
 # kill focused window
 bindsym $super+Shift+q kill
 
-# to prevent chrome from closing itself
-bindsym $alt+F4 exec --no-startup-id echo
+bindsym $super+Return exec --no-startup-id gnome-terminal
+bindsym $super+d exec --no-startup-id rofi -show drun
+bindsym Ctrl+space exec --no-startup-id dunstctl close
+bindsym Ctrl+grave exec --no-startup-id dunstctl history-pop
+bindsym Ctrl+Shift+period exec --no-startup-id dunstctl context
+set $opacity 0.9
+for_window [class=".*"] opacity $opacity
+for_window [app_id=".*"] opacity $opacity
 
-set $exid exec --no-startup-id
-set $exaid exec_always --no-startup-id
-
-bindsym $super+d $exid rofi -show drun
-bindsym Ctrl+space $exid dunstctl close
-bindsym Ctrl+grave $exid dunstctl history-pop
-bindsym Ctrl+Shift+period $exid dunstctl context
+exec_always --no-startup-id systemctl --user restart swaybg.service
 
 # change focus
 #bindsym $super+j focus left
@@ -82,7 +81,7 @@ bindsym $super+v split h
 # enter fullscreen mode for the focused container
 bindsym $super+f fullscreen toggle
 # toggle polybar
-bindsym $super+Shift+f $exid "sh -c 'if systemctl --user -q is-active polybar@\*; then systemctl --user stop polybar@\*; else systemctl --user start polybar@\* -all; fi'"
+bindsym $super+Shift+f exec --no-startup-id "sh -c 'if systemctl --user -q is-active polybar@\*; then systemctl --user stop polybar@\*; else systemctl --user start polybar@\* -all; fi'"
 
 # change container layout (stacked, tabbed, toggle split)
 bindsym $super+t layout toggle stacking tabbed
@@ -100,7 +99,7 @@ bindsym $super+Shift+space floating toggle
 # focus the child container
 #bindsym $super+d focus child
 
-bindsym $super+Shift+r restart
+bindsym $super+Shift+r reload
 
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
@@ -109,9 +108,9 @@ bindsym $super+Shift+r restart
 #         tray_output none
 #         position bottom
 # }
-#$exaid $XDG_CONFIG_HOME/polybar/launch.sh
-#$exaid $XDG_CONFIG_HOME/glava/launch.sh
-#$exaid sh -c "sleep 10; sudo rfkill unblock all"
+#exec_always --no-startup-id $XDG_CONFIG_HOME/polybar/launch.sh
+#exec_always --no-startup-id $XDG_CONFIG_HOME/glava/launch.sh
+#exec_always --no-startup-id sh -c "sleep 10; sudo rfkill unblock all"
 
 #bindsym button3 nop
 #bindsym button4 nop
@@ -151,17 +150,7 @@ for_window [class="steam_app.*"] floating enable
 for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
 for_window [class="Gnome-network-displays"] floating enable
 
-$exaid $XDG_CONFIG_HOME/i3/rc.sh
-
-set $displayMode "Set display mode [w]ork [l]aptop"
-#bindsym $super+x mode $displayMode
-mode $displayMode {
-    bindsym w exec $XDG_CONFIG_HOME/screenlayouts/work.sh; mode "default"; restart
-    bindsym l exec $XDG_CONFIG_HOME/screenlayouts/laptop.sh; mode "default"; restart
-
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
-}
+exec_always --no-startup-id $XDG_CONFIG_HOME/sway/rc.sh
 
 set $Power " [S]leep, [p]oweroff, [l]ogoff or [r]eboot?"
 bindsym $super+q mode $Power
@@ -177,74 +166,74 @@ mode $Power {
 
 # Emoji Keyboard
 
-bindsym $super+period $exid sh -c 'splatmoji copypaste'
-bindsym $super+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
-bindsym $super+m $exid morse
-bindsym $super+p $exid sh -c 'fd --no-ignore-vcs --hidden --type d --print0 --full-path "^$HOME/(work|projects/).*/.git\$" -X stat -c "%X:%n" | sort --reverse | awk --field-separator : "{print \\$2}" | sed -r "s#./(.+)/.git#\1#g" | dmenu -i --no-custom -p Project | xargs --no-run-if-empty realpath | xargs --no-run-if-empty -i systemd-cat --stderr-priority=warning --identifier=intellij intellij-idea-ultimate-edition {}'
+bindsym $super+period exec --no-startup-id sh -c 'splatmoji copypaste'
+bindsym $super+k exec --no-startup-id "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
+bindsym $super+m exec --no-startup-id morse
+bindsym $super+p exec --no-startup-id sh -c 'fd --no-ignore-vcs --hidden -t f workspace.xml $HOME -X ls --format=vertical --sort=time --time=ctime | sed -r "s#/\.idea/workspace.xml\$##g" | sed -r "s#$HOME/##g" | grep -v "^\\." | grep -v node_modules | dmenu -i -no-custom -p Project | xargs -i i3-msg "exec systemd-cat --stderr-priority=warning --identifier=intellij intellij-idea-ultimate-edition $HOME/{}"'
 
 # Pulse Audio controls
-bindsym XF86AudioRaiseVolume $exid pactl set-sink-volume @DEFAULT_SINK@ +5%; $exid pactl set-sink-mute @DEFAULT_SINK@ 0
-bindsym XF86AudioLowerVolume $exid pactl set-sink-volume @DEFAULT_SINK@ -5%
-bindsym XF86AudioMute $exid pactl set-sink-mute @DEFAULT_SINK@ toggle
-bindsym Shift+XF86AudioLowerVolume $exid pctl volume 0.1-
-bindsym Shift+XF86AudioRaiseVolume $exid pctl volume 0.1+
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5%; $exid pactl set-sink-mute @DEFAULT_SINK@ 0
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym Shift+XF86AudioLowerVolume exec --no-startup-id pctl volume 0.1-
+bindsym Shift+XF86AudioRaiseVolume exec --no-startup-id pctl volume 0.1+
 
 # Sreen brightness controls
-bindsym XF86MonBrightnessUp $exid brightness up
-bindsym XF86MonBrightnessDown $exid brightness down
+bindsym XF86MonBrightnessUp exec --no-startup-id brightness up
+bindsym XF86MonBrightnessDown exec --no-startup-id brightness down
 
 # Media player controls
-bindsym XF86AudioPlay $exid pctl play-pause
-bindsym Shift+XF86AudioPlay $exid pctl NEXT
-bindcode 164 $exid pctl play-pause
+bindsym XF86AudioPlay exec --no-startup-id pctl play-pause
+bindsym Shift+XF86AudioPlay exec --no-startup-id pctl NEXT
+bindcode 164 exec --no-startup-id pctl play-pause
 
-bindsym XF86AudioPause $exid pctl pause
+bindsym XF86AudioPause exec --no-startup-id pctl pause
 
-bindsym XF86AudioNext $exid pctl next
-bindsym button9 $exid pctl next
+bindsym XF86AudioNext exec --no-startup-id pctl next
+bindsym button9 exec --no-startup-id pctl next
 
-bindsym XF86AudioPrev $exid pctl previous
-bindsym button8 $exid pctl previous
+bindsym XF86AudioPrev exec --no-startup-id pctl previous
+bindsym button8 exec --no-startup-id pctl previous
 
 # Change Audio Settings
-bindsym $super+Ctrl+Shift+o $exid audio_program_volume
-bindsym $super+Shift+o $exid audio_program_sink
-bindsym $super+Ctrl+o $exid audio_profile
-bindsym $super+o $exid audio_sink
+bindsym $super+Ctrl+Shift+o exec --no-startup-id audio_program_volume
+bindsym $super+Shift+o exec --no-startup-id audio_program_sink
+bindsym $super+Ctrl+o exec --no-startup-id audio_profile
+bindsym $super+o exec --no-startup-id audio_sink
 
 # Display Manager
-bindsym $super+Shift+p $exid rofi-randr
-bindsym $super+Ctrl+p $exid autorandr_dmenu
-#bindsym $super+p $exid /usr/bin/lxrandr
-bindsym $super+b $exid bluetooth_dmenu
+bindsym $super+Shift+p exec --no-startup-id rofi-randr
+bindsym $super+Ctrl+p exec --no-startup-id autorandr_dmenu
+#bindsym $super+p exec --no-startup-id /usr/bin/lxrandr
+bindsym $super+b exec --no-startup-id bluetooth_dmenu
 
 # Lock
-bindsym $super+l $exid loginctl lock-session
+bindsym $super+l exec --no-startup-id loginctl lock-session
 
 # WiFi-Manager
-bindsym $super+i $exid networkmanager_dmenu -i
+bindsym $super+i exec --no-startup-id networkmanager_dmenu -i
 
 # Mount-Manager
-bindsym $super+u $exid udiskie-dmenu
+bindsym $super+u exec --no-startup-id udiskie-dmenu
 
 bindsym $super+x exec xkill
 
 # Clipboard-Manager
-bindsym $super+Shift+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i && xdotool key --clearmodifiers ctrl+shift+v'
-bindsym $super+Ctrl+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i'
+bindsym $super+Ctrl+v exec --no-startup-id clipman pick -t rofi -T '-i'
+bindsym $super+Shift+v exec --no-startup-id bash -c 'clipman pick -t rofi -T-i && wtype "$(wl-paste)"'
 
 # Screenshots
 # Selection > Clipboard
-bindsym Print --release $exid "scrot -s /tmp/screenshot-$(date +%FT%T.%2N%z).png -e 'xclip -selection clipboard -t image/png < $f'"
+bindsym Print --release exec --no-startup-id "scrot -s /tmp/screenshot-$(date +%FT%T.%2N%z).png -e 'xclip -selection clipboard -t image/png < $f'"
 # Full Screen > Clipboard
-bindsym Shift+Print $exid "scrot /tmp/screenshot-$(date +%FT%T.%2N%z).png -e 'xclip -selection clipboard -t image/png < $f'"
+bindsym Shift+Print exec --no-startup-id "scrot /tmp/screenshot-$(date +%FT%T.%2N%z).png -e 'xclip -selection clipboard -t image/png < $f'"
 # Selection > File
-bindsym Ctrl+Print --release $exid "scrot -s $HOME/Screenshots/$(date +%FT%T.%2N%z).png"
+bindsym Ctrl+Print --release exec --no-startup-id "scrot -s $HOME/Screenshots/$(date +%FT%T.%2N%z).png"
 # Full Screen > File
-bindsym Ctrl+Shift+Print $exid "scrot $HOME/Screenshots/$(date +%FT%T.%2N%z).png"
+bindsym Ctrl+Shift+Print exec --no-startup-id "scrot $HOME/Screenshots/$(date +%FT%T.%2N%z).png"
 
-bindsym $super+c exec "exo-open --launch WebBrowser"
-bindsym $super+Shift+c exec "exo-open --launch WebBrowser --incognito"
+bindsym $super+c exec "google-chrome-stable"
+bindsym $super+Shift+c exec "google-chrome-stable --incognito"
 bindsym $super+g exec sh -c 'dmenu -p google | tr " " "+" | xargs -r -I{} $BROWSER --new-window https://google.com/search\?q\={}'
 
 for_window [class="java-lang-Thread" instance="java-lang-Thread"] floating enable
@@ -365,4 +354,4 @@ gaps outer 5
 gaps inner 10
 smart_borders on
 
-exec --no-startup-id systemctl --user start i3-session.target
+exec "systemctl --user import-environment {,WAYLAND_}DISPLAY SWAYSOCK; systemctl --user start sway-session.target"

@@ -9,8 +9,10 @@ dbus-update-activation-environment --systemd --all
 #xrandr --setprovideroutputsource modesetting NVIDIA-0
 #autorandr --skip-option gamma --change --default horizontal
 
+xinput set-prop 'SynPS/2 Synaptics TouchPad' 'libinput Click Method Enabled' 0 1
+
 xset r on r rate 250
-xrandr --dpi 220
+xrandr --dpi 100
 
 systemd-cat --stderr-priority=warning --identifier=i3 i3
 systemctl --user stop graphical-session.target
