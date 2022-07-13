@@ -180,7 +180,7 @@ mode $Power {
 bindsym $super+period $exid sh -c 'splatmoji copypaste'
 bindsym $super+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
 bindsym $super+m $exid morse
-bindsym $super+p $exid sh -c 'fd --no-ignore-vcs --hidden -t f workspace.xml $HOME -X ls --format=vertical --sort=time --time=ctime | sed -r "s#/\.idea/workspace.xml\$##g" | sed -r "s#$HOME/##g" | grep -v "^\\." | grep -v node_modules | dmenu -i -no-custom -p Project | xargs -i i3-msg "exec systemd-cat --stderr-priority=warning --identifier=intellij intellij-idea-ultimate-edition $HOME/{}"'
+bindsym $super+p $exid sh -c 'fd --no-ignore-vcs --hidden --type d --print0 --full-path "^$HOME/(work|projects/).*/.git\$" -X stat -c "%X:%n" | sort --reverse | awk --field-separator : "{print \\$2}" | sed -r "s#./(.+)/.git#\1#g" | dmenu -i --no-custom -p Project | xargs --no-run-if-empty realpath | xargs --no-run-if-empty code --user-data-dir=$XDG_DATA_HOME/vscode --extensions-dir=$XDG_DATA_HOME/vscode/extensions'
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume $exid pactl set-sink-volume @DEFAULT_SINK@ +5%; $exid pactl set-sink-mute @DEFAULT_SINK@ 0
