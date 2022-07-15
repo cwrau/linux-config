@@ -4,7 +4,7 @@ tar -h --exclude=.idea -cf rootfs.tar -C rootfs .
 
 pkgname=linux-config
 pkgver=0.1.0
-pkgrel=10
+pkgrel=11
 pkgdesc='linux config'
 url="https://github.com/cwrau/linux-config"
 license=('GPL3')
@@ -17,6 +17,7 @@ depends=(
     advcpmv
     ananicy-cpp
     ananicy-rules-git
+    ansible
     aria2
     ausweisapp2
     auto-cpufreq
@@ -37,6 +38,7 @@ depends=(
     btrfs-progs
     clipmenu
     cloudflared-bin
+    clusterctl-bin
     curl
     deluge-gtk
     diff-so-fancy
@@ -55,7 +57,9 @@ depends=(
     fd
     feh
     filebrowser
+    flux-bin
     foldingathome
+    fprintd
     freerdp
     freetype2
     fwupd
@@ -63,12 +67,16 @@ depends=(
     git
     github-cli
     git-secret
+    glab
     glava
     gnome-keyring
     gnome-terminal
     gnu-netcat
     gnupg
     google-chrome
+    gopass-fuse
+    gopass-jsonapi
+    gopls
     gotop-bin
     gradle
     grub
@@ -94,12 +102,16 @@ depends=(
     kdeconnect
     kernel-modules-hook
     kexec-tools
+    kube-bench-bin
     kubectl
     kubectl-access-matrix-bin
     kubectl-konfig
     kubectl-neat-diff
     kubectl-node-shell
     kubefwd-bin
+    kube-score-bin
+    kubeval-bin
+    kustomize
     lab-bin
     less
     lib32-nvidia-utils
@@ -107,6 +119,7 @@ depends=(
     libinput-gestures
     libva-mesa-driver
     linux-firmware
+    linux-lts
     linux-zen
     linux-zen-headers
     lscolors-git
@@ -178,21 +191,27 @@ depends=(
     remmina
     ripgrep
     rke-bin
+    rocketchat-client-bin
     rofi-dmenu
+    rofi-lbonn-wayland
     scrot
     shfmt
     signal-desktop
     siji-git
     slack-electron
     slit-git
+    slurp
     snap-pac
     socat
+    sops
     splatmoji-git
+    sshuttle
     steam
     steam-tweaks
     sxiv
     systemd
     systemd-boot-pacman-hook
+    systemd-preset-pacman-hook
     systemd-resolvconf
     teams-insiders
     telegram-desktop
