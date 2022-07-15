@@ -658,10 +658,10 @@ function pkgSync() {
   local newPackages
   newPackages=$(paru -Qqe | rg -xv $(echo $targetPackages | tr '\n' '|' | sed 's#|$##g'))
 
-  if [ ! -z $newPackages ]; then
-    echo "$(wc -l <<<$newPackages) new Packages"
+  if [ ! -z $newPackages ] && [[ "$(echo $newPackages | grep -v linux-config | wc -l)" -gt 0 ]]; then
+    echo "$(<<<$newPackages | grep -v linux-config | wc -l) new Packages"
     while read -r package; do
-      if [ $package = "linux-config" ]; then
+      if [[ "$package" == "linux-config" ]]; then
         continue
       fi
       paru -Qi $package
@@ -670,6 +670,7 @@ function pkgSync() {
       case $choice in;
         [Aa])
           targetPackages="$targetPackages\\n$package"
+          paru -D --asdeps $package
           ;;
         [Rr])
           echo "=========="
@@ -694,14 +695,14 @@ function pkgSync() {
   fi
 
   local missingPackages
-  missingPackages=$(echo $targetPackages | rg -xv $(paru -Qqe | tr '\n' '|' | sed 's#|$##g'))
+  missingPackages=$(echo $targetPackages | rg -xv $(paru -Qqd | tr '\n' '|' | sed 's#|$##g'))
 
   if [ ! -z $missingPackages ]; then
     echo "$(wc -l <<<$missingPackages) missing Packages"
     while read -r package; do
       paru -Si $package
       paru -Qi $package
-      read -k 1 "choice?[I]nstall, [r]emove, [e]xplicit or [s]kip $package? "
+      read -k 1 "choice?[I]nstall, [r]emove, [d]epends or [s]kip $package? "
       echo
       case $choice in;
         [Ii])
@@ -712,10 +713,10 @@ function pkgSync() {
         [Rr])
           targetPackages=$(echo $targetPackages | rg -xv "$package")
           ;;
-        [Ee])
+        [Dd])
           echo "=========="
           echo
-          paru -D --asexplicit $package
+          paru -D --asdeps $package
           ;;
         *)
           :
@@ -747,7 +748,7 @@ function pkgSync() {
   fi
 
   local unusedPackages
-  unusedPackages=$(pacman -Qi | awk '/^Name/{name=$3} /^Required By/{req=$4} /^Optional For/{opt=$0} /^Install Reason/{res=$4$5} /^$/{if (req == "None" && res != "Explicitlyinstalled"){print name}}')
+  unusedPackages=$(pacman -Qi | awk '/^Name/{name=$3} /^Required By/{req=$4} /^Optional For/{opt=$0} /^Install Reason/{res=$4$5} /^$/{if (req == "None" && res != "Explicitlyinstalled"){print name}}' | rg -xv $(echo $targetPackages | tr '\n' '|' | sed 's#|$##g'))
 
   if [ ! -z $unusedPackages ]; then
     echo "$(wc -l <<<$unusedPackages) unused Packages"
@@ -879,10 +880,12 @@ alias -g X='| xargs'
 alias -g Y='| yq'
 nAlias wd 'while :; do .; sleep 0.1; clear; done'
 
-if [[ -f $XDG_CONFIG_HOME/kube/config.yaml ]]; then
-  export KUBECONFIG="$XDG_CONFIG_HOME/kube/config.yaml"
-elif [[ -f $XDG_RUNTIME_DIR/current_kubeconfig ]]; then
+if [[ -f "$XDG_RUNTIME_DIR/current_kubeconfig" ]]; then
   export KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$(cat $XDG_RUNTIME_DIR/current_kubeconfig)"
+fi
+if ! [[ -f "$KUBECONFIG" ]]; then
+  unset KUBECONFIG
+  rm -f "$XDG_RUNTIME_DIR/current_kubeconfig"
 fi
 
 function k9s() {
