@@ -1,0 +1,9 @@
+disable machines.target
+disable remote-cryptsetup.target
+disable systemd-homed.service
+disable systemd-homed-activate.service
+disable systemd-network-generator.service
+disable systemd-networkd.*
+disable systemd-networkd-wait-online.service
+disable systemd-pstore.service
+disable systemd-userdbd.socket

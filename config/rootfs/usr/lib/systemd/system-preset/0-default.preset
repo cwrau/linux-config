@@ -1,0 +1,11 @@
+enable NetworkManager.service
+enable ananicy-cpp.service
+enable auto-cpufreq.service
+enable bluetooth.service
+enable ebtables.service
+enable fwupd-refresh.timer
+enable fwupd.service
+enable pkgstats.timer
+enable reflector.timer
+enable snapper-cleanup.timer
+enable systemd-timesyncd.service
