@@ -3,7 +3,7 @@ Description=Gaming Mode
 
 [Service]
 Type=oneshot
-Environment="SERVICES=feh.service polybar.target glava.target picom.service"
+Environment="SERVICES=feh.service swaybg.service polybar.target glava.target picom.service"
 ExecStart=/usr/bin/systemctl --user stop $SERVICES work.target
 RemainAfterExit=yes
 ExecStop=/usr/bin/systemctl --user start $SERVICES

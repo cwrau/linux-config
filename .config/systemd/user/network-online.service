@@ -3,7 +3,7 @@ Description=Wait until internet server is accessable
 
 [Service]
 Type=oneshot
-ExecStart=/bin/bash -c 'until timeout 1 curl --silent -f https://google.com > /dev/null; do sleep 0.1; done;'
-TimeoutStartSec=60s
+ExecStart=/usr/bin/nm-online -s -q
+Environment=NM_ONLINE_TIMEOUT=60
 Restart=Always
 StartLimitBurst=128
