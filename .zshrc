@@ -60,6 +60,8 @@ export PAGER=slit
 export SAVEHIST=9223372036854775807
 export SDL_AUDIODRIVER="pulse"
 export SECRETS_EXTENSION=".gpg"
+export SYSTEMD_PAGER=slit
+export SYSTEMD_PAGERSECURE=false
 export VISUAL=nvim
 
 if [[ $- = *i* ]]; then
@@ -85,6 +87,13 @@ if [[ $- = *i* ]]; then
   fi
 fi
 set +x
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 
 # Path to your oh-my-zsh installation.
 ZSH=/usr/share/oh-my-zsh/
@@ -220,7 +229,6 @@ autoload -U bashcompinit && bashcompinit -d "$ZSH_COMPDUMP"
 
 compdef _gradle gradle-or-gradlew
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ -f $XDG_CONFIG_HOME/p10k.zsh ]] && source $XDG_CONFIG_HOME/p10k.zsh
 [[ -f /opt/azure-cli/az.completion ]] && source /opt/azure-cli/az.completion
 [[ -f /usr/share/LS_COLORS/dircolors.sh ]] && source /usr/share/LS_COLORS/dircolors.sh
@@ -291,7 +299,11 @@ function idea() {
 }
 
 function diff() {
-  /usr/bin/diff -u "${@}" | diff-so-fancy | /usr/bin/less --tabs=1,5 -RF
+  if [ -t 1 ]; then
+    command diff -u "${@}" | diff-so-fancy | /usr/bin/less --tabs=1,5 -RF
+  else
+    command diff -u "${@}"
+  fi
 }
 
 function swap() {
@@ -329,16 +341,11 @@ function google() {
 }
 
 function _hr_getYaml() {
-  local HR="$1"
+  local yaml="$1"
   local index="$2"
+  local kind="$3"
 
-  if [ "$HR" = "-" -o "$HR" = "" ]; then
-    < /dev/stdin
-  else
-    < "$HR"
-    [ "$?" -ne 0 ] && return 1
-  fi | yq -erys "[.[] | select(.kind == \"HelmRelease\")][$index]"
-  return 0
+  <<<"$yaml" | yq -erys "[.[] | select(.kind == \"$kind\")][$index]"
 }
 
 function _hr_getNamespace() {
@@ -381,11 +388,17 @@ function _hr_git() {
 function hr() {
   local namespace
   local releaseName
-  local yaml
+  local helmReleaseYaml
   local values
   local index=0
   local sourceParameter
-  local oldOne="$1"
+  local yaml
+  if [ "$1" = "-" -o "$1" = "" ]; then
+    yaml=$(cat)
+  else
+    yaml=$(cat "$1")
+  fi
+
   if [[ "$2" =~ -[0-9]+ ]]; then
     index="$2"
     shift
@@ -395,24 +408,24 @@ function hr() {
     shift
     1="$oldOne"
   fi
-  yaml=$(_hr_getYaml "$1" "$index")
+  helmReleaseYaml=$(_hr_getYaml "$yaml" "$index" HelmRelease)
   [ "$?" -ne 0 ] && return 1
-  namespace=$(_hr_getNamespace "$yaml")
-  releaseName=$(_hr_getReleaseName "$yaml")
-  values=$(<<< "$yaml" | yq -y -er .spec.values)
-  if [ -d "$2" ]; then
+  namespace=$(_hr_getNamespace "$helmReleaseYaml")
+  releaseName=$(_hr_getReleaseName "$helmReleaseYaml")
+  values=$(<<< "$helmReleaseYaml" | yq -y -er .spec.values)
+  if [ -d "$sourceParameter" ]; then
     helm template --namespace $namespace $releaseName "$2" --values <(<<< "$values") ${@:3}
-  elif <<< "$yaml" | yq -e '.apiVersion == "helm.fluxcd.io/v1"' > /dev/null; then
-    if <<< "$yaml" | yq -e .spec.chart.git > /dev/null; then
+  elif <<< "$helmReleaseYaml" | yq -e '.apiVersion == "helm.fluxcd.io/v1"' > /dev/null; then
+    if <<< "$helmReleaseYaml" | yq -e .spec.chart.git > /dev/null; then
       local gitPath
       local gitUrl
       local gitRef
-      gitPath="$(<<< "$yaml" | yq -er '.spec.chart.path // "."')"
-      gitUrl="$(<<< "$yaml" | yq -er .spec.chart.git)"
-      gitRef="$(<<< "$yaml" | yq -er '.spec.chart.ref // "master"')"
+      gitPath="$(<<< "$helmReleaseYaml" | yq -er '.spec.chart.path // "."')"
+      gitUrl="$(<<< "$helmReleaseYaml" | yq -er .spec.chart.git)"
+      gitRef="$(<<< "$helmReleaseYaml" | yq -er '.spec.chart.ref // "master"')"
       _hr_git "$gitUrl" "$gitRef" "$gitPath" "$namespace" "$releaseName" "$values"
     else
-      helm template --namespace $namespace --repo $(<<< "$yaml" | yq -er .spec.chart.repository) $releaseName $(<<< "$yaml" | yq -er .spec.chart.name) --version $(<<< "$yaml" | yq -er .spec.chart.version) --values <(<<< "$values") ${@:2}
+      helm template --namespace $namespace --repo $(<<< "$helmReleaseYaml" | yq -er .spec.chart.repository) $releaseName $(<<< "$helmReleaseYaml" | yq -er .spec.chart.name) --version $(<<< "$helmReleaseYaml" | yq -er .spec.chart.version) --values <(<<< "$values") ${@:2}
     fi
   else
     local sourceNamespace
@@ -420,20 +433,27 @@ function hr() {
     local sourceKind
     local sourceResource
     local chartName
-    sourceNamespace=$(<<< "$yaml" | yq -er ".spec.chart.spec.sourceRef.namespace // \"$namespace\"")
-    sourceName=$(<<< "$yaml" | yq -er .spec.chart.spec.sourceRef.name)
-    sourceKind=$(<<< "$yaml" | yq -er .spec.chart.spec.sourceRef.kind)
-    sourceResource=$(kubectl --namespace=$sourceNamespace get $sourceKind $sourceName -o yaml)
-    if [[ "$?" != 0 ]] && [[ -z "$sourceParameter" ]]; then
-      local helmrepositoryUrl="https://charts.4allportal.net"
-      echo "Source resource $sourceNamespace/$sourceKind/$sourceName not found"
-      vared -p "Please specify Helm Repository URL: " helmrepositoryUrl
-      sourceKind=HelmRepository
-      sourceResource=$'spec:\n  url: '"$helmrepositoryUrl"
+    sourceNamespace=$(<<< "$helmReleaseYaml" | yq -er ".spec.chart.spec.sourceRef.namespace // \"$namespace\"")
+    sourceName=$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.sourceRef.name)
+    sourceKind=$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.sourceRef.kind)
+    if [[ -z "$sourceParameter" ]]; then
+      local sourceYaml
+      sourceYaml=$(_hr_getYaml "$yaml" "" "$sourceKind")
+      sourceResource=$(<<< "$sourceYaml" | yq -erys "[.[] | select( (.metadata.namespace == \"$sourceNamespace\") and (.metadata.name == \"$sourceName\") )][0]")
+      if [[ "$?" != 0 ]]; then
+        sourceResource=$(kubectl --namespace=$sourceNamespace get $sourceKind $sourceName -o yaml)
+        if [[ "$?" != 0 ]]; then
+          local helmrepositoryUrl="https://charts.4allportal.net"
+          echo "Source resource '$sourceNamespace/$sourceKind/$sourceName' not found in cluster nor in input"
+          vared -p "Please specify Helm Repository URL: " helmrepositoryUrl
+          sourceKind=HelmRepository
+          sourceResource=$'spec:\n  url: '"$helmrepositoryUrl"
+        fi
+      fi
     elif ! [[ -z "$sourceParameter" ]]; then
       sourceResource=$'spec:\n  url: '"$sourceParameter"
     fi
-    chartName="$(<<< "$yaml" | yq -er .spec.chart.spec.chart)"
+    chartName="$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.chart)"
     case "$sourceKind" in
       GitRepository)
         local gitUrl
@@ -446,7 +466,7 @@ function hr() {
         local helmrepositoryUrl
         local chartVersion
         helmrepositoryUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
-        chartVersion="$(<<< "$yaml" | yq -er .spec.chart.spec.version)"
+        chartVersion="$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.version)"
         helm template --namespace $namespace --repo "$helmrepositoryUrl" $releaseName "$chartName" --version "$chartVersion" --values <(<<< "$values") ${@:2}
         ;;
       *)
@@ -478,7 +498,7 @@ function hrDiff() {
   local releaseName
   local chartName
   local yaml
-  yaml=$(_hr_getYaml "$1")
+  yaml=$(_hr_getYaml "$1" "" HelmRelease)
   if [[ "$2" =~ -[0-9]+ ]]; then
     yaml="$(<<<"$yaml" | yq -erys ".[${2/-}]")"
     shift
@@ -588,11 +608,15 @@ compdef _cwatch cwatch
 function kconfig() {
 	local CONFIG
   local CONTEXT
-  if [[ -f "$XDG_RUNTIME_DIR/gopass/$1" ]]; then
+  local query
+  if [[ -z "$1" ]]; then
+    query=""
+  elif [[ -f "$XDG_RUNTIME_DIR/gopass/$1" ]]; then
     CONFIG="$1"
   else
-    CONFIG="$(gopass ls -flat | /bin/grep -E 'kube.?config' | fzf)"
+    query="$1"
   fi
+  CONFIG="$(gopass ls -flat | /bin/grep -E 'kube.?config' | fzf --query "$query" -1)"
 	if [[ "$?" == 0 ]]; then
     echo $CONFIG > $XDG_RUNTIME_DIR/current_kubeconfig
     export KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$CONFIG
@@ -803,7 +827,6 @@ nAlias top htop
 nAlias vim nvim
 nAlias vi vim
 nAlias cat "bat --pager 'less -RF'"
-nAlias less slit
 nAlias ps procs
 reAlias fzf --ansi
 reAlias prettyping --nolegend
@@ -859,7 +882,7 @@ nAlias wd 'while :; do .; sleep 0.1; clear; done'
 if [[ -f $XDG_CONFIG_HOME/kube/config.yaml ]]; then
   export KUBECONFIG="$XDG_CONFIG_HOME/kube/config.yaml"
 elif [[ -f $XDG_RUNTIME_DIR/current_kubeconfig ]]; then
-  kconfig $(cat $XDG_RUNTIME_DIR/current_kubeconfig)
+  export KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$(cat $XDG_RUNTIME_DIR/current_kubeconfig)"
 fi
 
 function k9s() {
@@ -868,7 +891,9 @@ function k9s() {
     command k9s --context $2
   elif [[ "${@[#]}" == 1 ]]; then
     command k9s --context $1
-  elif [[ -z "$KUBECONFIG" ]]; then
+  elif ! [[ -z "$KUBECONFIG" ]] && [[ -f "$KUBECONFIG" ]]; then
+    command k9s
+  else
     kconfig
     command k9s
   fi
