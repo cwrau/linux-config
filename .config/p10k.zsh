@@ -33,14 +33,15 @@
 
   # The list of segments shown on the left. Fill it with the most important segments.
   typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
-      # =========================[ Line #1 ]=========================
-      os_icon                 # os identifier
-      vcs                     # git status
-      newline
-      dir                     # current directory
-      # =========================[ Line #2 ]=========================
-      newline
-      prompt_char           # prompt symbol
+    # =========================[ Line #1 ]=========================
+    os_icon                 # os identifier
+    vcs                     # git status
+    newline
+    # =========================[ Line #2 ]=========================
+    dir                     # current directory
+    newline
+    # =========================[ Line #3 ]=========================
+    prompt_char           # prompt symbol
   )
 
   # The list of segments shown on the right. Fill it with less important segments.
@@ -48,43 +49,43 @@
   # automatically hidden when the input line reaches it. Right prompt above the
   # last prompt line gets hidden if it would overlap with left prompt.
   typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
-      # =========================[ Line #1 ]=========================
-      # status                  # exit code of the last command
-      command_execution_time  # duration of the last command
-      background_jobs         # presence of background jobs
-      direnv                  # direnv status (https://direnv.net/)
-      virtualenv              # python virtual environment (https://docs.python.org/3/library/venv.html)
-      anaconda                # conda environment (https://conda.io/)
-      pyenv                   # python environment (https://github.com/pyenv/pyenv)
-      nodenv                  # node.js version from nodenv (https://github.com/nodenv/nodenv)
-      nvm                     # node.js version from nvm (https://github.com/nvm-sh/nvm)
-      nodeenv                 # node.js environment (https://github.com/ekalinin/nodeenv)
-      # node_version          # node.js version
-      # go_version            # go version (https://golang.org)
-      # rust_version          # rustc version (https://www.rust-lang.org)
-      # dotnet_version        # .NET version (https://dotnet.microsoft.com)
-      rbenv                   # ruby version from rbenv (https://github.com/rbenv/rbenv)
-      rvm                     # ruby version from rvm (https://rvm.io)
-      kubecontext             # current kubernetes context (https://kubernetes.io/)
-      #kctx                    # current kubernetes context (https://kubernetes.io/)
-      terraform               # terraform workspace (https://www.terraform.io)
-      aws                     # aws profile (https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html)
-      # aws_eb_env            # aws elastic beanstalk environment (https://aws.amazon.com/elasticbeanstalk/)
-      # azure                 # azure account name (https://docs.microsoft.com/en-us/cli/azure)
-      context                 # user@hostname
-      nordvpn                 # nordvpn connection status, linux only (https://nordvpn.com/)
-      ranger                  # ranger shell (https://github.com/ranger/ranger)
-      vi_mode                 # vi mode (you don't need this if you've enabled prompt_char)
-      # vpn_ip                # virtual private network indicator
-      # ram                   # free RAM
-      # load                  # CPU load
-      time                    # current time
-      # =========================[ Line #2 ]=========================
-      newline
-      # public_ip             # public IP address
-      # proxy                 # system-wide http/https/ftp proxy
-      # battery               # internal battery
-      # example               # example user-defined segment (see prompt_example function below)
+    # =========================[ Line #1 ]=========================
+    # status                  # exit code of the last command
+    command_execution_time  # duration of the last command
+    background_jobs         # presence of background jobs
+    direnv                  # direnv status (https://direnv.net/)
+    virtualenv              # python virtual environment (https://docs.python.org/3/library/venv.html)
+    anaconda                # conda environment (https://conda.io/)
+    pyenv                   # python environment (https://github.com/pyenv/pyenv)
+    nodenv                  # node.js version from nodenv (https://github.com/nodenv/nodenv)
+    nvm                     # node.js version from nvm (https://github.com/nvm-sh/nvm)
+    nodeenv                 # node.js environment (https://github.com/ekalinin/nodeenv)
+    # node_version          # node.js version
+    # go_version            # go version (https://golang.org)
+    # rust_version          # rustc version (https://www.rust-lang.org)
+    # dotnet_version        # .NET version (https://dotnet.microsoft.com)
+    rbenv                   # ruby version from rbenv (https://github.com/rbenv/rbenv)
+    rvm                     # ruby version from rvm (https://rvm.io)
+    kubecontext             # current kubernetes context (https://kubernetes.io/)
+    #kctx                    # current kubernetes context (https://kubernetes.io/)
+    terraform               # terraform workspace (https://www.terraform.io)
+    aws                     # aws profile (https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html)
+    # aws_eb_env            # aws elastic beanstalk environment (https://aws.amazon.com/elasticbeanstalk/)
+    # azure                 # azure account name (https://docs.microsoft.com/en-us/cli/azure)
+    context                 # user@hostname
+    nordvpn                 # nordvpn connection status, linux only (https://nordvpn.com/)
+    ranger                  # ranger shell (https://github.com/ranger/ranger)
+    vi_mode                 # vi mode (you don't need this if you've enabled prompt_char)
+    # vpn_ip                # virtual private network indicator
+    # ram                   # free RAM
+    # load                  # CPU load
+    time                    # current time
+    # =========================[ Line #2 ]=========================
+    newline
+    # public_ip             # public IP address
+    # proxy                 # system-wide http/https/ftp proxy
+    # battery               # internal battery
+    # example               # example user-defined segment (see prompt_example function below)
   )
 
   # To disable default icons for all segments, set POWERLEVEL9K_VISUAL_IDENTIFIER_EXPANSION=''.
@@ -331,11 +332,12 @@
   #
   # typeset -g POWERLEVEL9K_DIR_CLASSES=()
   typeset -g POWERLEVEL9K_DIR_CLASSES=(
-      '/etc(/*)'     ETC             ' '
-      '~'            HOME            ' '
-      '~/*'          HOME_SUBFOLDER  ' '
-      '~/work(/*)#'  WORK            ''
-      '*'            DEFAULT         ' ' )
+    '/etc(/*)'     ETC             ' '
+    '~'            HOME            ' '
+    '~/*'          HOME_SUBFOLDER  ' '
+    '~/work(/*)#'  WORK            ''
+    '*'            DEFAULT         ' '
+  )
 
   #####################################[ vcs: git status ]######################################
   # Versio control system colors.
