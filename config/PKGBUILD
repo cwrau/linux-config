@@ -4,7 +4,7 @@ tar -h --exclude=.idea -cf rootfs.tar -C rootfs .
 
 pkgname=linux-config
 pkgver=0.1.0
-pkgrel=11
+pkgrel=12
 pkgdesc='linux config'
 url="https://github.com/cwrau/linux-config"
 license=('GPL3')
@@ -120,6 +120,7 @@ depends=(
     libva-mesa-driver
     linux-firmware
     linux-lts
+    linux-lts-headers
     linux-zen
     linux-zen-headers
     lscolors-git
