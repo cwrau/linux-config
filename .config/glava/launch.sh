@@ -25,5 +25,5 @@ do
   if systemctl --user is-active --quiet glava-$type@$monitor; then
     systemctl --user stop glava-$type@$monitor
   fi
-  systemd-run --user --unit glava-$type@$monitor --nice 19 --setenv TRAY --setenv MONITOR --slice glava-$type.slice -- glava -m $type -r "setgeometry $geometry" &
-done < <(xrandr --query | grep x | grep + | grep " connected" | sed -r 's# primary##g' | cut -d" " -f1,3 | tr 'x+' '  ')
+  systemd-run --user --unit glava-$type@$monitor --nice 19 --setenv TRAY --setenv MONITOR --slice glava-$type.slice -- glava -m $type -r "setgeometry $geometry"
+done < <(polybar -m | tr ':x+' '   ' | sed -r 's# +# #g; s# \(.*\)##g')
