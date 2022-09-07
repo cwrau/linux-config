@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+wrapper=("systemd-run" "--user" "--same-dir" "--setenv=KUBECONFIG=$XDG_CONFIG_HOME/kube/config" "--unit=intellij-$(cat /proc/sys/kernel/random/uuid)" "--slice=intellij.slice" "--" "script" "--return" "--quiet" "--log-out" "/dev/null" "--command")
+codeEditor="vscode"
+codeEditor="intellij-idea-ultimate-edition"
+
+if [[ -n "$1" ]] && [[ -d "$1" ]]; then
+  project=$(realpath "$1")
+else
+  project="$(fd --no-ignore-vcs --hidden --type directory --full-path "^$HOME/(work|projects/).*/\.(git|idea)\$" "$HOME" --exec-batch stat --format "%X:%n" \
+    | sort --reverse --field-separator : --key 1 \
+    | cut --delimiter : --fields 2- \
+    | xargs --no-run-if-empty -- dirname \
+    | xargs --no-run-if-empty -- realpath --relative-to "$HOME" \
+    | awk '!x[$0]++' \
+    | dmenu -i --no-custom -p Project)"
+  # shellcheck disable=SC2181
+  if [ "$?" != 0 ]; then
+    exit 1
+  else
+    project="$HOME/$project"
+  fi
+fi
+
+"${wrapper[@]}" "$codeEditor '$project'"
+[[ -d "$project/.git" ]] && touch "$project/.git"
+[[ -d "$project/.idea" ]] && touch "$project/.idea"

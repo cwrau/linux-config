@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+PID=${1?You need to provide the PID}
+
+unitName=$(ps -h -o uunit "$PID")
+if [[ -n "$unitName" ]]; then
+  systemctl --user show --property Description "$unitName" | awk -F= '{print $2}'
+else
+  exit 1
+fi

@@ -6,8 +6,9 @@ dbus-update-activation-environment --systemd --all
 
 #xinput --map-to-output $(xinput | rg Touchscreen | sed -r 's#^.+id=([0-9]+).+$#\1#g') $(xrandr | rg eDP | sed -r 's#^([^ ]+).+$#\1#g')
 
-#xrandr --setprovideroutputsource modesetting NVIDIA-0
-#autorandr --skip-option gamma --change --default horizontal
+xrandr --setprovideroutputsource modesetting NVIDIA-0
+xrandr --output eDP-1-1 --mode 1920x1080 --primary
+autorandr --skip-option gamma,brightness --change --default horizontal
 
 xinput set-prop 'SynPS/2 Synaptics TouchPad' 'libinput Click Method Enabled' 0 1
 

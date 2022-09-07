@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from typing import Dict
+from typing import Dict, Sequence
 
 from pulsectl import PulseCardProfileInfo
 
@@ -21,14 +21,17 @@ def audio_profile():
     else:
         default_sink_card_index: int = -1
 
-    profileCards: Dict[PulseCardInfo, Sequence[PulseCardProfileInfo]] = {card: [profile for profile in card.profile_list if profile.available != 0] for card in cards}
-    profileCards: Dict[PulseCardInfo, Sequence[PulseCardProfileInfo]] = {card: profiles for card, profiles in profileCards.items() if len(profiles) > 1}
-    card: PulseCardInfo = get_choice(list(profileCards.keys()), "card", card_name_getter, lambda c: c.index == default_sink_card_index,
+    profile_cards: Dict[PulseCardInfo, Sequence[PulseCardProfileInfo]] = {
+        card: [profile for profile in card.profile_list if profile.available != 0] for card in cards}
+    profile_cards: Dict[PulseCardInfo, Sequence[PulseCardProfileInfo]] = {card: profiles for card, profiles in
+                                                                          profile_cards.items() if len(profiles) > 1}
+    card: PulseCardInfo = get_choice(list(profile_cards.keys()), "card", card_name_getter,
+                                     lambda c: c.index == default_sink_card_index,
                                      card_name_getter)
     if card is None:
         return
 
-    profiles: Sequence[PulseCardProfileInfo] = profileCards[card]
+    profiles: Sequence[PulseCardProfileInfo] = profile_cards[card]
 
     profile: PulseCardProfileInfo = get_choice(profiles, "profile", lambda p: p.description,
                                                lambda p: p.name == card.profile_active.name)

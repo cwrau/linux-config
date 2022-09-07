@@ -1,26 +1,35 @@
 #!/usr/bin/env python3
+from typing import Sequence
 
 import dynmen
-from dynmen import Menu
+from dynmen import Menu, MenuResult, MenuError
 
 from lib.audio_script import *
 
 
 def audio_program_volume():
-    prog_input: PulseSinkInputInfo = get_choice([input for input in inputs if input.proplist.get("media.name") != "pulseeffects"], "source",
-                                                lambda i: f'{i.proplist.get("application.name", i.proplist.get("media.name"))}'
-                                                          f' ({i.proplist.get("application.process.id")})'
-                                                          f' ({int(i.volume.value_flat * 100)}%)')
+    prog_input: PulseSinkInputInfo = get_choice(
+        [pulse_input for pulse_input in inputs if pulse_input.proplist.get("media.name") != "pulseeffects"], "source",
+        lambda program: f'{program_name_getter(program)} ({int(program.volume.value_flat * 100)}%)',
+        sorter=program_name_getter)
 
     if prog_input is None:
         return
 
-    args: Sequence[str] = ["dmenu", "-format", "s", "-p", f'New volume percentage (current: {int(prog_input.volume.value_flat * 100)}%)', "-l", "0"]
+    args: Sequence[str] = ["dmenu", "-format", "s", "-p",
+                           f'New volume percentage for {program_name_getter(prog_input)} (current: {int(prog_input.volume.value_flat * 100)}%)',
+                           "-l", "0"]
     menu: Menu = dynmen.Menu(args)
 
-    result: float = min(int(menu().selected) / 100, 1)
+    try:
+        raw_result: MenuResult = menu()
+        if raw_result.selected == '':
+            return
+        result: float = max(min(int(raw_result.selected) / 100, 1), 0.01)
 
-    pulse.volume_set_all_chans(prog_input, result)
+        pulse.volume_set_all_chans(prog_input, result)
+    except MenuError:
+        return
 
 
 if __name__ == "__main__":

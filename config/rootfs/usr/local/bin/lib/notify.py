@@ -1,9 +1,9 @@
-import notify2
+from notify2 import Notification, init
 
-notify2.init("CWRScript")
+init("CWRScript")
 
 
 def notify(title: str, message: str, timeout: int = 2000) -> None:
-    notification = notify2.Notification(title, message)
+    notification: Notification = Notification(title, message)
     notification.timeout = timeout
     notification.show()

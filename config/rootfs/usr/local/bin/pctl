@@ -3,23 +3,33 @@
 set -e
 
 function next() {
-  list | awk "/$PLAYER/ {number = NR+1}; NR == number {print \$0}; NR == 1 {first = \$0}; END {if (length(number) == 0) {print first} else if (number > NR) {print first} }" | tee $XDG_RUNTIME_DIR/player
+  list | awk "/$PLAYER/ {number = NR+1}; NR == number {print \$0}; NR == 1 {first = \$0}; END {if (length(number) == 0) {print first} else if (number > NR) {print first} }" | tee "$XDG_RUNTIME_DIR/player"
 }
 
 function list() {
-  playerctl -l | sed -r 's#^(.+)\..+$#\1#g' | sort | uniq
+  playerctl -l | sort -u
 }
 
-if [ -f $XDG_RUNTIME_DIR/player ]; then
-  PLAYER=$(head -1 $XDG_RUNTIME_DIR/player | awk '{print $1}')
+function getUnit() {
+  if [[ "$1" == "youtube-music-desktop-app" ]]; then
+    echo "YouTube Music Player"
+  elif [[ "$1" =~ ^kdeconnect ]]; then
+    echo "Phone"
+  else
+    echo "$1" | sed -r 's#^[a-z._-]+([0-9]+)$#\1#g' | xargs -r "$(dirname "$0")/lib/getSystemdUnitDescriptionForPID"
+  fi
+}
+
+if [ -f "$XDG_RUNTIME_DIR/player" ]; then
+  PLAYER=$(head -1 "$XDG_RUNTIME_DIR/player" | awk '{print $1}')
 else
   PLAYER=$(next)
 fi
 
 PLAYER=$(list | awk "/$PLAYER/ {number = NR; print \$0}; NR == 1 {first = \$0}; END {if (length(number) == 0) {print first} }")
 
-if [ "$PLAYER" != "$(cat $XDG_RUNTIME_DIR/player)" ]; then
-  echo $PLAYER > $XDG_RUNTIME_DIR/player
+if [ "$PLAYER" != "$(cat "$XDG_RUNTIME_DIR/player")" ]; then
+  echo "$PLAYER" > "$XDG_RUNTIME_DIR/player"
 fi
 
 if [ "$1" = swap ]; then
@@ -28,15 +38,22 @@ if [ "$1" = swap ]; then
   exit 0
 elif [ "$1" = NEXT ]; then
   PLAYER=$(next)
-  notify-send.sh -R $XDG_RUNTIME_DIR/player-notification -t 1000 -u normal "$PLAYER: $($0 status)"
+  unit=$(getUnit "$PLAYER")
+  notify-send.sh -R "$XDG_RUNTIME_DIR/player-notification" -t 1000 -u normal "$unit: $($0 status)"
   exit 0
 elif [ "$1" = PRINT ]; then
-  if [ "$(list | wc -l)" = 1 ]; then
-    echo
-  else
-    echo $PLAYER
-  fi
+#  if [ "$(list | wc -l)" = 1 ]; then
+#    echo
+#  else
+    getUnit "$PLAYER"
+#  fi
+  exit 0
+elif [ "$1" = LIST ]; then
+  for player in $(list); do
+    getUnit "$player"
+  done
   exit 0
 fi
 
+# shellcheck disable=SC2068
 exec playerctl -p "$PLAYER" $@

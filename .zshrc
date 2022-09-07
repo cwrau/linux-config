@@ -50,9 +50,9 @@ export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
 export BROWSER="google-chrome-stable"
 export EDITOR="$VISUAL"
 export FZF_ALT_C_COMMAND='fd -t d --hidden'
-export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
-export FZF_CTRL_T_COMMAND='fd --hidden'
-export FZF_CTRL_T_OPTS="--preview '(bat --color=always --pager=never -p {} 2> /dev/null || tree -C {}) 2> /dev/null | head -200'"
+export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -20'"
+export FZF_CTRL_T_COMMAND='fd -t f --hidden'
+export FZF_CTRL_T_OPTS="--preview 'bat --color=always --pager=never -p {} | head -20'"
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
 export GRADLE_OPTS=-Dorg.gradle.jvmargs=-Xmx1G
 export HISTSIZE=9223372036854775807
@@ -60,23 +60,20 @@ export PAGER=slit
 export SAVEHIST=9223372036854775807
 export SDL_AUDIODRIVER="pulse"
 export SECRETS_EXTENSION=".gpg"
-export SYSTEMD_PAGER=slit
 export SYSTEMD_PAGERSECURE=false
 export VISUAL=nvim
 
-if [[ $- = *i* ]]; then
+if [[ $- = *i* ]] && [[ "$XDG_VTNR" == 1 ]]; then
   if false; then
     if [[ -z "$XDG_CURRENT_DESKTOP" ]]; then
-      if [[ "$XDG_VTNR" -eq 1 ]]; then
-        export XDG_CURRENT_DESKTOP=sway
-        export GBM_BACKEND=nvidia-drm
-        export __GLX_VENDOR_LIBRARY_NAME=nvidia
-        export MOZ_ENABLE_WAYLAND=1
-        export XDG_SESSION_TYPE=wayland
-        export WLR_DRM_NO_MODIFIERS=1
-        systemctl --user import-environment 2> /dev/null
-        exec systemd-cat --stderr-priority=warning --identifier=sway sway --unsupported-gpu
-      fi
+      export XDG_CURRENT_DESKTOP=sway
+      export GBM_BACKEND=nvidia-drm
+      export __GLX_VENDOR_LIBRARY_NAME=nvidia
+      export MOZ_ENABLE_WAYLAND=1
+      export XDG_SESSION_TYPE=wayland
+      export WLR_DRM_NO_MODIFIERS=1
+      systemctl --user import-environment 2> /dev/null
+      exec systemd-cat --stderr-priority=warning --identifier=sway sway --unsupported-gpu
     fi
   else
     if [[ -z "$DISPLAY" ]]; then
@@ -87,6 +84,10 @@ if [[ $- = *i* ]]; then
   fi
 fi
 set +x
+
+#if ! cat /proc/self/cgroup | awk -F:: '{print $2}' | xargs -i cat /sys/fs/cgroup/{}/cgroup.controllers | grep -q cpu; then
+#  exec systemd-run --user --slice-inherit --property=Delegate=yes --same-dir --scope -S
+#fi
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -205,7 +206,6 @@ plugins=(
   fancy-ctrl-z
   fd
   fzf
-  gpg-agent
   helm
   kubectl
   gradle
@@ -249,6 +249,9 @@ function _check_command() {
 }
 
 function command_not_found_handler() {
+  if [[ "$1" =~ ^cccccc ]]; then
+    return 0
+  fi
   local packages
   echo "Packages containing '$1' in name"
   paru -- $1
@@ -295,7 +298,7 @@ function ssh() {
 }
 
 function idea() {
-  systemd-run --user --unit=intellij-$(uuidgen) --setenv=_JAVA_AWT_WM_NONREPARENTING=1 -- intellij-idea-ultimate-edition "$(realpath ${1:-.})"
+  _open_project "$(realpath "${1:-.}")"
 }
 
 function diff() {
@@ -572,11 +575,13 @@ function knodes() {
 }
 
 function gop(){
-  local GOPASS_FLAG="-C"
+  local pass
+  pass="$(gopass ls --flat | /bin/grep -E -v 'kube.?config' | fzf --preview "gopass show {}" | xargs -r -i cat $XDG_RUNTIME_DIR/gopass/{})"
   if ! [ -t 1 ]; then
-      GOPASS_FLAG=""
+    echo -n "$pass"
+  else
+    echo -n "$pass" | clip
   fi
-  gopass ls --flat | /bin/grep -E -v 'kube.?config' | fzf --preview "gopass show {}" | xargs -r gopass show $GOPASS_FLAG
 }
 compdef _nop gop
 
@@ -593,7 +598,7 @@ compdef _nop kapply
 function cwatch () {
   local ns=$1
   local cluster=$2
-  watch -d --color -n 1 ~/projects/cluster-api/clusterctl describe cluster --show-conditions all --echo -n $ns $cluster
+  watch -w --color -n 1 clusterctl describe cluster --show-conditions all --echo -n $ns $cluster
 }
 function _cwatch() {
   _arguments "1: :($(kubectl get namespaces --no-headers -o custom-columns=:metadata.name))"
@@ -607,6 +612,7 @@ compdef _cwatch cwatch
 
 function kconfig() {
 	local CONFIG
+  local OPEN_RC
   local CONTEXT
   local query
   if [[ -z "$1" ]]; then
@@ -618,8 +624,13 @@ function kconfig() {
   fi
   CONFIG="$(gopass ls -flat | /bin/grep -E 'kube.?config' | fzf --query "$query" -1)"
 	if [[ "$?" == 0 ]]; then
-    echo $CONFIG > $XDG_RUNTIME_DIR/current_kubeconfig
-    export KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$CONFIG
+    echo "$CONFIG" > "$XDG_RUNTIME_DIR/current_kubeconfig"
+    export KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$CONFIG"
+    OPEN_RC="$(dirname "$XDG_RUNTIME_DIR/gopass/$CONFIG")/open-rc"
+    if [[ -f "$OPEN_RC" ]]; then
+      source "$OPEN_RC"
+    fi
+    ln -fs "$KUBECONFIG" "$XDG_CONFIG_HOME/kube/config"
 	fi
 }
 
@@ -865,6 +876,8 @@ reAlias code '--user-data-dir $XDG_DATA_HOME/vscode --extensions-dir $XDG_DATA_H
 
 alias -g A='| awk'
 alias -g B='| base64'
+alias -g U='| urlencode'
+alias -g UD='| urldecode'
 alias -g BD='B -d'
 alias -g C='| clip'
 alias -g G='| grep'
@@ -878,6 +891,7 @@ alias -g T='| tee'
 alias -g TD='T /dev/stderr'
 alias -g X='| xargs'
 alias -g Y='| yq'
+alias -g COUNT='| wc -l'
 nAlias wd 'while :; do .; sleep 0.1; clear; done'
 
 if [[ -f "$XDG_RUNTIME_DIR/current_kubeconfig" ]]; then

@@ -1,10 +1,11 @@
 # Maintainer Chris Werner Rau <aur@cwrau.io>
+# shellcheck disable=SC2034,SC2154
 
 tar -h --exclude=.idea -cf rootfs.tar -C rootfs .
 
 pkgname=linux-config
 pkgver=0.1.0
-pkgrel=12
+pkgrel=13
 pkgdesc='linux config'
 url="https://github.com/cwrau/linux-config"
 license=('GPL3')
@@ -79,7 +80,6 @@ depends=(
     gopls
     gotop-bin
     gradle
-    grub
     gvfs
     hadolint-bin
     helm
@@ -124,6 +124,7 @@ depends=(
     linux-zen
     linux-zen-headers
     lscolors-git
+    maim
     man-db
     man-pages
     matcha-gtk-theme
@@ -150,6 +151,7 @@ depends=(
     noto-fonts-extra
     nss-mdns
     nvidia-dkms
+    nvidia-prime
     nvtop
     ocl-icd
     oh-my-zsh-git
@@ -176,7 +178,6 @@ depends=(
     premid
     prettyping
     procs
-    proton-ge-custom-bin
     pv
     python-dynmen
     python-notify2
@@ -195,7 +196,6 @@ depends=(
     rocketchat-client-bin
     rofi-dmenu
     rofi-lbonn-wayland
-    scrot
     shfmt
     signal-desktop
     siji-git
@@ -216,7 +216,7 @@ depends=(
     systemd-resolvconf
     teams-insiders
     telegram-desktop
-    telepresence2
+    telepresence
     traceroute
     tree
     ttf-dejavu
