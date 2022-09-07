@@ -17,7 +17,7 @@ function dbus() {
       ;;
   esac
 
-  dbus-send --system --dest=org.$service --print-reply=literal /org/$service/hci0/$path org.freedesktop.DBus.Properties.Get string:org.$service.$object string:$field 2>/dev/null | awk '{print $3}' || echo -1
+  dbus-send --system --dest="org.$service" --print-reply=literal "/org/$service/hci0/$path" org.freedesktop.DBus.Properties.Get string:org.$service.$object string:$field 2>/dev/null | awk '{print $3}' || echo -1
 }
 
 function unlock() {
@@ -25,11 +25,11 @@ function unlock() {
   flock -u 5
 }
 
-LOCKDIR=$XDG_RUNTIME_DIR/bluetooth-battery
-mkdir -p $LOCKDIR
+LOCKDIR=$XDG_RUNTIME_DIR/polybar/bluetooth-battery
+mkdir -p "$LOCKDIR"
 
-exec 4<>$LOCKDIR/run-lock
-exec 5<>$LOCKDIR/message-lock
+exec 4<>"$LOCKDIR/run-lock"
+exec 5<>"$LOCKDIR/message-lock"
 trap unlock EXIT
 
 if flock -n 4; then
@@ -37,13 +37,13 @@ if flock -n 4; then
   if bluetoothctl show | grep -q "Powered: yes"; then
     echo -n "%{F#2193ff}"
     if bluetoothctl info | grep -q 'Device'; then
-      for mac in $(bluetoothctl paired-devices | awk '{print $2}'); do
-        info="$(bluetoothctl info $mac)"
+      for mac in $(bluetoothctl devices Paired | awk '{print $2}'); do
+        info="$(bluetoothctl info "$mac")"
         if grep -q 'Connected: yes' <<<"$info"; then
           battery=
           alias="$(grep 'Alias' <<<"$info" | cut -d ' ' -f 2-)"
           if grep -q '0000180f-0000-1000-8000-00805f9b34fb' <<<"$info"; then # Battery Service
-            battery=$(dbus bluez $mac)
+            battery=$(dbus bluez "$mac")
           elif grep -q '0000111e-0000-1000-8000-00805f9b34fb' <<<"$info"; then # Handsfree
             battery=$(echo "from bluetooth_battery import BatteryStateQuerier; print(int(BatteryStateQuerier(\"$mac\")))" | python 2>/dev/null)
           #elif grep -q '00001200-0000-1000-8000-00805f9b34fb' <<<"$info"; then # PnP Information
@@ -63,9 +63,9 @@ if flock -n 4; then
     fi
   else
     echo ""
-  fi | tee $LOCKDIR/message
+  fi | tee "$LOCKDIR/message"
 else
   flock -s 5
-  cat $LOCKDIR/message
+  cat "$LOCKDIR/message"
 fi
 

@@ -1,5 +1,5 @@
 [Unit]
-Description=%I Google Chrome
+Description=Google Chrome for %I
 After=graphical-session.target
 Requires=graphical-session.target
 

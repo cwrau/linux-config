@@ -2,7 +2,7 @@
 Description=Work applications
 Requires=work.target
 After=graphical-session.target
-Wants=work.target rocketchat.service google-chrome@work.service gopass-fuse.service
+Wants=work.target rocketchat.service google-chrome@work.service rss.timer stop-rss.timer
 
 [Install]
 WantedBy=graphical-session.target

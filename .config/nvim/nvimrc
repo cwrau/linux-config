@@ -31,6 +31,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'stevearc/vim-arduino'
 Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
+Plug 'sedm0784/vim-you-autocorrect'
 " Plug 'sheerun/vim-polyglot'
 " au BufWrite * :Autoformat " Autoformat destroys yaml's
 noremap = :Autoformat<CR>
@@ -94,8 +95,13 @@ set path+=**
 " Enable autocompletion:
 set wildmode=longest,list,full
 " Spell-check set to <leader>o, 'o' for 'orthography':
-map <F6>d :setlocal spell! spelllang=de<CR>
-map <F6>e :setlocal spell! spelllang=en_us<CR>
+set spelllang=de,en
+set spellsuggest=best,9
+augroup spellFiles
+  autocmd!
+  autocmd FileType markdown setlocal spell
+  autocmd FileType markdown setlocal textwidth=90
+augroup END
 
 " preferences
 " j/k will move virtual lines (lines that wrap)

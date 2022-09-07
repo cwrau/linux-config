@@ -1,0 +1,13 @@
+[Unit]
+Description=EasyEffects
+After=graphical-session.target pipewire.service
+Requires=graphical-session.target pipewire.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/easyeffects --gapplication-service
+RestartSec=0
+Restart=always
+
+[Install]
+WantedBy=graphical-session.target

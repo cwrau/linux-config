@@ -1,0 +1,10 @@
+[Unit]
+Description=Start RSS Feeder
+PartOf=work.target
+
+[Timer]
+OnCalendar=Thu 09:00
+Persistent=true
+
+[Install]
+WantedBy=work.target

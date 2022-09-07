@@ -2,9 +2,10 @@
 
 set -e -o pipefail
 
-eval $(cat $XDG_CONFIG_HOME/polybar/colors.ini | rg '^[a-z]+ = #[0-9a-fA-F]+$' | tr -d ' ' | sed -r 's#^#color_#g')
+# shellcheck source=/dev/null
+source "$XDG_CONFIG_HOME/polybar/scripts/parse_colors.sh"
 
-cd $HOME &> /dev/null
+cd "$HOME" &> /dev/null
 
 function update() {
   untracked=$(git ls-files -o --exclude-standard | wc -l)
@@ -13,6 +14,7 @@ function update() {
   unpushed=$(git log --branches --not --remotes --format=%H | wc -l)
 
   if [[ ${untracked:-0} -gt 0 ]] || [[ ${unadded:-0} -gt 0 ]] || [[ ${uncommitted:-0} -gt 0 ]] || [[ ${unpushed:-0} -gt 0 ]]; then
+    # shellcheck disable=SC2154
     echo -n "%{F$color_red}"
   fi
 
@@ -45,15 +47,14 @@ function update() {
 }
 
 update
-while :
-do
+while :; do
   current_time=$(date +%s.%N)
   next_time=$(date -d "+ 10 seconds" +%s.%N)
-  target_time=$(date -d @$( echo "$next_time - ($next_time % 10 )" | bc) +%s.%N)
+  target_time=$(date -d @"$( echo "$next_time - ($next_time % 10 )" | bc)" +%s.%N)
 
   sleep_seconds=$(echo "$target_time - $current_time" | bc)
 
-  sleep $sleep_seconds
+  sleep "$sleep_seconds"
 
   update
 done

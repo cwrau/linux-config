@@ -1,5 +1,6 @@
 /.mono/
 /0ad/
+/Code Industry/Master PDF Editor.conf
 /Google Play Music Desktop Player/
 /JetBrains/
 /Loop_Hero/
@@ -12,24 +13,32 @@
 /Signal/
 /Slack/
 /Unknown Organization/AusweisApp2.conf
+/Yubico/YKPersonalization.conf
 /autostart/
 /cef_user_data/
+/cluster-api/version.yaml
 /cni/net.d/cni.lock
 /configstore/
 /deluge/
 /discord/
+/dlv/config.yml
+/easyeffects_preset
 /fah/
 /freerdp/
 /google-chrome-*/
 /google-chrome/
 /google-cloud-tools-java/
 /hexchat/
+/ibus/
 /java/
+/kube/
 /kustomize/
 /lab.hcl
 /lab/
 /menus/
 /mitmproxy/
+/obs-studio/logs/
+/obs-studio/profiler_data/
 /pavucontrol.ini
 /pipewire/
 /protonfixes/
@@ -41,5 +50,6 @@
 /user-dirs.dirs
 /vlc/
 /whatsapp-nativefier-*/
+/youtube-music
 /youtube-music-desktop-app/
 /zoomus.conf

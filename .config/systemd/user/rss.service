@@ -1,0 +1,18 @@
+[Unit]
+Description=Work RSS
+Requires=graphical-session.target network-online.service
+Requisite=work.target
+After=graphical-session.target network-online.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/gfeeds
+RestartSec=0
+Restart=always
+
+# disallow writing to /usr, /bin, /sbin, ...
+ProtectSystem=yes
+# more paranoid security settings
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+

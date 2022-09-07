@@ -180,12 +180,13 @@ mode $Power {
 bindsym $super+period $exid sh -c 'splatmoji copypaste'
 bindsym $super+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
 bindsym $super+m $exid morse
-bindsym $super+p $exid sh -c 'fd --no-ignore-vcs --hidden --type d --print0 --full-path "^$HOME/(work|projects/).*/.git\$" -X stat -c "%X:%n" | sort --reverse | awk --field-separator : "{print \\$2}" | sed -r "s#./(.+)/.git#\1#g" | dmenu -i --no-custom -p Project | xargs --no-run-if-empty realpath | xargs --no-run-if-empty -i systemd-cat --stderr-priority=warning --identifier=intellij intellij-idea-ultimate-edition {}'
+bindsym $super+p $exid _open_project
 
-# Pulse Audio controls
+# Audio controls
 bindsym XF86AudioRaiseVolume $exid pactl set-sink-volume @DEFAULT_SINK@ +5%; $exid pactl set-sink-mute @DEFAULT_SINK@ 0
 bindsym XF86AudioLowerVolume $exid pactl set-sink-volume @DEFAULT_SINK@ -5%
 bindsym XF86AudioMute $exid pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym Shift+XF86AudioMute $exid pactl set-source-mute @DEFAULT_SOURCE@ toggle
 bindsym Shift+XF86AudioLowerVolume $exid pctl volume 0.1-
 bindsym Shift+XF86AudioRaiseVolume $exid pctl volume 0.1+
 
@@ -235,22 +236,27 @@ bindsym $super+Ctrl+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i'
 
 # Screenshots
 # Selection > Clipboard
-bindsym Print --release $exid "scrot -s /tmp/screenshot-$(date +%FT%T.%2N%z).png -e 'xclip -selection clipboard -t image/png < $f'"
+bindsym Print --release $exid "screenshot selection clipboard"
 # Full Screen > Clipboard
-bindsym Shift+Print $exid "scrot /tmp/screenshot-$(date +%FT%T.%2N%z).png -e 'xclip -selection clipboard -t image/png < $f'"
+bindsym Shift+Print $exid "screenshot full clipboard"
 # Selection > File
-bindsym Ctrl+Print --release $exid "scrot -s $HOME/Screenshots/$(date +%FT%T.%2N%z).png"
+bindsym Ctrl+Print --release $exid "screenshot selection $HOME/Screenshots/$(date +%FT%T.%2N%z).png"
 # Full Screen > File
-bindsym Ctrl+Shift+Print $exid "scrot $HOME/Screenshots/$(date +%FT%T.%2N%z).png"
+bindsym Ctrl+Shift+Print $exid "screenshot full $HOME/Screenshots/$(date +%FT%T.%2N%z).png"
 
+# Browser stuff
 bindsym $super+c exec "exo-open --launch WebBrowser"
 bindsym $super+Shift+c exec "exo-open --launch WebBrowser --incognito"
-bindsym $super+g exec sh -c 'dmenu -p google | tr " " "+" | xargs -r -I{} $BROWSER --new-window https://google.com/search\?q\={}'
+bindsym $super+g exec bash -c 'clipboard="$(xclip -o)" && [[ "$clipboard" =~ "https?://" ]] && $BROWSER --new-window "$clipboard" || dmenu -p google | tr " " "+" | xargs -r -I{} $BROWSER --new-window https://google.com/search\?q\={}'
+
+# Gamemode
+bindsym $super+shift+g exec systemctl --user stop gamemode.service
 
 for_window [class="java-lang-Thread" instance="java-lang-Thread"] floating enable
 for_window [class="jetbrains-.*" title="Debug"] floating disable
 for_window [class="jetbrains-.*" title="win0"] floating enable
 for_window [class="jetbrains-.*" title="Welcome to IntelliJ IDEA"] floating enable
+for_window [class="jetbrains-.*" title="splash"] floating enable
 
 for_window [class="Kazam"] floating enable
 

@@ -1,14 +1,15 @@
 [Unit]
 Description=Discord
 PartOf=messengers.target
-Requires=graphical-session.target network-online.service
-After=graphical-session.target network-online.service
+Requires=graphical-session.target network-online.service pipewire.service
+After=graphical-session.target network-online.service pipewire.service
 
 [Service]
 Type=simple
 ExecStart=/usr/bin/discord
 RestartSec=0
 Restart=always
+MemoryHigh=1.5G
 MemoryMax=2G
 CPUQuota=200%
 Slice=messengers.slice

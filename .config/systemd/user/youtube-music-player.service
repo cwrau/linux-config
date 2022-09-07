@@ -1,7 +1,7 @@
 [Unit]
 Description=YouTube Music Player
-After=graphical-session.target network-online.service pipewire-pulse.socket
-Requires=graphical-session.target network-online.service pipewire-pulse.socket
+After=graphical-session.target network-online.service pipewire.service
+Requires=graphical-session.target network-online.service pipewire.service
 
 [Service]
 Type=simple

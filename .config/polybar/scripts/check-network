@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-count=0
 disconnected=""
 disconnected2=""
 disconnected3=""

@@ -1,0 +1,10 @@
+[Unit]
+Description=Stop RSS Feeder
+PartOf=work.target
+
+[Timer]
+OnCalendar=Thu 12:30
+Persistent=true
+
+[Install]
+WantedBy=graphical-session.target
