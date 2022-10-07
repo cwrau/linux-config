@@ -5,7 +5,7 @@ tar -h --exclude=.idea -cf rootfs.tar -C rootfs .
 
 pkgname=linux-config
 pkgver=0.1.0
-pkgrel=13
+pkgrel=14
 pkgdesc='linux config'
 url="https://github.com/cwrau/linux-config"
 license=('GPL3')
@@ -50,7 +50,9 @@ depends=(
     dockerfile-language-server-bin
     dolphin-emu
     dunst
+    dyff-bin
     earlyoom
+    easyeffects
     edk2-ovmf
     efibootmgr
     exa
@@ -65,7 +67,9 @@ depends=(
     freetype2
     fwupd
     fzf
+    gfeeds
     git
+    git-delta
     github-cli
     git-secret
     glab
@@ -78,7 +82,6 @@ depends=(
     gopass-fuse
     gopass-jsonapi
     gopls
-    gotop-bin
     gradle
     gvfs
     hadolint-bin
@@ -196,6 +199,7 @@ depends=(
     rocketchat-client-bin
     rofi-dmenu
     rofi-lbonn-wayland
+    shellcheck
     shfmt
     signal-desktop
     siji-git
@@ -204,6 +208,7 @@ depends=(
     slurp
     snap-pac
     socat
+    sof-firmware
     sops
     splatmoji-git
     sshuttle
@@ -245,7 +250,6 @@ depends=(
     ytmdesktop
     yubico-pam
     zip
-    zoom
     zsh
     zsh-autosuggestions
     zsh-completions
