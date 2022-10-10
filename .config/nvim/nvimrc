@@ -1,49 +1,33 @@
+set runtimepath+=/usr/share/vim/vimfiles
 call plug#begin('$XDG_DATA_HOME/nvim/plugins')
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' } " autocomplete
-Plug 'ms-jpq/chadtree', {'branch': 'chad', 'do': ':UpdateRemotePlugins'}
-Plug 'vim-syntastic/syntastic' " syntax check for most languages
+"Plug 'vim-syntastic/syntastic' " syntax check for most languages
 Plug 'vim-airline/vim-airline' " better monitoring
-Plug 'airblade/vim-gitgutter'
 Plug 'mhinz/vim-signify'
-Plug 'tpope/vim-fugitive'
 Plug 'jiangmiao/auto-pairs' " add eg. (->)
-" Plug 'christoomey/vim-tmux-navigator' " better tmux support
 Plug 'kristijanhusak/vim-hybrid-material' " Dark Theme
 Plug 'tpope/vim-surround' " Easy add matching parentheses
-" Plug 'ctrlpvim/ctrlp.vim' " use Fuzzy Finder to switch between Files (C-p)
-" Plug 'PotatoesMaster/i3-vim-syntax' " for syntax in i3 config file
-" Plug 'easymotion/vim-easymotion'
-" Plug 'mxw/vim-jsx'
-" Plug 'w0rp/ale'
-" Plug 'udalov/kotlin-vim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'towolf/vim-helm'
 Plug 'farmergreg/vim-lastplace'
 Plug 'Chiel92/vim-autoformat'
 Plug 'christoomey/vim-system-copy'
 Plug 'pgdouyon/vim-evanesco'
-" Plug 'Zaptic/elm-vim'
 Plug 'mhinz/vim-startify'
-Plug 'PProvost/vim-ps1'
 Plug 'mechatroner/rainbow_csv'
-Plug '/usr/share/vim/vimfiles/plugin/fzf.vim'
-Plug 'junegunn/fzf.vim'
 Plug 'stevearc/vim-arduino'
-Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
 Plug 'sedm0784/vim-you-autocorrect'
-" Plug 'sheerun/vim-polyglot'
-" au BufWrite * :Autoformat " Autoformat destroys yaml's
 noremap = :Autoformat<CR>
 Plug 'williamboman/nvim-lsp-installer'
 Plug 'neovim/nvim-lspconfig'
 
-let g:syntastic_dockerfile_checkers = ['hadolint']
-let g:syntastic_yaml_checkers = ['yamllint']
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_jump = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
+"let g:syntastic_dockerfile_checkers = ['hadolint']
+"let g:syntastic_yaml_checkers = ['yamllint']
+"let g:syntastic_always_populate_loc_list = 1
+"let g:syntastic_auto_jump = 1
+"let g:syntastic_check_on_open = 1
+"let g:syntastic_check_on_wq = 0
 
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 let g:mkdp_browser = 'google-chrome-stable'
@@ -69,26 +53,28 @@ let g:mkdp_browser = 'google-chrome-stable'
 " call PlugInstall to install new plugins
 call plug#end()
 
+filetype plugin indent on
+set backup
+set backupdir=$XDG_CACHE_HOME/nvim/backupdir
+set directory=$XDG_CACHE_HOME/nvim/swapdir
+set expandtab
+set hlsearch
+set ignorecase
+set inccommand=nosplit
+set incsearch
 set modeline
 set modelines=5
-" basics
-filetype plugin indent on
+set mouse=
+set nowrap
 set number
 set relativenumber
-set incsearch
-set ignorecase
-set smartcase
-set hlsearch
-set tabstop=2
-set softtabstop=0
 set shiftwidth=2
-set expandtab
-set nobackup
-set noswapfile
-set nowrap
+set smartcase
+set softtabstop=0
+set swapfile
+set tabstop=2
+set undodir=$XDG_CACHE_HOME/nvim/undodir
 set undofile
-set undodir=$XDG_CACHE_HOME/nvim-undodir
-set inccommand=nosplit
 
 " fuzzy finding with vim
 set path+=**
@@ -140,7 +126,6 @@ let g:enable_bold_font = 1
 let g:enable_italic_font = 1
 colorscheme hybrid_material
 
-map <C-n> :CHADopen<CR>
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite
 
 " jsx
