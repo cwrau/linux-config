@@ -7,8 +7,8 @@ Requires=graphical-session.target
 Type=simple
 ExecStartPre=-/usr/bin/steam-tweaks
 ExecStart=/usr/bin/steam
-MemoryMax=10G
-TasksMax=400
+MemoryMax=90%
+TasksMax=800
 RestartSec=0
 Restart=always
 

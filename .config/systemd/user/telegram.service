@@ -17,4 +17,3 @@ ProtectSystem=yes
 NoNewPrivileges=yes
 ProtectKernelTunables=yes
 ProtectControlGroups=yes
-

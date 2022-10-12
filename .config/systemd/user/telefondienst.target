@@ -1,0 +1,9 @@
+[Unit]
+Description=Telefondienst applications
+Requires=graphical-session.target network-online.service
+Requisite=work.target
+After=graphical-session.target network-online.service
+Wants=rss.service google-chrome@telefondienst.service
+
+[Install]
+WantedBy=graphical-session.target

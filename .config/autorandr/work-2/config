@@ -1,7 +1,3 @@
-output DP-4.1
-off
-output DP-4.2
-off
 output DP-0
 off
 output DP-1
@@ -26,10 +22,12 @@ output DP-1-4
 off
 output DP-1-5
 off
+output DP-4
+mode 2560x1440
+pos 0x0
+primary
+rate 59.95
 output eDP-1-1
 mode 1920x1080
-pos 0x0
-output DP-4
-mode 1920x1080
-pos 1920x0
-primary
+pos 2560x0
+rate 59.96

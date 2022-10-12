@@ -16,4 +16,3 @@ ProtectSystem=yes
 # more paranoid security settings
 ProtectKernelTunables=yes
 ProtectControlGroups=yes
-

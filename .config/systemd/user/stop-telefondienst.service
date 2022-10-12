@@ -1,9 +1,9 @@
 [Unit]
-Description=Stop RSS Feeder
+Description=Stop Telefondienst
 
 [Service]
 Type=oneshot
-ExecStart=-/usr/bin/systemctl --user stop rss.service
+ExecStart=/usr/bin/systemctl --user stop telefondienst.target
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=yes

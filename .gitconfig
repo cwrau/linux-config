@@ -1,5 +1,6 @@
 [core]
   autocrlf = input
+  pager = delta
 [user]
   signingkey = 6ADCBD3FF206F341D2CF8E2C49D1B5ACCF53CA1C
   email = cwrau@cwrcoding.com
@@ -36,13 +37,18 @@
   autoSetupMerge = true
 [credential]
   helper = store
+[diff "dyff"]
+	command = "dyff_between() { dyff --color on between --omit-header \"$2\" \"$5\"; }; dyff_between"
 [pager]
   diff = diff-so-fancy | less --tabs=1,5 -RFS
   show = diff-so-fancy | less --tabs=1,5 -RFS
 [interactive]
   diffFilter = diff-so-fancy --patch
-[add "interactive"]
-	useBuiltin = false
+  diffFilter = delta --color-only
+[merge]
+  conflictstyle = diff3
+[diff]
+  colorMoved = default
 [color]
   ui = true
 [color "diff-highlight"]

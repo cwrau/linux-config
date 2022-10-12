@@ -1,0 +1,12 @@
+plugin:
+  node-shell:
+    shortCut: s
+    confirm: false
+    description: Start shell in node
+    scopes:
+      - nodes
+    command: kubectl
+    background: false
+    args:
+      - node-shell
+      - $NAME

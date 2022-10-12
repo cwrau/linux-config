@@ -1,5 +1,4 @@
 # Maintainer Chris Werner Rau <aur@cwrau.io>
-# shellcheck disable=SC2034,SC2154
 
 tar -h --exclude=.idea -cf rootfs.tar -C rootfs .
 
@@ -38,7 +37,7 @@ depends=(
     breeze-hacked-cursor-theme
     btrfs-progs
     clipmenu
-    cloudflared-bin
+    cloudflared
     clusterctl-bin
     curl
     deluge-gtk

@@ -42,7 +42,8 @@ if sudo informant check; then
       if ! sudo systemctl is-active updates-run; then
         notification-send "$XDG_RUNTIME_DIR/updates-notification" -t 10000 -u low "$UPDATES | $AUR_UPDATES" "$(paru -Qu --devel | grep -v ignored | awk '{print $1}' | sed -z '$ s/\n$//' | tr '\n' ',')"
 
-        if systemd-inhibit --why Updates --mode block --what shutdown sudo systemd-run --uid "$USER" --unit updates-run --wait --nice 19 --property=CPUWeight=1 -- paru -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall; then
+        mapfile -t environment < <(awk 'BEGIN{for(v in ENVIRON) print "--setenv=" v}')
+        if systemd-inhibit --why Updates --mode block --what shutdown sudo -E systemd-run --uid "$USER" --unit updates-run --wait --nice 19 --property=CPUWeight=1 ${environment[@]} -- paru -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall; then
           notification-send "$XDG_RUNTIME_DIR/updates-finished-notification" -t 10000 -u normal 'Updates done!'
         else
           if [[ "$(notification-send "$XDG_RUNTIME_DIR/updates-finished-notification" -t 3590000 -u critical 'Updates failed!' -A Show,Show)" == "Show" ]]; then

@@ -7,13 +7,13 @@ codeEditor="intellij-idea-ultimate-edition"
 if [[ -n "$1" ]] && [[ -d "$1" ]]; then
   project=$(realpath "$1")
 else
-  project="$(fd --no-ignore-vcs --hidden --type directory --full-path "^$HOME/(work|projects/).*/\.(git|idea)\$" "$HOME" --exec-batch stat --printf "%X:%n\0" \
-    | sort --zero-terminated --reverse --field-separator : --key 1 \
-    | cut --zero-terminated --delimiter : --fields 2- \
-    | xargs --null --no-run-if-empty -- dirname --zero \
-    | xargs --null --no-run-if-empty -- realpath --zero --relative-to "$HOME" \
-    | awk -v RS='\0' '!x[$0]++' \
-    | dmenu -sep '\0' -i --no-custom -p Project)"
+  project="$(fd --no-ignore-vcs --hidden --type directory --full-path "^$HOME/(work|projects/).*/\.(git|idea)\$" "$HOME" --exec-batch stat --format "%X:%n" \
+    | sort --reverse --field-separator : --key 1 \
+    | cut --delimiter : --fields 2- \
+    | xargs --no-run-if-empty -- dirname \
+    | xargs --no-run-if-empty -- realpath --relative-to "$HOME" \
+    | awk '!x[$0]++' \
+    | dmenu -sync -i --no-custom -p Project)"
   # shellcheck disable=SC2181
   if [ "$?" != 0 ]; then
     exit 1

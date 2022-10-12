@@ -1,10 +1,11 @@
 [Unit]
-Description=Start RSS Feeder
+Description=Start Telefondienst
 PartOf=work.target
 
 [Timer]
 OnCalendar=Thu 09:00
 Persistent=true
+Unit=telefondienst.target
 
 [Install]
 WantedBy=work.target

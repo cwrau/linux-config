@@ -10,6 +10,7 @@
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 
 set $super Mod4
+set $alt Mod1
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -39,7 +40,7 @@ bindsym $super+Return $exid gnome-terminal
 bindsym $super+Shift+q kill
 
 # to prevent chrome from closing itself
-bindsym $alt+F4 exec --no-startup-id echo
+bindsym $alt+F4 exec --no-startup-id true
 
 set $exid exec --no-startup-id
 set $exaid exec_always --no-startup-id
@@ -145,6 +146,7 @@ mode "resize" {
 bindsym $super+r mode "resize"
 
 default_border pixel 1
+for_window [class=".*"] border pixel 1
 hide_edge_borders both
 for_window [class="jetbrains-toolbox"] floating enable
 for_window [class="steam_app.*"] floating enable
@@ -187,6 +189,7 @@ bindsym XF86AudioRaiseVolume $exid pactl set-sink-volume @DEFAULT_SINK@ +5%; $ex
 bindsym XF86AudioLowerVolume $exid pactl set-sink-volume @DEFAULT_SINK@ -5%
 bindsym XF86AudioMute $exid pactl set-sink-mute @DEFAULT_SINK@ toggle
 bindsym Shift+XF86AudioMute $exid pactl set-source-mute @DEFAULT_SOURCE@ toggle
+bindsym XF86AudioMicMute $exid pactl set-source-mute @DEFAULT_SOURCE@ toggle
 bindsym Shift+XF86AudioLowerVolume $exid pctl volume 0.1-
 bindsym Shift+XF86AudioRaiseVolume $exid pctl volume 0.1+
 
@@ -216,6 +219,8 @@ bindsym $super+o $exid audio_sink
 # Display Manager
 bindsym $super+Shift+p $exid rofi-randr
 bindsym $super+Ctrl+p $exid autorandr_dmenu
+bindsym Shift+XF86Display $exid rofi-randr
+bindsym XF86Display $exid autorandr_dmenu
 #bindsym $super+p $exid /usr/bin/lxrandr
 bindsym $super+b $exid bluetooth_dmenu
 
@@ -238,11 +243,15 @@ bindsym $super+Ctrl+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i'
 # Selection > Clipboard
 bindsym Print --release $exid "screenshot selection clipboard"
 # Full Screen > Clipboard
-bindsym Shift+Print $exid "screenshot full clipboard"
+bindsym Shift+Print --release $exid "screenshot full clipboard"
+# Window > Clipboard
+bindsym Shift+$super+Print --release $exid "screenshot window clipboard"
 # Selection > File
-bindsym Ctrl+Print --release $exid "screenshot selection $HOME/Screenshots/$(date +%FT%T.%2N%z).png"
+bindsym Ctrl+Print --release $exid "screenshot selection --"
 # Full Screen > File
-bindsym Ctrl+Shift+Print $exid "screenshot full $HOME/Screenshots/$(date +%FT%T.%2N%z).png"
+bindsym Ctrl+Shift+Print --release $exid "screenshot full --"
+# Window > File
+bindsym Ctrl+Shift+$super+Print --release $exid "screenshot window --"
 
 # Browser stuff
 bindsym $super+c exec "exo-open --launch WebBrowser"
@@ -250,19 +259,15 @@ bindsym $super+Shift+c exec "exo-open --launch WebBrowser --incognito"
 bindsym $super+g exec bash -c 'clipboard="$(xclip -o)" && [[ "$clipboard" =~ "https?://" ]] && $BROWSER --new-window "$clipboard" || dmenu -p google | tr " " "+" | xargs -r -I{} $BROWSER --new-window https://google.com/search\?q\={}'
 
 # Gamemode
-bindsym $super+shift+g exec systemctl --user stop gamemode.service
+bindsym $super+shift+g $exid bash -c 'systemctl --user is-active gamemode.service && systemctl --user stop gamemode.service || systemctl --user start gamemode.service'
 
 for_window [class="java-lang-Thread" instance="java-lang-Thread"] floating enable
-for_window [class="jetbrains-.*" title="Debug"] floating disable
+for_window [class="jetbrains-.*" title="Debug"] floating enable
 for_window [class="jetbrains-.*" title="win0"] floating enable
 for_window [class="jetbrains-.*" title="Welcome to IntelliJ IDEA"] floating enable
 for_window [class="jetbrains-.*" title="splash"] floating enable
 
-for_window [class="Kazam"] floating enable
-
 #new_window none
-
-set $alt Mod1
 
 bindsym $super+Page_Up workspace prev
 bindsym $super+Page_Down workspace next
@@ -273,6 +278,12 @@ assign [class="Thunderbird"] 1
 for_window [class="Thunderbird"] move to workspace 1
 assign [class="work"] 1
 for_window [class="work"] move to workspace 1
+assign [class="telefondienst"] 1
+for_window [class="telefondienst"] move to workspace 1
+assign [class="daily"] 1
+for_window [class="daily"] move to workspace 1
+assign [class="Gfeeds"] 1
+for_window [class="Gfeeds"] move to workspace 1
 
 bindsym $super+2 workspace 2
 bindsym $super+3 workspace 3

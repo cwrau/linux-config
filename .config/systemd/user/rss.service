@@ -1,7 +1,7 @@
 [Unit]
 Description=Work RSS
 Requires=graphical-session.target network-online.service
-Requisite=work.target
+PartOf=telefondienst.target
 After=graphical-session.target network-online.service
 
 [Service]

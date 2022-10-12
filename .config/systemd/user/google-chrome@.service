@@ -5,7 +5,8 @@ Requires=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/google-chrome-stable --user-data-dir=%E/google-chrome-%i --class=%i
+Environment=EXTRA_ARGS=
+ExecStart=/usr/bin/google-chrome-stable --user-data-dir=%E/google-chrome-%i --class=%i $EXTRA_ARGS
 RestartSec=0
 Restart=always
 TimeoutStopSec=5

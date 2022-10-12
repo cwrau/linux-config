@@ -230,8 +230,26 @@ repositories:
   certFile: ""
   insecure_skip_tls_verify: false
   keyFile: ""
+  name: cetic
+  pass_credentials_all: false
+  password: ""
+  url: https://cetic.github.io/helm-charts
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
   name: bitnami
   pass_credentials_all: false
   password: ""
   url: https://charts.bitnami.com
+  username: ""
+- caFile: ""
+  certFile: ""
+  insecure_skip_tls_verify: false
+  keyFile: ""
+  name: wiremind
+  pass_credentials_all: false
+  password: ""
+  url: https://wiremind.github.io/wiremind-helm-charts
   username: ""

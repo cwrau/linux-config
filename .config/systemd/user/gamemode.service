@@ -1,10 +1,12 @@
 [Unit]
 Description=Gaming Mode
+Wants=steam.service
+Conflicts=work.target
 
 [Service]
 Type=oneshot
-Environment="SERVICES=feh.service polybar.target glava.target picom.service"
-ExecStart=/usr/bin/systemctl --user stop $SERVICES work.target
+Environment="SERVICES=glava.target picom.service"
+ExecStart=/usr/bin/systemctl --user stop $SERVICES
 RemainAfterExit=yes
 ExecStop=/usr/bin/systemctl --user start $SERVICES
 RestartSec=0

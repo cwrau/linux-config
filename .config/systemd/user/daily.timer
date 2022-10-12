@@ -1,0 +1,11 @@
+[Unit]
+Description=Start Daily
+PartOf=work.target
+
+[Timer]
+OnCalendar=Mon..Fri, 09:30
+Persistent=true
+Unit=google-chrome@daily.service
+
+[Install]
+WantedBy=work.target

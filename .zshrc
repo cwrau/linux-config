@@ -17,7 +17,7 @@ export XDG_SCREENSHOT_DIR="$HOME/Screenshots"
 export XDG_TEMPLATES_DIR="$HOME/Downloads"
 export XDG_VIDEOS_DIR="$HOME/Downloads"
 
-declare -x | grep ^XDG | sed -r 's#=#="#; s#$#"#' > $XDG_CONFIG_HOME/user-dirs.dirs
+declare -x | grep -E '^XDG_.+_DIR=.+$' | sed -r 's#=#="#; s#$#"#' > $XDG_CONFIG_HOME/user-dirs.dirs
 
 export ADB_VENDOR_KEY="$XDG_CONFIG_HOME/android"
 export ANDROID_AVD_HOME="$XDG_DATA_HOME/android"
@@ -44,6 +44,7 @@ export SONAR_USER_HOME="$XDG_DATA_HOME/sonarlint"
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
 export STACK_ROOT="$XDG_CONFIG_HOME/stack"
 export TALOSCONFIG="$XDG_CONFIG_HOME/talos/config.yaml"
+export WINEPREFIX="$XDG_DATA_HOME/wine"
 export XAUTHORITY="$XDG_CACHE_HOME/x11/authority"
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
 
@@ -56,7 +57,7 @@ export FZF_CTRL_T_OPTS="--preview 'bat --color=always --pager=never -p {} | head
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
 export GRADLE_OPTS=-Dorg.gradle.jvmargs=-Xmx1G
 export HISTSIZE=9223372036854775807
-export PAGER=slit
+export PAGER=less
 export SAVEHIST=9223372036854775807
 export SDL_AUDIODRIVER="pulse"
 export SECRETS_EXTENSION=".gpg"
@@ -369,12 +370,20 @@ function _hr_getReleaseName() {
 }
 
 function _hr_git() {
-  local gitUrl="$1"
-  local gitRef="$2"
-  local gitPath="$3"
-  local namespace="$4"
-  local releaseName="$5"
-  local values="$6"
+  local subCommand="$1"
+  local commands=()
+  local gitUrl="$2"
+  local gitRef="$3"
+  local gitPath="$4"
+  local namespace="$5"
+  local releaseName="$6"
+  local values="$7"
+
+  if [[ "$subCommand" = "template" ]]; then
+    commands+=("template")
+  elif [[ "$subCommand" = "diff" ]]; then
+    commands+=("diff" "upgrade" "--show-secrets" "--color")
+  fi
 
   rm -rf /tmp/helm-chart
   (
@@ -384,40 +393,75 @@ function _hr_git() {
   ) > /dev/null
 
   helm dependency build "/tmp/helm-chart/$gitPath" > /dev/null
-  helm template --namespace $namespace $releaseName "/tmp/helm-chart/$gitPath" --values <(<<< "$values") ${@:7}
+  helm "${commands[@]}" --namespace $namespace $releaseName "/tmp/helm-chart/$gitPath" --values <(<<< "$values") ${@:8}
   rm -rf /tmp/helm-chart
 }
 
-function hr() {
+function helmrelease() {
+  local subCommand="$1"
+  shift
+  local commands=()
   local namespace
   local releaseName
   local helmReleaseYaml
+  local numberOfHelmReleases
   local values
   local index=0
   local sourceParameter
   local yaml
-  if [ "$1" = "-" -o "$1" = "" ]; then
-    yaml=$(cat)
-  else
-    yaml=$(cat "$1")
+  if [[ "$subCommand" = "template" ]]; then
+    commands+=("template")
+  elif [[ "$subCommand" = "diff" ]]; then
+    commands+=("diff" "upgrade" "--show-secrets" "--color" "--output=dyff")
   fi
 
-  if [[ "$2" =~ -[0-9]+ ]]; then
-    index="$2"
+  if [[ "$1" = "-" ]]; then
+    yaml=$(cat)
     shift
-    1="$oldOne"
-  elif ! [[ -z "$2" ]]; then
-    sourceParameter="$2"
+  elif [[ "$1" = "" ]]; then
+    yaml=$(cat)
+  elif [[ -f "$1" ]]; then
+    yaml=$(cat "$1")
     shift
-    1="$oldOne"
   fi
+
+  if [[ "$1" =~ ^-[0-9]+$ ]]; then
+    index="${1/-/}"
+    shift
+  elif [[ "$1" = "-ALL" ]]; then
+    index=ALL
+    shift
+  elif ! [[ -z "$1" ]]; then
+    sourceParameter="$1"
+    shift
+  fi
+
+  numberOfHelmReleases=$(<<< "$yaml" | yq -ers '[.[] | select(.kind == "HelmRelease")] | length')
+  if [[ "$numberOfHelmReleases" -lt 1 ]]; then
+    echo "There are no HelmReleases in the input" > /dev/stderr
+    return 1
+  elif [[ "$numberOfHelmReleases" -gt 1 ]] && [[ "$index" = "ALL" ]]; then
+    <<<"$yaml" | yq -erys '.[] | select(.kind != "HelmRelease") | select(.)' \
+      | if [[ "$subCommand" = "template" ]]; then
+          cat -
+        elif [[ "$subCommand" = "diff" ]]; then
+          kubectl diff -f - || true
+        fi
+    for index in {0..$((numberOfHelmReleases - 1))}; do
+      if [[ "$subCommand" = "template" ]]; then
+        echo ---
+      fi
+      <<<"$yaml" | yq -erys '([.[] | select(.kind == "HelmRelease")]['"$index"']),(.[] | select(.kind | IN(["GitRepository", "HelmRepository"][])))' | helmrelease "$subCommand" -
+    done
+  fi
+
   helmReleaseYaml=$(_hr_getYaml "$yaml" "$index" HelmRelease)
   [ "$?" -ne 0 ] && return 1
   namespace=$(_hr_getNamespace "$helmReleaseYaml")
   releaseName=$(_hr_getReleaseName "$helmReleaseYaml")
   values=$(<<< "$helmReleaseYaml" | yq -y -er .spec.values)
   if [ -d "$sourceParameter" ]; then
-    helm template --namespace $namespace $releaseName "$2" --values <(<<< "$values") ${@:3}
+    helm "${commands[@]}" --namespace $namespace $releaseName "$sourceParameter" --values <(<<< "$values") ${@}
   elif <<< "$helmReleaseYaml" | yq -e '.apiVersion == "helm.fluxcd.io/v1"' > /dev/null; then
     if <<< "$helmReleaseYaml" | yq -e .spec.chart.git > /dev/null; then
       local gitPath
@@ -426,9 +470,9 @@ function hr() {
       gitPath="$(<<< "$helmReleaseYaml" | yq -er '.spec.chart.path // "."')"
       gitUrl="$(<<< "$helmReleaseYaml" | yq -er .spec.chart.git)"
       gitRef="$(<<< "$helmReleaseYaml" | yq -er '.spec.chart.ref // "master"')"
-      _hr_git "$gitUrl" "$gitRef" "$gitPath" "$namespace" "$releaseName" "$values"
+      _hr_git "$subCommand" "$gitUrl" "$gitRef" "$gitPath" "$namespace" "$releaseName" "$values" "$@"
     else
-      helm template --namespace $namespace --repo $(<<< "$helmReleaseYaml" | yq -er .spec.chart.repository) $releaseName $(<<< "$helmReleaseYaml" | yq -er .spec.chart.name) --version $(<<< "$helmReleaseYaml" | yq -er .spec.chart.version) --values <(<<< "$values") ${@:2}
+      helm "${commands[@]}" --namespace $namespace --repo $(<<< "$helmReleaseYaml" | yq -er .spec.chart.repository) $releaseName $(<<< "$helmReleaseYaml" | yq -er .spec.chart.name) --version $(<<< "$helmReleaseYaml" | yq -er .spec.chart.version) --values <(<<< "$values") "$@"
     fi
   else
     local sourceNamespace
@@ -447,7 +491,7 @@ function hr() {
         sourceResource=$(kubectl --namespace=$sourceNamespace get $sourceKind $sourceName -o yaml)
         if [[ "$?" != 0 ]]; then
           local helmrepositoryUrl="https://charts.4allportal.net"
-          echo "Source resource '$sourceNamespace/$sourceKind/$sourceName' not found in cluster nor in input"
+          echo "Source resource '$sourceNamespace/$sourceKind/$sourceName' not found in cluster nor in input" > /dev/stderr
           vared -p "Please specify Helm Repository URL: " helmrepositoryUrl
           sourceKind=HelmRepository
           sourceResource=$'spec:\n  url: '"$helmrepositoryUrl"
@@ -463,19 +507,24 @@ function hr() {
         local gitRef
         gitUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
         gitRef="$(<<< "$sourceResource" | yq -er '.spec.ref | if .branch then .branch elif .tag then .tag elif .semver then .semver elif .commit then .commit else "master" end')"
-        _hr_git "$gitUrl" "$gitRef" "$chartName" "$namespace" "$releaseName" "$values"
+        _hr_git "$subCommand" "$gitUrl" "$gitRef" "$chartName" "$namespace" "$releaseName" "$values" "$@"
         ;;
       HelmRepository)
         local helmrepositoryUrl
         local chartVersion
         helmrepositoryUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
         chartVersion="$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.version)"
-        helm template --namespace $namespace --repo "$helmrepositoryUrl" $releaseName "$chartName" --version "$chartVersion" --values <(<<< "$values") ${@:2}
+        helm "${commands[@]}" --namespace $namespace --repo "$helmrepositoryUrl" $releaseName "$chartName" --version "$chartVersion" --values <(<<< "$values") "$@"
         ;;
       *)
-        echo "'$sourceKind' is not implemented" >&2
+        echo "'$sourceKind' is not implemented" > /dev/stderr
+        ;;
     esac
   fi
+}
+
+function hr() {
+  helmrelease "template" "$@"
 }
 function _hr() {
   #_arguments "1: :($(fd --full-path $(realpath "${${words[2]/\~/$HOME}:-$PWD}" / | xargs -i realpath {} --relative-to="$PWD") -e yaml -e yml -X rg '^kind: HelmRelease$' -l))" \
@@ -497,6 +546,8 @@ function _hr() {
 compdef _hr hr
 
 function hrDiff() {
+  helmrelease "diff" "$@"
+  return $?
   local namespace
   local releaseName
   local chartName
@@ -611,27 +662,49 @@ function _cwatch() {
 compdef _cwatch cwatch
 
 function kconfig() {
-	local CONFIG
-  local OPEN_RC
-  local CONTEXT
+	local config
+  local openRc
+  local unitName
   local query
   if [[ -z "$1" ]]; then
     query=""
   elif [[ -f "$XDG_RUNTIME_DIR/gopass/$1" ]]; then
-    CONFIG="$1"
+    config="$1"
   else
     query="$1"
   fi
-  CONFIG="$(gopass ls -flat | /bin/grep -E 'kube.?config' | fzf --query "$query" -1)"
-	if [[ "$?" == 0 ]]; then
-    echo "$CONFIG" > "$XDG_RUNTIME_DIR/current_kubeconfig"
-    export KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$CONFIG"
-    OPEN_RC="$(dirname "$XDG_RUNTIME_DIR/gopass/$CONFIG")/open-rc"
-    if [[ -f "$OPEN_RC" ]]; then
-      source "$OPEN_RC"
+  if [[ -z "$config" ]]; then
+    config="$(gopass ls -flat | /bin/grep -E 'kube.?config' | fzf --query "$query" -1)"
+    if [[ "$?" != 0 ]]; then
+      return
     fi
-    ln -fs "$KUBECONFIG" "$XDG_CONFIG_HOME/kube/config"
-	fi
+  fi
+  mkdir -p "$XDG_RUNTIME_DIR/kconfig"
+  echo "$config" > "$XDG_RUNTIME_DIR/kconfig/current_kubeconfig"
+  export KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$config"
+  openRc="$(dirname "$XDG_RUNTIME_DIR/gopass/$config")/open-rc"
+  if [[ -f "$openRc" ]]; then
+    unitName="$(md5sum "$openRc" | awk NF=1)"
+    if systemctl --user is-failed -q "$unitName"; then
+      systemctl --user reset-failed -q "$unitName"
+    fi
+    if ! systemctl --user is-active -q "$unitName"; then
+      systemd-run --user -q --slice sshuttle --unit="$unitName" -- bash -c "source '$openRc'"
+    fi
+  fi
+  ln -fs "$KUBECONFIG" "$XDG_CONFIG_HOME/kube/config"
+}
+
+function krsdiff() {
+  local namespace
+  local firstRS
+  local secondRS
+
+  namespace="$(kubectl get namespaces -o custom-columns=:metadata.name | fzf -1)"
+  firstRS="$(kubectl -n "$namespace" get replicasets -o custom-columns=:metadata.name | fzf -1 --preview "kubectl -n '$namespace' get replicaset {} -o custom-columns=:metadata.creationTimestamp")"
+  secondRS="$(kubectl -n "$namespace" get replicasets -o custom-columns=:metadata.name | grep -Ev "^$firstRS\$" | fzf -1 --preview "kubectl -n '$namespace' get replicaset {} -o custom-columns=:metadata.creationTimestamp")"
+
+  dyff between <(kubectl -n "$namespace" get rs "$firstRS" -o yaml | yq -y '.metadata.name="rs"') <(kubectl -n "$namespace" get rs "$secondRS" -o yaml | yq -y '.metadata.name="rs"')
 }
 
 function krc() {
@@ -844,6 +917,7 @@ reAlias fzf --ansi
 reAlias prettyping --nolegend
 nAlias ping prettyping
 nAlias du ncdu --exclude-kernfs
+nAlias jq gojq
 reAlias rg -S
 reAlias jq -r
 reAlias yq -r
@@ -873,6 +947,7 @@ nAlias cp advcp -g
 nAlias mv advmv -g
 nAlias update 'paru && (if [ -f $XDG_RUNTIME_DIR/updates-notification ]; then notify-send.sh -s $(cat $XDG_RUNTIME_DIR/updates-notification); fi) && exit'
 reAlias code '--user-data-dir $XDG_DATA_HOME/vscode --extensions-dir $XDG_DATA_HOME/vscode/extensions'
+nAlias wd 'while :; do .; sleep 0.1; clear; done'
 
 alias -g A='| awk'
 alias -g B='| base64'
@@ -884,7 +959,7 @@ alias -g G='| grep'
 alias -g GZ='| gzip'
 alias -g GZD='GZ -d'
 alias -g J='| jq'
-alias -g L='| less'
+alias -g L='| less --raw-control-chars'
 alias -g S='| sed'
 alias -g SP='| sponge'
 alias -g T='| tee'
@@ -892,11 +967,11 @@ alias -g TD='T /dev/stderr'
 alias -g X='| xargs'
 alias -g Y='| yq'
 alias -g COUNT='| wc -l'
-nAlias wd 'while :; do .; sleep 0.1; clear; done'
 
-if [[ -f "$XDG_RUNTIME_DIR/current_kubeconfig" ]]; then
-  export KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$(cat $XDG_RUNTIME_DIR/current_kubeconfig)"
+if [[ -f "$XDG_RUNTIME_DIR/kconfig/current_kubeconfig" ]]; then
+  kconfig "$(cat $XDG_RUNTIME_DIR/kconfig/current_kubeconfig)"
 fi
+
 if ! [[ -f "$KUBECONFIG" ]]; then
   unset KUBECONFIG
   rm -f "$XDG_RUNTIME_DIR/current_kubeconfig"
@@ -929,8 +1004,11 @@ function _k9s() {
 }
 compdef _k9s k9s
 
-if command -v kubectl-neat-diff > /dev/null; then
-  export KUBECTL_EXTERNAL_DIFF=kubectl-neat-diff
+#if command -v kubectl-neat-diff > /dev/null; then
+#  export KUBECTL_EXTERNAL_DIFF=kubectl-neat-diff
+#fi
+if command -v dyff > /dev/null; then
+  export KUBECTL_EXTERNAL_DIFF="dyff between --omit-header --set-exit-code"
 fi
 
 if command -v cilium > /dev/null; then

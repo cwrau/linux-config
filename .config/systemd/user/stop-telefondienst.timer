@@ -1,5 +1,5 @@
 [Unit]
-Description=Stop RSS Feeder
+Description=Stop Telefondienst
 PartOf=work.target
 
 [Timer]

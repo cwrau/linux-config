@@ -8,9 +8,9 @@
   "alphanumericSegmentsBrightness": 255,
   "keyBacklightBrightness": 255,
   "mouseMoveInitialSpeed": 4,
-  "mouseMoveAcceleration": 68,
+  "mouseMoveAcceleration": 41,
   "mouseMoveDeceleratedSpeed": 8,
-  "mouseMoveBaseSpeed": 32,
+  "mouseMoveBaseSpeed": 16,
   "mouseMoveAcceleratedSpeed": 64,
   "mouseScrollInitialSpeed": 20,
   "mouseScrollAcceleration": 20,
@@ -957,7 +957,7 @@
                 {
                   "keyActionType": "keystroke",
                   "type": "basic",
-                  "scancode": 82
+                  "scancode": 26
                 },
                 {
                   "keyActionType": "keystroke",
@@ -976,17 +976,17 @@
                 {
                   "keyActionType": "keystroke",
                   "type": "basic",
-                  "scancode": 80
+                  "scancode": 4
                 },
                 {
                   "keyActionType": "keystroke",
                   "type": "basic",
-                  "scancode": 81
+                  "scancode": 22
                 },
                 {
                   "keyActionType": "keystroke",
                   "type": "basic",
-                  "scancode": 79
+                  "scancode": 7
                 },
                 null,
                 null,
@@ -1159,19 +1159,13 @@
                 null,
                 null,
                 null,
-                {
-                  "keyActionType": "switchKeymap",
-                  "keymapAbbreviation": "CLS"
-                },
                 null,
                 null,
                 null,
                 null,
                 null,
-                {
-                  "keyActionType": "switchKeymap",
-                  "keymapAbbreviation": "WIG"
-                },
+                null,
+                null,
                 {
                   "keyActionType": "playMacro",
                   "macroIndex": 1
@@ -3478,7 +3472,7 @@
     {
       "isLooped": false,
       "isPrivate": true,
-      "name": "🐶",
+      "name": "😺",
       "macroActions": [
         {
           "macroActionType": "key",
@@ -3489,7 +3483,7 @@
         },
         {
           "macroActionType": "text",
-          "text": "1f436"
+          "text": "1f431"
         },
         {
           "macroActionType": "key",

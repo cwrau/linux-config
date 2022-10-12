@@ -21,8 +21,11 @@ while read -r monitor width height x y; do
   elif [ "$type" = "radial" ]; then
     geometry="$radialX $radialY $radialWidth $radialHeight"
   fi
-  if systemctl --user is-active --quiet "glava-$type@$monitor"; then
-    systemctl --user stop "glava-$type@$monitor"
+  unitName="glava-$type@$monitor"
+  if systemctl --user is-failed --quiet "$unitName"; then
+    systemctl --user reset-failed "$unitName"
+  elif systemctl --user is-active --quiet "$unitName"; then
+    systemctl --user stop "$unitName"
   fi
-  systemd-run --user --unit "glava-$type@$monitor" --nice 19 --setenv TRAY --setenv MONITOR --slice "glava-$type.slice" -- glava -m "$type" -r "setgeometry $geometry"
+  systemd-run --user --unit "$unitName" --nice 19 --setenv TRAY --setenv MONITOR --slice "glava-$type.slice" -- glava -m "$type" -r "setgeometry $geometry"
 done < <(polybar -m | tr ':x+' '   ' | sed -r 's# +# #g; s# \(.*\)##g')

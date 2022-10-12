@@ -1,0 +1,5 @@
+[Unit]
+Description=sshuttle Slice
+Requisite=work.target
+
+[Slice]
