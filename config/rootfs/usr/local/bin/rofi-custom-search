@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+ROFI_SEARCH=googler GOOGLE_ARGS='["--count", 20]' rofi -modi blocks -blocks-wrap /usr/lib/node_modules/rofi-search/rofi-search -show blocks -lines 4 -eh 2
