@@ -7,7 +7,8 @@ codeEditor="intellij-idea-ultimate-edition"
 if [[ -n "$1" ]] && [[ -d "$1" ]]; then
   project=$(realpath "$1")
 else
-  project="$(fd --no-ignore-vcs --hidden --type directory --full-path "^$HOME/(work|projects/).*/\.(git|idea)\$" "$HOME" --exec-batch stat --format "%X:%n" \
+  project="$(fd --no-ignore-vcs --hidden --type directory --full-path "^$HOME/(work|projects/)[^.]*/\.(git|idea)\$" "$HOME" --exec-batch stat --format "%X:%n" \
+    | grep -v node_modules \
     | sort --reverse --field-separator : --key 1 \
     | cut --delimiter : --fields 2- \
     | xargs --no-run-if-empty -- dirname \

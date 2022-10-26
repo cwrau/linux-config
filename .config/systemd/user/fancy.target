@@ -1,0 +1,8 @@
+[Unit]
+Description=fancy desktop
+Requires=picom.service glava.target
+After=graphical-session.target
+Conflicts=gamemode.service
+
+[Install]
+WantedBy=graphical-session.target

@@ -1,0 +1,22 @@
+[Unit]
+Description=Google Chrome for %I
+After=graphical-session.target
+Requires=graphical-session.target
+
+[Service]
+Type=simple
+Environment=EXTRA_ARGS=
+ExecStart=/usr/bin/google-chrome-stable --user-data-dir=%E/google-chrome-%i --class=%i $EXTRA_ARGS
+RestartSec=0
+Restart=always
+TimeoutStopSec=5
+
+# disallow writing to /usr, /bin, /sbin, ...
+ProtectSystem=yes
+# more paranoid security settings
+NoNewPrivileges=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+
+[Install]
+WantedBy=graphical-session.target

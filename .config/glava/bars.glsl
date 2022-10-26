@@ -10,7 +10,7 @@
 /* Outline width (in pixels, set to 0 to disable outline drawing) */
 #define BAR_OUTLINE_WIDTH 0
 /* Amplify magnitude of the results each bar displays */
-#define AMPLIFY 32
+#define AMPLIFY screen.y * 1.2
 /* Whether the current settings use the alpha channel;
    enabling this is required for alpha to function
    correctly on X11 with `"native"` transparency. */
@@ -23,7 +23,7 @@
 //#define COLOR (#3366b2 * GRADIENT)
 #define COLOR mix(#cc0000, #2233FF, clamp(d / GRADIENT_POWER, 0, 1))
 /* Direction that the bars are facing, 0 for inward, 1 for outward */
-#define DIRECTION 0
+#define DIRECTION 1
 /* Whether to switch left/right audio buffers */
 #define INVERT 0
 /* Whether to flip the output vertically */

@@ -242,7 +242,7 @@ repositories:
   name: bitnami
   pass_credentials_all: false
   password: ""
-  url: https://charts.bitnami.com
+  url: https://charts.bitnami.com/bitnami
   username: ""
 - caFile: ""
   certFile: ""

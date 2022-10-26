@@ -26,7 +26,6 @@ depends=(
     base-devel-meta
     bash-completion
     bash-git-prompt
-    bash-language-server
     bat
     batsignal
     bc
@@ -46,7 +45,6 @@ depends=(
     discord_arch_electron
     dive-bin
     dnsmasq
-    dockerfile-language-server-bin
     dolphin-emu
     dunst
     dyff-bin
@@ -80,12 +78,11 @@ depends=(
     google-chrome
     gopass-fuse
     gopass-jsonapi
-    gopls
     gradle
     gvfs
     hadolint-bin
     helm
-    helm-diff
+    helm-diff-cwrau-git
     helm-docs
     hexchat
     howdy
@@ -103,7 +100,6 @@ depends=(
     k9s
     kdeconnect
     kernel-modules-hook
-    kexec-tools
     kube-bench-bin
     kubectl
     kubectl-access-matrix-bin
@@ -177,7 +173,6 @@ depends=(
     polybar-scripts-git
     polymc-bin
     powertop
-    premid
     prettyping
     procs
     pv
@@ -220,7 +215,7 @@ depends=(
     systemd-resolvconf
     teams-insiders
     telegram-desktop
-    telepresence
+    telepresence2
     traceroute
     tree
     ttf-dejavu
@@ -243,7 +238,6 @@ depends=(
     xorg-xprop
     xorg-xwininfo
     xss-lock-session
-    yaml-language-server
     yamllint
     yq
     ytmdesktop

@@ -2,12 +2,13 @@
 Description=Steam
 After=graphical-session.target
 Requires=graphical-session.target
+StopWhenUnneeded=yes
 
 [Service]
 Type=simple
 ExecStartPre=-/usr/bin/steam-tweaks
 ExecStart=/usr/bin/steam
-MemoryMax=90%
+MemoryMax=80%
 TasksMax=800
 RestartSec=0
 Restart=always

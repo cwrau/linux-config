@@ -359,7 +359,7 @@ else
 
   sudo chmod u+s $(which i3lock)
 
-  if ! grep pam_gnome_keyring.so /etc/pam.d/login &> /dev/null; then
+  if ! grep -q pam_gnome_keyring.so /etc/pam.d/login; then
     authSectionEnd="$(grep -n ^auth /etc/pam.d/login | sort -n | tail -1 | sed -r 's#^([0-9]+):.+$#\1#g')"
     sessionSectionEnd="$(grep -n ^session /etc/pam.d/login | sort -n | tail -1 | sed -r 's#^([0-9]+):.+$#\1#g')"
 

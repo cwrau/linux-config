@@ -10,10 +10,9 @@ def audio_sink():
     if sink is None:
         return
 
-    pulse.sink_default_set(sink)
-
     for inp in inputs:
         pulse.sink_input_move(inp.index, sink.index)
+    pulse.sink_default_set(sink)
 
 
 if __name__ == "__main__":

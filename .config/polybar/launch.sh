@@ -6,7 +6,7 @@ set -exu
 
 for MONITOR in $(polybar -m | cut -d: -f1); do
   # Launch bar1 and bar2
-  if polybar -m | grep "$MONITOR" | grep primary &>/dev/null; then
+  if polybar -m | grep "$MONITOR" | grep -q primary; then
     export TRAY=right
   else
     export TRAY=none

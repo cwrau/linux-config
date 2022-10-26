@@ -1,6 +1,8 @@
 [Unit]
 Description=glava
+PartOf=fancy.target
 Requires=i3-session.target pipewire.service
+Requires=picom.service
 After=i3-session.target pipewire.service
 Wants=glava@bars.service glava-update.service
 

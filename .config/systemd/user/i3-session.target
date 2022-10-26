@@ -1,5 +1,11 @@
 [Unit]
 Description=i3
+After=graphical-session-pre.target
 BindsTo=graphical-session.target
 Wants=graphical-session-pre.target
-After=graphical-session-pre.target
+Wants=clipmenud.service
+Wants=feh.service
+Wants=picom.service
+Wants=polybar.target
+Wants=restart-service@picom.path
+Wants=restart-service@polybar.path

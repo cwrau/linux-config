@@ -25,12 +25,13 @@ export ANDROID_EMULATOR_HOME="$XDG_DATA_HOME/android"
 export ANDROID_SDK_HOME="$XDG_CONFIG_HOME/android"
 export AZURE_CONFIG_DIR="$XDG_DATA_HOME/azure"
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
-export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
 export CLUSTERCTL_DISABLE_VERSIONCHECK=true
+export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
 export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
 export GOPATH="$XDG_DATA_HOME/go"
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
+export HELM_DIFF_OUTPUT="dyff"
 export HELM_PLUGINS="/usr/lib/helm/plugins"
 export KONAN_DATA_DIR="$XDG_DATA_HOME/konan"
 export LESSHISTFILE="$XDG_DATA_HOME/less/history"
@@ -355,7 +356,7 @@ function _hr_getYaml() {
 function _hr_getNamespace() {
   local yaml="$1"
 
-  <<<"$yaml" | yq -er 'if .spec.targetNamespace then .spec.targetNamespace else .metadata.namespace end'
+  <<<"$yaml" | yq -er '.spec.targetNamespace // .metadata.namespace'
 }
 
 function _hr_getReleaseName() {
@@ -490,11 +491,11 @@ function helmrelease() {
       if [[ "$?" != 0 ]]; then
         sourceResource=$(kubectl --namespace=$sourceNamespace get $sourceKind $sourceName -o yaml)
         if [[ "$?" != 0 ]]; then
-          local helmrepositoryUrl="https://charts.4allportal.net"
+          local helmRepositoryUrl="https://charts.4allportal.net"
           echo "Source resource '$sourceNamespace/$sourceKind/$sourceName' not found in cluster nor in input" > /dev/stderr
-          vared -p "Please specify Helm Repository URL: " helmrepositoryUrl
+          vared -p "Please specify Helm Repository URL: " helmRepositoryUrl
           sourceKind=HelmRepository
-          sourceResource=$'spec:\n  url: '"$helmrepositoryUrl"
+          sourceResource=$'spec:\n  url: '"$helmRepositoryUrl"
         fi
       fi
     elif ! [[ -z "$sourceParameter" ]]; then
@@ -510,11 +511,11 @@ function helmrelease() {
         _hr_git "$subCommand" "$gitUrl" "$gitRef" "$chartName" "$namespace" "$releaseName" "$values" "$@"
         ;;
       HelmRepository)
-        local helmrepositoryUrl
+        local helmRepositoryUrl
         local chartVersion
-        helmrepositoryUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
+        helmRepositoryUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
         chartVersion="$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.version)"
-        helm "${commands[@]}" --namespace $namespace --repo "$helmrepositoryUrl" $releaseName "$chartName" --version "$chartVersion" --values <(<<< "$values") "$@"
+        helm "${commands[@]}" --namespace $namespace --repo "$helmRepositoryUrl" $releaseName "$chartName" --version "$chartVersion" --values <(<<< "$values") "$@"
         ;;
       *)
         echo "'$sourceKind' is not implemented" > /dev/stderr
@@ -548,71 +549,6 @@ compdef _hr hr
 function hrDiff() {
   helmrelease "diff" "$@"
   return $?
-  local namespace
-  local releaseName
-  local chartName
-  local yaml
-  yaml=$(_hr_getYaml "$1" "" HelmRelease)
-  if [[ "$2" =~ -[0-9]+ ]]; then
-    yaml="$(<<<"$yaml" | yq -erys ".[${2/-}]")"
-    shift
-  fi
-  [ "$?" -ne 0 ] && return 1
-  namespace=$(_hr_getNamespace "$yaml")
-  releaseName=$(_hr_getReleaseName "$yaml")
-  values=$(<<< "$yaml" | yq -y -er .spec.values)
-
-  if [ -d "$2" ]; then
-    helm diff --color --show-secrets upgrade --namespace $namespace $releaseName "$2" --values <(<<< "$values") ${@:3}
-  elif <<< "$yaml" | yq -e '.apiVersion == "helm.fluxcd.io/v1"' > /dev/null; then
-    if <<< "$yaml" | yq -e .spec.chart.git > /dev/null; then
-      local gitPath
-      local gitUrl
-      local gitRef
-      gitPath="$(<<< "$yaml" | yq -er '.spec.chart.path // "."')"
-      gitUrl="$(<<< "$yaml" | yq -er .spec.chart.git)"
-      gitRef="$(<<< "$yaml" | yq -er '.spec.chart.ref // "master"')"
-      _hr_git "$gitUrl" "$gitRef" "$gitPath" "$namespace" "$releaseName" "$values"
-    else
-      helm diff --color --show-secrets upgrade --namespace $namespace --repo $(<<< "$yaml" | yq -er .spec.chart.repository) $releaseName $(<<< "$yaml" | yq -er .spec.chart.name) --version $(<<< "$yaml" | yq -er .spec.chart.version) --values <(<<< "$values") ${@:2}
-    fi
-  else
-    local sourceNamespace
-    local sourceName
-    local sourceKind
-    local sourceResource
-    local chartName
-    sourceNamespace=$(<<< "$yaml" | yq -er ".spec.chart.spec.sourceRef.namespace // \"$namespace\"")
-    sourceName=$(<<< "$yaml" | yq -er .spec.chart.spec.sourceRef.name)
-    sourceKind=$(<<< "$yaml" | yq -er .spec.chart.spec.sourceRef.kind)
-    sourceResource=$(kubectl --namespace=$sourceNamespace get $sourceKind $sourceName -o yaml)
-    if [[ "$?" != 0 ]]; then
-      local helmrepositoryUrl="https://charts.4allportal.net"
-      echo "Source resource $sourceNamespace/$sourceKind/$sourceName not found"
-      vared -p "Please specify Helm Repository URL: " helmrepositoryUrl
-      sourceKind=HelmRepository
-      sourceResource=$'spec:\n  url: '"$helmrepositoryUrl"
-    fi
-    chartName="$(<<< "$yaml" | yq -er .spec.chart.spec.chart)"
-    case "$sourceKind" in
-      GitRepository2)
-        local gitUrl
-        local gitRef
-        gitUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
-        gitRef="$(<<< "$sourceResource" | yq -er '.spec.ref | if .branch then .branch elif .tag then .tag elif .semver then .semver elif .commit then .commit else "master" end')"
-        _hr_git "$gitUrl" "$gitRef" "$chartName" "$namespace" "$releaseName" "$values"
-        ;;
-      HelmRepository)
-        local helmrepositoryUrl
-        local chartVersion
-        helmrepositoryUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
-        chartVersion="$(<<< "$yaml" | yq -er .spec.chart.spec.version)"
-        helm diff --color --show-secrets upgrade --namespace $namespace --repo "$helmrepositoryUrl" $releaseName "$chartName" --version "$chartVersion" --values <(<<< "$values") ${@:2}
-        ;;
-      *)
-        echo "'$sourceKind' is not implemented" >&2
-    esac
-  fi | grep -v helm.sh/chart | less
 }
 compdef _hr hrDiff
 
@@ -880,7 +816,7 @@ function clip() {
 compdef _nop clip
 
 function releaseAur() {
-  git add PKGBUILD .SRCINFO && git clean -xfd && updpkgsums && makepkg -f && makepkg --printsrcinfo > .SRCINFO && git commit -v . && git push && git clean -xfd
+  git add PKGBUILD .SRCINFO && git clean -xfd && updpkgsums && makepkg -df && makepkg --printsrcinfo > .SRCINFO && git commit -v . && git push && git clean -xfd
 }
 
 function reAlias() {
@@ -978,12 +914,12 @@ if ! [[ -f "$KUBECONFIG" ]]; then
 fi
 
 function k9s() {
-  if [[ "${@[#]}" == 2 ]]; then
+  if [[ $# == 2 ]]; then
     kconfig $1
     command k9s --context $2
-  elif [[ "${@[#]}" == 1 ]]; then
+  elif [[ $# == 1 ]]; then
     command k9s --context $1
-  elif ! [[ -z "$KUBECONFIG" ]] && [[ -f "$KUBECONFIG" ]]; then
+  elif [[ -f "$KUBECONFIG" ]]; then
     command k9s
   else
     kconfig

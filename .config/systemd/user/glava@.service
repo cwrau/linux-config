@@ -1,6 +1,7 @@
 [Unit]
 Description=glava %I
 PartOf=glava.target
+Requires=picom.service
 
 [Service]
 Type=oneshot

@@ -30,7 +30,7 @@ font pango:monospace 9
 # Use Mouse+$super to drag floating windows to their wanted position
 floating_modifier $super
 
-# focus_follows_mouse no
+focus_follows_mouse yes
 #mouse_warping none
 
 # start a terminal
@@ -233,7 +233,7 @@ bindsym $super+i $exid networkmanager_dmenu -i
 # Mount-Manager
 bindsym $super+u $exid udiskie-dmenu
 
-bindsym $super+x exec xkill
+bindsym $super+x $exid xkill
 
 # Clipboard-Manager
 bindsym $super+Shift+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i && xdotool key --clearmodifiers ctrl+shift+v'
@@ -256,7 +256,7 @@ bindsym Ctrl+Shift+$super+Print --release $exid "screenshot window --"
 # Browser stuff
 bindsym $super+c exec "exo-open --launch WebBrowser"
 bindsym $super+Shift+c exec "exo-open --launch WebBrowser --incognito"
-bindsym $super+g exec bash -c 'clipboard="$(xclip -o)" && [[ "$clipboard" =~ "https?://" ]] && $BROWSER --new-window "$clipboard" || dmenu -p google | tr " " "+" | xargs -r -I{} $BROWSER --new-window https://google.com/search\?q\={}'
+bindsym $super+g exec rofi-custom-search
 
 # Gamemode
 bindsym $super+shift+g $exid bash -c 'systemctl --user is-active gamemode.service && systemctl --user stop gamemode.service || systemctl --user start gamemode.service'

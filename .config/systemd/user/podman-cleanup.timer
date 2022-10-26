@@ -2,7 +2,7 @@
 Description=Clean podman storage
 
 [Timer]
-OnCalendar=daily
+OnCalendar=weekly
 AccuracySec=1h
 Persistent=true
 

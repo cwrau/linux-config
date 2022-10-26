@@ -3,7 +3,7 @@
   pager = delta
 [user]
   signingkey = 6ADCBD3FF206F341D2CF8E2C49D1B5ACCF53CA1C
-  email = cwrau@cwrcoding.com
+  email = cwrau@cwrau.info
   name = Chris Werner Rau
 [includeIf "gitdir:~/work/"]
   path = .gitconfig-work
@@ -25,7 +25,8 @@
 [log]
   date = iso
 [push]
-  default = current
+  default = upstream
+  autoSetupRemote = true
 [pull]
   rebase = true
 [rebase]
@@ -38,7 +39,7 @@
 [credential]
   helper = store
 [diff "dyff"]
-	command = "dyff_between() { dyff --color on between --omit-header \"$2\" \"$5\"; }; dyff_between"
+	command = "dyff_between() { dyff --color on between \"$2\" \"$5\"; }; dyff_between"
 [pager]
   diff = diff-so-fancy | less --tabs=1,5 -RFS
   show = diff-so-fancy | less --tabs=1,5 -RFS
@@ -65,4 +66,5 @@
   whitespace = red reverse
 [alias]
   cleanup = "!git fetch --prune && git cleanupBranches"
-  cleanupBranches = "!git branch --merged master | grep -E -v '^\\s*(\\*|master|develop|release/)' | xargs -n 1 -r git branch -d"
+  cleanupBranches = "!(if git show-branch master &>/dev/null; then git branch --merged master; else git branch --merged main; fi) | grep -E -v '^\\s*(\\*|master|main|develop|release/)' | xargs -n 1 -r git branch -d"
+  rprune = "!git branch -r | awk '{print $1}' | grep -E -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk '{print $1}' | xargs -n 1 -p -r git branch -D"
