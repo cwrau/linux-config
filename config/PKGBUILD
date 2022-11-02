@@ -15,6 +15,7 @@ sha512sums=('SKIP')
   #startPackages
 depends=(
     advcpmv
+    amd-ucode
     ananicy-cpp
     ananicy-rules-git
     ansible
@@ -67,8 +68,8 @@ depends=(
     gfeeds
     git
     git-delta
-    github-cli
     git-secret
+    github-cli
     glab
     glava
     gnome-keyring
@@ -85,29 +86,28 @@ depends=(
     helm-diff-cwrau-git
     helm-docs
     hexchat
-    howdy
     hsetroot
     httpie
     i3-gaps
     i3lock-color
     informant
     inotify-tools
+    intel-ucode
     intellij-idea-ultimate-edition
     intellij-idea-ultimate-edition-jre
-    intel-ucode
     jdk-openjdk
     jq
     k9s
     kdeconnect
     kernel-modules-hook
     kube-bench-bin
+    kube-score-bin
     kubectl
     kubectl-access-matrix-bin
     kubectl-konfig
     kubectl-neat-diff
     kubectl-node-shell
     kubefwd-bin
-    kube-score-bin
     kubeval-bin
     kustomize
     lab-bin
@@ -150,6 +150,7 @@ depends=(
     nss-mdns
     nvidia-dkms
     nvidia-prime
+    nvim-packer-git
     nvtop
     ocl-icd
     oh-my-zsh-git
@@ -207,13 +208,11 @@ depends=(
     splatmoji-git
     sshuttle
     steam
-    steam-tweaks
     sxiv
     systemd
     systemd-boot-pacman-hook
     systemd-preset-pacman-hook
     systemd-resolvconf
-    teams-insiders
     telegram-desktop
     telepresence2
     traceroute
@@ -221,7 +220,6 @@ depends=(
     ttf-dejavu
     ttf-font-awesome
     ttf-liberation
-    tty-clock
     udiskie-dmenu-git
     uhk-agent-appimage
     unzip
@@ -241,7 +239,6 @@ depends=(
     yamllint
     yq
     ytmdesktop
-    yubico-pam
     zip
     zsh
     zsh-autosuggestions
