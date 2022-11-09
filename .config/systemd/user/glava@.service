@@ -2,6 +2,7 @@
 Description=glava %I
 PartOf=glava.target
 Requires=picom.service
+CollectMode=inactive-or-failed
 
 [Service]
 Type=oneshot

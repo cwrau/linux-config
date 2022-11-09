@@ -1,5 +1,4 @@
 local XDG_CACHE_HOME = vim.env.XDG_CACHE_HOME
-local XDG_DATA_HOME = vim.env.XDG_DATA_HOME
 
 vim.opt.runtimepath:append '/usr/share/vim/vimfiles'
 
@@ -57,4 +56,12 @@ vim.api.nvim_create_autocmd('InsertEnter', { command = 'match ExtraWhitespace /\
 vim.api.nvim_create_autocmd('InsertLeave', { command = 'match ExtraWhitespace /\\s\\+$/' })
 vim.cmd.match('ExtraWhitespace /\\s\\+$/') -- TODO
 vim.api.nvim_create_autocmd('BufWrite', { command = ':%s/\\s\\+$//e' })
+
+vim.diagnostic.config {
+  virtual_text = true,
+  signs = true,
+  underline = true,
+  update_in_insert = true,
+  severity_sort = false,
+}
 

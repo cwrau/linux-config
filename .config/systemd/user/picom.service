@@ -1,6 +1,5 @@
 [Unit]
 Description=Picom
-PartOf=fancy.target
 After=i3-session.target
 Requires=i3-session.target
 

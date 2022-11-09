@@ -2,11 +2,11 @@
 Description=Gaming Mode
 Wants=steam.service
 Wants=discord.service
-Conflicts=work.target
+Conflicts=work.target glava.target
 
 [Service]
 Type=oneshot
-Environment="SERVICES=fancy.target"
+Environment="SERVICES=glava.target picom.service"
 ExecStart=/usr/bin/true
 RemainAfterExit=yes
 ExecStop=/usr/bin/systemctl --user start $SERVICES

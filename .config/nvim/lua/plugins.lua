@@ -3,26 +3,10 @@ return require('packer').startup(function(use)
     pattern = "plugins.lua",
     callback = function()
       require('plugins')
-      vim.cmd('PackerSync')
       vim.cmd('source <afile> | PackerCompile')
+      vim.cmd('PackerCompile')
     end
   })
-
-  use {
-    'Shougo/deoplete.nvim',
-    run = ':UpdateRemotePlugins',
-    config = function()
-      vim.g['deoplete#enable_at_startup'] = true
-      vim.g.python3_host_prog = '/usr/bin/python'
-      -- use tab to forward cycle
-      --inoremap <silent><expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
-      -- use tab to backward cycle
-      --inoremap <silent><expr><s-tab> pumvisible() ? "\<c-p>" : "\<s-tab>"
-      -- Close the documentation window when completion is done
-      vim.api.nvim_create_autocmd({ 'InsertLeave', 'CompleteDone' },
-        { command = 'if pumvisible() == 0 | silent! pclose! | endif' })
-    end
-  }
 
   use 'vim-airline/vim-airline' -- better monitoring
 
@@ -106,7 +90,7 @@ return require('packer').startup(function(use)
     config = function()
       require('trouble').setup {}
 
-      vim.keymap.set('n', '<c-t>', '<cmd>TroubleToggle<cr>')
+      vim.keymap.set('n', '<C-t>', '<cmd>TroubleToggle<cr>')
     end
   }
 
@@ -115,7 +99,16 @@ return require('packer').startup(function(use)
     ft = 'helm'
   }
 
-  use 'farmergreg/vim-lastplace'
+  use {
+    'farmergreg/vim-lastplace',
+    config = function()
+      require('lightspeed').setup {
+        ignore_case = true
+      }
+    end
+  }
+
+  use 'ggandor/lightspeed.nvim'
 
   use 'pgdouyon/vim-evanesco'
 
@@ -169,31 +162,109 @@ return require('packer').startup(function(use)
   }
 
   use {
-    'neovim/nvim-lspconfig',
+    'hrsh7th/nvim-cmp',
+    requires = { 'L3MON4D3/LuaSnip', 'onsails/lspkind.nvim', 'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer' },
     config = function()
-      local nvimLuaConfigLspConfig = function(_, config)
-        local file_name = vim.api.nvim_buf_get_name(0)
-        if not file_name:find('/home/[^/]+/.config/nvim/%S+%.lua') then
-          return
-        end
-        config.settings.Lua.diagnostics = {
-          globals = { 'vim' }
-        }
-      end
+      local cmp = require('cmp')
+      local lspkind = require('lspkind')
+      cmp.setup {
+        snippet = {
+          expand = function(args) require('luasnip').lsp_expand(args.body) end
+        },
+        mapping = cmp.mapping.preset.insert({
+          ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+          ['<C-f>'] = cmp.mapping.scroll_docs(4),
+          ['<C-Space>'] = cmp.mapping.complete {},
+          ['<CR>'] = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = true },
+          ['<Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              local entry = cmp.get_selected_entry()
+              if not entry then
+                cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+              end
+              cmp.confirm()
+            else
+              fallback()
+            end
+          end, { 'i', 's' }
+          )
+        }),
+        sources = cmp.config.sources({
+          { name = 'nvim_lsp' },
+          { name = 'luasnip' },
+          { name = 'buffer' }
+        }),
+        formatting = {
+          format = lspkind.cmp_format {
+            mode = 'symbol'
+          }
+        },
+        confirm_opts = {
+          behavior = cmp.ConfirmBehavior.Replace,
+          select = false,
+        },
+        window = {
+          documentation = {
+            winhighlight = 'Normal:CmpPmenu,FloatBorder:CmpPmenuBorder,Search:None',
+          },
+          completion = {
+            winhighlight = 'Normal:CmpPmenu,CursorLine:PmenuSel,Search:None',
+          },
+        },
+        view = {
+          entries = {
+            name = 'custom',
+            selection_order = 'near_cursor'
+          }
+        },
+        experimental = {
+          ghost_text = true
+        },
+      }
+
+      vim.opt.completeopt = { 'menu', 'menuone', 'noselect' }
+    end
+  }
+
+  use {
+    'neovim/nvim-lspconfig',
+    requires = 'hrsh7th/nvim-cmp',
+    config = function()
+      local lspconfig = require('lspconfig')
+      local lsp_defaults = lspconfig.util.default_config
+      lsp_defaults.capabilities = vim.tbl_deep_extend(
+        'force',
+        lsp_defaults.capabilities,
+        require('cmp_nvim_lsp').default_capabilities()
+      )
 
       local servers = { 'bashls', 'dockerls', 'jsonls', 'jdtls', 'kotlin_language_server', 'terraformls', 'yamlls',
-        'vimls' }
-      local lspconfig = require('lspconfig')
+        'vimls', 'gopls', 'sumneko_lua' }
       for _, lsp in pairs(servers) do
         lspconfig[lsp].setup {}
       end
-      lspconfig['sumneko_lua'].setup {
-        before_init = nvimLuaConfigLspConfig
-      }
       --require('pkgbuild')
 
-      vim.keymap.set('n', '=', vim.lsp.buf.format)
+      vim.api.nvim_create_autocmd('LspAttach', {
+        callback = function()
+          local keybindings = {
+            ['='] = vim.lsp.buf.format,
+            ['<C-q>'] = vim.lsp.buf.hover,
+            ['<C-b>'] = vim.lsp.buf.definition,
+            ['<F18>'] = vim.lsp.buf.rename,
+          }
+          for key, binding in pairs(keybindings) do
+            vim.keymap.set('n', key, binding)
+          end
+        end
+      })
     end
+  }
+
+  use {
+    'folke/neodev.nvim',
+    requires = 'neovim/nvim-lspconfig',
+    config = function() require('neodev').setup {} end
   }
 
   use {

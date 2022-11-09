@@ -21,11 +21,11 @@ while read -r monitor width height x y; do
     geometry="$x $y $width $upperBarHeight"
     #lowerGeometry="x $(( height - lowerBarHeight )) $width $lowerBarHeight"
   elif [ "$type" = "radial" ]; then
-    radius=$(round "$(echo "$(( (width < height ? width : height) - upperBarHeight - lowerBarHeight )) * 0.5" | bc)")
+    radius=$(round "$(echo "$(( (width < height ? width : height) - upperBarHeight - lowerBarHeight )) * 1" | bc)")
     radialY=$(( y + ((height / 2) - (radius / 2)) ))
     radialX=$(( x + ((width / 2) - (radius / 2)) ))
 
-    geometry="$radialX $radialY $radius $radius"
+    geometry="$radialX $upperBarHeight $radius $radius"
   fi
   unitName="glava-$type@$monitor"
   if systemctl --user is-failed --quiet "$unitName"; then

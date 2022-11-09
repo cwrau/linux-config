@@ -277,7 +277,7 @@ function e() {
   i3-msg "exec xdg-open \"$*\""
 }
 
-function ssh() {
+function _ssh() {
   if [[ "${#@}" > 1 ]] || [[ "${#@}" == 0 ]]; then
     /usr/bin/ssh "$@"
   elif [[ -f ~/.ssh/checked_hosts ]] && grep -q -- "$1" ~/.ssh/checked_hosts; then
@@ -399,7 +399,7 @@ function _hr_git() {
 }
 
 function helmrelease() {
-  local subCommand="$1"
+  local subCommand="${1?You need to set the command}"
   shift
   local commands=()
   local namespace
@@ -410,36 +410,66 @@ function helmrelease() {
   local index=0
   local sourceParameter
   local yaml
-  if [[ "$subCommand" = "template" ]]; then
-    commands+=("template")
-  elif [[ "$subCommand" = "diff" ]]; then
-    commands+=("diff" "upgrade" "--show-secrets" "--color" "--output=dyff")
-  fi
+  case "$subCommand" in
+    template)
+      commands+=("template")
+      ;;
+    diff)
+      commands+=("diff" "upgrade" "--show-secrets" "--color" "--output=dyff")
+      ;;
+    install)
+      commands+=("install")
+      ;;
+    *)
+      echo "command '$subCommand' is not implemented" > /dev/stderr
+      return 1
+      ;;
+  esac
 
-  if [[ "$1" = "-" ]]; then
-    yaml=$(cat)
-    shift
-  elif [[ "$1" = "" ]]; then
-    yaml=$(cat)
-  elif [[ -f "$1" ]]; then
-    yaml=$(cat "$1")
-    shift
-  fi
+  while [[ "$#" != 0 ]]; do
+    case "$1" in
+      -)
+        yaml=$(cat)
+        shift
+        ;;
+      -[0-9]+)
+        index="${1/-/}"
+        shift
+        ;;
+      -ALL)
+        index=ALL
+        shift
+        ;;
+      --)
+        shift
+        break
+        ;;
+      *)
+        if [[ -f "$1" ]]; then
+          yaml=$(cat "$1")
+        elif [[ -d "$1" ]]; then
+          sourceParameter="$1"
+        elif [[ "$1" =~ ^https://* ]]; then
+          sourceParameter="$1"
+        else
+          echo "parameter '$1' is not supported" > /dev/stderr
+          return 1
+        fi
+        shift
+        ;;
+    esac
+  done
 
-  if [[ "$1" =~ ^-[0-9]+$ ]]; then
-    index="${1/-/}"
-    shift
-  elif [[ "$1" = "-ALL" ]]; then
-    index=ALL
-    shift
-  elif ! [[ -z "$1" ]]; then
-    sourceParameter="$1"
-    shift
+  if [[ -z "$yaml" ]]; then
+    yaml=$(cat)
   fi
 
   numberOfHelmReleases=$(<<< "$yaml" | yq -ers '[.[] | select(.kind == "HelmRelease")] | length')
   if [[ "$numberOfHelmReleases" -lt 1 ]]; then
     echo "There are no HelmReleases in the input" > /dev/stderr
+    return 1
+  elif [[ "$numberOfHelmReleases" != 1 ]] && [[ "$subCommand" == "install" ]]; then
+    echo "You can only install 1 HelmReleases at the same time" > /dev/stderr
     return 1
   elif [[ "$numberOfHelmReleases" -gt 1 ]] && [[ "$index" = "ALL" ]]; then
     <<<"$yaml" | yq -erys '.[] | select(.kind != "HelmRelease") | select(.)' \
@@ -548,9 +578,13 @@ compdef _hr hr
 
 function hrDiff() {
   helmrelease "diff" "$@"
-  return $?
 }
 compdef _hr hrDiff
+
+function hrInstall() {
+  helmrelease "install" "$@"
+}
+compdef _hr hrInstall
 
 function knodes() {
   echo "+> ${@}" >&2
@@ -945,22 +979,4 @@ compdef _k9s k9s
 #fi
 if command -v dyff > /dev/null; then
   export KUBECTL_EXTERNAL_DIFF="dyff between --omit-header --set-exit-code"
-fi
-
-if command -v cilium > /dev/null; then
-  source <(cilium completion zsh)
-  compdef _cilium cilium
-fi
-
-if command -v k0sctl > /dev/null; then
-  source <(k0sctl completion zsh)
-  compdef _k0sctl_zsh_autocomplete k0sctl
-fi
-
-if command -v clusterctl > /dev/null; then
-  source <(clusterctl completion zsh)
-fi
-
-if command -v flux > /dev/null; then
-  source <(flux completion zsh)
 fi

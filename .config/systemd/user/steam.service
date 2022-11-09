@@ -2,7 +2,6 @@
 Description=Steam
 After=graphical-session.target
 Requires=graphical-session.target
-StopWhenUnneeded=yes
 
 [Service]
 Type=simple

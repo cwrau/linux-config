@@ -1,6 +1,7 @@
 [Unit]
 Description=Polybar %I
 PartOf=polybar.target
+CollectMode=inactive-or-failed
 
 [Service]
 Type=oneshot

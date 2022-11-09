@@ -44,7 +44,7 @@
   diff = diff-so-fancy | less --tabs=1,5 -RFS
   show = diff-so-fancy | less --tabs=1,5 -RFS
 [interactive]
-  diffFilter = diff-so-fancy --patch
+#  diffFilter = diff-so-fancy --patch
   diffFilter = delta --color-only
 [merge]
   conflictstyle = diff3

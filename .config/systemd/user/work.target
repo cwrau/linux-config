@@ -3,7 +3,7 @@ Description=Work applications
 Requires=work.target
 After=graphical-session.target
 Wants=work.target rocketchat.service google-chrome@work.service telefondienst.timer stop-telefondienst.timer daily.timer
-Conflicts=steam.service gamemode.service
+Conflicts=gamemode.service
 
 [Install]
 WantedBy=graphical-session.target

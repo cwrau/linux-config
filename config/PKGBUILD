@@ -77,7 +77,6 @@ depends=(
     gnu-netcat
     gnupg
     google-chrome
-    gopass-fuse
     gopass-jsonapi
     gradle
     gvfs
@@ -190,15 +189,12 @@ depends=(
     reflector
     remmina
     ripgrep
-    rke-bin
     rocketchat-client-bin
     rofi-dmenu
-    rofi-lbonn-wayland
+    rofi
     shellcheck
     shfmt
-    signal-desktop
     siji-git
-    slack-electron
     slit-git
     slurp
     snap-pac
@@ -238,7 +234,8 @@ depends=(
     xss-lock-session
     yamllint
     yq
-    ytmdesktop
+    ytmdesktop-bin
+    yubico-pam
     zip
     zsh
     zsh-autosuggestions
