@@ -76,6 +76,7 @@ depends=(
     gnome-terminal
     gnu-netcat
     gnupg
+    gomplate
     google-chrome
     gopass-jsonapi
     gradle
@@ -133,7 +134,6 @@ depends=(
     mpv-mpris
     ncdu
     neovim-drop-in
-    neovim-plug
     nerd-fonts-complete
     net-tools
     network-manager-applet
@@ -190,8 +190,8 @@ depends=(
     remmina
     ripgrep
     rocketchat-client-bin
-    rofi-dmenu
     rofi
+    rofi-dmenu
     shellcheck
     shfmt
     siji-git
@@ -219,6 +219,7 @@ depends=(
     udiskie-dmenu-git
     uhk-agent-appimage
     unzip
+    up
     usbutils
     v4l2loopback-dkms
     which
@@ -235,7 +236,6 @@ depends=(
     yamllint
     yq
     ytmdesktop-bin
-    yubico-pam
     zip
     zsh
     zsh-autosuggestions

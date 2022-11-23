@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=IntelliJ IDEA Ultimate Edition
+Exec=open_project %u _
+Icon=intellij-idea-ultimate-edition
+Type=Application
+Terminal=false
+MimeType=x-scheme-handler/jetbrains;
+StartupWMClass=jetbrains-idea
+Categories=Development;IDE;

@@ -39,7 +39,7 @@ if [ "$1" = swap ]; then
 elif [ "$1" = NEXT ]; then
   PLAYER=$(next)
   unit=$(getUnit "$PLAYER")
-  notify-send.sh -R "$XDG_RUNTIME_DIR/player-notification" -t 1000 -u normal "$unit: $($0 status)"
+  notify-send.sh -h string:x-dunst-stack-tag:player -t 1000 -u normal "$unit: $($0 status)"
   exit 0
 elif [ "$1" = PRINT ]; then
 #  if [ "$(list | wc -l)" = 1 ]; then

@@ -43,7 +43,7 @@ if sudo informant check; then
         notification-send "$XDG_RUNTIME_DIR/updates-notification" -t 10000 -u low "$UPDATES | $AUR_UPDATES" "$(paru -Qu --devel | grep -v ignored | awk '{print $1}' | sed -z '$ s/\n$//' | tr '\n' ',')"
 
         mapfile -t environment < <(awk 'BEGIN{for(v in ENVIRON) print "--setenv=" v}')
-        if systemd-inhibit --why Updates --mode block --what shutdown sudo -E systemd-run --uid "$USER" --unit updates-run --wait --nice 19 --property=CPUWeight=1 ${environment[@]} -- paru -Syu --devel --noconfirm --removemake --combinedupgrade --batchinstall; then
+        if systemd-inhibit --why Updates --mode block --what shutdown sudo -E systemd-run --uid "$USER" --unit updates-run --wait --nice 19 --property=CPUWeight=1 ${environment[@]} -- paru -Syu --noconfirm; then
           notification-send "$XDG_RUNTIME_DIR/updates-finished-notification" -t 10000 -u normal 'Updates done!'
         else
           if [[ "$(notification-send "$XDG_RUNTIME_DIR/updates-finished-notification" -t 3590000 -u critical 'Updates failed!' -A Show,Show)" == "Show" ]]; then
@@ -60,8 +60,8 @@ if sudo informant check; then
 else
   items=$?
   if [ "$items" -gt 100 ]; then
-    notify-send.sh -R "$XDG_RUNTIME_DIR/updates-check-notification" -t 10000 -u normal 'Error checking Arch news!'
+    notify-send.sh -h string:x-dunst-stack-tag:updates -t 10000 -u normal 'Error checking Arch news!'
   else
-    notify-send.sh -R "$XDG_RUNTIME_DIR/updates-check-notification" -t 10000 -u critical "$items Unread Arch news articles!"
+    notify-send.sh -h string:x-dunst-stack-tag:updates -t 10000 -u critical "$items Unread Arch news articles!"
   fi
 fi

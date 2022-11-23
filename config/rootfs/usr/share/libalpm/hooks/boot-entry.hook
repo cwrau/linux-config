@@ -1,0 +1,10 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = File
+Target = boot/loader/entries/*.yaml
+Target = boot/loader/entries/entry.tmpl
+
+[Action]
+When = PostTransaction
+Exec = /usr/local/bin/gen_boot_entries

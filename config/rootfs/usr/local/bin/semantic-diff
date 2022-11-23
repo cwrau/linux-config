@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -eu
+set -o pipefail
+
+function _semantic_diff() {
+  local diff
+  local origFilename="$1"
+  local origPath="$2"
+  local newPath="$3"
+  local diff
+  local unifiedDiff
+  local filetype
+
+  unifiedDiff=$( (diff -u --unidirectional-new-file "$origPath" "$newPath" || true) | sed "s#$2#$origFilename#g")
+
+  if [[ -f "$origPath" ]]; then
+    filetype=$(xdg-mime query filetype "$origPath")
+  elif [[ -f "$newPath" ]]; then
+    filetype=$(xdg-mime query filetype "$newPath")
+  fi
+
+  if [[ "$filetype" == "application/x-yaml" ]] && (yq -e . "$origPath" && yq -e . "$newPath") &>/dev/null; then
+    diff=$(dyff --color on between "$origPath" "$newPath")
+    echo "$unifiedDiff" | diff-so-fancy | head -3
+    echo "$diff" | tail -n +9
+  else
+    echo "$unifiedDiff" | diff-so-fancy
+  fi
+}
+
+if [[ "$(ps -o comm= -p "$PPID")" == "git" ]]; then
+  _semantic_diff "$1" "$2" "$5"
+else
+  _semantic_diff "$1" "$2"
+fi

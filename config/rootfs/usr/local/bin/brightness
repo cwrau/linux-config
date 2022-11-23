@@ -1,47 +1,53 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-set -ex
+set -e
 
-backlight="/sys/class/backlight/intel_backlight"
+levels=(0 {1..9} {1..9}0 100)
 
-max=$(cat $backlight/max_brightness)
-current=$(cat $backlight/brightness)
-step=$(( max / 10))
+function getClosestLevelIndex() {
+  local minDistance=100
+  local distance
+  local index
+  local minIndex=0
+  local value=$1
 
-if [ "$1" = "up" ]
-then
-  if [ $(( current / ( max / 100 ) )) -le 9 ]
-  then
-    step=$(( step / 10 ))
-  fi
+  for index in "${!levels[@]}"; do
+    distance=$((${levels[$index]} - value))
+    distance=${distance#-}
+    if ((distance <= minDistance)); then
+      minDistance=$distance
+      minIndex=$index
+    elif ((distance >= minDistance)); then
+      break
+    fi
+  done
+  echo "$minIndex"
+}
 
-  if [ $(( current / ( max / 100 ) )) -le 0 ]
-  then
-    step=$(( step / 10 ))
-  fi
+backlight="$(fd --maxdepth 1 . /sys/class/backlight | head -1)"
 
-  new=$(( current + step ))
-  [ $new -gt "$max" ] && new=$max
+max=$(cat "$backlight/max_brightness")
+current=$(cat "$backlight/brightness")
+currentIndex=$(getClosestLevelIndex "$(printf %.0f "$(echo "scale=4; ($current / $max) * 100" | bc)")")
 
-  sudo sh -c "echo $new > $backlight/brightness"
-elif [ $1 = "down" ]
-then
-  if [ $(( current / ( max / 100 ) )) -le 10 ]
-  then
-    step=$(( step / 10 ))
-  fi
+case "$1" in
+  up)
+    newIndex=$((currentIndex + 1))
+    newIndex=$((newIndex > 19 ? 19 : newIndex))
+    ;;
+  down)
+    newIndex=$((currentIndex - 1))
+    newIndex=$((newIndex < 0 ? 0 : newIndex))
+    ;;
+  *)
+    echo "'$1' not supported" >/dev/stderr
+    exit 1
+    ;;
+esac
 
-  if [ $(( current / ( max / 100 ) )) -le 1 ]
-  then
-    step=$(( step / 10 ))
-  fi
-
-  new=$(( current - step ))
-  [ $new -le 0 ] && new=1
-  [ $current -le 1 ] && new=0
-
-  sudo sh -c "echo $new > $backlight/brightness"
+if [[ $currentIndex != "$newIndex" ]]; then
+  nextValue=$(printf %.0f "$(echo "scale=2; (${levels[$newIndex]} / 100) * $max" | bc)")
+  echo "$nextValue" | sudo tee "$backlight/brightness"
 fi
 
-current=$(cat $backlight/brightness)
-notify-send.sh -R $XDG_RUNTIME_DIR/brightness-notification -t 1001 "Brightness: $(echo "scale=3; $current / $max * 100" | bc | sed -r 's#0+$##; s#^\.#0.#; s#\.$##; s#^$#0#')%"
+notify-send.sh -h string:x-dunst-stack-tag:brightness -t 1001 "Brightness: ${levels[$newIndex]}%"
