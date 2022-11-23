@@ -3,4 +3,4 @@ Requires=container-db.service
 After=container-db.service
 
 [Service]
-ExecStart=/usr/lib/systemd/systemd-socket-proxyd --exit-idle-time=10m 127.0.0.2:3306
+ExecStart=/usr/lib/systemd/systemd-socket-proxyd --exit-idle-time=10m 127.0.0.1:3307

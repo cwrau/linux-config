@@ -1,8 +1,8 @@
 [Unit]
 Description=Discord
 PartOf=messengers.target
-Requires=graphical-session.target network-online.service pipewire.service
-After=graphical-session.target network-online.service pipewire.service
+Requires=graphical-session.target pipewire.service
+After=graphical-session.target pipewire.service
 StopWhenUnneeded=yes
 
 [Service]

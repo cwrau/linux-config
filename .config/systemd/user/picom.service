@@ -1,12 +1,11 @@
 [Unit]
 Description=Picom
-After=i3-session.target
 Requires=i3-session.target
 
 [Service]
 Type=simple
 #ExecStart=/usr/bin/picom --unredir-if-possible --backend xr_glx_hybrid --vsync --use-damage --glx-no-stencil
-ExecStart=/usr/bin/picom --experimental-backends
+ExecStart=/usr/bin/picom
 ExecReload=/usr/bin/kill -s SIGUSR1 $MAINPID
 RestartSec=0
 Restart=always

@@ -1,7 +1,6 @@
 [Unit]
 Description=polybar
 Requires=graphical-session.target
-After=graphical-session.target
 Wants=polybar@top.service
 Wants=polybar@bottom.service
 

@@ -2,7 +2,7 @@
 Description=Gaming Mode
 Wants=steam.service
 Wants=discord.service
-Conflicts=work.target glava.target
+Conflicts=work.target glava.target picom.service
 
 [Service]
 Type=oneshot

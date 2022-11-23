@@ -1,0 +1,12 @@
+[Unit]
+Description=ausweisapp
+StopWhenUnneeded=yes
+
+[Service]
+Type=simple
+Delegate=true
+ExecStart=/usr/bin/AusweisApp2 --address 127.0.0.2
+
+[Install]
+WantedBy=graphical-session.target
+

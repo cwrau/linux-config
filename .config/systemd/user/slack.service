@@ -1,8 +1,8 @@
 [Unit]
 Description=Slack
 PartOf=messengers.target
-Requires=graphical-session.target network-online.service
-After=graphical-session.target network-online.service
+Requires=graphical-session.target
+After=graphical-session.target
 
 [Service]
 Type=simple

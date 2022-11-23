@@ -1,0 +1,6 @@
+[Unit]
+Requires=ausweisapp.service
+After=ausweisapp.service
+
+[Service]
+ExecStart=/usr/lib/systemd/systemd-socket-proxyd --exit-idle-time=1m 127.0.0.2:24727
