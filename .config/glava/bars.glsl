@@ -10,7 +10,7 @@
 /* Outline width (in pixels, set to 0 to disable outline drawing) */
 #define BAR_OUTLINE_WIDTH 0
 /* Amplify magnitude of the results each bar displays */
-#define AMPLIFY screen.y * 1.2
+#define AMPLIFY screen.y * 1.5
 /* Whether the current settings use the alpha channel;
    enabling this is required for alpha to function
    correctly on X11 with `"native"` transparency. */

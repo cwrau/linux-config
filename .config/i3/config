@@ -148,10 +148,17 @@ bindsym $super+r mode "resize"
 default_border pixel 1
 for_window [class=".*"] border pixel 1
 hide_edge_borders both
-for_window [class="jetbrains-toolbox"] floating enable
 for_window [class="steam_app.*"] floating enable
 for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
 for_window [class="Gnome-network-displays"] floating enable
+for_window [title="ALVR dashboard"] floating enable
+for_window [class="java-lang-Thread" instance="java-lang-Thread"] floating enable
+for_window [class="jetbrains-*" title="Clone Repository"] floating enable
+for_window [class="jetbrains-.*" title="Debug"] floating enable
+for_window [class="jetbrains-.*" title="win0"] floating enable
+for_window [class="jetbrains-.*" title="Welcome to IntelliJ IDEA"] floating enable
+for_window [class="jetbrains-.*" title="splash"] floating enable
+
 
 $exaid $XDG_CONFIG_HOME/i3/rc.sh
 
@@ -182,7 +189,7 @@ mode $Power {
 bindsym $super+period $exid splatmoji copypaste
 bindsym $super+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
 bindsym $super+m $exid morse
-bindsym $super+p $exid _open_project
+bindsym $super+p $exid open_project
 
 # Audio controls
 bindsym XF86AudioRaiseVolume $exid pactl set-sink-volume @DEFAULT_SINK@ +5%; $exid pactl set-sink-mute @DEFAULT_SINK@ 0
@@ -260,12 +267,6 @@ bindsym $super+g exec rofi-custom-search
 
 # Gamemode
 bindsym $super+shift+g $exid bash -c 'systemctl --user is-active gamemode.service && systemctl --user stop gamemode.service || systemctl --user start gamemode.service'
-
-for_window [class="java-lang-Thread" instance="java-lang-Thread"] floating enable
-for_window [class="jetbrains-.*" title="Debug"] floating enable
-for_window [class="jetbrains-.*" title="win0"] floating enable
-for_window [class="jetbrains-.*" title="Welcome to IntelliJ IDEA"] floating enable
-for_window [class="jetbrains-.*" title="splash"] floating enable
 
 #new_window none
 

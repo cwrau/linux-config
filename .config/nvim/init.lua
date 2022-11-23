@@ -22,6 +22,7 @@ vim.opt.smartcase = true
 vim.opt.softtabstop = 0
 vim.opt.swapfile = true
 vim.opt.tabstop = 2
+vim.opt.termguicolors = true
 vim.opt.undodir = XDG_CACHE_HOME .. '/nvim/undodir'
 vim.opt.undofile = true
 vim.opt.wrap = false

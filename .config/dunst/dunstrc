@@ -148,26 +148,38 @@ frame_color = "#8EC07C"
 [urgency_low]
 # IMPORTANT: colors have to be defined in quotation marks.
 # Otherwise the "#" and following would be interpreted as a comment.
-frame_color = "#3B7C87"
+frame_color = "#3B7C8788"
 foreground = "#3B7C87"
-background = "#191311"
+background = "#191311B0"
 #background = "#2B313C"
 timeout = 4
 
 [urgency_normal]
-frame_color = "#5B8234"
+frame_color = "#5B823488"
 foreground = "#5B8234"
-background = "#191311"
+background = "#191311B0"
 #background = "#2B313C"
 timeout = 6
 
 [urgency_critical]
-frame_color = "#B7472A"
+frame_color = "#B7472A88"
 foreground = "#B7472A"
-background = "#191311"
+background = "#191311B0"
 #background = "#2B313C"
 timeout = 8
 
+[updates]
+stack_tag = updates
+history_ignore = true
+
+[player]
+stack_tag = player
+history_ignore = true
+
+[zentrale]
+summary = "Eingehender Anruf"
+body = "*Zentrale:*"
+script = playerctl -a pause
 
 # Every section that isn't one of the above is interpreted as a rules to
 # override settings for certain messages.

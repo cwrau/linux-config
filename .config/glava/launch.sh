@@ -25,7 +25,7 @@ while read -r monitor width height x y; do
     radialY=$(( y + ((height / 2) - (radius / 2)) ))
     radialX=$(( x + ((width / 2) - (radius / 2)) ))
 
-    geometry="$radialX $upperBarHeight $radius $radius"
+    geometry="$radialX $radialY $radius $radius"
   fi
   unitName="glava-$type@$monitor"
   if systemctl --user is-failed --quiet "$unitName"; then

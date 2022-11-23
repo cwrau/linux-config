@@ -3,4 +3,4 @@ configuration {
   show-icons: true;
   terminal: "gnome-terminal";
 }
-@theme "solarized_alternate"
+@theme "Arc-Dark"

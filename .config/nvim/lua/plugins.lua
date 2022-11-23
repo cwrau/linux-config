@@ -4,7 +4,6 @@ return require('packer').startup(function(use)
     callback = function()
       require('plugins')
       vim.cmd('source <afile> | PackerCompile')
-      vim.cmd('PackerCompile')
     end
   })
 
@@ -175,19 +174,33 @@ return require('packer').startup(function(use)
           ['<C-d>'] = cmp.mapping.scroll_docs(-4),
           ['<C-f>'] = cmp.mapping.scroll_docs(4),
           ['<C-Space>'] = cmp.mapping.complete {},
-          ['<CR>'] = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = true },
-          ['<Tab>'] = cmp.mapping(function(fallback)
+          ['<CR>'] = function(fallback)
             if cmp.visible() then
-              local entry = cmp.get_selected_entry()
-              if not entry then
-                cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+              if cmp.get_selected_entry() then
+                cmp.confirm { behavior = cmp.ConfirmBehavior.Replace, select = true }
+                return
               end
-              cmp.confirm()
+            end
+            fallback()
+          end,
+          ['<Tab>'] = cmp.mapping(function(fallback)
+            local entries = cmp.get_entries()
+            if #entries > 0 and (#entries == 1 or entries[1].exact) then
+              cmp.confirm { select = true }
+            elseif cmp.visible() then
+              cmp.select_next_item { behavior = cmp.SelectBehavior.Select }
             else
               fallback()
             end
           end, { 'i', 's' }
-          )
+          ),
+          ['<S-Tab>'] = function(fallback)
+            if cmp.visible() then
+              cmp.select_prev_item { behavior = cmp.SelectBehavior.Select }
+            else
+              fallback()
+            end
+          end
         }),
         sources = cmp.config.sources({
           { name = 'nvim_lsp' },
@@ -238,15 +251,49 @@ return require('packer').startup(function(use)
         require('cmp_nvim_lsp').default_capabilities()
       )
 
-      local servers = { 'bashls', 'dockerls', 'jsonls', 'jdtls', 'kotlin_language_server', 'terraformls', 'yamlls',
-        'vimls', 'gopls', 'sumneko_lua' }
-      for _, lsp in pairs(servers) do
-        lspconfig[lsp].setup {}
+      local servers = { 'bashls', 'dockerls', 'jsonls', 'jdtls', 'kotlin_language_server', 'terraformls', 'vimls',
+        'pyright' }
+      for _, server in pairs(servers) do
+        lspconfig[server].setup {}
       end
+      lspconfig['sumneko_lua'].setup {
+        settings = {
+          Lua = {
+            hint = {
+              enable = true
+            }
+          }
+        }
+      }
+      lspconfig['gopls'].setup {
+        settings = {
+          gopls = {
+            hints = {
+              parameterNames = true
+            }
+          }
+        }
+      }
+      lspconfig['yamlls'].setup {
+        validate = true,
+        schemaStore = {
+          enable = true,
+          url = 'https://www.schemastore.org/api/json/catalog.json'
+        },
+        schemaDownload = {
+          enable = true
+        },
+        schemas = {
+          ['https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/all.json'] = 'kubectl-edit-*'
+        },
+        on_init = function()
+          require('yaml-schema-select')._get_client()
+        end
+      }
       --require('pkgbuild')
 
       vim.api.nvim_create_autocmd('LspAttach', {
-        callback = function()
+        callback = function(args)
           local keybindings = {
             ['='] = vim.lsp.buf.format,
             ['<C-q>'] = vim.lsp.buf.hover,
@@ -258,6 +305,55 @@ return require('packer').startup(function(use)
           end
         end
       })
+    end
+  }
+
+  use {
+    'ray-x/lsp_signature.nvim',
+    requires = 'neovim/nvim-lspconfig',
+    config = function()
+      require('lsp_signature').setup {
+        close_timeout = 500,
+        always_trigger = true
+      }
+    end
+  }
+
+  use {
+    'lvimuser/lsp-inlayhints.nvim',
+    requires = 'neovim/nvim-lspconfig',
+    config = function()
+      local lh = require('lsp-inlayhints')
+      lh.setup {}
+      vim.api.nvim_create_autocmd('LspAttach', {
+        callback = function(args)
+          lh.on_attach(vim.lsp.get_client_by_id(args.data.client_id), args.buf, false)
+        end
+      })
+    end
+  }
+
+  use {
+    'jose-elias-alvarez/null-ls.nvim',
+    requires = 'nvim-lua/plenary.nvim',
+    config = function()
+      local null_ls = require('null-ls')
+      null_ls.setup {
+        sources = {
+          null_ls.builtins.formatting.shfmt.with {
+            extra_args = { '-i', '2', '-s', '-ci' }
+          }
+        }
+      }
+    end
+  }
+
+  use {
+    'terrortylor/nvim-comment',
+    config = function()
+      require('nvim_comment').setup {
+        line_mapping = '<C-_>'
+      }
     end
   }
 
@@ -276,5 +372,11 @@ return require('packer').startup(function(use)
     'iamcco/markdown-preview.nvim',
     run = function() vim.fn['mkdp#util#install']() end,
     config = function() vim.g.mkdp_browser = 'xdg-open' end
+  }
+
+  use {
+    'nvim-telescope/telescope.nvim',
+    requires = 'nvim-lua/plenary.nvim',
+    branch = '0.1.x'
   }
 end)
