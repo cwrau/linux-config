@@ -38,11 +38,9 @@
   autoSetupMerge = true
 [credential]
   helper = store
-[diff "dyff"]
-	command = "dyff_between() { dyff --color on between \"$2\" \"$5\"; }; dyff_between"
 [pager]
-  diff = diff-so-fancy | less --tabs=1,5 -RFS
-  show = diff-so-fancy | less --tabs=1,5 -RFS
+  diff = less --tabs=1,5 -RFS
+  show = less --tabs=1,5 -RFS
 [interactive]
 #  diffFilter = diff-so-fancy --patch
   diffFilter = delta --color-only
@@ -50,6 +48,7 @@
   conflictstyle = diff3
 [diff]
   colorMoved = default
+  external = "semantic-diff"
 [color]
   ui = true
 [color "diff-highlight"]

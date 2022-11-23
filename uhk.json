@@ -1,5 +1,5 @@
 {
-  "userConfigMajorVersion": 4,
+  "userConfigMajorVersion": 5,
   "userConfigMinorVersion": 0,
   "userConfigPatchVersion": 0,
   "deviceName": "CWRKeyboard",
@@ -8,10 +8,10 @@
   "alphanumericSegmentsBrightness": 255,
   "keyBacklightBrightness": 255,
   "mouseMoveInitialSpeed": 4,
-  "mouseMoveAcceleration": 41,
+  "mouseMoveAcceleration": 80,
   "mouseMoveDeceleratedSpeed": 8,
-  "mouseMoveBaseSpeed": 16,
-  "mouseMoveAcceleratedSpeed": 64,
+  "mouseMoveBaseSpeed": 40,
+  "mouseMoveAcceleratedSpeed": 100,
   "mouseScrollInitialSpeed": 20,
   "mouseScrollAcceleration": 20,
   "mouseScrollDeceleratedSpeed": 20,
@@ -26,6 +26,7 @@
       "description": "QWERTY is the mother of all layouts. This is the PC version.",
       "layers": [
         {
+          "id": "base",
           "modules": [
             {
               "id": 0,
@@ -118,6 +119,7 @@
           ]
         },
         {
+          "id": "mod",
           "modules": [
             {
               "id": 0,
@@ -202,6 +204,7 @@
           ]
         },
         {
+          "id": "fn",
           "modules": [
             {
               "id": 0,
@@ -293,6 +296,7 @@
           ]
         },
         {
+          "id": "mouse",
           "modules": [
             {
               "id": 0,
@@ -385,6 +389,7 @@
       "description": "QWERTY is the mother of all layouts. This is the PC version.",
       "layers": [
         {
+          "id": "base",
           "modules": [
             {
               "id": 0,
@@ -739,6 +744,7 @@
           ]
         },
         {
+          "id": "mod",
           "modules": [
             {
               "id": 0,
@@ -1052,6 +1058,7 @@
           ]
         },
         {
+          "id": "fn",
           "modules": [
             {
               "id": 0,
@@ -1062,7 +1069,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 8
+                  "macroIndex": 9
                 },
                 null,
                 null,
@@ -1080,7 +1087,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 9
+                  "macroIndex": 10
                 },
                 null,
                 {
@@ -1106,11 +1113,11 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 5
+                  "macroIndex": 6
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 2
+                  "macroIndex": 3
                 },
                 null,
                 null,
@@ -1168,7 +1175,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 1
+                  "macroIndex": 2
                 },
                 null,
                 null,
@@ -1226,6 +1233,7 @@
           ]
         },
         {
+          "id": "mouse",
           "modules": [
             {
               "id": 0,
@@ -1436,6 +1444,7 @@
       "description": "QWERTY is the mother of all layouts. This is the PC version.",
       "layers": [
         {
+          "id": "base",
           "modules": [
             {
               "id": 0,
@@ -1788,6 +1797,7 @@
           ]
         },
         {
+          "id": "mod",
           "modules": [
             {
               "id": 0,
@@ -2054,6 +2064,7 @@
           ]
         },
         {
+          "id": "fn",
           "modules": [
             {
               "id": 0,
@@ -2064,7 +2075,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 8
+                  "macroIndex": 9
                 },
                 null,
                 null,
@@ -2082,7 +2093,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 11
+                  "macroIndex": 12
                 },
                 null,
                 {
@@ -2108,11 +2119,11 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 7
+                  "macroIndex": 8
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 4
+                  "macroIndex": 5
                 },
                 null,
                 null,
@@ -2243,6 +2254,7 @@
           ]
         },
         {
+          "id": "mouse",
           "modules": [
             {
               "id": 0,
@@ -2420,6 +2432,7 @@
       "description": "QWERTY is the mother of all layouts. This is the PC version.",
       "layers": [
         {
+          "id": "base",
           "modules": [
             {
               "id": 0,
@@ -2774,6 +2787,7 @@
           ]
         },
         {
+          "id": "mod",
           "modules": [
             {
               "id": 0,
@@ -3087,6 +3101,7 @@
           ]
         },
         {
+          "id": "fn",
           "modules": [
             {
               "id": 0,
@@ -3097,7 +3112,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 8
+                  "macroIndex": 9
                 },
                 null,
                 null,
@@ -3115,7 +3130,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 11
+                  "macroIndex": 12
                 },
                 null,
                 {
@@ -3141,11 +3156,11 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 7
+                  "macroIndex": 8
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 4
+                  "macroIndex": 5
                 },
                 null,
                 null,
@@ -3206,7 +3221,7 @@
                 null,
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 1
+                  "macroIndex": 2
                 },
                 null,
                 null,
@@ -3264,6 +3279,7 @@
           ]
         },
         {
+          "id": "mouse",
           "modules": [
             {
               "id": 0,
@@ -3496,6 +3512,17 @@
     {
       "isLooped": false,
       "isPrivate": true,
+      "name": "$onInit",
+      "macroActions": [
+        {
+          "macroActionType": "command",
+          "command": "set macroEngine.extendedCommands 1"
+        }
+      ]
+    },
+    {
+      "isLooped": false,
+      "isPrivate": true,
       "name": "€",
       "macroActions": [
         {
@@ -3523,12 +3550,12 @@
       "name": "A-umlaut",
       "macroActions": [
         {
-          "macroActionType": "text",
-          "text": "$ifShift exec A-umlaut-big"
+          "macroActionType": "command",
+          "command": "$ifShift exec A-umlaut-big"
         },
         {
-          "macroActionType": "text",
-          "text": "$ifNotShift exec A-umlaut-small"
+          "macroActionType": "command",
+          "command": "$ifNotShift exec A-umlaut-small"
         }
       ]
     },
@@ -3586,12 +3613,12 @@
       "name": "O-umlaut",
       "macroActions": [
         {
-          "macroActionType": "text",
-          "text": "$ifShift exec O-umlaut-big"
+          "macroActionType": "command",
+          "command": "$ifShift exec O-umlaut-big"
         },
         {
-          "macroActionType": "text",
-          "text": "$ifNotShift exec O-umlaut-small"
+          "macroActionType": "command",
+          "command": "$ifNotShift exec O-umlaut-small"
         }
       ]
     },
@@ -3673,12 +3700,12 @@
       "name": "U-umlaut",
       "macroActions": [
         {
-          "macroActionType": "text",
-          "text": "$ifShift exec U-umlaut-big"
+          "macroActionType": "command",
+          "command": "$ifShift exec U-umlaut-big"
         },
         {
-          "macroActionType": "text",
-          "text": "$ifNotShift exec U-umlaut-small"
+          "macroActionType": "command",
+          "command": "$ifNotShift exec U-umlaut-small"
         }
       ]
     },

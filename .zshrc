@@ -34,7 +34,7 @@ export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
 export HELM_DIFF_OUTPUT="dyff"
 export HELM_PLUGINS="/usr/lib/helm/plugins"
 export KONAN_DATA_DIR="$XDG_DATA_HOME/konan"
-export LESSHISTFILE="$XDG_DATA_HOME/less/history"
+export LESSHISTFILE="$XDG_CACHE_HOME/less/history"
 export MINIKUBE_HOME="$XDG_DATA_HOME/minikube"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 export NUGET_PACKAGES="$XDG_DATA_HOME/NuGet"
@@ -300,7 +300,8 @@ function _ssh() {
 }
 
 function idea() {
-  _open_project "$(realpath "${1:-.}")"
+  [[ -z "$1" ]] && open_project _
+  [[ "$1" ]] && open_project "$(realpath "$1")"
 }
 
 function diff() {
@@ -511,6 +512,7 @@ function helmrelease() {
     local sourceKind
     local sourceResource
     local chartName
+    local helmRepositoryUrl
     sourceNamespace=$(<<< "$helmReleaseYaml" | yq -er ".spec.chart.spec.sourceRef.namespace // \"$namespace\"")
     sourceName=$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.sourceRef.name)
     sourceKind=$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.sourceRef.kind)
@@ -521,9 +523,9 @@ function helmrelease() {
       if [[ "$?" != 0 ]]; then
         sourceResource=$(kubectl --namespace=$sourceNamespace get $sourceKind $sourceName -o yaml)
         if [[ "$?" != 0 ]]; then
-          local helmRepositoryUrl="https://charts.4allportal.net"
+          helmRepositoryUrl="https://teutonet.github.io/teutonet-helm-charts"
           echo "Source resource '$sourceNamespace/$sourceKind/$sourceName' not found in cluster nor in input" > /dev/stderr
-          vared -p "Please specify Helm Repository URL: " helmRepositoryUrl
+          vared -p "Please specify Helm Repository URL: " helmRepositoryUrl > /dev/null
           sourceKind=HelmRepository
           sourceResource=$'spec:\n  url: '"$helmRepositoryUrl"
         fi
@@ -541,7 +543,6 @@ function helmrelease() {
         _hr_git "$subCommand" "$gitUrl" "$gitRef" "$chartName" "$namespace" "$releaseName" "$values" "$@"
         ;;
       HelmRepository)
-        local helmRepositoryUrl
         local chartVersion
         helmRepositoryUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
         chartVersion="$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.version)"
@@ -549,6 +550,7 @@ function helmrelease() {
         ;;
       *)
         echo "'$sourceKind' is not implemented" > /dev/stderr
+        return 1
         ;;
     esac
   fi
@@ -631,11 +633,16 @@ function _cwatch() {
 }
 compdef _cwatch cwatch
 
-function kconfig() {
-	local config
+function kk() {
+  local config
   local openRc
   local unitName
   local query
+
+  if ! systemctl --user is-active -q gopass-fuse.service; then
+    systemctl --user start --no-block gopass-fuse
+  fi
+
   if [[ -z "$1" ]]; then
     query=""
   elif [[ -f "$XDG_RUNTIME_DIR/gopass/$1" ]]; then
@@ -900,6 +907,7 @@ nAlias grep rg
 nAlias o xdg-open
 nAlias dmakepkg podman-run --network host -v '$PWD:/pkg' 'whynothugo/makepkg' makepkg
 reAlias watch ' '
+reAlias timeout ' '
 nAlias scu /usr/bin/systemctl --user
 nAlias sc systemctl
 nAlias sru /usr/bin/systemd-run --user
@@ -936,27 +944,29 @@ alias -g T='| tee'
 alias -g TD='T /dev/stderr'
 alias -g X='| xargs'
 alias -g Y='| yq'
+alias -g U='| up'
+alias -g UR='U --unsafe-full-throttle'
 alias -g COUNT='| wc -l'
-
-if [[ -f "$XDG_RUNTIME_DIR/kconfig/current_kubeconfig" ]]; then
-  kconfig "$(cat $XDG_RUNTIME_DIR/kconfig/current_kubeconfig)"
-fi
 
 if ! [[ -f "$KUBECONFIG" ]]; then
   unset KUBECONFIG
-  rm -f "$XDG_RUNTIME_DIR/current_kubeconfig"
+  if [[ -f "$XDG_RUNTIME_DIR/kconfig/current_kubeconfig" ]]; then
+    kk "$(cat $XDG_RUNTIME_DIR/kconfig/current_kubeconfig)"
+  else
+    rm -f "$XDG_RUNTIME_DIR/current_kubeconfig"
+  fi
 fi
 
 function k9s() {
   if [[ $# == 2 ]]; then
-    kconfig $1
+    kk $1
     command k9s --context $2
   elif [[ $# == 1 ]]; then
     command k9s --context $1
   elif [[ -f "$KUBECONFIG" ]]; then
     command k9s
   else
-    kconfig
+    kk
     command k9s
   fi
 }
