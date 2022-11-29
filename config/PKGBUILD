@@ -33,8 +33,8 @@ depends=(
     bind
     blueman
     bluez-utils
-    bpytop
     breeze-hacked-cursor-theme
+    btop
     btrfs-progs
     clipmenu
     cloudflared
