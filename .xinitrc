@@ -10,8 +10,8 @@ xrandr --setprovideroutputsource modesetting NVIDIA-0
 xrandr --output eDP-1-1 --mode 1920x1080 --primary
 autorandr --skip-option gamma,brightness --change --default horizontal
 
-xinput list | grep touchpad | cut -d = -f 2 A NF=1 | xargs -i xinput set-prop {} 'libinput Click Method Enabled' 0 1
-xinput list | grep touchpad | cut -d = -f 2 A NF=1 | xargs -i xinput set-prop {} 'libinput Tapping Enabled' 1
+xinput list | grep touchpad | cut -d = -f 2 | awk NF=1 | xargs -i xinput set-prop {} 'libinput Click Method Enabled' 0 1
+xinput list | grep touchpad | cut -d = -f 2 | awk NF=1 | xargs -i xinput set-prop {} 'libinput Tapping Enabled' 1
 
 xset r on r rate 200
 xset s off

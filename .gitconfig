@@ -11,6 +11,8 @@
   path = .gitconfig-work
 [gui]
 [credential]
+[advice]
+  skippedCherryPicks = false
 [global]
  program = gpg2
 [commit]
