@@ -1,7 +1,0 @@
-# vim: syntax=yaml
-extends: default
-rules:
-  line-length: disable
-  document-start: disable
-  indentation:
-    indent-sequences: consistent
