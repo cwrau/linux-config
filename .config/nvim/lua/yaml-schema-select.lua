@@ -1,8 +1,3 @@
-local pickers = require 'telescope.pickers'
-local finders = require 'telescope.finders'
-local actions = require 'telescope.actions'
-local action_state = require 'telescope.actions.state'
-local conf = require('telescope.config').values
 local util = require('lspconfig').util
 
 local M = {}
@@ -19,36 +14,7 @@ M._get_client = function()
   return M.client
 end
 
-M._load_all_schemas = function()
-  local client = M._get_client()
-  if not client then return end
-  local params = { uri = M.uri }
-  client.request('yaml/get/all/jsonSchemas', params, function(err, result, _, _)
-    if err then
-      return
-    end
-    if result then
-      if vim.tbl_count(result) == 0 then
-        return vim.notify('Schemas not loaded yet.')
-      end
-      table.insert(result, {
-        name = 'kubernetes',
-        uri = 'https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/all.json'
-      })
-      M._open_telescope(result)
-    end
-  end)
-end
-
-M._telescope_action = function(prompt_bufnr, _)
-  actions.select_default:replace(function()
-    actions.close(prompt_bufnr)
-    local selection = action_state.get_selected_entry()
-    M._change_settings(selection.value)
-  end)
-  return true
-end
-
+---@param schema string
 M._change_settings = function(schema)
   local client = M._get_client()
   if client == nil then
@@ -77,64 +43,59 @@ M._change_settings = function(schema)
   })
   client.config.settings = new_settings
   client.notify('workspace/didChangeConfiguration')
-  vim.notify('Successfully applied schema ' .. schema)
 end
 
-M._open_telescope = function(schemas)
-  local opts = {}
-  return pickers.new(opts, {
-    prompt_title = 'Yaml Schemas',
-    finder = finders.new_table {
-      results = schemas,
-      entry_maker = function(entry)
-        local ret_obj = {
-          value = entry.uri,
-          display = entry.uri,
-          ordinal = entry.uri
-        }
-        if entry.name then
-          ret_obj.display = entry.name
-          ret_obj.ordinal = entry.name
-        end
-        return ret_obj
-      end
-    },
-
-    sorter = conf.generic_sorter(opts),
-    attach_mappings = M._telescope_action,
-  }):find()
-end
-
-M.select = function()
-  M._get_client()
-  if not M.client then return end
-  M._load_all_schemas()
-end
-
-M.get_current_schema = function()
-  local client = M._get_client()
-  if not M.client or not M.uri or not client then
-    return ''
+---@param path string
+---@return boolean
+local function file_exists(path)
+  local file = io.open(path, "r")
+  if file == nil then
+    return false
+  else
+    io.close(file)
+    return true
   end
-  client.request('yaml/get/jsonSchema', { M.uri }, function(err, e)
-    local current_schema
-    if err then
+end
+
+M.setup = function()
+  local fileName = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
+  if fileName:find('values.yaml$') then
+    local schemaPath
+    if fileName:find('/ci/') then
+      schemaPath = fileName:gsub('/ci/[^/]-.yaml', '/values.schema.json')
+    else
+      schemaPath = fileName:gsub('/[^/]-.yaml', '/values.schema.json')
+    end
+
+    if file_exists(schemaPath) then
+      M._change_settings('file://' .. schemaPath)
       return
     end
-    if e[0] then
-      current_schema = e[0].uri
-    elseif e[1] then
-      current_schema = e[1].uri
-    end
-    if current_schema then
-      current_schema = current_schema:gsub('https://raw.githubusercontent.com/', '')
-      current_schema = current_schema:gsub('https://json.schemastore.org/', '')
-      M.current_yaml_schema = 'YAML schema: ' .. current_schema
-    end
-  end)
-  return M.current_yaml_schema
-end
+  end
 
-M._get_client()
+  local yaml = table.concat(vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), 0, -1, false), '\n')
+  for apiGroup in yaml:gmatch('\n?apiVersion: (.-)/.-\n') do
+    for apiVersion in yaml:gmatch('\n?apiVersion: ' .. apiGroup:gsub('([^%w])', '%%%1') .. '/(.-)\n') do
+      for kind in yaml:gmatch('\nkind: (.-)\n') do
+        local schemaFile = os.tmpname()
+        local exitCode = os.execute([[timeout 3 kubectl get crd -A -o json | jq '.items[] | select(.spec.names.singular == "]]
+          .. kind:lower()
+          .. [[" and .spec.group == "]]
+          .. apiGroup:lower()
+          .. [[") | .spec.versions[] | select(.name == "]]
+          .. apiVersion .. [[") | .schema.openAPIV3Schema' > ]] .. schemaFile)
+        if exitCode == 0 then
+          M._change_settings('file://' .. schemaFile)
+        else
+          M._change_settings('https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/all.json')
+        end
+        vim.api.nvim_create_autocmd('VimLeavePre', {
+          callback = function() os.remove(schemaFile) end
+        })
+        return
+      end
+    end
+  end
+end
 
 return M

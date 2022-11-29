@@ -21,6 +21,7 @@ return require('packer').startup(function(use)
       vim.opt.background = 'dark'
       vim.g.enable_bold_font = 1
       vim.g.enable_italic_font = 1
+      vim.g.hybrid_transparent_background = 1
       vim.cmd.colorscheme('hybrid_material')
     end
   }
@@ -40,6 +41,7 @@ return require('packer').startup(function(use)
 
   use {
     'nvim-treesitter/nvim-treesitter',
+    requires = 'nvim-treesitter/playground',
     run = function() require('nvim-treesitter.install').update({ with_sync = true }) end,
     config = function()
       require('nvim-treesitter.configs').setup {
@@ -65,16 +67,7 @@ return require('packer').startup(function(use)
           disable = {
             'yaml'
           }
-        },
-        incremental_selection = {
-          enable = true,
-          keymaps = {
-            init_selection = 'gnn',
-            node_incremental = 'grn',
-            scope_incremental = 'grc',
-            node_decremental = 'grm',
-          },
-        },
+        }
       }
 
       vim.opt.foldenable = false
@@ -227,7 +220,6 @@ return require('packer').startup(function(use)
         view = {
           entries = {
             name = 'custom',
-            selection_order = 'near_cursor'
           }
         },
         experimental = {
@@ -275,25 +267,29 @@ return require('packer').startup(function(use)
         }
       }
       lspconfig['yamlls'].setup {
-        validate = true,
-        schemaStore = {
-          enable = true,
-          url = 'https://www.schemastore.org/api/json/catalog.json'
-        },
-        schemaDownload = {
-          enable = true
-        },
-        schemas = {
-          ['https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/all.json'] = 'kubectl-edit-*'
-        },
-        on_init = function()
-          require('yaml-schema-select')._get_client()
+--        settings = {
+--          yaml = {
+--            validate = true,
+--            schemaStore = {
+--              enable = true,
+--              url = 'https://www.schemastore.org/api/json/catalog.json'
+--            },
+--            schemaDownload = {
+--              enable = true
+--            },
+--            schemas = {
+--              ['https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/all.json'] = '/*kubectl-edit-*.yaml'
+--            }
+--          }
+--        },
+        on_attach = function()
+          require('yaml-schema-select').setup()
         end
       }
       --require('pkgbuild')
 
       vim.api.nvim_create_autocmd('LspAttach', {
-        callback = function(args)
+        callback = function()
           local keybindings = {
             ['='] = vim.lsp.buf.format,
             ['<C-q>'] = vim.lsp.buf.hover,
@@ -371,12 +367,7 @@ return require('packer').startup(function(use)
   use {
     'iamcco/markdown-preview.nvim',
     run = function() vim.fn['mkdp#util#install']() end,
-    config = function() vim.g.mkdp_browser = 'xdg-open' end
-  }
-
-  use {
-    'nvim-telescope/telescope.nvim',
-    requires = 'nvim-lua/plenary.nvim',
-    branch = '0.1.x'
+    config = function() vim.g.mkdp_browser = 'xdg-open' end,
+    ft = 'markdown'
   }
 end)
