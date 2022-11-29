@@ -1,5 +1,6 @@
 [Unit]
 Description=cloudflared for %I
+CollectMode=inactive-or-failed
 
 [Service]
 Type=simple

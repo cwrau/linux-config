@@ -2,7 +2,6 @@
 Description=glava %I
 PartOf=glava.target
 Requires=picom.service
-After=picom.service
 CollectMode=inactive-or-failed
 
 [Service]
