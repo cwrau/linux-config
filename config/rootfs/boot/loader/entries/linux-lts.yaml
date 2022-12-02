@@ -1,6 +1,6 @@
 title: Arch Linux LTS
 linux: linux-lts
-ucode: amd
 initramfs: linux-lts
 options: []
+skipDefaultOptions: true
 

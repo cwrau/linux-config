@@ -136,9 +136,7 @@ depends=(
     neovim-drop-in
     nerd-fonts-complete
     net-tools
-    network-manager-applet
     networkmanager-dmenu-git
-    networkmanager-openvpn
     nmap
     nodejs-neovim
     notify-send.sh
@@ -193,7 +191,6 @@ depends=(
     rofi
     rofi-dmenu
     shellcheck
-    shfmt
     siji-git
     slit-git
     slurp

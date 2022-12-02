@@ -1,6 +1,5 @@
 title: Arch Linux ZEN with ryzen patch
 linux: linux-zen-ryzen
-ucode: amd
 initramfs: linux-zen-ryzen
 options: []
 

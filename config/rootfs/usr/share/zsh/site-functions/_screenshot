@@ -1,0 +1,8 @@
+#compdef screenshot
+
+function _screenshot() {
+  _arguments "1:Mode:(full selection window)" \
+    "2:Destination:(- -- clipboard)"
+}
+
+# vim: ft=zsh

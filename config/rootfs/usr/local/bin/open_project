@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-wrapper=("systemd-run" "--user" "--same-dir" "--setenv=KUBECONFIG=$XDG_CONFIG_HOME/kube/config" "--unit=intellij-$(cat /proc/sys/kernel/random/uuid)" "--property=CollectMode=inactive-or-failed" "--slice=intellij.slice" "--" "script" "--return" "--quiet" "--log-out" "/dev/null" "--command")
+wrapper=("systemd-run" "--user" "--same-dir" "--setenv=KUBECONFIG=$XDG_CONFIG_HOME/kube/config" "--unit=intellij-$(cat /proc/sys/kernel/random/uuid)" "--collect" "--slice=intellij.slice" "--" "script" "--return" "--quiet" "--log-out" "/dev/null" "--command")
 codeEditor="vscode"
 codeEditor="intellij-idea-ultimate-edition"
 

@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e
 set -o pipefail
 
 for c in /boot/loader/entries/*.yaml; do
-  echo "templating $c"
+  echo ---
+  echo "templating $c:"
+  echo ---
   if gomplate -f /boot/loader/entries/entry.tmpl -d file="file://$c" | tee "${c/.yaml/}.conf.new"; then
     mv "${c/.yaml/}.conf.new" "${c/.yaml/}.conf"
+    echo
+    echo ---
   else
     echo error during templating
     exit 1

@@ -1,6 +1,5 @@
 title: Arch Linux ZEN
 linux: linux-zen
-ucode: amd
 initramfs: linux-zen
 options: []
 

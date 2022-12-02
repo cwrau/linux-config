@@ -4,6 +4,7 @@ Operation = Upgrade
 Type = File
 Target = boot/loader/entries/*.yaml
 Target = boot/loader/entries/entry.tmpl
+Target = usr/local/bin/gen_boot_entries
 
 [Action]
 When = PostTransaction
