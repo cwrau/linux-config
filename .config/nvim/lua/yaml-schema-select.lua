@@ -2,8 +2,6 @@ local util = require('lspconfig').util
 
 local M = {}
 
-M.current_yaml_schema = 'No YAML schema'
-
 M._get_client = function()
   M.bufnr = vim.api.nvim_get_current_buf()
   M.uri = vim.uri_from_bufnr(M.bufnr)
@@ -21,7 +19,7 @@ M._change_settings = function(schema)
     return
   end
   local previous_settings = client.config.settings
-  if previous_settings.yaml then
+  if previous_settings.yaml and previous_settings.yaml.schemas then
     for key, value in pairs(previous_settings.yaml.schemas) do
       if vim.tbl_islist(value) then
         for idx, value_value in pairs(value) do
@@ -78,7 +76,10 @@ M.setup = function()
     for apiVersion in yaml:gmatch('\n?apiVersion: ' .. apiGroup:gsub('([^%w])', '%%%1') .. '/(.-)\n') do
       for kind in yaml:gmatch('\nkind: (.-)\n') do
         local schemaFile = os.tmpname()
-        local exitCode = os.execute([[timeout 3 kubectl get crd -A -o json | jq '.items[] | select(.spec.names.singular == "]]
+        vim.api.nvim_create_autocmd('VimLeavePre', {
+          callback = function() os.remove(schemaFile) end
+        })
+        local exitCode = os.execute([[timeout 3 kubectl get crd -A -o json | jq -e '.items[] | select(.spec.names.singular == "]]
           .. kind:lower()
           .. [[" and .spec.group == "]]
           .. apiGroup:lower()
@@ -87,11 +88,8 @@ M.setup = function()
         if exitCode == 0 then
           M._change_settings('file://' .. schemaFile)
         else
-          M._change_settings('https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/all.json')
+          M._change_settings('https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/' .. kind:lower() .. '.json')
         end
-        vim.api.nvim_create_autocmd('VimLeavePre', {
-          callback = function() os.remove(schemaFile) end
-        })
         return
       end
     end

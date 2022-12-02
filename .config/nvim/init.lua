@@ -32,13 +32,14 @@ require('plugins')
 -- fuzzy finding with vim
 vim.opt.path:append '**'
 -- Enable autocompletion:
-vim.opt.wildmode = {'longest','list','full'}
+vim.opt.wildmode = { 'longest', 'list', 'full' }
 -- Spell-check set to <leader>o, 'o' for 'orthography':
-vim.opt.spelllang = {'de','en'}
-vim.opt.spellsuggest = {'best',9}
+vim.opt.spelllang = { 'de', 'en' }
+vim.opt.spellsuggest = { 'best', 9 }
 local spellFilesGroup = vim.api.nvim_create_augroup('spellFiles', {})
 vim.api.nvim_create_autocmd('FileType', { pattern = 'markdown', command = 'setlocal spell', group = spellFilesGroup })
-vim.api.nvim_create_autocmd('FileType', { pattern = 'markdown', command = 'setlocal textwidth=90', group = spellFilesGroup })
+vim.api.nvim_create_autocmd('FileType',
+  { pattern = 'markdown', command = 'setlocal textwidth=90', group = spellFilesGroup })
 
 -- preferences
 -- Stay in visual mode when indenting. You will never have to run gv after
@@ -46,13 +47,14 @@ vim.api.nvim_create_autocmd('FileType', { pattern = 'markdown', command = 'setlo
 vim.keymap.set('v', '<', '<gv')
 vim.keymap.set('v', '>', '>gv')
 
-vim.opt.wildignore:append({'*/tmp/*', '*.so', '*.swp', '*.zip', '*.pyc', '*.db', '*.sqlite'})
+vim.opt.wildignore:append({ '*/tmp/*', '*.so', '*.swp', '*.zip', '*.pyc', '*.db', '*.sqlite' })
 
 -- jsx
 vim.g.jsx_ext_required = 0
 vim.opt.guicursor = ''
 
-vim.api.nvim_set_hl(0, 'ExtraWhitespace', { ctermfg = 167, fg = '#CC6666', ctermbg = 167, bg = '#CC6666', underdashed = true })
+vim.api.nvim_set_hl(0, 'ExtraWhitespace',
+  { ctermfg = 167, fg = '#CC6666', ctermbg = 167, bg = '#CC6666', underdashed = true })
 vim.api.nvim_create_autocmd('InsertEnter', { command = 'match ExtraWhitespace /\\s\\+\\%#\\@<!$/' })
 vim.api.nvim_create_autocmd('InsertLeave', { command = 'match ExtraWhitespace /\\s\\+$/' })
 vim.cmd.match('ExtraWhitespace /\\s\\+$/') -- TODO

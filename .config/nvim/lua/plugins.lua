@@ -80,7 +80,7 @@ return require('packer').startup(function(use)
     'folke/trouble.nvim',
     requires = 'kyazdani42/nvim-web-devicons',
     config = function()
-      require('trouble').setup {}
+      require('trouble').setup()
 
       vim.keymap.set('n', '<C-t>', '<cmd>TroubleToggle<cr>')
     end
@@ -140,7 +140,28 @@ return require('packer').startup(function(use)
 
   use {
     'williamboman/mason.nvim',
-    config = function() require('mason').setup {} end
+    config = function() require('mason').setup() end
+  }
+
+  use {
+    'mfussenegger/nvim-dap',
+    config = function()
+      local dap = require('dap')
+      vim.keymap.set('n', '<F21>', function()
+        if dap.session() then
+          dap.restart()
+        else
+          dap.continue()
+        end
+      end
+      )
+      vim.keymap.set('n', '<F9>', dap.continue)
+      vim.keymap.set('n', '<F26>', dap.disconnect)
+      vim.keymap.set('n', '<F7>', dap.step_into)
+      vim.keymap.set('n', '<F8>', dap.step_over)
+      vim.keymap.set('n', '<F20>', dap.step_out)
+      vim.keymap.set('n', '<F32>', dap.toggle_breakpoint)
+    end
   }
 
   use {
@@ -232,6 +253,20 @@ return require('packer').startup(function(use)
   }
 
   use {
+    'jayp0521/mason-nvim-dap.nvim',
+    requires = { 'mfussenegger/nvim-dap', 'williamboman/mason.nvim' },
+    config = function()
+      local mason_dap = require('mason-nvim-dap')
+      mason_dap.setup {
+        automatic_installation = true,
+        automatic_setup = true,
+        ensure_installed = { 'python', 'delve', 'bash' }
+      }
+      mason_dap.setup_handlers()
+    end
+  }
+
+  use {
     'neovim/nvim-lspconfig',
     requires = 'hrsh7th/nvim-cmp',
     config = function()
@@ -267,21 +302,21 @@ return require('packer').startup(function(use)
         }
       }
       lspconfig['yamlls'].setup {
---        settings = {
---          yaml = {
---            validate = true,
---            schemaStore = {
---              enable = true,
---              url = 'https://www.schemastore.org/api/json/catalog.json'
---            },
---            schemaDownload = {
---              enable = true
---            },
---            schemas = {
---              ['https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/all.json'] = '/*kubectl-edit-*.yaml'
---            }
---          }
---        },
+        --        settings = {
+        --          yaml = {
+        --            validate = true,
+        --            schemaStore = {
+        --              enable = true,
+        --              url = 'https://www.schemastore.org/api/json/catalog.json'
+        --            },
+        --            schemaDownload = {
+        --              enable = true
+        --            },
+        --            schemas = {
+        --              ['https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/all.json'] = '/*kubectl-edit-*.yaml'
+        --            }
+        --          }
+        --        },
         on_attach = function()
           require('yaml-schema-select').setup()
         end
@@ -320,7 +355,7 @@ return require('packer').startup(function(use)
     requires = 'neovim/nvim-lspconfig',
     config = function()
       local lh = require('lsp-inlayhints')
-      lh.setup {}
+      lh.setup()
       vim.api.nvim_create_autocmd('LspAttach', {
         callback = function(args)
           lh.on_attach(vim.lsp.get_client_by_id(args.data.client_id), args.buf, false)
@@ -331,15 +366,56 @@ return require('packer').startup(function(use)
 
   use {
     'jose-elias-alvarez/null-ls.nvim',
-    requires = 'nvim-lua/plenary.nvim',
+    requires = { 'nvim-lua/plenary.nvim', 'williamboman/mason.nvim' },
     config = function()
       local null_ls = require('null-ls')
-      null_ls.setup {
-        sources = {
-          null_ls.builtins.formatting.shfmt.with {
-            extra_args = { '-i', '2', '-s', '-ci' }
-          }
+      local sources = {
+        null_ls.builtins.formatting.shfmt.with {
+          extra_args = { '-i', '2', '-s', '-ci' }
+        },
+      }
+      local tools = {
+        diagnostics = {
+          'actionlint',
+          'flake8',
+          'jsonlint',
+          'ktlint',
+          'luacheck',
+          'markdownlint',
+          'pylint',
+          'revive',
+          'shellcheck',
+          'todo_comments',
+          'yamllint',
+          'zsh',
+        },
+        formatting = {
+          'black',
+          'isort',
         }
+      }
+
+      for type, type_sources in pairs(tools) do
+        for _, source in pairs(type_sources) do
+          table.insert(sources, null_ls.builtins[type][source])
+        end
+      end
+
+      null_ls.setup {
+        sources = sources
+      }
+    end
+  }
+
+  use {
+    'jay-babu/mason-null-ls.nvim',
+    requires = { 'williamboman/mason.nvim', 'jose-elias-alvarez/null-ls.nvim' },
+    config = function()
+      local mason_null_ls = require('mason-null-ls')
+      mason_null_ls.setup {
+        ensure_installed = nil,
+        automatic_installation = true,
+        automatic_setup = true,
       }
     end
   }
@@ -356,7 +432,7 @@ return require('packer').startup(function(use)
   use {
     'folke/neodev.nvim',
     requires = 'neovim/nvim-lspconfig',
-    config = function() require('neodev').setup {} end
+    config = function() require('neodev').setup() end
   }
 
   use {
@@ -370,4 +446,6 @@ return require('packer').startup(function(use)
     config = function() vim.g.mkdp_browser = 'xdg-open' end,
     ft = 'markdown'
   }
+
+  require('open-github-url').setup()
 end)
