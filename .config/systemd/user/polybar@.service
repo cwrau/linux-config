@@ -5,7 +5,7 @@ CollectMode=inactive-or-failed
 
 [Service]
 Type=oneshot
-RemainAfterExit=yes
+RemainAfterExit=true
 ExecStartPre=/bin/bash -c 'until i3-msg; do sleep 1; done'
 ExecStart=%E/polybar/launch.sh %i
 ExecReload=%E/polybar/launch.sh %i restart

@@ -7,17 +7,17 @@ Requires=i3-session.target
 Type=oneshot
 ExecStart=/usr/bin/feh --bg-fill %E/background.jpg --no-fehbg
 ExecReload=/usr/bin/feh --bg-fill %E/background.jpg --no-fehbg
-RemainAfterExit=yes
+RemainAfterExit=true
 ExecStop=/usr/bin/feh --bg-tile %E/black.jpg --no-fehbg
 RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...
-ProtectSystem=yes
+ProtectSystem=true
 # more paranoid security settings
-NoNewPrivileges=yes
-ProtectKernelTunables=yes
-ProtectControlGroups=yes
-RestrictNamespaces=yes
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictNamespaces=true
 
 [Install]
 WantedBy=i3-session.target

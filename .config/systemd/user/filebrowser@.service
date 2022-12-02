@@ -1,6 +1,7 @@
 [Unit]
 Description=filebrowser for %I
-StopWhenUnneeded=yes
+StopWhenUnneeded=true
+CollectMode=inactive-or-failed
 
 [Service]
 Type=simple

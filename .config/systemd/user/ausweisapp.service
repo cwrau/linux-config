@@ -1,6 +1,6 @@
 [Unit]
 Description=ausweisapp
-StopWhenUnneeded=yes
+StopWhenUnneeded=true
 
 [Service]
 Type=simple

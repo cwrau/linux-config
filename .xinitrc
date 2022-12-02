@@ -18,4 +18,4 @@ xset s off
 xrandr --dpi 100
 
 systemd-cat --stderr-priority=warning --identifier=i3 i3
-systemctl --user stop graphical-session.target
+systemctl --user stop i3-session.target

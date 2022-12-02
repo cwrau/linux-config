@@ -12,8 +12,8 @@ Restart=always
 Slice=messengers.slice
 
 # disallow writing to /usr, /bin, /sbin, ...
-ProtectSystem=yes
+ProtectSystem=true
 # more paranoid security settings
-NoNewPrivileges=yes
-ProtectKernelTunables=yes
-ProtectControlGroups=yes
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectControlGroups=true

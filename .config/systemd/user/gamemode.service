@@ -8,14 +8,14 @@ Conflicts=work.target glava.target picom.service
 Type=oneshot
 Environment="SERVICES=glava.target picom.service"
 ExecStart=/usr/bin/true
-RemainAfterExit=yes
+RemainAfterExit=true
 ExecStop=/usr/bin/systemctl --user start $SERVICES
 RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...
-ProtectSystem=yes
+ProtectSystem=true
 # more paranoid security settings
-NoNewPrivileges=yes
-ProtectKernelTunables=yes
-ProtectControlGroups=yes
-RestrictNamespaces=yes
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictNamespaces=true

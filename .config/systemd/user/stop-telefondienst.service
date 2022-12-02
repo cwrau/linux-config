@@ -4,11 +4,12 @@ Description=Stop Telefondienst
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/systemctl --user stop telefondienst.target
+ExecStartPost=/usr/bin/notify-send.sh 'Telefondienst is over\nReset 3cx status'
 
 # disallow writing to /usr, /bin, /sbin, ...
-ProtectSystem=yes
+ProtectSystem=true
 # more paranoid security settings
-NoNewPrivileges=yes
-ProtectKernelTunables=yes
-ProtectControlGroups=yes
-RestrictNamespaces=yes
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictNamespaces=true

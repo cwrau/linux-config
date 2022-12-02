@@ -3,7 +3,7 @@ Description=Discord
 PartOf=messengers.target
 Requires=graphical-session.target pipewire.service
 After=graphical-session.target pipewire.service
-StopWhenUnneeded=yes
+StopWhenUnneeded=true
 
 [Service]
 Type=simple

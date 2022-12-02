@@ -1,6 +1,6 @@
 [Unit]
 Description=Container DB
-StopWhenUnneeded=yes
+StopWhenUnneeded=true
 
 [Service]
 Type=notify

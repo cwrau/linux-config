@@ -23,6 +23,7 @@ export ADB_VENDOR_KEY="$XDG_CONFIG_HOME/android"
 export ANDROID_AVD_HOME="$XDG_DATA_HOME/android"
 export ANDROID_EMULATOR_HOME="$XDG_DATA_HOME/android"
 export ANDROID_SDK_HOME="$XDG_CONFIG_HOME/android"
+export ANSIBLE_HOME="$XDG_DATA_HOME/ansible"
 export AZURE_CONFIG_DIR="$XDG_DATA_HOME/azure"
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export CLUSTERCTL_DISABLE_VERSIONCHECK=true
@@ -64,6 +65,8 @@ export SDL_AUDIODRIVER="pulse"
 export SECRETS_EXTENSION=".gpg"
 export SYSTEMD_PAGERSECURE=false
 export VISUAL=nvim
+export KUBECTL_NODE_SHELL_POD_CPU=0
+export KUBECTL_NODE_SHELL_POD_MEMORY=0
 
 if [[ $- = *i* ]] && [[ "$XDG_VTNR" == 1 ]]; then
   if false; then
@@ -662,11 +665,8 @@ function kk() {
   openRc="$(dirname "$XDG_RUNTIME_DIR/gopass/$config")/open-rc"
   if [[ -f "$openRc" ]]; then
     unitName="$(md5sum "$openRc" | awk NF=1)"
-    if systemctl --user is-failed -q "$unitName"; then
-      systemctl --user reset-failed -q "$unitName"
-    fi
     if ! systemctl --user is-active -q "$unitName"; then
-      systemd-run --user -q --slice sshuttle --unit="$unitName" -- bash -c "source '$openRc'"
+      systemd-run --user --collect -q --slice sshuttle --unit="$unitName" -- bash -c "source '$openRc'"
     fi
   fi
   ln -fs "$KUBECONFIG" "$XDG_CONFIG_HOME/kube/config"
@@ -929,10 +929,9 @@ nAlias wd 'while :; do .; sleep 0.1; clear; done'
 
 alias -g A='| awk'
 alias -g B='| base64'
-alias -g U='| urlencode'
-alias -g UD='| urldecode'
 alias -g BD='B -d'
 alias -g C='| clip'
+alias -g COUNT='| wc -l'
 alias -g G='| grep'
 alias -g GZ='| gzip'
 alias -g GZD='GZ -d'
@@ -942,11 +941,12 @@ alias -g S='| sed'
 alias -g SP='| sponge'
 alias -g T='| tee'
 alias -g TD='T /dev/stderr'
+alias -g U='| up'
+alias -g U='| urlencode'
+alias -g UD='| urldecode'
+alias -g UR='U --unsafe-full-throttle'
 alias -g X='| xargs'
 alias -g Y='| yq'
-alias -g U='| up'
-alias -g UR='U --unsafe-full-throttle'
-alias -g COUNT='| wc -l'
 
 if ! [[ -f "$KUBECONFIG" ]]; then
   unset KUBECONFIG

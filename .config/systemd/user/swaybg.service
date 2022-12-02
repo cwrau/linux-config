@@ -6,17 +6,17 @@ Requires=sway-session.target
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/swaymsg output '*' background '%E/background.jpg' fill
-RemainAfterExit=yes
+RemainAfterExit=true
 ExecStop=/usr/bin/swaymsg output '*' background '#000000' solid_color
 RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...
-ProtectSystem=yes
+ProtectSystem=true
 # more paranoid security settings
-NoNewPrivileges=yes
-ProtectKernelTunables=yes
-ProtectControlGroups=yes
-RestrictNamespaces=yes
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictNamespaces=true
 
 [Install]
 WantedBy=sway-session.target

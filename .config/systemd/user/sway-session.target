@@ -5,5 +5,4 @@ BindsTo=graphical-session.target
 Wants=graphical-session-pre.target
 Wants=clipman.service
 Wants=restart-service@waybar.path
-Wants=steam.service
 Wants=swaybg.service

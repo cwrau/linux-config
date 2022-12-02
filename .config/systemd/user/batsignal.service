@@ -10,10 +10,10 @@ RestartSec=0
 Restart=always
 
 # disallow writing to /usr, /bin, /sbin, ...
-ProtectSystem=yes
+ProtectSystem=true
 # more paranoid security settings
-NoNewPrivileges=yes
-ProtectKernelTunables=yes
-ProtectControlGroups=yes
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
 [Install]
 WantedBy=graphical-session.target

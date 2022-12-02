@@ -1,11 +1,11 @@
 [Unit]
 Description=wireguard interface %I
-StopWhenUnneeded=yes
+StopWhenUnneeded=true
 StartLimitBurst=100
 
 [Service]
 Type=onehot
-RemainAfterExit=yes
+RemainAfterExit=true
 ExecStartPre=-/usr/bin/wg-quick down %E/wireguard/%I.conf
 ExecStart=/usr/bin/wg-quick up %E/wireguard/%I.conf
 #ExecStartPre=/usr/bin/wg-quick up %E/wireguard/%I.conf

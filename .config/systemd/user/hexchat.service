@@ -12,9 +12,9 @@ ExecStopPost=/usr/bin/mv '${TARGET_DIR}' '${TARGET_DIR}.d/logs'
 ExecStopPost=/usr/bin/bash -c 'tar -c --xz --force-local --remove-files -C ${TARGET_DIR}.d/logs -f ${TARGET_DIR}.d/$(date --iso-8601=seconds).tar.xz .'
 
 # disallow writing to /usr, /bin, /sbin, ...
-ProtectSystem=yes
+ProtectSystem=true
 # more paranoid security settings
-NoNewPrivileges=yes
-ProtectKernelTunables=yes
-ProtectControlGroups=yes
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
 

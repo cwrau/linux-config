@@ -6,17 +6,17 @@ CollectMode=inactive-or-failed
 
 [Service]
 Type=oneshot
-RemainAfterExit=yes
+RemainAfterExit=true
 ExecStart=%E/glava/launch.sh %i
 ExecStop=systemctl --user stop "glava-%i.slice"
 Slice=glava.slice
 
 # disallow writing to /usr, /bin, /sbin, ...
-ProtectSystem=yes
+ProtectSystem=true
 # more paranoid security settings
-NoNewPrivileges=yes
-ProtectKernelTunables=yes
-ProtectControlGroups=yes
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
 
 [Install]
 WantedBy=i3-session.target
