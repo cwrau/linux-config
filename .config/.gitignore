@@ -16,6 +16,7 @@
 /Yubico/YKPersonalization.conf
 /autostart/
 /cef_user_data/
+/chromium/
 /cluster-api/version.yaml
 /cni/net.d/cni.lock
 /configstore/
@@ -25,9 +26,10 @@
 /easyeffects_preset
 /fah/
 /freerdp/
+/google-chrome
 /google-chrome-*/
-/google-chrome/
 /google-cloud-tools-java/
+/gtk-2.0/gtkfilechooser.ini
 /hexchat/
 /ibus/
 /java/
@@ -49,6 +51,7 @@
 /user-dirs.dirs
 /vlc/
 /whatsapp-nativefier-*/
+/xdg-terminals.list
 /youtube-music
 /youtube-music-desktop-app/
 /zoomus.conf

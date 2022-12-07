@@ -3,6 +3,7 @@
 set -e
 set -o pipefail
 
+rm -f /boot/loader/entries/*.conf
 for c in /boot/loader/entries/*.yaml; do
   echo ---
   echo "templating $c:"

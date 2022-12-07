@@ -29,19 +29,8 @@ return require('packer').startup(function(use)
   use 'tpope/vim-surround' -- Easy add matching parentheses
 
   use {
-    'lukas-reineke/indent-blankline.nvim',
-    requires = 'nvim-treesitter/nvim-treesitter',
-    config = function()
-      require('indent_blankline').setup {
-        show_current_context = true,
-        show_current_context_start = true,
-      }
-    end
-  }
-
-  use {
     'nvim-treesitter/nvim-treesitter',
-    requires = 'nvim-treesitter/playground',
+    --requires = 'nvim-treesitter/playground',
     run = function() require('nvim-treesitter.install').update({ with_sync = true }) end,
     config = function()
       require('nvim-treesitter.configs').setup {
@@ -77,8 +66,20 @@ return require('packer').startup(function(use)
   }
 
   use {
+    'lukas-reineke/indent-blankline.nvim',
+    after = 'nvim-treesitter',
+    config = function()
+      require('indent_blankline').setup {
+        show_current_context = true,
+        show_current_context_start = true,
+      }
+    end
+  }
+
+  use {
     'folke/trouble.nvim',
     requires = 'kyazdani42/nvim-web-devicons',
+    after = 'nvim-lspconfig',
     config = function()
       require('trouble').setup()
 
@@ -165,8 +166,49 @@ return require('packer').startup(function(use)
   }
 
   use {
+    'theHamsta/nvim-dap-virtual-text',
+    after = 'nvim-dap',
+    config = function()
+      require('nvim-dap-virtual-text').setup()
+    end
+  }
+
+  use {
+    'rcarriga/nvim-dap-ui',
+    after = 'nvim-dap',
+    config = function()
+      local dap = require('dap')
+      local dapui = require('dapui')
+
+      dapui.setup()
+
+      dap.listeners.after.event_initialized['dapui_config'] = dapui.open
+      dap.listeners.after.event_terminated['dapui_config'] = dapui.close
+      dap.listeners.after.event_exited['dapui_config'] = dapui.close
+      vim.api.nvim_create_autocmd('VimResized', {
+        callback = function()
+          local windows = require('dapui.windows')
+          local is_open = false
+          for _, win_layout in ipairs(windows.layouts) do
+            if win_layout:is_open() then
+              is_open = true
+              break
+            end
+          end
+
+          if is_open then
+            dapui.open {
+              reset = true
+            }
+          end
+        end
+      })
+    end
+  }
+
+  use {
     'williamboman/mason-lspconfig.nvim',
-    requires = 'williamboman/mason.nvim',
+    after = 'mason.nvim',
     config = function()
       require('mason-lspconfig').setup {
         automatic_installation = true
@@ -176,7 +218,8 @@ return require('packer').startup(function(use)
 
   use {
     'hrsh7th/nvim-cmp',
-    requires = { 'L3MON4D3/LuaSnip', 'onsails/lspkind.nvim', 'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer' },
+    requires = { 'L3MON4D3/LuaSnip', 'onsails/lspkind.nvim', 'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer',
+      'hrsh7th/cmp-path' },
     config = function()
       local cmp = require('cmp')
       local lspkind = require('lspkind')
@@ -219,7 +262,8 @@ return require('packer').startup(function(use)
         sources = cmp.config.sources({
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
-          { name = 'buffer' }
+          { name = 'buffer' },
+          { name = 'path' },
         }),
         formatting = {
           format = lspkind.cmp_format {
@@ -253,14 +297,30 @@ return require('packer').startup(function(use)
   }
 
   use {
+    'mfussenegger/nvim-dap-python',
+    after = { 'mason-nvim-dap.nvim', 'mason.nvim' },
+    ft = 'python',
+    config = function()
+      local registry = require('mason-registry')
+      local debugpy_package = registry.get_package('debugpy')
+      if not debugpy_package:is_installed() then
+        vim.notify("debugpy is not installed 😕", vim.log.levels.ERROR)
+      else
+        local path = require('mason-core.path')
+        require('dap-python').setup(path.concat { debugpy_package:get_install_path(), 'venv', 'bin', 'python3' })
+      end
+    end
+  }
+
+  use {
     'jayp0521/mason-nvim-dap.nvim',
-    requires = { 'mfussenegger/nvim-dap', 'williamboman/mason.nvim' },
+    after = { 'nvim-dap', 'mason.nvim' },
     config = function()
       local mason_dap = require('mason-nvim-dap')
       mason_dap.setup {
         automatic_installation = true,
         automatic_setup = true,
-        ensure_installed = { 'python', 'delve', 'bash' }
+        ensure_installed = { 'python', 'delve', 'bash' },
       }
       mason_dap.setup_handlers()
     end
@@ -268,8 +328,11 @@ return require('packer').startup(function(use)
 
   use {
     'neovim/nvim-lspconfig',
-    requires = 'hrsh7th/nvim-cmp',
+    requires = 'folke/neodev.nvim',
+    after = 'nvim-cmp',
     config = function()
+      require('neodev').setup {}
+
       local lspconfig = require('lspconfig')
       local lsp_defaults = lspconfig.util.default_config
       lsp_defaults.capabilities = vim.tbl_deep_extend(
@@ -278,16 +341,28 @@ return require('packer').startup(function(use)
         require('cmp_nvim_lsp').default_capabilities()
       )
 
-      local servers = { 'bashls', 'dockerls', 'jsonls', 'jdtls', 'kotlin_language_server', 'terraformls', 'vimls',
-        'pyright' }
+      local servers = {
+        'bashls',
+        'dockerls',
+        'jdtls',
+        'jsonls',
+        'kotlin_language_server',
+        'pyright',
+        'terraformls',
+        'vimls',
+      }
       for _, server in pairs(servers) do
         lspconfig[server].setup {}
       end
+
       lspconfig['sumneko_lua'].setup {
         settings = {
           Lua = {
             hint = {
               enable = true
+            },
+            workspace = {
+              checkThirdParty = false
             }
           }
         }
@@ -326,10 +401,12 @@ return require('packer').startup(function(use)
       vim.api.nvim_create_autocmd('LspAttach', {
         callback = function()
           local keybindings = {
-            ['='] = vim.lsp.buf.format,
-            ['<C-q>'] = vim.lsp.buf.hover,
             ['<C-b>'] = vim.lsp.buf.definition,
+            ['<C-q>'] = vim.lsp.buf.hover,
             ['<F18>'] = vim.lsp.buf.rename,
+            ['<F55>'] = vim.lsp.buf.incoming_calls,
+            ['<M-CR>'] = vim.lsp.buf.code_action,
+            ['='] = vim.lsp.buf.format,
           }
           for key, binding in pairs(keybindings) do
             vim.keymap.set('n', key, binding)
@@ -341,7 +418,7 @@ return require('packer').startup(function(use)
 
   use {
     'ray-x/lsp_signature.nvim',
-    requires = 'neovim/nvim-lspconfig',
+    after = 'nvim-lspconfig',
     config = function()
       require('lsp_signature').setup {
         close_timeout = 500,
@@ -352,7 +429,7 @@ return require('packer').startup(function(use)
 
   use {
     'lvimuser/lsp-inlayhints.nvim',
-    requires = 'neovim/nvim-lspconfig',
+    after = 'nvim-lspconfig',
     config = function()
       local lh = require('lsp-inlayhints')
       lh.setup()
@@ -366,12 +443,17 @@ return require('packer').startup(function(use)
 
   use {
     'jose-elias-alvarez/null-ls.nvim',
-    requires = { 'nvim-lua/plenary.nvim', 'williamboman/mason.nvim' },
+    requires = 'nvim-lua/plenary.nvim',
+    after = 'mason.nvim',
     config = function()
       local null_ls = require('null-ls')
       local sources = {
         null_ls.builtins.formatting.shfmt.with {
-          extra_args = { '-i', '2', '-s', '-ci' }
+          extra_args = { '-i', '2', '-ci' }
+        },
+        null_ls.builtins.formatting.beautysh.with {
+          extra_args = { '-i', '2', '--force-function-style', 'fnpar' },
+          disabled_filetypes = { 'sh', 'bash' }
         },
       }
       local tools = {
@@ -379,10 +461,8 @@ return require('packer').startup(function(use)
           'actionlint',
           'flake8',
           'jsonlint',
-          'ktlint',
           'luacheck',
           'markdownlint',
-          'pylint',
           'revive',
           'shellcheck',
           'todo_comments',
@@ -392,6 +472,7 @@ return require('packer').startup(function(use)
         formatting = {
           'black',
           'isort',
+          'prettier',
         }
       }
 
@@ -409,7 +490,7 @@ return require('packer').startup(function(use)
 
   use {
     'jay-babu/mason-null-ls.nvim',
-    requires = { 'williamboman/mason.nvim', 'jose-elias-alvarez/null-ls.nvim' },
+    after = { 'mason.nvim', 'null-ls.nvim' },
     config = function()
       local mason_null_ls = require('mason-null-ls')
       mason_null_ls.setup {
@@ -427,12 +508,6 @@ return require('packer').startup(function(use)
         line_mapping = '<C-_>'
       }
     end
-  }
-
-  use {
-    'folke/neodev.nvim',
-    requires = 'neovim/nvim-lspconfig',
-    config = function() require('neodev').setup() end
   }
 
   use {

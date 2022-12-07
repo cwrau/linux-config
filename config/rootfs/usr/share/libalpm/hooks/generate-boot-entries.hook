@@ -1,10 +1,14 @@
 [Trigger]
 Operation = Install
 Operation = Upgrade
+Operation = Remove
 Type = File
 Target = boot/loader/entries/*.yaml
 Target = boot/loader/entries/entry.tmpl
 Target = usr/local/bin/gen_boot_entries
+Target = boot/vmlinuz-*
+Target = boot/initramfs-*.img
+Target = boot/*-ucode.img
 
 [Action]
 When = PostTransaction

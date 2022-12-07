@@ -2,7 +2,7 @@
 
 function _screenshot() {
   _arguments "1:Mode:(full selection window)" \
-    "2:Destination:(- -- clipboard)"
+    "2:Destination, - for stdout, -- for generated filename, otherwise path to file:(- -- clipboard)"
 }
 
 # vim: ft=zsh
