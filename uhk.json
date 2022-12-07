@@ -8,7 +8,7 @@
   "alphanumericSegmentsBrightness": 255,
   "keyBacklightBrightness": 255,
   "mouseMoveInitialSpeed": 4,
-  "mouseMoveAcceleration": 80,
+  "mouseMoveAcceleration": 200,
   "mouseMoveDeceleratedSpeed": 8,
   "mouseMoveBaseSpeed": 40,
   "mouseMoveAcceleratedSpeed": 100,

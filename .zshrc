@@ -82,7 +82,6 @@ if [[ $- = *i* ]] && [[ "$XDG_VTNR" == 1 ]]; then
     fi
   else
     if [[ -z "$DISPLAY" ]]; then
-      export DISPLAY=:0
       systemctl --user import-environment 2> /dev/null
       exec systemd-cat --stderr-priority=warning --identifier=xorg startx
     fi
@@ -582,7 +581,7 @@ function _hr() {
 compdef _hr hr
 
 function hrDiff() {
-  helmrelease "diff" "$@"
+  HELM_DIFF_USE_UPGRADE_DRY_RUN=true helmrelease "diff" "$@"
 }
 compdef _hr hrDiff
 

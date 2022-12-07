@@ -16,6 +16,7 @@ xinput list | grep touchpad | cut -d = -f 2 | awk NF=1 | xargs -i xinput set-pro
 xset r on r rate 200
 xset s off
 xrandr --dpi 100
+xrdb $XDG_CONFIG_HOME/Xresources
 
 systemd-cat --stderr-priority=warning --identifier=i3 i3
 systemctl --user stop i3-session.target
