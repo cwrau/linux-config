@@ -11,7 +11,12 @@ return require('packer').startup(function(use)
 
   use 'mhinz/vim-signify'
 
-  use 'jiangmiao/auto-pairs' -- add eg. (->)
+  use {
+    'windwp/nvim-autopairs',
+    config = function()
+      require('nvim-autopairs').setup {}
+    end
+  }
 
   use {
     'kristijanhusak/vim-hybrid-material', -- Dark Theme
@@ -149,19 +154,27 @@ return require('packer').startup(function(use)
     config = function()
       local dap = require('dap')
       vim.keymap.set('n', '<F21>', function()
-        if dap.session() then
-          dap.restart()
+        local session = dap.session()
+        if session then
+          if session.capabilities.supportsRestartRequest then
+            dap.restart()
+          else
+            dap.close()
+            dap.run_last()
+          end
         else
-          dap.continue()
+          dap.run_last()
         end
       end
       )
-      vim.keymap.set('n', '<F9>', dap.continue)
-      vim.keymap.set('n', '<F26>', dap.disconnect)
-      vim.keymap.set('n', '<F7>', dap.step_into)
-      vim.keymap.set('n', '<F8>', dap.step_over)
-      vim.keymap.set('n', '<F20>', dap.step_out)
-      vim.keymap.set('n', '<F32>', dap.toggle_breakpoint)
+      require('util').create_keybindings {
+        ['<F9>'] = dap.continue,
+        ['<F26>'] = dap.disconnect,
+        ['<F7>'] = dap.step_into,
+        ['<F8>'] = dap.step_over,
+        ['<F20>'] = dap.step_out,
+        ['<F32>'] = dap.toggle_breakpoint,
+      }
     end
   }
 
@@ -169,37 +182,89 @@ return require('packer').startup(function(use)
     'theHamsta/nvim-dap-virtual-text',
     after = 'nvim-dap',
     config = function()
-      require('nvim-dap-virtual-text').setup()
+      require('nvim-dap-virtual-text').setup {}
     end
   }
 
   use {
     'rcarriga/nvim-dap-ui',
-    after = 'nvim-dap',
+    requires = 'rcarriga/cmp-dap',
+    after = { 'nvim-dap', 'nvim-cmp', 'nvim-autopairs' },
     config = function()
       local dap = require('dap')
       local dapui = require('dapui')
+      local elements = require('dapui.config').elements
+      local cmp = require('cmp')
 
-      dapui.setup()
+      cmp.setup {
+        enabled = function()
+          local default = require('cmp.config.default')().enabled()
+          local custom = require('cmp_dap').is_dap_buffer()
+          return default or custom
+        end
+      }
+      cmp.setup.filetype(
+        { 'dap-repl', 'dapui_watches', 'dapui_hover' },
+        {
+          sources = {
+            { name = 'dap' }
+          }
+        }
+      )
+
+      dapui.setup {
+        layouts = {
+          {
+            elements = {
+              { id = elements.SCOPES, size = 0.25, },
+              { id = elements.BREAKPOINTS, size = 0.25 },
+              { id = elements.STACKS, size = 0.25 },
+              { id = elements.WATCHES, size = 0.25 },
+            },
+            size = 40,
+            position = "left",
+          },
+          {
+            elements = {
+              elements.REPL,
+            },
+            size = 10,
+            position = "bottom",
+          },
+        },
+      }
 
       dap.listeners.after.event_initialized['dapui_config'] = dapui.open
-      dap.listeners.after.event_terminated['dapui_config'] = dapui.close
-      dap.listeners.after.event_exited['dapui_config'] = dapui.close
+      dap.listeners.after.event_exited['dapui_config'] = function(_, err)
+        if err.exitCode == 0 then
+          dapui.close {}
+        end
+      end
+
+      vim.keymap.set('n', '<M-$>', dapui.toggle)
+
+      vim.api.nvim_set_hl(0, 'DapBreakpoint', { ctermbg = 0, fg = '#993939', bg = '#31353f' })
+      vim.api.nvim_set_hl(0, 'DapLogPoint', { ctermbg = 0, fg = '#61afef', bg = '#31353f' })
+      vim.api.nvim_set_hl(0, 'DapStopped', { ctermbg = 0, fg = '#98c379', bg = '#31353f' })
+      vim.api.nvim_set_hl(0, 'DapStoppedLine', { ctermbg = 0, bg = '#31353f' })
+
+      vim.fn.sign_define('DapBreakpoint', { text = '', texthl = 'DapBreakpoint', numhl = 'DapBreakpoint' })
+      vim.fn.sign_define('DapBreakpointCondition', { text = 'ﳁ', texthl = 'DapBreakpoint', numhl = 'DapBreakpoint' })
+      vim.fn.sign_define('DapBreakpointRejected', { text = '', texthl = 'DapBreakpoint', numhl = 'DapBreakpoint' })
+      vim.fn.sign_define('DapLogPoint', { text = '', texthl = 'DapLogPoint', numhl = 'DapLogPoint' })
+      vim.fn.sign_define('DapStopped',
+        { text = '', texthl = 'DapStopped', linehl = 'DapStoppedLine', numhl = 'DapStopped' })
+
       vim.api.nvim_create_autocmd('VimResized', {
         callback = function()
           local windows = require('dapui.windows')
-          local is_open = false
           for _, win_layout in ipairs(windows.layouts) do
             if win_layout:is_open() then
-              is_open = true
+              dapui.open {
+                reset = true
+              }
               break
             end
-          end
-
-          if is_open then
-            dapui.open {
-              reset = true
-            }
           end
         end
       })
@@ -210,16 +275,18 @@ return require('packer').startup(function(use)
     'williamboman/mason-lspconfig.nvim',
     after = 'mason.nvim',
     config = function()
-      require('mason-lspconfig').setup {
+      local mason_lspconfig = require('mason-lspconfig')
+      mason_lspconfig.setup {
         automatic_installation = true
       }
+      mason_lspconfig.setup_handlers {}
     end
   }
 
   use {
     'hrsh7th/nvim-cmp',
     requires = { 'L3MON4D3/LuaSnip', 'onsails/lspkind.nvim', 'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer',
-      'hrsh7th/cmp-path' },
+      'hrsh7th/cmp-path', 'hrsh7th/cmp-cmdline' },
     config = function()
       local cmp = require('cmp')
       local lspkind = require('lspkind')
@@ -292,6 +359,20 @@ return require('packer').startup(function(use)
         },
       }
 
+      cmp.setup.cmdline({ '/', '?' }, {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = cmp.config.sources(
+          { { name = 'buffer' } }
+        )
+      })
+      cmp.setup.cmdline(':', {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = cmp.config.sources(
+          { { name = 'path' } },
+          { { name = 'cmdline' } }
+        )
+      })
+
       vim.opt.completeopt = { 'menu', 'menuone', 'noselect' }
     end
   }
@@ -320,7 +401,7 @@ return require('packer').startup(function(use)
       mason_dap.setup {
         automatic_installation = true,
         automatic_setup = true,
-        ensure_installed = { 'python', 'delve', 'bash' },
+        ensure_installed = { 'python', 'delve', 'bash', 'kotlin' },
       }
       mason_dap.setup_handlers()
     end
@@ -328,8 +409,8 @@ return require('packer').startup(function(use)
 
   use {
     'neovim/nvim-lspconfig',
-    requires = 'folke/neodev.nvim',
-    after = 'nvim-cmp',
+    requires = { 'folke/neodev.nvim', 'nvim-lua/plenary.nvim' },
+    after = { 'nvim-cmp', 'mason-lspconfig.nvim' },
     config = function()
       require('neodev').setup {}
 
@@ -343,6 +424,7 @@ return require('packer').startup(function(use)
 
       local servers = {
         'bashls',
+        'clangd',
         'dockerls',
         'jdtls',
         'jsonls',
@@ -392,27 +474,15 @@ return require('packer').startup(function(use)
         --            }
         --          }
         --        },
-        on_attach = function()
-          require('yaml-schema-select').setup()
-        end
-      }
-      --require('pkgbuild')
-
-      vim.api.nvim_create_autocmd('LspAttach', {
-        callback = function()
-          local keybindings = {
-            ['<C-b>'] = vim.lsp.buf.definition,
-            ['<C-q>'] = vim.lsp.buf.hover,
-            ['<F18>'] = vim.lsp.buf.rename,
-            ['<F55>'] = vim.lsp.buf.incoming_calls,
-            ['<M-CR>'] = vim.lsp.buf.code_action,
-            ['='] = vim.lsp.buf.format,
-          }
-          for key, binding in pairs(keybindings) do
-            vim.keymap.set('n', key, binding)
+        on_attach = function(_, bufnr)
+          if vim.bo[bufnr].filetype == "helm" then
+            vim.diagnostic.disable()
+          else
+            require('yaml-schema-select').setup()
           end
         end
-      })
+      }
+      vim.keymap.set('n', '=', vim.lsp.buf.format)
     end
   }
 
@@ -442,9 +512,14 @@ return require('packer').startup(function(use)
   }
 
   use {
+    'ThePrimeagen/refactoring.nvim',
+    after = 'telescope.nvim'
+  }
+
+  use {
     'jose-elias-alvarez/null-ls.nvim',
     requires = 'nvim-lua/plenary.nvim',
-    after = 'mason.nvim',
+    after = { 'mason.nvim', 'refactoring.nvim' },
     config = function()
       local null_ls = require('null-ls')
       local sources = {
@@ -473,6 +548,10 @@ return require('packer').startup(function(use)
           'black',
           'isort',
           'prettier',
+        },
+        code_actions = {
+          'refactoring',
+          'shellcheck',
         }
       }
 
@@ -484,6 +563,13 @@ return require('packer').startup(function(use)
 
       null_ls.setup {
         sources = sources
+      }
+
+      local refactorings = require('refactoring')
+
+      require('util').create_keybindings {
+        ['<C-M-n>'] = function() refactorings.refactor('Inline Variable') end,
+        ['<C-M-m>'] = function() refactorings.refactor('Extract Function') end,
       }
     end
   }
@@ -520,6 +606,75 @@ return require('packer').startup(function(use)
     run = function() vim.fn['mkdp#util#install']() end,
     config = function() vim.g.mkdp_browser = 'xdg-open' end,
     ft = 'markdown'
+  }
+
+  use {
+    'nvim-telescope/telescope.nvim',
+    requires = 'nvim-lua/plenary.nvim',
+    config = function()
+      vim.keymap.set('n', '<C-N>', function()
+        require('telescope.builtin').find_files {
+          hidden = true,
+        }
+      end)
+      vim.keymap.set('n', '<C-F>', function()
+        require('telescope.builtin').live_grep {
+          additional_args = {
+            '--hidden',
+            '--glob=!.git',
+          }
+        }
+      end)
+    end
+  }
+
+  use {
+    'rcarriga/nvim-notify',
+    after = 'telescope.nvim',
+    config = function()
+      local notify = require('notify')
+      notify.setup {
+        background_colour = "#000000",
+        stages = 'fade'
+      }
+      vim.notify = notify
+      require("telescope").load_extension("notify")
+    end
+  }
+
+  use 'RRethy/vim-illuminate'
+
+  use {
+    'ray-x/navigator.lua',
+    requires = { 'ray-x/guihua.lua' },
+    after = { 'nvim-lspconfig', 'nvim-treesitter' },
+    config = function()
+      local keymap = {}
+      local keybindings = {
+        ['n'] = {
+          ['<C-b>'] = { func = require('navigator.reference').async_ref, desc = 'IDEA definition' },
+          ['<C-q>'] = { func = vim.lsp.buf.hover, desc = "IDEA hover" },
+          ['<M-CR>'] = { func = require('navigator.codeAction').code_action, desc = 'IDEA action' },
+          ['<F18>'] = { func = require('navigator.rename').rename, desc = 'IDEA rename' },
+        }
+      }
+
+      for mode, layer in pairs(keybindings) do
+        for key, binding in pairs(layer) do
+          table.insert(keymap, {
+            key = key,
+            mode = mode,
+            func = binding.func,
+            desc = binding.desc or '',
+          })
+        end
+      end
+
+      require('navigator').setup {
+        mason = true,
+        keymaps = keymap
+      }
+    end
   }
 
   require('open-github-url').setup()
