@@ -1,8 +1,3 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
-
-[ -s /etc/motd ] && cat /etc/motd
-
 export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
@@ -50,8 +45,8 @@ export WINEPREFIX="$XDG_DATA_HOME/wine"
 export XAUTHORITY="$XDG_CACHE_HOME/x11/authority"
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
 
-export BROWSER="google-chrome-stable"
-export EDITOR="$VISUAL"
+export BROWSER=google-chrome-stable
+export EDITOR=nvim
 export FZF_ALT_C_COMMAND='fd -t d --hidden'
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -20'"
 export FZF_CTRL_T_COMMAND='fd -t f --hidden'
@@ -64,7 +59,7 @@ export SAVEHIST=9223372036854775807
 export SDL_AUDIODRIVER="pulse"
 export SECRETS_EXTENSION=".gpg"
 export SYSTEMD_PAGERSECURE=false
-export VISUAL=nvim
+export VISUAL="$EDITOR"
 export KUBECTL_NODE_SHELL_POD_CPU=0
 export KUBECTL_NODE_SHELL_POD_MEMORY=0
 
@@ -237,16 +232,17 @@ compdef _gradle gradle-or-gradlew
 [[ -f /opt/azure-cli/az.completion ]] && source /opt/azure-cli/az.completion
 [[ -f /usr/share/LS_COLORS/dircolors.sh ]] && source /usr/share/LS_COLORS/dircolors.sh
 
+setopt KSH_GLOB
 setopt INC_APPEND_HISTORY
-unsetopt HIST_IGNORE_DUPS
 setopt HIST_REDUCE_BLANKS
-unsetopt share_history
+unsetopt HIST_IGNORE_DUPS
+unsetopt SHARE_HISTORY
 
 function _check_command() {
   if [ $? -eq 0 ] && command -v $1 &> /dev/null; then
     $@
     local ret=$?
-    paru -R $(rg --text installed /var/log/pacman.log | tail -1 | awk '{print $4}')
+    paru -Rs $(rg --text installed /var/log/pacman.log | tail -1 | awk '{print $4}')
     return $ret
   fi
   return 137
@@ -260,12 +256,6 @@ function command_not_found_handler() {
   echo "Packages containing '$1' in name"
   paru -- $1
   _check_command $@
-  [ $? = 137 ] || return $?
-  echo "Packages containg files with '$1' in their name"
-  packages=$(paru -Fyq -- $1)
-  paru $packages
-  _check_command $@
-  [ $? = 137 ] || return $?
 }
 
 function _nop() {}
@@ -435,7 +425,7 @@ function helmrelease() {
         yaml=$(cat)
         shift
         ;;
-      -[0-9]+)
+      -+([0-9]))
         index="${1/-/}"
         shift
         ;;
@@ -906,7 +896,6 @@ nAlias grep rg
 nAlias o xdg-open
 nAlias dmakepkg podman-run --network host -v '$PWD:/pkg' 'whynothugo/makepkg' makepkg
 reAlias watch ' '
-reAlias timeout ' '
 nAlias scu /usr/bin/systemctl --user
 nAlias sc systemctl
 nAlias sru /usr/bin/systemd-run --user
