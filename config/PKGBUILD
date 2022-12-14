@@ -78,7 +78,7 @@ depends=(
     gnupg
     gomplate
     google-chrome
-    gopass-jsonapi
+    gopass
     gradle
     gvfs
     hadolint-bin
@@ -245,6 +245,7 @@ depends=(
 
 package() {
   tar -xf rootfs.tar -C "$pkgdir"
+  "$pkgdir/usr/local/bin/gen_boot_entries" "$pkgdir/boot/loader/entries"
 }
 
-#vim: syntax=sh
+# vim: ft=bash

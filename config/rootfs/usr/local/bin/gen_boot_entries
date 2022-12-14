@@ -3,13 +3,13 @@
 set -e
 set -o pipefail
 
-rm -f /boot/loader/entries/*.conf
-for c in /boot/loader/entries/*.yaml; do
+TEMPLATE_PATH=${1?You need to provide the template path}
+
+for c in "$TEMPLATE_PATH/"*.yaml; do
   echo ---
   echo "templating $c:"
   echo ---
-  if gomplate -f /boot/loader/entries/entry.tmpl -d file="file://$c" | tee "${c/.yaml/}.conf.new"; then
-    mv "${c/.yaml/}.conf.new" "${c/.yaml/}.conf"
+  if gomplate -f "$TEMPLATE_PATH/entry.tmpl" -c ".=file://$c" | tee "${c/.yaml/}.conf"; then
     echo
     echo ---
   else

@@ -29,31 +29,24 @@ fi
 PLAYER=$(list | awk "/$PLAYER/ {number = NR; print \$0}; NR == 1 {first = \$0}; END {if (length(number) == 0) {print first} }")
 
 if [ "$PLAYER" != "$(cat "$XDG_RUNTIME_DIR/player")" ]; then
-  echo "$PLAYER" > "$XDG_RUNTIME_DIR/player"
+  echo "$PLAYER" >"$XDG_RUNTIME_DIR/player"
 fi
 
 if [ "$1" = swap ]; then
   pctl -p "$2" play-pause
   pctl -p "$3" play-pause
-  exit 0
 elif [ "$1" = NEXT ]; then
   PLAYER=$(next)
   unit=$(getUnit "$PLAYER")
   notify-send.sh -h string:x-dunst-stack-tag:player -t 1000 -u normal "$unit: $($0 status)"
-  exit 0
 elif [ "$1" = PRINT ]; then
-#  if [ "$(list | wc -l)" = 1 ]; then
-#    echo
-#  else
-    getUnit "$PLAYER"
-#  fi
-  exit 0
+  getUnit "$PLAYER"
 elif [ "$1" = LIST ]; then
   for player in $(list); do
     getUnit "$player"
   done
-  exit 0
+else
+  exec playerctl -p "$PLAYER" "$@"
 fi
 
-# shellcheck disable=SC2068
-exec playerctl -p "$PLAYER" $@
+exit 0

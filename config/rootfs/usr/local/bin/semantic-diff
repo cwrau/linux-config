@@ -3,6 +3,24 @@
 set -eu
 set -o pipefail
 
+function sameNumberOfDocuments() {
+  local origPath="$1"
+  local origNumberOfDocuments
+  local newPath="$2"
+  local newNumberOfDocuments
+
+  origNumberOfDocuments=$(grep -c -- --- "$origPath")
+  origNumberOfDocuments=${origNumberOfDocuments:0}
+  newNumberOfDocuments=$(grep -c -- --- "$newPath")
+  newNumberOfDocuments=${newNumberOfDocuments:0}
+
+  if (((origNumberOfDocuments + newNumberOfDocuments) == 1)) || ((origNumberOfDocuments == newNumberOfDocuments)); then
+    return 0
+  else
+    return 1
+  fi
+}
+
 function _semantic_diff() {
   local diff
   local origFilename="$1"
@@ -20,9 +38,9 @@ function _semantic_diff() {
     filetype=$(xdg-mime query filetype "$newPath")
   fi
 
-  if [[ "$filetype" == "application/x-yaml" ]] && (yq -e . "$origPath" && yq -e . "$newPath") &>/dev/null; then
+  if [[ "$filetype" == "application/x-yaml" ]] && (yq -e . "$origPath" && yq -e . "$newPath") &>/dev/null && sameNumberOfDocuments "$origPath" "$newPath"; then
     diff=$(dyff --color on between "$origPath" "$newPath")
-    echo "$unifiedDiff" | diff-so-fancy | head -3
+    echo "$unifiedDiff" | (diff-so-fancy || true) | head -3
     echo "$diff" | tail -n +9
   else
     echo "$unifiedDiff" | diff-so-fancy

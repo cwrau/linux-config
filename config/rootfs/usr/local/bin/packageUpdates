@@ -21,13 +21,13 @@ if sudo informant check; then
   UPDATES=$(paru -Qu --repo 2>/dev/null | (grep -v ignored -c || true))
   AUR_UPDATES=$(paru -Qu --aur --devel 2>/dev/null | (grep -v ignored -c || true))
 
-  if (((UPDATES + AUR_UPDATES) >= 1)) && ! pgrep -x paru &> /dev/null; then
+  if (((UPDATES + AUR_UPDATES) >= 1)) && ! pgrep -x paru &>/dev/null; then
     if [ "$1" = '--unattended' ]; then
       if ! systemctl --user is-active updates-run; then
         notification_send -t 10000 -u low "$UPDATES | $AUR_UPDATES" "$(paru -Qu --devel | grep -v ignored | awk '{print $1}' | sed -z '$ s/\n$//' | tr '\n' ',')"
 
         mapfile -t environment < <(awk 'BEGIN{for(v in ENVIRON) print "--setenv=" v}')
-        if systemd-inhibit --why Updates --mode block --what shutdown systemd-run --user --slice updates.slice --unit updates-run --wait --collect --nice 19 --property=CPUWeight=1 "${environment[@]}" -- paru -Syu --noconfirm; then
+        if systemd-inhibit --why Updates --mode block --what shutdown sudo -E systemd-run --uid "$USER" --unit updates-run --wait --collect --nice 19 --property=CPUWeight=1 "${environment[@]}" -- paru -Syu --noconfirm; then
           notification_send -t 10000 -u normal 'Updates done!'
         else
           if [[ "$(notification_send -t 3590000 -u critical 'Updates failed!' -A Show,Show)" == "Show" ]]; then

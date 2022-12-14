@@ -1,4 +1,3 @@
-{{- with (ds "file") -}}
 title {{ .title }}
 
 {{- if (file.Exists (printf "/boot/vmlinuz-%s" .linux)) }}
@@ -28,4 +27,3 @@ initrd /initramfs-{{ .initramfs }}.img
   {{- end }}
 {{- end }}
 options {{ join $options " " }} {{ join .options " " }}
-{{- end -}}
