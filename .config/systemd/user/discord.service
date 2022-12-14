@@ -4,6 +4,7 @@ PartOf=messengers.target
 Requires=graphical-session.target pipewire.service
 After=graphical-session.target pipewire.service
 StopWhenUnneeded=true
+CollectMode=inactive-or-failed
 
 [Service]
 Type=simple

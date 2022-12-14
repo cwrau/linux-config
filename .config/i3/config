@@ -158,6 +158,7 @@ for_window [class="jetbrains-.*" title="Debug"] floating enable
 for_window [class="jetbrains-.*" title="win0"] floating enable
 for_window [class="jetbrains-.*" title="Welcome to IntelliJ IDEA"] floating enable
 for_window [class="jetbrains-.*" title="splash"] floating enable
+for_window [class="jetbrains-.*" title="Get from Version Control"] floating enable
 
 
 $exaid $XDG_CONFIG_HOME/i3/rc.sh
@@ -212,10 +213,13 @@ bindcode 164 $exid pctl play-pause
 bindsym XF86AudioPause $exid pctl pause
 
 bindsym XF86AudioNext $exid pctl next
+bindsym Shift+XF86AudioNext $exid pctl position 5+
 bindsym button9 $exid pctl next
+bindsym Shift+button9 $exid pctl position 5+
 
 bindsym XF86AudioPrev $exid pctl previous
-bindsym button8 $exid pctl previous
+bindsym Shift+XF86AudioPrev $exid pctl position 5-
+bindsym Shift+button8 $exid pctl position 5-
 
 # Change Audio Settings
 bindsym $super+Ctrl+Shift+o $exid audio_program_volume
