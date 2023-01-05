@@ -56,7 +56,7 @@ local function file_exists(path)
   end
 end
 
-M.setup = function()
+function M.setup()
   local fileName = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
   if fileName:find('values.yaml$') then
     local schemaPath
@@ -91,13 +91,14 @@ M.setup = function()
                 .. [[") | .spec.versions[] | select(.name == "]]
                 .. apiVersion .. [[") | .schema.openAPIV3Schema' > ]] .. schemaFile
           },
-          on_exit = function(_, exitCode, _)
+          enable_recording = true,
+          on_exit = function(job, exitCode, _)
             vim.schedule(function()
               if exitCode == 0 then
                 vim.notify('Using schema from cluster-CRD')
                 change_settings('file://' .. schemaFile)
               else
-                vim.notify('Using schema from github')
+                vim.notify('Using schema from github. Cluster-CRD failed with ' .. vim.inspect(job:stderr_result()))
                 change_settings('https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/'
                   .. kind:lower() .. '.json')
               end

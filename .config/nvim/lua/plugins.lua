@@ -20,6 +20,7 @@ return require('packer').startup(function(use)
 
   use {
     'kristijanhusak/vim-hybrid-material', -- Dark Theme
+    --'doki-theme/doki-theme-vim', -- Dark Theme
     config = function()
       vim.env.NVIM_TUI_ENABLE_TRUE_COLOR = 1
       vim.opt.termguicolors = true
@@ -28,6 +29,7 @@ return require('packer').startup(function(use)
       vim.g.enable_italic_font = 1
       vim.g.hybrid_transparent_background = 1
       vim.cmd.colorscheme('hybrid_material')
+      --vim.cmd.colorscheme('rem')
     end
   }
 
@@ -146,7 +148,10 @@ return require('packer').startup(function(use)
 
   use {
     'williamboman/mason.nvim',
-    config = function() require('mason').setup() end
+    config = function()
+      require('mason').setup()
+      require('mason-auto-update').run()
+    end
   }
 
   use {
@@ -459,21 +464,6 @@ return require('packer').startup(function(use)
         }
       }
       lspconfig['yamlls'].setup {
-        --        settings = {
-        --          yaml = {
-        --            validate = true,
-        --            schemaStore = {
-        --              enable = true,
-        --              url = 'https://www.schemastore.org/api/json/catalog.json'
-        --            },
-        --            schemaDownload = {
-        --              enable = true
-        --            },
-        --            schemas = {
-        --              ['https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/all.json'] = '/*kubectl-edit-*.yaml'
-        --            }
-        --          }
-        --        },
         on_attach = function(_, bufnr)
           if vim.bo[bufnr].filetype == "helm" then
             vim.diagnostic.disable()
@@ -482,6 +472,7 @@ return require('packer').startup(function(use)
           end
         end
       }
+
       vim.keymap.set('n', '=', vim.lsp.buf.format)
     end
   }
