@@ -189,7 +189,6 @@ mode $Power {
 
 bindsym $super+period $exid splatmoji copypaste
 bindsym $super+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
-bindsym $super+m $exid morse
 bindsym $super+p $exid open_project
 
 # Audio controls
@@ -268,6 +267,7 @@ bindsym Ctrl+Shift+$super+Print --release $exid "screenshot window --"
 bindsym $super+c exec "exo-open --launch WebBrowser"
 bindsym $super+Shift+c exec "exo-open --launch WebBrowser --incognito"
 bindsym $super+g exec rofi-custom-search
+bindsym $super+m exec "systemctl --user start google-chrome@meeting"
 
 # Gamemode
 bindsym $super+shift+g $exid bash -c 'systemctl --user is-active gamemode.service && systemctl --user stop gamemode.service || systemctl --user start gamemode.service'
@@ -326,6 +326,8 @@ for_window [class="youtube-music-desktop-app"] move to workspace 18:YMP
 bindsym $super+$alt+9 workspace 19:RocketChat
 assign [class="Rocket.Chat"] 19:RocketChat
 for_window [class="Rocket.Chat"] move to workspace 19:RocketChat
+assign [class="meeting"] 19:RocketChat
+for_window [class="meeting"] move to workspace 19:RocketChat
 
 bindsym $super+$alt+0 workspace 20:Chat
 assign [class="Slack"] 20:Chat

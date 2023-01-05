@@ -1,12 +1,11 @@
 [Unit]
 Description=ausweisapp
 StopWhenUnneeded=true
+CollectMode=inactive-or-failed
 
 [Service]
 Type=simple
-Delegate=true
 ExecStart=/usr/bin/AusweisApp2 --address 127.0.0.2
 
 [Install]
 WantedBy=graphical-session.target
-

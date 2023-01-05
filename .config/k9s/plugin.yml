@@ -9,4 +9,6 @@ plugin:
     background: false
     args:
       - node-shell
+      - -n
+      - kube-system
       - $NAME
