@@ -65,6 +65,8 @@ depends=(
     freetype2
     fwupd
     fzf
+    fzf-tab-git
+    gdu
     gfeeds
     git
     git-delta
@@ -80,6 +82,7 @@ depends=(
     google-chrome
     gopass
     gradle
+    gum
     gvfs
     hadolint-bin
     helm
@@ -109,7 +112,6 @@ depends=(
     kubectl-node-shell
     kubefwd-bin
     kubeval-bin
-    kustomize
     lab-bin
     less
     lib32-nvidia-utils
@@ -122,6 +124,7 @@ depends=(
     linux-zen
     linux-zen-headers
     lscolors-git
+    lsd
     maim
     man-db
     man-pages
@@ -132,7 +135,6 @@ depends=(
     morsetran
     mpv
     mpv-mpris
-    ncdu
     neovim-drop-in
     nerd-fonts-complete
     net-tools

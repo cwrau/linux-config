@@ -1,5 +1,5 @@
 # subvolume to snapshot
-SUBVOLUME="/"
+SUBVOLUME="/home"
 
 # filesystem type
 FSTYPE="btrfs"
@@ -29,7 +29,7 @@ SYNC_ACL="yes"
 # post-snapshot
 BACKGROUND_COMPARISON="yes"
 
-TIMELINE_CREATE="no"
+TIMELINE_CREATE="yes"
 TIMELINE_CLEANUP="yes"
 
 # run daily number cleanup

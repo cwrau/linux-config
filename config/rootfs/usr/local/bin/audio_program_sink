@@ -5,7 +5,7 @@ from lib.audio_script import *
 
 def audio_program_sink():
     prog_input: PulseSinkInputInfo = get_choice(
-        inputs, "source", program_name_getter, sorter=program_name_getter)
+        inputs, "source", program_description_getter, sorter=program_description_getter)
 
     if prog_input is None:
         return

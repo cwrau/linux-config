@@ -3,24 +3,39 @@
 set -e
 
 function next() {
-  list | awk "/$PLAYER/ {number = NR+1}; NR == number {print \$0}; NR == 1 {first = \$0}; END {if (length(number) == 0) {print first} else if (number > NR) {print first} }" | tee "$XDG_RUNTIME_DIR/player"
+  PLAYER=$(list | awk "/$PLAYER/ {number = NR+1}; NR == number {print \$0}; NR == 1 {first = \$0}; END {if (length(number) == 0) {print first} else if (number > NR) {print first} }" | tee "$XDG_RUNTIME_DIR/player")
+  notify-send.sh -h string:x-dunst-stack-tag:player -t 1000 -u normal "$(getUnitDescription "$PLAYER"): $($0 status)"
+  echo "$PLAYER"
 }
 
 function list() {
   playerctl -l | sort -u
 }
 
-function getUnit() {
+function getPIDFromPlayerctlName() {
+  echo "$1" | sed -r 's#^[a-z._-]+([0-9]+)$#\1#g'
+}
+
+function getUnitDescription() {
   if [[ "$1" == "youtube-music-desktop-app" ]]; then
     echo "YouTube Music Player"
   elif [[ "$1" =~ ^kdeconnect ]]; then
     echo "Phone"
   else
-    echo "$1" | sed -r 's#^[a-z._-]+([0-9]+)$#\1#g' | xargs -r "$(dirname "$0")/lib/getSystemdUnitDescriptionForPID"
+    getPIDFromPlayerctlName "$1" | xargs -r "$(dirname "$0")/lib/getSystemdUnitDescriptionForPID"
   fi
 }
 
-if [ -f "$XDG_RUNTIME_DIR/player" ]; then
+function getUnitName() {
+  getPIDFromPlayerctlName "$1" | xargs -r "$(dirname "$0")/lib/getSystemdUnitNameForPID"
+}
+
+function fail() {
+  echo "$@" >/dev/stderr
+  exit 1
+}
+
+if [[ -f "$XDG_RUNTIME_DIR/player" ]]; then
   PLAYER=$(head -1 "$XDG_RUNTIME_DIR/player" | awk '{print $1}')
 else
   PLAYER=$(next)
@@ -28,25 +43,47 @@ fi
 
 PLAYER=$(list | awk "/$PLAYER/ {number = NR; print \$0}; NR == 1 {first = \$0}; END {if (length(number) == 0) {print first} }")
 
-if [ "$PLAYER" != "$(cat "$XDG_RUNTIME_DIR/player")" ]; then
+if [[ "$PLAYER" != "$(cat "$XDG_RUNTIME_DIR/player")" ]]; then
   echo "$PLAYER" >"$XDG_RUNTIME_DIR/player"
 fi
 
-if [ "$1" = swap ]; then
-  pctl -p "$2" play-pause
-  pctl -p "$3" play-pause
-elif [ "$1" = NEXT ]; then
-  PLAYER=$(next)
-  unit=$(getUnit "$PLAYER")
-  notify-send.sh -h string:x-dunst-stack-tag:player -t 1000 -u normal "$unit: $($0 status)"
-elif [ "$1" = PRINT ]; then
-  getUnit "$PLAYER"
-elif [ "$1" = LIST ]; then
-  for player in $(list); do
-    getUnit "$player"
-  done
-else
-  exec playerctl -p "$PLAYER" "$@"
-fi
+case "$1" in
+  swap)
+    pctl -p "$2" play-pause
+    pctl -p "$3" play-pause
+    ;;
+  NEXT)
+    PLAYER=$(next)
+    ;;
+  PRINT)
+    getUnitDescription "$PLAYER"
+    ;;
+  LIST)
+    for player in $(list); do
+      getUnitDescription "$player"
+    done
+    ;;
+  -s)
+    unit="$2"
+    shift
+    shift
+    [[ -z "$unit" ]] && fail Need to provide the unit name
+    while [[ ! "$(getUnitName "$PLAYER")" =~ $unit(.service)? ]]; do
+      PLAYER=$(next)
+    done
+    exec $0 "$@"
+    ;;
+  volume)
+    volume=$2
+    shift
+    shift
+    [[ -z "$volume" ]] && fail "Need to provide the volume"
+    unit=$(getUnitName "$PLAYER")
+    "$(dirname "$0")/audio_program_volume" -u "$unit" -v "$volume"
+    ;;
+  *)
+    exec playerctl -p "$PLAYER" "$@"
+    ;;
+esac
 
 exit 0

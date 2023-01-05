@@ -8,4 +8,5 @@ enable fwupd.service
 enable pkgstats.timer
 enable reflector.timer
 enable snapper-cleanup.timer
+enable snapper-timeline.timer
 enable systemd-timesyncd.service

@@ -1,36 +1,73 @@
 #!/usr/bin/env python3
+import argparse
+import sys
 from typing import Sequence
 
 import dynmen
 from dynmen import Menu, MenuResult, MenuError
 
 from lib.audio_script import *
+from lib.systemd import name_matches_unit
 
 
-def audio_program_volume():
-    prog_input: PulseSinkInputInfo = get_choice(
-        [pulse_input for pulse_input in inputs if pulse_input.proplist.get("media.name") != "pulseeffects"], "source",
-        lambda program: f'{program_name_getter(program)} ({int(program.volume.value_flat * 100)}%)',
-        sorter=program_name_getter)
+def audio_program_volume(unit: str | None, volume: int | None):
+    prog_input: None | PulseSinkInputInfo
+
+    if unit:
+        prog_inputs: Sequence[PulseSinkInputInfo] = [
+            pulse_input for pulse_input in inputs if name_matches_unit(program_name_getter(pulse_input), unit)
+        ]
+        if len(prog_inputs) == 1:
+            prog_input = prog_inputs[0]
+        else:
+            prog_input = None
+    else:
+        prog_input = get_choice(
+            [pulse_input for pulse_input in inputs if pulse_input.proplist.get("media.name") != "pulseeffects"],
+            "source",
+            lambda program: f'{program_description_getter(program)} ({int(program.volume.value_flat * 100)}%)',
+            sorter=program_description_getter)
 
     if prog_input is None:
+        if unit:
+            print(f"Unit {unit} not found", file=sys.stderr)
         return
 
-    args: Sequence[str] = ["dmenu", "-format", "s", "-p",
-                           f'New volume percentage for {program_name_getter(prog_input)} (current: {int(prog_input.volume.value_flat * 100)}%)',
-                           "-l", "0"]
-    menu: Menu = dynmen.Menu(args)
-
     try:
-        raw_result: MenuResult = menu()
-        if raw_result.selected == '':
-            return
-        result: float = max(min(int(raw_result.selected) / 100, 1.5), 0.01)
+        if volume:
+            desired_volume = volume
+        else:
+            menu_args: Sequence[str] = ["dmenu", "-format", "s", "-p",
+                                        f'New volume percentage for {program_description_getter(prog_input)} (current: {int(prog_input.volume.value_flat * 100)}%)',
+                                        "-l", "0"]
+            menu: Menu = dynmen.Menu(menu_args)
+            raw_result: MenuResult = menu()
+            if raw_result.selected == '':
+                return
+            desired_volume: int = int(raw_result.selected)
+        clamped_volume: float = max(min(int(desired_volume) / 100, 1.5), 0.01)
 
-        pulse.volume_set_all_chans(prog_input, result)
+        pulse.volume_set_all_chans(prog_input, clamped_volume)
     except MenuError:
         return
 
 
 if __name__ == "__main__":
-    audio_program_volume()
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "-u", "--unit",
+        help="Systemd Unit name to change volume for",
+        default=None,
+        type=str
+    )
+
+    parser.add_argument(
+        "-v", "--volume",
+        default=None,
+        type=int
+    )
+
+    args = parser.parse_args()
+
+    audio_program_volume(args.unit, args.volume)
