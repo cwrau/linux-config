@@ -220,11 +220,13 @@ export ZSH_COMPDUMP="${ZSH_CACHE_DIR}/.zcompdump-${ZSH_VERSION}"
 
 source $ZSH/oh-my-zsh.sh
 
-source /usr/share/git/completion/git-completion.zsh &> /dev/null
-source /usr/share/zsh/plugins/zsh-you-should-use/you-should-use.plugin.zsh &> /dev/null
+source /usr/share/zsh/plugins/zsh-you-should-use/you-should-use.plugin.zsh > /dev/null
 
 autoload -U compinit && compinit -d "$ZSH_COMPDUMP"
 autoload -U bashcompinit && bashcompinit -d "$ZSH_COMPDUMP"
+
+zstyle ':fzf-tab:complete:*' fzf-bindings alt-space:toggle
+source /usr/share/zsh/plugins/fzf-tab-git/fzf-tab.plugin.zsh #> /dev/null
 
 compdef _gradle gradle-or-gradlew
 
@@ -239,10 +241,12 @@ unsetopt HIST_IGNORE_DUPS
 unsetopt SHARE_HISTORY
 
 function _check_command() {
+  local package
   if [ $? -eq 0 ] && command -v $1 &> /dev/null; then
+    package=$(rg --text installed /var/log/pacman.log | tail -1 | awk '{print $4}')
     $@
     local ret=$?
-    paru -Rs $(rg --text installed /var/log/pacman.log | tail -1 | awk '{print $4}')
+    paru -Rs "$package"
     return $ret
   fi
   return 137
@@ -269,27 +273,27 @@ function e() {
   i3-msg "exec xdg-open \"$*\""
 }
 
-function _ssh() {
-  if [[ "${#@}" > 1 ]] || [[ "${#@}" == 0 ]]; then
-    /usr/bin/ssh "$@"
-  elif [[ -f ~/.ssh/checked_hosts ]] && grep -q -- "$1" ~/.ssh/checked_hosts; then
-    name="$1"
-    shift
-    scp -q ~/.bashrc ${name}:/tmp/cwr.bashrc > /dev/null
-
-    /usr/bin/ssh $name -t "sh -c 'if which bash &> /dev/null; then bash --rcfile /tmp/cwr.bashrc -i; else if which ash &> /dev/null; then ash; else sh; fi; fi'"
-    return $?
-  else
-    ssh-copy-id $1
-    ret=$?
-    if [ $ret -eq 0 ]; then
-      echo "$1" >> ~/.ssh/checked_hosts
-      ssh "$@"
-      return $?
-    fi
-    return $ret
-  fi
-}
+#function ssh() {
+#  if [[ "${#@}" > 1 ]] || [[ "${#@}" == 0 ]]; then
+#    /usr/bin/ssh "$@"
+#  elif [[ -f ~/.ssh/checked_hosts ]] && grep -q -- "$1" ~/.ssh/checked_hosts; then
+#    name="$1"
+#    shift
+#    scp -q ~/.bashrc ${name}:/tmp/cwr.bashrc > /dev/null
+#
+#    /usr/bin/ssh $name -t "sh -c 'if which bash &> /dev/null; then bash --rcfile /tmp/cwr.bashrc -i; else if which ash &> /dev/null; then ash; else sh; fi; fi'"
+#    return $?
+#  else
+#    ssh-copy-id $1
+#    ret=$?
+#    if [ $ret -eq 0 ]; then
+#      echo "$1" >> ~/.ssh/checked_hosts
+#      ssh "$@"
+#      return $?
+#    fi
+#    return $ret
+#  fi
+#}
 
 function idea() {
   [[ -z "$1" ]] && open_project _
@@ -381,9 +385,9 @@ function _hr_git() {
 
   rm -rf /tmp/helm-chart
   (
-    git clone "$gitUrl" /tmp/helm-chart
+    git clone -q "$gitUrl" /tmp/helm-chart
     cd /tmp/helm-chart
-    git checkout "$gitRef"
+    git checkout -q "$gitRef"
   ) > /dev/null
 
   helm dependency build "/tmp/helm-chart/$gitPath" > /dev/null
@@ -412,6 +416,9 @@ function helmrelease() {
       ;;
     install)
       commands+=("install")
+      ;;
+    upgrade)
+      commands+=("upgrade")
       ;;
     *)
       echo "command '$subCommand' is not implemented" > /dev/stderr
@@ -575,6 +582,11 @@ function hrDiff() {
 }
 compdef _hr hrDiff
 
+function hrUpgrade() {
+  helmrelease "upgrade" "$@"
+}
+compdef _hr hrUpgrade
+
 function hrInstall() {
   helmrelease "install" "$@"
 }
@@ -601,7 +613,7 @@ function gop(){
 compdef _nop gop
 
 function kdiff () {
-  kustomize build --enable-alpha-plugins . | kubectl diff -f - | diff-so-fancy
+  kustomize build --enable-alpha-plugins . | kubectl diff -f -
 }
 compdef _nop kdiff
 
@@ -868,7 +880,7 @@ reAlias cp -i
 reAlias mv -i
 #reAlias ls --almost-all --indicator-style=slash --human-readable --sort=version --escape --format=long --color=always --time-style=long-iso
 nAlias ls exa --all --binary --group --classify --sort=filename --long --colour=always --time-style=long-iso --git
-reAlias nvim -b
+#nAlias ls lsd --almost-all --color=always --long --date=+'%Y-%m-%dT%H:%M:%S'
 if [[ "$(id -u)" != 0 ]] && command -v sudo &> /dev/null; then
   for cmd in systemctl pacman ip; do
     nAlias $cmd sudo $cmd
@@ -945,18 +957,16 @@ if ! [[ -f "$KUBECONFIG" ]]; then
   fi
 fi
 
+function kk9s() {
+  kk
+  k9s "${@}"
+}
+
 function k9s() {
-  if [[ $# == 2 ]]; then
-    kk $1
-    command k9s --context $2
-  elif [[ $# == 1 ]]; then
-    command k9s --context $1
-  elif [[ -f "$KUBECONFIG" ]]; then
-    command k9s
-  else
+  if ! [[ -f "$KUBECONFIG" ]]; then
     kk
-    command k9s
   fi
+  command k9s "${@}"
 }
 function _k9s() {
   if [[ -f $KUBECONFIG ]]; then
@@ -977,4 +987,19 @@ compdef _k9s k9s
 #fi
 if command -v dyff > /dev/null; then
   export KUBECTL_EXTERNAL_DIFF="dyff between --omit-header --set-exit-code"
+fi
+
+if ! command -v kustomize > /dev/null; then
+  function kustomize() {
+    case "$1" in
+      build)
+        shift
+        ;;
+      *)
+        echo "Only 'build' is supported as a command" > /dev/stderr
+        return 1
+        ;;
+    esac
+    kubectl kustomize "${@}"
+  }
 fi
