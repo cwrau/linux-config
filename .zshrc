@@ -82,7 +82,6 @@ if [[ $- = *i* ]] && [[ "$XDG_VTNR" == 1 ]]; then
     fi
   fi
 fi
-set +x
 
 #if ! cat /proc/self/cgroup | awk -F:: '{print $2}' | xargs -i cat /sys/fs/cgroup/{}/cgroup.controllers | grep -q cpu; then
 #  exec systemd-run --user --slice-inherit --property=Delegate=yes --same-dir --scope -S
@@ -226,6 +225,11 @@ autoload -U compinit && compinit -d "$ZSH_COMPDUMP"
 autoload -U bashcompinit && bashcompinit -d "$ZSH_COMPDUMP"
 
 zstyle ':fzf-tab:complete:*' fzf-bindings alt-space:toggle
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':fzf-tab:*' switch-group 'left' 'right'
+zstyle ':fzf-tab:*' prefix ''
+zstyle ':fzf-tab:*:*' fzf-flags -i
+#zstyle ':completion:*' matcher-list 'b:=*'
 source /usr/share/zsh/plugins/fzf-tab-git/fzf-tab.plugin.zsh #> /dev/null
 
 compdef _gradle gradle-or-gradlew
@@ -367,6 +371,33 @@ function _hr_getReleaseName() {
   fi
 }
 
+function _parse_hr_subcommand() {
+  local subCommand="${1?}"
+  local commands=()
+  case "$subCommand" in
+    template)
+      commands+=("template")
+      ;;
+    diff)
+      commands+=("diff" "upgrade" "--show-secrets" "--color" "--output=dyff")
+      ;;
+    install)
+      commands+=("install")
+      ;;
+    upgrade)
+      commands+=("upgrade")
+      ;;
+    uninstall)
+      commands+=("uninstall")
+      ;;
+    *)
+      echo "command '$subCommand' is not implemented" > /dev/stderr
+      return 1
+      ;;
+  esac
+  echo "${commands[@]}"
+}
+
 function _hr_git() {
   local subCommand="$1"
   local commands=()
@@ -377,11 +408,8 @@ function _hr_git() {
   local releaseName="$6"
   local values="$7"
 
-  if [[ "$subCommand" = "template" ]]; then
-    commands+=("template")
-  elif [[ "$subCommand" = "diff" ]]; then
-    commands+=("diff" "upgrade" "--show-secrets" "--color")
-  fi
+  commands=($(_parse_hr_subcommand "$subCommand"))
+  [[ $? != 0 ]] && return 1
 
   rm -rf /tmp/helm-chart
   (
@@ -390,7 +418,7 @@ function _hr_git() {
     git checkout -q "$gitRef"
   ) > /dev/null
 
-  helm dependency build "/tmp/helm-chart/$gitPath" > /dev/null
+  helm dependency update "/tmp/helm-chart/$gitPath" > /dev/null
   helm "${commands[@]}" --namespace $namespace $releaseName "/tmp/helm-chart/$gitPath" --values <(<<< "$values") ${@:8}
   rm -rf /tmp/helm-chart
 }
@@ -407,24 +435,7 @@ function helmrelease() {
   local index=0
   local sourceParameter
   local yaml
-  case "$subCommand" in
-    template)
-      commands+=("template")
-      ;;
-    diff)
-      commands+=("diff" "upgrade" "--show-secrets" "--color" "--output=dyff")
-      ;;
-    install)
-      commands+=("install")
-      ;;
-    upgrade)
-      commands+=("upgrade")
-      ;;
-    *)
-      echo "command '$subCommand' is not implemented" > /dev/stderr
-      return 1
-      ;;
-  esac
+  commands=($(_parse_hr_subcommand "$subCommand"))
 
   while [[ "$#" != 0 ]]; do
     case "$1" in
@@ -487,72 +498,79 @@ function helmrelease() {
   fi
 
   helmReleaseYaml=$(_hr_getYaml "$yaml" "$index" HelmRelease)
-  [ "$?" -ne 0 ] && return 1
+  [[ "$?" -ne 0 ]] && return 1
   namespace=$(_hr_getNamespace "$helmReleaseYaml")
   releaseName=$(_hr_getReleaseName "$helmReleaseYaml")
-  values=$(<<< "$helmReleaseYaml" | yq -y -er .spec.values)
-  if [ -d "$sourceParameter" ]; then
-    helm "${commands[@]}" --namespace $namespace $releaseName "$sourceParameter" --values <(<<< "$values") ${@}
-  elif <<< "$helmReleaseYaml" | yq -e '.apiVersion == "helm.fluxcd.io/v1"' > /dev/null; then
-    if <<< "$helmReleaseYaml" | yq -e .spec.chart.git > /dev/null; then
-      local gitPath
-      local gitUrl
-      local gitRef
-      gitPath="$(<<< "$helmReleaseYaml" | yq -er '.spec.chart.path // "."')"
-      gitUrl="$(<<< "$helmReleaseYaml" | yq -er .spec.chart.git)"
-      gitRef="$(<<< "$helmReleaseYaml" | yq -er '.spec.chart.ref // "master"')"
-      _hr_git "$subCommand" "$gitUrl" "$gitRef" "$gitPath" "$namespace" "$releaseName" "$values" "$@"
-    else
-      helm "${commands[@]}" --namespace $namespace --repo $(<<< "$helmReleaseYaml" | yq -er .spec.chart.repository) $releaseName $(<<< "$helmReleaseYaml" | yq -er .spec.chart.name) --version $(<<< "$helmReleaseYaml" | yq -er .spec.chart.version) --values <(<<< "$values") "$@"
-    fi
-  else
-    local sourceNamespace
-    local sourceName
-    local sourceKind
-    local sourceResource
-    local chartName
-    local helmRepositoryUrl
-    sourceNamespace=$(<<< "$helmReleaseYaml" | yq -er ".spec.chart.spec.sourceRef.namespace // \"$namespace\"")
-    sourceName=$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.sourceRef.name)
-    sourceKind=$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.sourceRef.kind)
-    if [[ -z "$sourceParameter" ]]; then
-      local sourceYaml
-      sourceYaml=$(_hr_getYaml "$yaml" "" "$sourceKind")
-      sourceResource=$(<<< "$sourceYaml" | yq -erys "[.[] | select( (.metadata.namespace == \"$sourceNamespace\") and (.metadata.name == \"$sourceName\") )][0]")
-      if [[ "$?" != 0 ]]; then
-        sourceResource=$(kubectl --namespace=$sourceNamespace get $sourceKind $sourceName -o yaml)
-        if [[ "$?" != 0 ]]; then
-          helmRepositoryUrl="https://teutonet.github.io/teutonet-helm-charts"
-          echo "Source resource '$sourceNamespace/$sourceKind/$sourceName' not found in cluster nor in input" > /dev/stderr
-          vared -p "Please specify Helm Repository URL: " helmRepositoryUrl > /dev/null
-          sourceKind=HelmRepository
-          sourceResource=$'spec:\n  url: '"$helmRepositoryUrl"
+  case "$subCommand" in
+    uninstall)
+      helm "${commands[@]}" --namespace $namespace $releaseName
+      ;;
+    *)
+      values=$(<<< "$helmReleaseYaml" | yq -y -er .spec.values)
+      if [[ -d "$sourceParameter" ]]; then
+        helm "${commands[@]}" --namespace $namespace $releaseName "$sourceParameter" --values <(<<< "$values") ${@}
+      elif <<< "$helmReleaseYaml" | yq -e '.apiVersion == "helm.fluxcd.io/v1"' > /dev/null; then
+        if <<< "$helmReleaseYaml" | yq -e .spec.chart.git > /dev/null; then
+          local gitPath
+          local gitUrl
+          local gitRef
+          gitPath="$(<<< "$helmReleaseYaml" | yq -er '.spec.chart.path // "."')"
+          gitUrl="$(<<< "$helmReleaseYaml" | yq -er .spec.chart.git)"
+          gitRef="$(<<< "$helmReleaseYaml" | yq -er '.spec.chart.ref // "master"')"
+          _hr_git "$subCommand" "$gitUrl" "$gitRef" "$gitPath" "$namespace" "$releaseName" "$values" "$@"
+        else
+          helm "${commands[@]}" --namespace $namespace --repo $(<<< "$helmReleaseYaml" | yq -er .spec.chart.repository) $releaseName $(<<< "$helmReleaseYaml" | yq -er .spec.chart.name) --version $(<<< "$helmReleaseYaml" | yq -er .spec.chart.version) --values <(<<< "$values") "$@"
         fi
+      else
+        local sourceNamespace
+        local sourceName
+        local sourceKind
+        local sourceResource
+        local chartName
+        local helmRepositoryUrl
+        sourceNamespace=$(<<< "$helmReleaseYaml" | yq -er ".spec.chart.spec.sourceRef.namespace // \"$namespace\"")
+        sourceName=$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.sourceRef.name)
+        sourceKind=$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.sourceRef.kind)
+        if [[ -z "$sourceParameter" ]]; then
+          local sourceYaml
+          sourceYaml=$(_hr_getYaml "$yaml" "" "$sourceKind")
+          sourceResource=$(<<< "$sourceYaml" | yq -erys "[.[] | select( (.metadata.namespace == \"$sourceNamespace\") and (.metadata.name == \"$sourceName\") )][0]")
+          if [[ "$?" != 0 ]]; then
+            sourceResource=$(kubectl --namespace=$sourceNamespace get $sourceKind $sourceName -o yaml)
+            if [[ "$?" != 0 ]]; then
+              helmRepositoryUrl="https://teutonet.github.io/teutonet-helm-charts"
+              echo "Source resource '$sourceNamespace/$sourceKind/$sourceName' not found in cluster nor in input" > /dev/stderr
+              vared -p "Please specify Helm Repository URL: " helmRepositoryUrl > /dev/null
+              sourceKind=HelmRepository
+              sourceResource=$'spec:\n  url: '"$helmRepositoryUrl"
+            fi
+          fi
+        elif ! [[ -z "$sourceParameter" ]]; then
+          sourceResource=$'spec:\n  url: '"$sourceParameter"
+        fi
+        chartName="$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.chart)"
+        case "$sourceKind" in
+          GitRepository)
+            local gitUrl
+            local gitRef
+            gitUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
+            gitRef="$(<<< "$sourceResource" | yq -er '.spec.ref | if .branch then .branch elif .tag then .tag elif .semver then .semver elif .commit then .commit else "master" end')"
+            _hr_git "$subCommand" "$gitUrl" "$gitRef" "$chartName" "$namespace" "$releaseName" "$values" "$@"
+            ;;
+          HelmRepository)
+            local chartVersion
+            helmRepositoryUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
+            chartVersion="$(<<< "$helmReleaseYaml" | yq -er '.spec.chart.spec.version // "x.x.x"')"
+            helm "${commands[@]}" --namespace $namespace --repo "$helmRepositoryUrl" $releaseName "$chartName" --version "$chartVersion" --values <(<<< "$values") "$@"
+            ;;
+          *)
+            echo "'$sourceKind' is not implemented" > /dev/stderr
+            return 1
+            ;;
+        esac
       fi
-    elif ! [[ -z "$sourceParameter" ]]; then
-      sourceResource=$'spec:\n  url: '"$sourceParameter"
-    fi
-    chartName="$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.chart)"
-    case "$sourceKind" in
-      GitRepository)
-        local gitUrl
-        local gitRef
-        gitUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
-        gitRef="$(<<< "$sourceResource" | yq -er '.spec.ref | if .branch then .branch elif .tag then .tag elif .semver then .semver elif .commit then .commit else "master" end')"
-        _hr_git "$subCommand" "$gitUrl" "$gitRef" "$chartName" "$namespace" "$releaseName" "$values" "$@"
-        ;;
-      HelmRepository)
-        local chartVersion
-        helmRepositoryUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
-        chartVersion="$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.version)"
-        helm "${commands[@]}" --namespace $namespace --repo "$helmRepositoryUrl" $releaseName "$chartName" --version "$chartVersion" --values <(<<< "$values") "$@"
-        ;;
-      *)
-        echo "'$sourceKind' is not implemented" > /dev/stderr
-        return 1
-        ;;
-    esac
-  fi
+      ;;
+  esac
 }
 
 function hr() {
@@ -586,6 +604,11 @@ function hrUpgrade() {
   helmrelease "upgrade" "$@"
 }
 compdef _hr hrUpgrade
+
+function hrUninstall() {
+  helmrelease "uninstall" "$@"
+}
+compdef _hr hrUninstall
 
 function hrInstall() {
   helmrelease "install" "$@"
@@ -625,7 +648,7 @@ compdef _nop kapply
 function cwatch () {
   local ns=$1
   local cluster=$2
-  watch -w --color -n 1 clusterctl describe cluster --show-conditions all --echo -n $ns $cluster
+  watch --color -n 1 clusterctl describe cluster --show-conditions all --echo -n $ns $cluster
 }
 function _cwatch() {
   _arguments "1: :($(kubectl get namespaces --no-headers -o custom-columns=:metadata.name))"
@@ -636,6 +659,13 @@ function _cwatch() {
   fi
 }
 compdef _cwatch cwatch
+
+function findCluster() {
+  local cluster="$1"
+  for mgmt_cluster in $(gopass list --flat | command grep -E 'kube-?config' | grep mgmt); do
+    KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$mgmt_cluster kubectl get cluster -A | grep -q sustago && echo $mgmt_cluster && break
+  done
+}
 
 function kk() {
   local config
@@ -680,25 +710,9 @@ function krsdiff() {
 
   namespace="$(kubectl get namespaces -o custom-columns=:metadata.name | fzf -1)"
   firstRS="$(kubectl -n "$namespace" get replicasets -o custom-columns=:metadata.name | fzf -1 --preview "kubectl -n '$namespace' get replicaset {} -o custom-columns=:metadata.creationTimestamp")"
-  secondRS="$(kubectl -n "$namespace" get replicasets -o custom-columns=:metadata.name | grep -Ev "^$firstRS\$" | fzf -1 --preview "kubectl -n '$namespace' get replicaset {} -o custom-columns=:metadata.creationTimestamp")"
+  secondRS="$(kubectl -n "$namespace" get replicasets -o custom-columns=:metadata.name | rg -v "^$firstRS\$" | fzf -1 --preview "kubectl -n '$namespace' get replicaset {} -o custom-columns=:metadata.creationTimestamp")"
 
   dyff between <(kubectl -n "$namespace" get rs "$firstRS" -o yaml | yq -y '.metadata.name="rs"') <(kubectl -n "$namespace" get rs "$secondRS" -o yaml | yq -y '.metadata.name="rs"')
-}
-
-function krc() {
-  kubectl config current-context
-}
-
-function klc() {
-  kubectl config get-contexts -o name | sed "s/^/  /;\|^  $(krc)$|s/ /*/"
-}
-
-function kcc() {
-  local CONTEXT
-  CONTEXT="$(klc | fzf -1 | awk '{print $NF}')"
-  if [[ "$?" == 0 ]]; then
-    kubectl config use-context $CONTEXT
-  fi
 }
 
 function pkgSync() {
@@ -858,7 +872,30 @@ function clip() {
 compdef _nop clip
 
 function releaseAur() {
-  git add PKGBUILD .SRCINFO && git clean -xfd && updpkgsums && makepkg -df && makepkg --printsrcinfo > .SRCINFO && git commit -v . && git push && git clean -xfd
+  (
+    set -e
+    local choice
+    git add PKGBUILD .SRCINFO
+    git clean -xfd
+    updpkgsums
+    makepkg -df
+    makepkg --printsrcinfo > .SRCINFO
+    choice=$(gum choose "Version Bump" custom)
+    case "$choice" in
+      "Version Bump")
+        git commit . -m "Version Bump"
+        ;;
+      custom)
+        git commit -v .
+        ;;
+      *)
+        echo abort > /dev/stderr
+        return 1
+        ;;
+    esac
+    git push
+    git clean -xfd
+  )
 }
 
 function reAlias() {
@@ -894,7 +931,7 @@ nAlias ps procs
 reAlias fzf --ansi
 reAlias prettyping --nolegend
 nAlias ping prettyping
-nAlias du ncdu --exclude-kernfs
+nAlias du gdu -x
 nAlias jq gojq
 reAlias rg -S
 reAlias jq -r
@@ -923,7 +960,6 @@ reAlias mitmweb "--set confdir=$XDG_CONFIG_HOME/mitmproxy"
 nAlias . ls
 nAlias cp advcp -g
 nAlias mv advmv -g
-nAlias update 'paru && (if [ -f $XDG_RUNTIME_DIR/updates-notification ]; then notify-send.sh -s $(cat $XDG_RUNTIME_DIR/updates-notification); fi) && exit'
 reAlias code '--user-data-dir $XDG_DATA_HOME/vscode --extensions-dir $XDG_DATA_HOME/vscode/extensions'
 nAlias wd 'while :; do .; sleep 0.1; clear; done'
 
@@ -1003,3 +1039,5 @@ if ! command -v kustomize > /dev/null; then
     kubectl kustomize "${@}"
   }
 fi
+
+$(scu cat systemd-tmpfiles-setup.service | grep ^ExecStart | cut -d = -f 2)

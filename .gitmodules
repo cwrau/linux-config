@@ -1,0 +1,3 @@
+[submodule ".local/share/chrome-themes/doki-theme-web"]
+	path = .local/share/chrome-themes/doki-theme-web
+	url = https://github.com/doki-theme/doki-theme-web
