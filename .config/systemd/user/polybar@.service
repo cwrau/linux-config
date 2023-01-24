@@ -13,6 +13,7 @@ ExecStop=systemctl --user stop "polybar-%i.slice"
 RestartSec=0
 KillSignal=SIGKILL
 Slice=polybar.slice
+ManagedOOMPreference=avoid
 
 [Install]
 WantedBy=graphical-session.target

@@ -10,6 +10,8 @@ ExecStart=/usr/bin/chromium --user-data-dir=%E/youtube-music --app=https://music
 RestartSec=0
 Restart=always
 MemoryMax=2G
+ManagedOOMMemoryPressure=kill
+ManagedOOMMemoryPressureLimit=10%
 
 [Install]
 WantedBy=graphical-session.target

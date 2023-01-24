@@ -12,6 +12,7 @@ MemoryMax=80%
 TasksMax=800
 RestartSec=0
 Restart=always
+ManagedOOMPreference=avoid
 
 [Install]
 WantedBy=graphical-session.target

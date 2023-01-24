@@ -10,6 +10,7 @@ RemainAfterExit=true
 ExecStart=%E/glava/launch.sh %i
 ExecStop=systemctl --user stop "glava-%i.slice"
 Slice=glava.slice
+ManagedOOMPreference=avoid
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=true
