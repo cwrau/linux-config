@@ -10,3 +10,4 @@ enable reflector.timer
 enable snapper-cleanup.timer
 enable snapper-timeline.timer
 enable systemd-timesyncd.service
+enable systemd-oomd.service

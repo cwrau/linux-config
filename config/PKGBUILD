@@ -23,6 +23,7 @@ depends=(
     ausweisapp2
     auto-cpufreq
     autorandr
+    bandwhich
     base
     base-devel-meta
     bash-completion
@@ -36,6 +37,7 @@ depends=(
     breeze-hacked-cursor-theme
     btop
     btrfs-progs
+    chromium-bypass-paywalls-git
     clipmenu
     cloudflared
     clusterctl-bin
@@ -59,7 +61,6 @@ depends=(
     feh
     filebrowser
     flux-bin
-    foldingathome
     fprintd
     freerdp
     freetype2

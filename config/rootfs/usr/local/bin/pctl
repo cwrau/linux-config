@@ -2,14 +2,46 @@
 
 set -e
 
-function next() {
-  PLAYER=$(list | awk "/$PLAYER/ {number = NR+1}; NR == number {print \$0}; NR == 1 {first = \$0}; END {if (length(number) == 0) {print first} else if (number > NR) {print first} }" | tee "$XDG_RUNTIME_DIR/player")
-  notify-send.sh -h string:x-dunst-stack-tag:player -t 1000 -u normal "$(getUnitDescription "$PLAYER"): $($0 status)"
+function list() {
+  playerctl -l 2>/dev/null | sort -u
+}
+
+function initialize() {
+  if [[ -z "$PLAYER" ]]; then
+    if [[ -f "$XDG_RUNTIME_DIR/player" ]]; then
+      PLAYER=$(head -1 "$XDG_RUNTIME_DIR/player" | awk '{print $1}')
+    else
+      PLAYER=$(switchToNext)
+    fi
+
+    PLAYER=$(list | awk "/$PLAYER/ {number = NR; print \$0}; NR == 1 {first = \$0}; END {if (length(number) == 0) {print first} }")
+
+    if [[ "$PLAYER" != "$(cat "$XDG_RUNTIME_DIR/player")" ]]; then
+      echo "$PLAYER" >"$XDG_RUNTIME_DIR/player"
+    fi
+  fi
+
+  if ! list 2>/dev/null | grep -q .; then
+    fail No players found
+  fi
+}
+
+function getNext() {
+  if [[ "$(list | wc -l)" -gt 1 ]]; then
+    PLAYER=$(list | awk "/$PLAYER/ {number = NR+1}; NR == number {print \$0}; NR == 1 {first = \$0}; END {if (length(number) == 0) {print first} else if (number > NR) {print first} }")
+  fi
   echo "$PLAYER"
 }
 
-function list() {
-  playerctl -l | sort -u
+function switchToNext() {
+  PLAYER="$(getNext | tee "$XDG_RUNTIME_DIR/player")"
+  notify-send.sh -h string:x-dunst-stack-tag:player -t 1000 -u normal "$(getUnitDescription "$PLAYER"): $("$0" status)"
+  echo "$PLAYER"
+}
+
+function swap() {
+  pctl -p "$1" play-pause
+  pctl -p "$2" play-pause
 }
 
 function getPIDFromPlayerctlName() {
@@ -35,30 +67,35 @@ function fail() {
   exit 1
 }
 
-if [[ -f "$XDG_RUNTIME_DIR/player" ]]; then
-  PLAYER=$(head -1 "$XDG_RUNTIME_DIR/player" | awk '{print $1}')
-else
-  PLAYER=$(next)
-fi
-
-PLAYER=$(list | awk "/$PLAYER/ {number = NR; print \$0}; NR == 1 {first = \$0}; END {if (length(number) == 0) {print first} }")
-
-if [[ "$PLAYER" != "$(cat "$XDG_RUNTIME_DIR/player")" ]]; then
-  echo "$PLAYER" >"$XDG_RUNTIME_DIR/player"
-fi
-
 case "$1" in
   swap)
-    pctl -p "$2" play-pause
-    pctl -p "$3" play-pause
+    swap "$2" "$3"
     ;;
   NEXT)
-    PLAYER=$(next)
+    initialize
+    switchToNext
     ;;
   PRINT)
-    getUnitDescription "$PLAYER"
+    if [[ "$2" == -f ]]; then
+      "$0" PRINT -i
+      (
+        set -e
+        tail -F "$XDG_RUNTIME_DIR/player" 2>/dev/null &
+        pactl subscribe | grep -E --line-buffered "'(new|remove)' on sink-input"
+      ) | while read -r _; do
+        "$0" PRINT -i
+      done
+    elif [[ "$2" == -i ]]; then
+      if ! "$0" PRINT; then
+        "$0" NEXT || true
+      fi
+    else
+      initialize
+      getUnitDescription "$PLAYER"
+    fi
     ;;
   LIST)
+    initialize
     for player in $(list); do
       getUnitDescription "$player"
     done
@@ -68,20 +105,22 @@ case "$1" in
     shift
     shift
     [[ -z "$unit" ]] && fail Need to provide the unit name
+    initialize
     while [[ ! "$(getUnitName "$PLAYER")" =~ $unit(.service)? ]]; do
-      PLAYER=$(next)
+      PLAYER=$(getNext)
     done
-    exec $0 "$@"
+    export PLAYER
+    exec "$0" "$@"
     ;;
   volume)
     volume=$2
-    shift
-    shift
     [[ -z "$volume" ]] && fail "Need to provide the volume"
+    initialize
     unit=$(getUnitName "$PLAYER")
     "$(dirname "$0")/audio_program_volume" -u "$unit" -v "$volume"
     ;;
   *)
+    initialize
     exec playerctl -p "$PLAYER" "$@"
     ;;
 esac
