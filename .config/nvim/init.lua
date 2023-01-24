@@ -25,7 +25,7 @@ vim.opt.tabstop = 2
 vim.opt.termguicolors = true
 vim.opt.undodir = XDG_CACHE_HOME .. '/nvim/undodir'
 vim.opt.undofile = true
-vim.opt.wrap = false
+vim.opt.wrap = true
 
 require('plugins')
 
