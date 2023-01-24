@@ -1,0 +1,21 @@
+[Unit]
+Description=Set xorg settings
+After=i3-session.target
+Requires=i3-session.target
+
+[Service]
+Type=oneshot
+ExecStart=%E/xorg/config.sh
+RemainAfterExit=true
+RestartSec=0
+
+# disallow writing to /usr, /bin, /sbin, ...
+ProtectSystem=true
+# more paranoid security settings
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+
+[Install]
+WantedBy=i3-session.target
