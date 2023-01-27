@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-systemctl --user try-reload-or-restart feh.service polybar.slice glava.target
+systemctl --user try-reload-or-restart feh.service polybar.slice glava.target xorg-settings.service
 
 xrandr --dpi 100
