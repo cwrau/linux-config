@@ -9,4 +9,4 @@ Wants=picom.service
 Wants=polybar.target
 Wants=restart-service@picom.path
 Wants=restart-service@polybar.path
-Wants=xorg-settings.service
+Wants=xorg-settings.timer
