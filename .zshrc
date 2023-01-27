@@ -690,8 +690,6 @@ function kk() {
       return
     fi
   fi
-  mkdir -p "$XDG_RUNTIME_DIR/kconfig"
-  echo "$config" > "$XDG_RUNTIME_DIR/kconfig/current_kubeconfig"
   export KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$config"
   openRc="$(dirname "$XDG_RUNTIME_DIR/gopass/$config")/open-rc"
   if [[ -f "$openRc" ]]; then
@@ -700,7 +698,12 @@ function kk() {
       systemd-run --user --collect -q --slice sshuttle --unit="$unitName" -- bash -c "source '$openRc'"
     fi
   fi
-  ln -fs "$KUBECONFIG" "$XDG_CONFIG_HOME/kube/config"
+
+  if [[ "$TEMPORARY" != true ]]; then
+    mkdir -p "$XDG_RUNTIME_DIR/kconfig"
+    echo "$config" > "$XDG_RUNTIME_DIR/kconfig/current_kubeconfig"
+    ln -fs "$KUBECONFIG" "$XDG_CONFIG_HOME/kube/config"
+  fi
 }
 
 function krsdiff() {
@@ -994,7 +997,7 @@ if ! [[ -f "$KUBECONFIG" ]]; then
 fi
 
 function kk9s() {
-  kk
+  TEMPORARY=true kk
   k9s "${@}"
 }
 
