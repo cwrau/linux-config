@@ -65,19 +65,19 @@ export KUBECTL_NODE_SHELL_POD_MEMORY=0
 
 if [[ $- = *i* ]] && [[ "$XDG_VTNR" == 1 ]]; then
   if false; then
-    if [[ -z "$XDG_CURRENT_DESKTOP" ]]; then
+    if [[ ! -v XDG_CURRENT_DESKTOP ]]; then
       export XDG_CURRENT_DESKTOP=sway
       export GBM_BACKEND=nvidia-drm
       export __GLX_VENDOR_LIBRARY_NAME=nvidia
       export MOZ_ENABLE_WAYLAND=1
       export XDG_SESSION_TYPE=wayland
       export WLR_DRM_NO_MODIFIERS=1
-      systemctl --user import-environment 2> /dev/null
+      command systemctl --user import-environment 2> /dev/null
       exec systemd-cat --stderr-priority=warning --identifier=sway sway --unsupported-gpu
     fi
   else
-    if [[ -z "$DISPLAY" ]]; then
-      systemctl --user import-environment 2> /dev/null
+    if [[ ! -v DISPLAY ]]; then
+      command systemctl --user import-environment 2> /dev/null
       exec systemd-cat --stderr-priority=warning --identifier=xorg startx
     fi
   fi
@@ -189,7 +189,8 @@ COMPLETION_WAITING_DOTS="true"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}'
-zstyle ':completion:*' use-ip true
+zstyle ':completion:*' use-ip false
+zstyle ':completion:*:hosts' known-hosts-files false
 
 export ZSH_CACHE_DIR=${XDG_CACHE_HOME}/oh-my-zsh
 [ -d $ZSH_CACHE_DIR ] || mkdir $ZSH_CACHE_DIR
@@ -205,6 +206,7 @@ plugins=(
   fd
   fzf
   helm
+  helmrelease-tools
   kubectl
   gradle
   ripgrep
@@ -257,9 +259,8 @@ function _check_command() {
 }
 
 function command_not_found_handler() {
-  if [[ "$1" =~ ^cccccc ]]; then
-    return 0
-  fi
+  [[ "${1:0:1}" == : ]] && return 0
+  [[ "$1" =~ ^cccccc ]] && return 0
   local packages
   echo "Packages containing '$1' in name"
   paru -- $1
@@ -300,8 +301,11 @@ function e() {
 #}
 
 function idea() {
-  [[ -z "$1" ]] && open_project _
-  [[ "$1" ]] && open_project "$(realpath "$1")"
+  if [[ ! -v 1 ]]; then
+    open_project _
+  else
+    open_project "$(realpath "$1")"
+  fi
 }
 
 function diff() {
@@ -346,275 +350,6 @@ function google() {
   xdg-open "http://google.com/search?q=${*}"
 }
 
-function _hr_getYaml() {
-  local yaml="$1"
-  local index="$2"
-  local kind="$3"
-
-  <<<"$yaml" | yq -erys "[.[] | select(.kind == \"$kind\")][$index]"
-}
-
-function _hr_getNamespace() {
-  local yaml="$1"
-
-  <<<"$yaml" | yq -er '.spec.targetNamespace // .metadata.namespace'
-}
-
-function _hr_getReleaseName() {
-  local yaml="$1"
-  local ns
-
-  if <<<"$yaml" | yq -e '.apiVersion == "helm.fluxcd.io/v1" or .spec.targetNamespace' > /dev/null; then
-    <<<"$yaml" | yq -er ".spec.releaseName // \"$(_hr_getNamespace "$yaml")-\\(.metadata.name)\""
-  else
-    <<<"$yaml" | yq -er '.spec.releaseName // .metadata.name'
-  fi
-}
-
-function _parse_hr_subcommand() {
-  local subCommand="${1?}"
-  local commands=()
-  case "$subCommand" in
-    template)
-      commands+=("template")
-      ;;
-    diff)
-      commands+=("diff" "upgrade" "--show-secrets" "--color" "--output=dyff")
-      ;;
-    install)
-      commands+=("install")
-      ;;
-    upgrade)
-      commands+=("upgrade")
-      ;;
-    uninstall)
-      commands+=("uninstall")
-      ;;
-    *)
-      echo "command '$subCommand' is not implemented" > /dev/stderr
-      return 1
-      ;;
-  esac
-  echo "${commands[@]}"
-}
-
-function _hr_git() {
-  local subCommand="$1"
-  local commands=()
-  local gitUrl="$2"
-  local gitRef="$3"
-  local gitPath="$4"
-  local namespace="$5"
-  local releaseName="$6"
-  local values="$7"
-
-  commands=($(_parse_hr_subcommand "$subCommand"))
-  [[ $? != 0 ]] && return 1
-
-  rm -rf /tmp/helm-chart
-  (
-    git clone -q "$gitUrl" /tmp/helm-chart
-    cd /tmp/helm-chart
-    git checkout -q "$gitRef"
-  ) > /dev/null
-
-  helm dependency update "/tmp/helm-chart/$gitPath" > /dev/null
-  helm "${commands[@]}" --namespace $namespace $releaseName "/tmp/helm-chart/$gitPath" --values <(<<< "$values") ${@:8}
-  rm -rf /tmp/helm-chart
-}
-
-function helmrelease() {
-  local subCommand="${1?You need to set the command}"
-  shift
-  local commands=()
-  local namespace
-  local releaseName
-  local helmReleaseYaml
-  local numberOfHelmReleases
-  local values
-  local index=0
-  local sourceParameter
-  local yaml
-  commands=($(_parse_hr_subcommand "$subCommand"))
-
-  while [[ "$#" != 0 ]]; do
-    case "$1" in
-      -)
-        yaml=$(cat)
-        shift
-        ;;
-      -+([0-9]))
-        index="${1/-/}"
-        shift
-        ;;
-      -ALL)
-        index=ALL
-        shift
-        ;;
-      --)
-        shift
-        break
-        ;;
-      *)
-        if [[ -f "$1" ]]; then
-          yaml=$(cat "$1")
-        elif [[ -d "$1" ]]; then
-          sourceParameter="$1"
-        elif [[ "$1" =~ ^https://* ]]; then
-          sourceParameter="$1"
-        else
-          echo "parameter '$1' is not supported" > /dev/stderr
-          return 1
-        fi
-        shift
-        ;;
-    esac
-  done
-
-  if [[ -z "$yaml" ]]; then
-    yaml=$(cat)
-  fi
-
-  numberOfHelmReleases=$(<<< "$yaml" | yq -ers '[.[] | select(.kind == "HelmRelease")] | length')
-  if [[ "$numberOfHelmReleases" -lt 1 ]]; then
-    echo "There are no HelmReleases in the input" > /dev/stderr
-    return 1
-  elif [[ "$numberOfHelmReleases" != 1 ]] && [[ "$subCommand" == "install" ]]; then
-    echo "You can only install 1 HelmReleases at the same time" > /dev/stderr
-    return 1
-  elif [[ "$numberOfHelmReleases" -gt 1 ]] && [[ "$index" = "ALL" ]]; then
-    <<<"$yaml" | yq -erys '.[] | select(.kind != "HelmRelease") | select(.)' \
-      | if [[ "$subCommand" = "template" ]]; then
-          cat -
-        elif [[ "$subCommand" = "diff" ]]; then
-          kubectl diff -f - || true
-        fi
-    for index in {0..$((numberOfHelmReleases - 1))}; do
-      if [[ "$subCommand" = "template" ]]; then
-        echo ---
-      fi
-      <<<"$yaml" | yq -erys '([.[] | select(.kind == "HelmRelease")]['"$index"']),(.[] | select(.kind | IN(["GitRepository", "HelmRepository"][])))' | helmrelease "$subCommand" -
-    done
-  fi
-
-  helmReleaseYaml=$(_hr_getYaml "$yaml" "$index" HelmRelease)
-  [[ "$?" -ne 0 ]] && return 1
-  namespace=$(_hr_getNamespace "$helmReleaseYaml")
-  releaseName=$(_hr_getReleaseName "$helmReleaseYaml")
-  case "$subCommand" in
-    uninstall)
-      helm "${commands[@]}" --namespace $namespace $releaseName
-      ;;
-    *)
-      values=$(<<< "$helmReleaseYaml" | yq -y -er .spec.values)
-      if [[ -d "$sourceParameter" ]]; then
-        helm "${commands[@]}" --namespace $namespace $releaseName "$sourceParameter" --values <(<<< "$values") ${@}
-      elif <<< "$helmReleaseYaml" | yq -e '.apiVersion == "helm.fluxcd.io/v1"' > /dev/null; then
-        if <<< "$helmReleaseYaml" | yq -e .spec.chart.git > /dev/null; then
-          local gitPath
-          local gitUrl
-          local gitRef
-          gitPath="$(<<< "$helmReleaseYaml" | yq -er '.spec.chart.path // "."')"
-          gitUrl="$(<<< "$helmReleaseYaml" | yq -er .spec.chart.git)"
-          gitRef="$(<<< "$helmReleaseYaml" | yq -er '.spec.chart.ref // "master"')"
-          _hr_git "$subCommand" "$gitUrl" "$gitRef" "$gitPath" "$namespace" "$releaseName" "$values" "$@"
-        else
-          helm "${commands[@]}" --namespace $namespace --repo $(<<< "$helmReleaseYaml" | yq -er .spec.chart.repository) $releaseName $(<<< "$helmReleaseYaml" | yq -er .spec.chart.name) --version $(<<< "$helmReleaseYaml" | yq -er .spec.chart.version) --values <(<<< "$values") "$@"
-        fi
-      else
-        local sourceNamespace
-        local sourceName
-        local sourceKind
-        local sourceResource
-        local chartName
-        local helmRepositoryUrl
-        sourceNamespace=$(<<< "$helmReleaseYaml" | yq -er ".spec.chart.spec.sourceRef.namespace // \"$namespace\"")
-        sourceName=$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.sourceRef.name)
-        sourceKind=$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.sourceRef.kind)
-        if [[ -z "$sourceParameter" ]]; then
-          local sourceYaml
-          sourceYaml=$(_hr_getYaml "$yaml" "" "$sourceKind")
-          sourceResource=$(<<< "$sourceYaml" | yq -erys "[.[] | select( (.metadata.namespace == \"$sourceNamespace\") and (.metadata.name == \"$sourceName\") )][0]")
-          if [[ "$?" != 0 ]]; then
-            sourceResource=$(kubectl --namespace=$sourceNamespace get $sourceKind $sourceName -o yaml)
-            if [[ "$?" != 0 ]]; then
-              helmRepositoryUrl="https://teutonet.github.io/teutonet-helm-charts"
-              echo "Source resource '$sourceNamespace/$sourceKind/$sourceName' not found in cluster nor in input" > /dev/stderr
-              vared -p "Please specify Helm Repository URL: " helmRepositoryUrl > /dev/null
-              sourceKind=HelmRepository
-              sourceResource=$'spec:\n  url: '"$helmRepositoryUrl"
-            fi
-          fi
-        elif ! [[ -z "$sourceParameter" ]]; then
-          sourceResource=$'spec:\n  url: '"$sourceParameter"
-        fi
-        chartName="$(<<< "$helmReleaseYaml" | yq -er .spec.chart.spec.chart)"
-        case "$sourceKind" in
-          GitRepository)
-            local gitUrl
-            local gitRef
-            gitUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
-            gitRef="$(<<< "$sourceResource" | yq -er '.spec.ref | if .branch then .branch elif .tag then .tag elif .semver then .semver elif .commit then .commit else "master" end')"
-            _hr_git "$subCommand" "$gitUrl" "$gitRef" "$chartName" "$namespace" "$releaseName" "$values" "$@"
-            ;;
-          HelmRepository)
-            local chartVersion
-            helmRepositoryUrl="$(<<< "$sourceResource" | yq -er .spec.url)"
-            chartVersion="$(<<< "$helmReleaseYaml" | yq -er '.spec.chart.spec.version // "x.x.x"')"
-            helm "${commands[@]}" --namespace $namespace --repo "$helmRepositoryUrl" $releaseName "$chartName" --version "$chartVersion" --values <(<<< "$values") "$@"
-            ;;
-          *)
-            echo "'$sourceKind' is not implemented" > /dev/stderr
-            return 1
-            ;;
-        esac
-      fi
-      ;;
-  esac
-}
-
-function hr() {
-  helmrelease "template" "$@"
-}
-function _hr() {
-  #_arguments "1: :($(fd --full-path $(realpath "${${words[2]/\~/$HOME}:-$PWD}" / | xargs -i realpath {} --relative-to="$PWD") -e yaml -e yml -X rg '^kind: HelmRelease$' -l))" \
-  #_arguments "1:The helm release to template:_files -f -g '*.(yaml|yml)'" \
-  #_arguments "1:The helm release to template:($(cd $(dirname "${words[2]:-$PWD}"); fd -e yaml -e yml -X rg '^kind: HelmRelease$' -l))" \
-  #_arguments "1:The helm release to template:->release" \
-  _arguments "1:The helm release to template:($(fd -e yaml -e yml -X rg '^kind: HelmRelease$' -l))" \
-             "2::The helm chart to use for templating:_files -/"
-  case "$state" in
-    release)
-      if [ -d "${words[2]}" ]; then
-        fd --search-path="${words[2]}" -e yaml -e yml -X rg '^kind: HelmRelease$' -l #| xargs -i realpath {} --relative-to=$PWD
-      else
-        _files -f -g '*.(yaml|yml)'
-      fi
-      ;;
-  esac
-}
-compdef _hr hr
-
-function hrDiff() {
-  HELM_DIFF_USE_UPGRADE_DRY_RUN=true helmrelease "diff" "$@"
-}
-compdef _hr hrDiff
-
-function hrUpgrade() {
-  helmrelease "upgrade" "$@"
-}
-compdef _hr hrUpgrade
-
-function hrUninstall() {
-  helmrelease "uninstall" "$@"
-}
-compdef _hr hrUninstall
-
-function hrInstall() {
-  helmrelease "install" "$@"
-}
-compdef _hr hrInstall
-
 function knodes() {
   echo "+> ${@}" >&2
   for node in $(kubectl get nodes -o json | jq '.items[] | "\(.metadata.name):\(.status.addresses[] | select(.type == "InternalIP") | .address)"' | sort -V); do
@@ -635,13 +370,17 @@ function gop(){
 }
 compdef _nop gop
 
+function kbuild() {
+  kustomize build --enable-alpha-plugins "$@"
+}
+
 function kdiff () {
-  kustomize build --enable-alpha-plugins . | kubectl diff -f -
+  kbuild "$@" | kubectl diff -f -
 }
 compdef _nop kdiff
 
 function kapply () {
-  kustomize build --enable-alpha-plugins . | kubectl apply -f -
+  kbuild "$@" | kubectl apply -f - --server-side --force-conflicts
 }
 compdef _nop kapply
 
@@ -667,45 +406,6 @@ function findCluster() {
   done
 }
 
-function kk() {
-  local config
-  local openRc
-  local unitName
-  local query
-
-  if ! systemctl --user is-active -q gopass-fuse.service; then
-    systemctl --user start --no-block gopass-fuse
-  fi
-
-  if [[ -z "$1" ]]; then
-    query=""
-  elif [[ -f "$XDG_RUNTIME_DIR/gopass/$1" ]]; then
-    config="$1"
-  else
-    query="$1"
-  fi
-  if [[ -z "$config" ]]; then
-    config="$(gopass ls -flat | /bin/grep -E 'kube.?config' | fzf --query "$query" -1)"
-    if [[ "$?" != 0 ]]; then
-      return
-    fi
-  fi
-  export KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$config"
-  openRc="$(dirname "$XDG_RUNTIME_DIR/gopass/$config")/open-rc"
-  if [[ -f "$openRc" ]]; then
-    unitName="$(md5sum "$openRc" | awk NF=1)"
-    if ! systemctl --user is-active -q "$unitName"; then
-      systemd-run --user --collect -q --slice sshuttle --unit="$unitName" -- bash -c "source '$openRc'"
-    fi
-  fi
-
-  if [[ "$TEMPORARY" != true ]]; then
-    mkdir -p "$XDG_RUNTIME_DIR/kconfig"
-    echo "$config" > "$XDG_RUNTIME_DIR/kconfig/current_kubeconfig"
-    ln -fs "$KUBECONFIG" "$XDG_CONFIG_HOME/kube/config"
-  fi
-}
-
 function krsdiff() {
   local namespace
   local firstRS
@@ -722,7 +422,7 @@ function pkgSync() {
   local OLDPWD=$PWD
   cd $HOME
   git pull
-  systemctl --user daemon-reload
+  command systemctl --user daemon-reload
 
   local package
   local packages
@@ -779,9 +479,13 @@ function pkgSync() {
   if [ ! -z $missingPackages ]; then
     echo "$(wc -l <<<$missingPackages) missing Packages"
     while read -r package; do
+      if paru -Qi $package >/dev/null; then
+        paru -D --asdeps $package
+        continue
+      fi
       paru -Si $package
       paru -Qi $package
-      read -k 1 "choice?[I]nstall, [r]emove, [d]epends or [s]kip $package? "
+      read -k 1 "choice?[I]nstall, [r]emove or [s]kip $package? "
       echo
       case $choice in;
         [Ii])
@@ -791,11 +495,6 @@ function pkgSync() {
           ;;
         [Rr])
           targetPackages=$(echo $targetPackages | rg -xv "$package")
-          ;;
-        [Dd])
-          echo "=========="
-          echo
-          paru -D --asdeps $package
           ;;
         *)
           :
@@ -941,14 +640,13 @@ reAlias jq -r
 reAlias yq -r
 nAlias k 'kubectl' # "--context=${KUBECTL_CONTEXT:-$(kubectl config current-context)}" ${KUBECTL_NAMESPACE/[[:alnum:]-]*/--namespace=${KUBECTL_NAMESPACE}}'
 nAlias podman-run podman run --rm -i -t
-nAlias htop gotop
-reAlias gotop -r 250ms
+nAlias htop btop
 reAlias feh --scale-down --auto-zoom --auto-rotate
 nAlias grep rg
 nAlias o xdg-open
 nAlias dmakepkg podman-run --network host -v '$PWD:/pkg' 'whynothugo/makepkg' makepkg
 reAlias watch ' '
-nAlias scu /usr/bin/systemctl --user
+nAlias scu command systemctl --user
 nAlias sc systemctl
 nAlias sru /usr/bin/systemd-run --user
 nAlias sr systemd-run
@@ -965,6 +663,7 @@ nAlias cp advcp -g
 nAlias mv advmv -g
 reAlias code '--user-data-dir $XDG_DATA_HOME/vscode --extensions-dir $XDG_DATA_HOME/vscode/extensions'
 nAlias wd 'while :; do .; sleep 0.1; clear; done'
+reAlias s3cmd '-c $XDG_CONFIG_HOME/s3cmd/config'
 
 alias -g A='| awk'
 alias -g B='| base64'
@@ -987,19 +686,64 @@ alias -g UR='U --unsafe-full-throttle'
 alias -g X='| xargs'
 alias -g Y='| yq'
 
+function kkk() {
+  local config
+  local openRc
+  local unitName
+  local query
+  local exitCode
+
+  if ! command systemctl --user is-active -q gopass-fuse.service; then
+    command systemctl --user start --no-block gopass-fuse
+  fi
+
+  if [[ ! -v 1 ]]; then
+    query=""
+  elif [[ -f "$XDG_RUNTIME_DIR/gopass/$1" ]]; then
+    config="$1"
+  else
+    query="$1"
+  fi
+  if [[ -z "$config" ]]; then
+    config="$(gopass ls -flat | /bin/grep -E 'kube.?config' | fzf --query "$query" -1)"
+    exitCode="$?"
+    if [[ "$exitCode" != 0 ]]; then
+      return "$exitCode"
+    fi
+  fi
+  export KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$config"
+  openRc="$(dirname "$XDG_RUNTIME_DIR/gopass/$config")/open-rc"
+  if [[ -f "$openRc" ]]; then
+    unitName="$(md5sum "$openRc" | awk NF=1)"
+    if ! command systemctl --user is-active -q "$unitName"; then
+      systemd-run --user --collect -q --slice sshuttle --unit="$unitName" -- bash -c "source '$openRc'"
+    fi
+  fi
+
+  if [[ "$TEMPORARY" != true ]]; then
+    mkdir -p "$XDG_RUNTIME_DIR/kconfig"
+    echo "$config" > "$XDG_RUNTIME_DIR/kconfig/current_kubeconfig"
+    ln -fs "$KUBECONFIG" "$XDG_CONFIG_HOME/kube/config"
+  fi
+}
+
+function kk() {
+  TEMPORARY=true kkk
+}
+
+function kk9s() {
+  kk || return $?
+  k9s "${@}"
+}
+
 if ! [[ -f "$KUBECONFIG" ]]; then
   unset KUBECONFIG
   if [[ -f "$XDG_RUNTIME_DIR/kconfig/current_kubeconfig" ]]; then
-    kk "$(cat $XDG_RUNTIME_DIR/kconfig/current_kubeconfig)"
+    kkk "$(cat $XDG_RUNTIME_DIR/kconfig/current_kubeconfig)"
   else
     rm -f "$XDG_RUNTIME_DIR/current_kubeconfig"
   fi
 fi
-
-function kk9s() {
-  TEMPORARY=true kk
-  k9s "${@}"
-}
 
 function k9s() {
   if ! [[ -f "$KUBECONFIG" ]]; then

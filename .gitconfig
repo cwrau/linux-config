@@ -66,6 +66,4 @@
   new = green bold
   whitespace = red reverse
 [alias]
-  cleanup = "!git fetch --prune && git cleanupBranches"
-  cleanupBranches = "!(if git show-branch master &>/dev/null; then git branch --merged master; else git branch --merged main; fi) | grep -E -v '^\\s*(\\*|master|main|develop|release/)' | xargs -n 1 -r git branch -d"
-  rprune = "!git branch -r | awk '{print $1}' | grep -E -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk '{print $1}' | xargs -n 1 -p -r git branch -D"
+  cleanup = "!git-delete-merged-branches"

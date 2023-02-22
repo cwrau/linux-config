@@ -48,6 +48,7 @@
 .ssh/work.config
 .config/cloudflared/cert.pem
 .config/cloudflared/files.json
+.config/cloudflared/kdeconnect.json
 .config/kube/config.yaml
 .android/adbkey
 .config/filebrowser/files.db
