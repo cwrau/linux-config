@@ -12,15 +12,15 @@ function update() {
   local easyeffects_muted
   local symbol
   local color
-  source=$(pactl info | grep 'Default Source' | grep -i -v monitor | awk -F: '{print $2}')
+  source=$(pactl info | grep 'Default Source' | grep -i -v monitor | awk -F ': ' '{print $2}')
 
-  if [[ -z "$source" ]]; then
+  if [[ -z "$source" ]] || [[ "$source" == easyeffects_source ]]; then
     # shellcheck disable=2154
     color="$color_grey"
     symbol=" $SYMBOL_MIC_MUTED "
   else
 
-    IFS=: read -r state muted <<<"$(pactl list sources | grep -E 'State:|Name:|Mute:' | sed -zr "s#^.*[\t ]+State: (\S+?)\n\s+Name:$source\n\tMute: (\S+?)\n.*\$#\1:\2#g")"
+    IFS=: read -r state muted <<<"$(pactl list sources | grep -E 'State:|Name:|Mute:' | sed -zr "s#^.*[\t ]+State: (\S+?)\n\s+Name: $source\n\tMute: (\S+?)\n.*\$#\1:\2#g")"
     IFS=: read -r easyeffects_muted <<<"$(pactl list sources | grep -E 'State:|Name:|Mute:' | sed -zr "s#^.*[\t ]+State: \S+?\n\s+Name: easyeffects_source\n\tMute: (\S+?)\n.*\$#\1#g")"
 
     if [[ "$easyeffects_muted" == yes ]]; then
@@ -30,6 +30,10 @@ function update() {
     if [[ "$muted" == yes ]]; then
       symbol="$SYMBOL_MIC_MUTED"
       if [[ "$state" == RUNNING ]]; then
+        if systemctl --user is-active -q gamemode.service; then
+          pactl set-source-mute @DEFAULT_SOURCE@ false
+          return
+        fi
         # shellcheck disable=SC2154
         color="$color_pishade7"
       else
@@ -41,13 +45,13 @@ function update() {
       # shellcheck disable=SC2154
       color="$color_pink"
     fi
+
+    if [[ "$state" != RUNNING ]]; then
+      pactl set-source-mute @DEFAULT_SOURCE@ true
+    fi
   fi
 
   echo "%{F$color}$symbol%{F-}"
-
-  if [[ "$state" != RUNNING ]]; then
-    pactl set-source-mute @DEFAULT_SOURCE@ true
-  fi
 
   return
 
@@ -65,6 +69,6 @@ function update() {
 [ -f "$XDG_RUNTIME_DIR/polybar/microphone" ] || (echo 0 >"$XDG_RUNTIME_DIR/polybar/microphone")
 
 update
-pactl subscribe | grep change --line-buffered | while read -r _; do
+pactl subscribe | grep "'change' on source" --line-buffered | while read -r _; do
   update
 done

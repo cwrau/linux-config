@@ -17,7 +17,7 @@ off
 output DP-1-4
 off
 output DP-1
-mode 3840x2160
+mode 2560x1440
 pos 0x0
 primary
 rate 60.00

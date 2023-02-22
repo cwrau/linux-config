@@ -2,4 +2,4 @@
 
 systemctl --user try-reload-or-restart feh.service polybar.slice glava.target xorg-settings.service
 
-xrandr --dpi 100
+i3-msg reload

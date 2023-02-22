@@ -339,7 +339,8 @@ return require('packer').startup(function(use)
         }),
         formatting = {
           format = lspkind.cmp_format {
-            mode = 'symbol'
+            mode = 'symbol',
+            maxwidth = 25
           }
         },
         confirm_opts = {

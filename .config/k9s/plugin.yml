@@ -5,10 +5,28 @@ plugin:
     description: Start shell in node
     scopes:
       - nodes
-    command: kubectl
     background: false
+    command: kubectl
     args:
       - node-shell
       - -n
       - kube-system
       - $NAME
+  openstack-logs:
+    shortCut: l
+    confirm: false
+    description: View logs of openstack machine
+    scopes:
+      - openstackmachines
+    background: false
+    command: bash
+    args:
+      - -c
+      - |
+        tmpDir="$(mktemp -d)"
+        trap 'rm -rf "$tmpDir"' EXIT
+        cd "$tmpDir"
+        secretName="$(kubectl -n "$NAMESPACE" get openstackmachines "$NAME" -o jsonpath='{.spec.identityRef.name}')"
+        kubectl -n "$NAMESPACE" get secret "$secretName" -o jsonpath='{.data.clouds\.yaml}' | base64 -d > clouds.yaml
+        export OS_CLOUD="$(kubectl -n "$NAMESPACE" get openstackmachines "$NAME" -o jsonpath='{.spec.cloudName}')"
+        openstack console log show "$(kubectl -n "$NAMESPACE" get openstackmachines "$NAME" -o jsonpath='{.spec.instanceID}')" | less
