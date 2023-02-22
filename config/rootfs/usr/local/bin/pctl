@@ -1,29 +1,63 @@
 #!/usr/bin/env bash
 
 set -e
+set -o pipefail
 
-function list() {
-  playerctl -l 2>/dev/null | sort -u
+SCRIPT_DIR="$(dirname "$0")"
+LIB_DIR="$SCRIPT_DIR/lib"
+STATE_FOLDER="$XDG_RUNTIME_DIR/player"
+mkdir -p "$STATE_FOLDER"
+SYSTEMD_DESCRIPTION_CACHE="$STATE_FOLDER/systemdDescriptionCache"
+exec 4<>"${STATE_FOLDER}/current_lock"
+exec 5<>"${SYSTEMD_DESCRIPTION_CACHE}_lock"
+
+# shellcheck disable=2317
+function unlock() {
+  flock -u 4
+  flock -u 5
 }
 
-function initialize() {
-  if [[ -z "$PLAYER" ]]; then
-    if [[ -f "$XDG_RUNTIME_DIR/player" ]]; then
-      PLAYER=$(head -1 "$XDG_RUNTIME_DIR/player" | awk '{print $1}')
-    else
-      PLAYER=$(switchToNext)
-    fi
+trap "unlock" EXIT
 
-    PLAYER=$(list | awk "/$PLAYER/ {number = NR; print \$0}; NR == 1 {first = \$0}; END {if (length(number) == 0) {print first} }")
+function fail() {
+  echo "$@" >/dev/stderr
+  exit 1
+}
 
-    if [[ "$PLAYER" != "$(cat "$XDG_RUNTIME_DIR/player")" ]]; then
-      echo "$PLAYER" >"$XDG_RUNTIME_DIR/player"
-    fi
+function getPIDFromPlayerctlName() {
+  echo "$1" | sed -r 's#^[a-z._-]+([0-9]+)$#\1#g'
+}
+
+function getUnitDescription() {
+  [[ -z "$1" ]] && return 1
+  if ! grep -E "^$1=" "$SYSTEMD_DESCRIPTION_CACHE" | awk -F= '{print $2}'; then
+    flock -x 5
+    (
+      cat "$SYSTEMD_DESCRIPTION_CACHE"
+      echo -n "$1="
+      if [[ "$1" == "youtube-music-desktop-app" ]]; then
+        echo "YouTube Music Player"
+      elif [[ "$1" =~ ^kdeconnect ]]; then
+        echo "Phone"
+      else
+        "$LIB_DIR/getSystemdUnitDescriptionForPID" "$(getPIDFromPlayerctlName "$1")"
+      fi
+    ) | sort -u | sponge "$SYSTEMD_DESCRIPTION_CACHE"
+    flock -u 5
   fi
+}
 
-  if ! list 2>/dev/null | grep -q .; then
-    fail No players found
-  fi
+function filterBySystemdUnit() {
+  local -a blacklist=(Phone 'Google Chrome for work')
+  while read -r player; do
+    if ! printf "%s\n" "${blacklist[@]}" | grep -Eq "^$(getUnitDescription "$player")\$"; then
+      echo "$player"
+    fi
+  done
+}
+
+function list() {
+  playerctl -l 2>/dev/null | sort -u | filterBySystemdUnit
 }
 
 function getNext() {
@@ -34,9 +68,35 @@ function getNext() {
 }
 
 function switchToNext() {
-  PLAYER="$(getNext | tee "$XDG_RUNTIME_DIR/player")"
+  flock -x 4
+  PLAYER="$(getNext | tee "$STATE_FOLDER/current")"
+  flock -u 4
   notify-send.sh -h string:x-dunst-stack-tag:player -t 1000 -u normal "$(getUnitDescription "$PLAYER"): $("$0" status)"
   echo "$PLAYER"
+}
+
+function initialize() {
+  if [[ ! -v PLAYER ]]; then
+    if [[ -f "$STATE_FOLDER/current" ]]; then
+      flock -s 4
+      PLAYER=$(head -1 "$STATE_FOLDER/current" | awk '{print $1}')
+      flock -u 4
+    else
+      PLAYER=$(switchToNext)
+    fi
+
+    PLAYER=$(list | awk "/$PLAYER/ {number = NR; print \$0}; NR == 1 {first = \$0}; END {if (length(number) == 0) {print first} }")
+
+    flock -s 4
+    if [[ "$PLAYER" != "$(cat "$STATE_FOLDER/current")" ]]; then
+      echo "$PLAYER" >"$STATE_FOLDER/current"
+    fi
+    flock -u 4
+  fi
+
+  if ! list | grep . &>/dev/null; then
+    fail No players found
+  fi
 }
 
 function swap() {
@@ -44,27 +104,8 @@ function swap() {
   pctl -p "$2" play-pause
 }
 
-function getPIDFromPlayerctlName() {
-  echo "$1" | sed -r 's#^[a-z._-]+([0-9]+)$#\1#g'
-}
-
-function getUnitDescription() {
-  if [[ "$1" == "youtube-music-desktop-app" ]]; then
-    echo "YouTube Music Player"
-  elif [[ "$1" =~ ^kdeconnect ]]; then
-    echo "Phone"
-  else
-    getPIDFromPlayerctlName "$1" | xargs -r "$(dirname "$0")/lib/getSystemdUnitDescriptionForPID"
-  fi
-}
-
 function getUnitName() {
-  getPIDFromPlayerctlName "$1" | xargs -r "$(dirname "$0")/lib/getSystemdUnitNameForPID"
-}
-
-function fail() {
-  echo "$@" >/dev/stderr
-  exit 1
+  "$LIB_DIR/getSystemdUnitNameForPID" "$(getPIDFromPlayerctlName "$1")"
 }
 
 case "$1" in
@@ -80,7 +121,7 @@ case "$1" in
       "$0" PRINT -i
       (
         set -e
-        tail -F "$XDG_RUNTIME_DIR/player" 2>/dev/null &
+        tail -F "$STATE_FOLDER/current" 2>/dev/null &
         pactl subscribe | grep -E --line-buffered "'(new|remove)' on sink-input"
       ) | while read -r _; do
         "$0" PRINT -i
@@ -117,7 +158,7 @@ case "$1" in
     [[ -z "$volume" ]] && fail "Need to provide the volume"
     initialize
     unit=$(getUnitName "$PLAYER")
-    "$(dirname "$0")/audio_program_volume" -u "$unit" -v "$volume"
+    "$SCRIPT_DIR/audio_program_volume" -u "$unit" -v "$volume"
     ;;
   *)
     initialize

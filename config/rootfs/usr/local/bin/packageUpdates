@@ -6,11 +6,20 @@ function notification_send() {
   dunstify -h string:x-dunst-stack-tag:updates "$@"
 }
 
+if systemctl --user is-active -q gamemode.service; then
+  exit 0
+fi
+
+if nmcli -g name connection show --active | xargs -r -i nmcli -g connection.metered connection show {} | grep -q yes; then
+  notification_send -t 10000 -u normal $'Updates aborted!\n\nUsing metered connection'
+  exit 0
+fi
+
 if [ -e /var/lib/pacman/db.lck ]; then
   if [ $(($(date +%s) - $(date +%s -r /var/lib/pacman/db.lck))) -gt 1800 ]; then
     sudo rm /var/lib/pacman/db.lck
   else
-    notification-send -t 3590000 -u critical 'Updates aborted! Database lock exists'
+    notification_send -t 3590000 -u critical $'Updates aborted!\n\nDatabase lock exists'
     exit 0
   fi
 fi

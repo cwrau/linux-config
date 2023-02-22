@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+set -ex
+
+declare -A games=(
+  [HogwartsLegacy.exe]="Hogwarts Legacy"
+)
+
+declare -A adjustments=(
+  [Hogwarts Legacy]="autorandr --load home-desk --force"
+)
+
+function detect_game() {
+  local processes
+  processes=$(ps ux)
+  for process in "${!games[@]}"; do
+    if grep -q "$process" <<<"$processes"; then
+      echo "${games[$process]}"
+    fi
+  done
+}
+
+function adjust_for_game() {
+  local game="${1?}"
+  eval "${adjustments[$game]}"
+}
+
+services=( glava.target picom.service )
+STATE_DIR="$XDG_RUNTIME_DIR/gamemode"
+
+case "$1" in
+  start)
+    rm -rf "$STATE_DIR"
+    mkdir -p "$STATE_DIR"
+    adjust_for_game "$(detect_game)"
+    for service in "${services[@]}"; do
+      if systemctl --user is-active -q "$service"; then
+        touch "$STATE_DIR/$service"
+        systemctl --user stop "$service"
+      fi
+    done
+    ;;
+  stop)
+    for service in "${services[@]}"; do
+      if [[ -f "$STATE_DIR/$service" ]]; then
+        systemctl --user start "$service"
+      fi
+    done
+    autorandr_dmenu
+    ;;
+  *)
+    echo "🤷"
+    exit 1
+    ;;
+esac

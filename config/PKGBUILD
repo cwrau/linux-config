@@ -41,6 +41,7 @@ depends=(
     clipmenu
     cloudflared
     clusterctl-bin
+    cocogitto
     curl
     deluge-gtk
     diff-so-fancy
@@ -67,9 +68,11 @@ depends=(
     fwupd
     fzf
     fzf-tab-git
+    gamemode
     gdu
     gfeeds
     git
+    git-delete-merged-branches
     git-delta
     git-secret
     github-cli
@@ -79,9 +82,10 @@ depends=(
     gnome-terminal
     gnu-netcat
     gnupg
-    gomplate
+    gomplate-bin
     google-chrome
     gopass
+    gopass-fuse
     gradle
     gum
     gvfs
@@ -89,10 +93,11 @@ depends=(
     helm
     helm-diff-cwrau-git
     helm-docs
+    helmrelease-tools
     hexchat
     hsetroot
     httpie
-    i3-gaps
+    i3-wm
     i3lock-color
     informant
     inotify-tools
@@ -126,6 +131,7 @@ depends=(
     linux-zen-headers
     lscolors-git
     lsd
+    luarocks
     maim
     man-db
     man-pages
@@ -136,6 +142,7 @@ depends=(
     morsetran
     mpv
     mpv-mpris
+    mtr
     neovim-drop-in
     nerd-fonts-complete
     net-tools
@@ -152,6 +159,7 @@ depends=(
     nvidia-prime
     nvim-packer-git
     nvtop
+    obs-studio
     ocl-icd
     oh-my-zsh-git
     opencl-nvidia
@@ -191,7 +199,7 @@ depends=(
     remmina
     ripgrep
     rocketchat-client-bin
-    rofi
+    rofi-lbonn-wayland
     rofi-dmenu
     shellcheck
     siji-git
@@ -211,7 +219,6 @@ depends=(
     systemd-resolvconf
     telegram-desktop
     telepresence2
-    traceroute
     tree
     ttf-dejavu
     ttf-font-awesome

@@ -1,5 +1,0 @@
-title: Arch Linux ZEN with ryzen patch
-linux: linux-zen-ryzen
-initramfs: linux-zen-ryzen
-options: []
-
