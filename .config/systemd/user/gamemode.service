@@ -2,14 +2,13 @@
 Description=Gaming Mode
 Wants=steam.service
 Wants=discord.service
-Conflicts=work.target glava.target picom.service
+StopWhenUnneeded=true
 
 [Service]
 Type=oneshot
-Environment="SERVICES=glava.target picom.service"
-ExecStart=/usr/bin/true
+ExecStart=/usr/local/bin/_gamemode start
 RemainAfterExit=true
-ExecStop=/usr/bin/systemctl --user start $SERVICES
+ExecStop=/usr/local/bin/_gamemode stop
 RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...
