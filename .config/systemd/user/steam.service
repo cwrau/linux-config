@@ -7,6 +7,7 @@ Requires=graphical-session.target
 Type=simple
 ExecStartPre=-/usr/bin/steam-tweaks
 ExecStart=/usr/bin/steam
+OOMScoreAdjust=-500
 TimeoutStopSec=5s
 MemoryMax=80%
 TasksMax=800

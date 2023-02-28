@@ -198,7 +198,6 @@ return require('packer').startup(function(use)
     config = function()
       local dap = require('dap')
       local dapui = require('dapui')
-      local elements = require('dapui.config').elements
       local cmp = require('cmp')
 
       cmp.setup {
@@ -221,17 +220,17 @@ return require('packer').startup(function(use)
         layouts = {
           {
             elements = {
-              { id = elements.SCOPES, size = 0.25, },
-              { id = elements.BREAKPOINTS, size = 0.25 },
-              { id = elements.STACKS, size = 0.25 },
-              { id = elements.WATCHES, size = 0.25 },
+              { id = "scopes",      size = 0.25, },
+              { id = "breakpoints", size = 0.25 },
+              { id = "stacks",      size = 0.25 },
+              { id = "watches",     size = 0.25 },
             },
             size = 40,
             position = "left",
           },
           {
             elements = {
-              elements.REPL,
+              "repl",
             },
             size = 10,
             position = "bottom",
@@ -278,13 +277,83 @@ return require('packer').startup(function(use)
 
   use {
     'williamboman/mason-lspconfig.nvim',
-    after = 'mason.nvim',
+    after = { 'mason.nvim', 'nvim-lspconfig' },
     config = function()
       local mason_lspconfig = require('mason-lspconfig')
       mason_lspconfig.setup {
-        automatic_installation = true
+        --automatic_installation = true,
+        ensure_installed = {
+          'bashls',
+          'clangd',
+          'dockerls',
+          'gopls',
+          'jdtls',
+          'jsonls',
+          'kotlin_language_server',
+          'lua_ls',
+          'pyright',
+          'terraformls',
+          'vimls',
+          'yamlls',
+        }
       }
-      mason_lspconfig.setup_handlers {}
+      mason_lspconfig.setup_handlers {
+        function(server_name)
+          local lspconfig = require('lspconfig')
+          local custom_setup = {
+            ['lua_ls'] = {
+              settings = {
+                Lua = {
+                  diagnostics = {
+                    globals = {
+                      'vim'
+                    }
+                  },
+                  hint = {
+                    enable = true
+                  },
+                  workspace = {
+                    checkThirdParty = false
+                  }
+                }
+              }
+            },
+            ['gopls'] = {
+              settings = {
+                gopls = {
+                  hints = {
+                    parameterNames = true
+                  }
+                }
+              }
+            },
+            ['yamlls'] = {
+              on_attach = function()
+                if vim.bo.filetype == "helm" then
+                  vim.cmd("LspStop yamlls")
+                end
+              end
+            }
+          }
+
+          if custom_setup[server_name] ~= nil then
+            lspconfig[server_name].setup(custom_setup[server_name])
+          else
+            lspconfig[server_name].setup {
+              on_attach = function()
+                vim.notify(server_name)
+              end
+            }
+          end
+        end,
+        ['yamlls'] = function()
+          require('lspconfig').yamlls.setup {
+            on_attach = function(_, _)
+              print("yamlls")
+            end
+          }
+        end
+      }
     end
   }
 
@@ -300,7 +369,7 @@ return require('packer').startup(function(use)
           expand = function(args) require('luasnip').lsp_expand(args.body) end
         },
         mapping = cmp.mapping.preset.insert({
-          ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+          ['<C-d>'] = cmp.mapping.scroll_docs( -4),
           ['<C-f>'] = cmp.mapping.scroll_docs(4),
           ['<C-Space>'] = cmp.mapping.complete {},
           ['<CR>'] = function(fallback)
@@ -416,63 +485,25 @@ return require('packer').startup(function(use)
   use {
     'neovim/nvim-lspconfig',
     requires = { 'folke/neodev.nvim', 'nvim-lua/plenary.nvim' },
-    after = { 'nvim-cmp', 'mason-lspconfig.nvim' },
+    after = 'nvim-cmp',
     config = function()
       require('neodev').setup {}
 
-      local lspconfig = require('lspconfig')
-      local lsp_defaults = lspconfig.util.default_config
+      local lsp_defaults = require('lspconfig').util.default_config
       lsp_defaults.capabilities = vim.tbl_deep_extend(
         'force',
         lsp_defaults.capabilities,
         require('cmp_nvim_lsp').default_capabilities()
       )
 
-      local servers = {
-        'bashls',
-        'clangd',
-        'dockerls',
-        'jdtls',
-        'jsonls',
-        'kotlin_language_server',
-        'pyright',
-        'terraformls',
-        'vimls',
-      }
-      for _, server in pairs(servers) do
-        lspconfig[server].setup {}
-      end
-
-      lspconfig['sumneko_lua'].setup {
-        settings = {
-          Lua = {
-            hint = {
-              enable = true
-            },
-            workspace = {
-              checkThirdParty = false
-            }
-          }
-        }
-      }
-      lspconfig['gopls'].setup {
-        settings = {
-          gopls = {
-            hints = {
-              parameterNames = true
-            }
-          }
-        }
-      }
-      lspconfig['yamlls'].setup {
-        on_attach = function(_, bufnr)
-          if vim.bo[bufnr].filetype == "helm" then
-            vim.diagnostic.disable()
-          else
+      vim.api.nvim_create_autocmd('VimEnter',
+        {
+          pattern = '*.yaml',
+          callback = function(_)
             require('yaml-schema-select').setup()
           end
-        end
-      }
+        }
+      )
 
       vim.keymap.set('n', '=', vim.lsp.buf.format)
     end
@@ -522,7 +553,11 @@ return require('packer').startup(function(use)
           extra_args = { '-i', '2', '--force-function-style', 'fnpar' },
           disabled_filetypes = { 'sh', 'bash' }
         },
+        null_ls.builtins.diagnostics.yamllint.with {
+          disabled_filetypes = { 'helm' }
+        }
       }
+
       local tools = {
         diagnostics = {
           'actionlint',
@@ -533,7 +568,6 @@ return require('packer').startup(function(use)
           'revive',
           'shellcheck',
           'todo_comments',
-          'yamllint',
           'zsh',
         },
         formatting = {
