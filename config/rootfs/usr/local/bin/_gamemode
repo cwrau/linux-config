@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 
-set -ex
+set -x
+
+function singleScreen() {
+  autorandr --load desk --force
+}
 
 declare -A games=(
   [HogwartsLegacy.exe]="Hogwarts Legacy"
-)
-
-declare -A adjustments=(
-  [Hogwarts Legacy]="autorandr --load home-desk --force"
+  [Phasmophobia.exe]="Phasmophobia"
+  [Ghost Watchers.exe]="Ghost Watchers"
 )
 
 function detect_game() {
@@ -16,13 +18,23 @@ function detect_game() {
   for process in "${!games[@]}"; do
     if grep -q "$process" <<<"$processes"; then
       echo "${games[$process]}"
+      return 0
     fi
   done
+  return 1
 }
 
 function adjust_for_game() {
   local game="${1?}"
-  eval "${adjustments[$game]}"
+  case "$game" in
+    HogwartsLegacy.exe)
+      ;&
+    Phasmophobia.exe)
+      ;&
+    "Ghost Watchers.exe")
+      singleScreen
+      ;;
+    esac
 }
 
 services=( glava.target picom.service )
@@ -32,7 +44,10 @@ case "$1" in
   start)
     rm -rf "$STATE_DIR"
     mkdir -p "$STATE_DIR"
-    adjust_for_game "$(detect_game)"
+    game="$(detect_game)"
+    if [[ $? == 0 ]]; then
+      adjust_for_game "$game"
+    fi
     for service in "${services[@]}"; do
       if systemctl --user is-active -q "$service"; then
         touch "$STATE_DIR/$service"
