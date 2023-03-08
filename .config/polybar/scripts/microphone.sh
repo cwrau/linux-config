@@ -31,7 +31,10 @@ function update() {
       symbol="$SYMBOL_MIC_MUTED"
       if [[ "$state" == RUNNING ]]; then
         if systemctl --user is-active -q gamemode.service; then
-          pactl set-source-mute @DEFAULT_SOURCE@ false
+          (
+            sleep 5
+            pactl set-source-mute @DEFAULT_SOURCE@ false
+          ) &
           return
         fi
         # shellcheck disable=SC2154
@@ -45,17 +48,10 @@ function update() {
       # shellcheck disable=SC2154
       color="$color_pink"
     fi
-
-    if [[ "$state" != RUNNING ]]; then
-      pactl set-source-mute @DEFAULT_SOURCE@ true
-    fi
   fi
 
   echo "%{F$color}$symbol%{F-}"
 
-  return
-
-  # Do I need a cooldown before auto-muting?
   if [[ "$state" == RUNNING ]]; then
     flock -x "$XDG_RUNTIME_DIR/polybar/microphone_lock" bash -c "date +%s > '$XDG_RUNTIME_DIR/polybar/microphone'"
   else

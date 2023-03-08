@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-systemctl --user try-reload-or-restart feh.service polybar.slice glava.target xorg-settings.service
+systemctl --user try-reload-or-restart feh.service polybar.slice glava.target xorg-settings.service easyeffects.service
 
 i3-msg reload
