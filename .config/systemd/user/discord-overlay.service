@@ -1,0 +1,13 @@
+[Unit]
+Description=Discord Overlay
+PartOf=messengers.target
+Requires=discord.service gamemode.service
+After=discord.service
+CollectMode=inactive-or-failed
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/discover-overlay
+RestartSec=0
+Restart=always
+Slice=messengers.slice

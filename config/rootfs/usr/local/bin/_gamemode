@@ -10,6 +10,8 @@ declare -A games=(
   [HogwartsLegacy.exe]="Hogwarts Legacy"
   [Phasmophobia.exe]="Phasmophobia"
   [Ghost Watchers.exe]="Ghost Watchers"
+  [Back4Blood.exe]="Back 4 Blood"
+  [Among Us.exe]="Among Us"
 )
 
 function detect_game() {
@@ -27,11 +29,10 @@ function detect_game() {
 function adjust_for_game() {
   local game="${1?}"
   case "$game" in
-    HogwartsLegacy.exe)
-      ;&
-    Phasmophobia.exe)
-      ;&
-    "Ghost Watchers.exe")
+    "Among Us")
+      systemctl --user start discord-overlay.service
+      ;;
+    *)
       singleScreen
       ;;
     esac
