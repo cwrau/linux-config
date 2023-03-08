@@ -129,6 +129,7 @@ depends=(
     linux-lts-headers
     linux-zen
     linux-zen-headers
+    lnav
     lscolors-git
     lsd
     luarocks

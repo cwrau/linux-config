@@ -675,6 +675,7 @@ alias -g GZ='| gzip'
 alias -g GZD='GZ -d'
 alias -g J='| jq'
 alias -g L='| less --raw-control-chars'
+alias -g LO='| lnav'
 alias -g S='| sed'
 alias -g SP='| sponge'
 alias -g T='| tee'
@@ -705,14 +706,20 @@ function kkk() {
     query="$1"
   fi
   if [[ -z "$config" ]]; then
-    config="$(gopass ls -flat | /bin/grep -E 'kube.?config' | fzf --query "$query" -1)"
+    config="$(gopass ls -flat | grep --pcre2 -o '^.+(?=/kube-?config)' | fzf --query "$query" -1)"
     exitCode="$?"
     if [[ "$exitCode" != 0 ]]; then
       return "$exitCode"
     fi
   fi
-  export KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$config"
-  openRc="$(dirname "$XDG_RUNTIME_DIR/gopass/$config")/open-rc"
+
+  KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$config/kube-config"
+  if [[ ! -f "$KUBECONFIG" ]]; then
+    KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$config/kubeconfig"
+  fi
+
+  export KUBECONFIG
+  openRc="$XDG_RUNTIME_DIR/gopass/$config/open-rc"
   if [[ -f "$openRc" ]]; then
     unitName="$(md5sum "$openRc" | awk NF=1)"
     if ! command systemctl --user is-active -q "$unitName"; then
@@ -739,7 +746,7 @@ function kk9s() {
 if ! [[ -f "$KUBECONFIG" ]]; then
   unset KUBECONFIG
   if [[ -f "$XDG_RUNTIME_DIR/kconfig/current_kubeconfig" ]]; then
-    kkk "$(cat $XDG_RUNTIME_DIR/kconfig/current_kubeconfig)"
+    export KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$(gopass ls -flat | grep '^.+/kube-?config' | grep "^$(cat $XDG_RUNTIME_DIR/kconfig/current_kubeconfig)" | tail -1)"
   else
     rm -f "$XDG_RUNTIME_DIR/current_kubeconfig"
   fi
