@@ -974,11 +974,7 @@
                 null,
                 null,
                 null,
-                {
-                  "keyActionType": "keystroke",
-                  "type": "basic",
-                  "scancode": 57
-                },
+                null,
                 {
                   "keyActionType": "keystroke",
                   "type": "basic",

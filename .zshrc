@@ -37,6 +37,7 @@ export NUGET_PACKAGES="$XDG_DATA_HOME/NuGet"
 export PULSE_COOKIE="$XDG_RUNTIME_DIR/pulse/cookie"
 export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
 export SECRETS_DIR="$(realpath --relative-base=$HOME $XDG_CONFIG_HOME/gitsecret)"
+export SLIT_DIR="$XDG_DATA_HOME/slit"
 export SONAR_USER_HOME="$XDG_DATA_HOME/sonarlint"
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
 export STACK_ROOT="$XDG_CONFIG_HOME/stack"
@@ -328,7 +329,7 @@ function bak() {
 
 function helmUpdates() {
   kubectl get helmreleases -A -o json | jq -r '.items[] | select(.spec.chart.version != null) | "\(.metadata.namespace) \(.metadata.name) \(.spec.chart.repository) \(.spec.chart.name) \(.spec.chart.version)"' | while read ns name repo chart version; do
-  <<EOF > /tmp/repo.yaml
+    <<EOF > /tmp/repo.yaml
 apiVersion: ""
 generated: "0001-01-01T00:00:00Z"
 repositories:
@@ -336,11 +337,11 @@ repositories:
     url: "$repo"
 EOF
 
-  helm --repository-config /tmp/repo.yaml repo update &> /dev/null
-  latestVersion=$(helm --repository-config /tmp/repo.yaml --output json search repo $chart | jq -r ".[] | select(.name == \"repo/$chart\") | .version")
-  if [ "$version" != "$latestVersion" ]; then
-    echo update $ns/$name to version $latestVersion
-  fi
+    helm --repository-config /tmp/repo.yaml repo update &> /dev/null
+    latestVersion=$(helm --repository-config /tmp/repo.yaml --output json search repo $chart | jq -r ".[] | select(.name == \"repo/$chart\") | .version")
+    if [ "$version" != "$latestVersion" ]; then
+      echo update $ns/$name to version $latestVersion
+    fi
   done
   rm -f /tmp/repo.yaml
 }
@@ -359,9 +360,15 @@ function knodes() {
   done
 }
 
-function gop(){
+function gop() {
   local pass
-  pass="$(gopass ls --flat | /bin/grep -E -v 'kube.?config' | fzf --preview "gopass show {}" | xargs -r -i cat $XDG_RUNTIME_DIR/gopass/{})"
+  local name="$1"
+  if [[ -z "$name" ]] || ! [[ -f "$XDG_RUNTIME_DIR/gopass/$name" ]]; then
+    pass="$(gopass ls --flat | grep -v 'kube.?config' | fzf --preview "cat $XDG_RUNTIME_DIR/gopass/{}" | xargs -r -i cat $XDG_RUNTIME_DIR/gopass/{})"
+  else
+    pass="$(cat "$XDG_RUNTIME_DIR/gopass/$name")"
+  fi
+
   if ! [ -t 1 ]; then
     echo -n "$pass"
   else
@@ -374,17 +381,17 @@ function kbuild() {
   kustomize build --enable-alpha-plugins "$@"
 }
 
-function kdiff () {
+function kdiff() {
   kbuild "$@" | kubectl diff -f -
 }
 compdef _nop kdiff
 
-function kapply () {
+function kapply() {
   kbuild "$@" | kubectl apply -f - --server-side --force-conflicts
 }
 compdef _nop kapply
 
-function cwatch () {
+function cwatch() {
   local ns=$1
   local cluster=$2
   watch --color -n 1 clusterctl describe cluster --show-conditions all --echo -n $ns $cluster
@@ -543,11 +550,11 @@ function pkgSync() {
   fi
 
   newPackages=$( (
-    echo '  #startPackages'
-    echo 'depends=('
-    echo $targetPackages | sort | uniq | sed 's#^#    #g'
-    echo '  )'
-    echo '  #endPackages'
+      echo '  #startPackages'
+      echo 'depends=('
+      echo $targetPackages | sort | uniq | sed 's#^#    #g'
+      echo '  )'
+      echo '  #endPackages'
   ) | sed -r 's#$#\\n#g' | tr -d '\n' | sed -r 's#\\n$##g')
 
   diff <(echo $originalPackages | sort) <(echo $targetPackages | sort)
@@ -567,6 +574,28 @@ function pkgSync() {
   cd $OLDPWD
 }
 compdef _nop pkgSync
+
+declare -a tmpPackages
+function tmpPackage() {
+  paru "${@}"
+  tmpPackages+=( $(grep installed /var/log/pacman.log | awk '{print $4}' | tail -5 | tac | awk '!x[$0]++' | fzf --prompt='Choose package to be uninstalled on exit' -m) )
+}
+compdef _paru tmpPackage
+
+function _cleanTmpPackages() {
+  if [[ "${#tmpPackages}" -gt 0 ]]; then
+    paru -Rs --noconfirm "${tmpPackages[@]}"
+  fi
+}
+
+function TRAPEXIT() {
+  _cleanTmpPackages
+}
+
+function :r(){
+  _cleanTmpPackages
+  exec zsh
+}
 
 function clip() {
   xclip -selection clipboard
@@ -612,7 +641,6 @@ function nAlias() {
 nAlias $ ''
 nAlias :q exit
 nAlias :e nvim
-nAlias :r exec zsh
 reAlias env "-0 | sort -z | tr '\0' '\n'"
 reAlias rm -i
 reAlias cp -i
@@ -664,6 +692,7 @@ nAlias mv advmv -g
 reAlias code '--user-data-dir $XDG_DATA_HOME/vscode --extensions-dir $XDG_DATA_HOME/vscode/extensions'
 nAlias wd 'while :; do .; sleep 0.1; clear; done'
 reAlias s3cmd '-c $XDG_CONFIG_HOME/s3cmd/config'
+nAlias journalctl command env SYSTEMD_PAGER=lnav journalctl
 
 alias -g A='| awk'
 alias -g B='| base64'
@@ -794,4 +823,5 @@ if ! command -v kustomize > /dev/null; then
   }
 fi
 
+scu daemon-reload >/dev/null
 $(scu cat systemd-tmpfiles-setup.service | grep ^ExecStart | cut -d = -f 2)
