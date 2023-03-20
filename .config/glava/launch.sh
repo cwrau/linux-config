@@ -21,16 +21,16 @@ while read -r monitor width height x y; do
     geometry="$x $y $width $upperBarHeight"
     #lowerGeometry="x $(( height - lowerBarHeight )) $width $lowerBarHeight"
   elif [ "$type" = "radial" ]; then
-    radius=$(round "$(echo "$(( (width < height ? width : height) - upperBarHeight - lowerBarHeight )) * 1" | bc)")
-    radialY=$(( y + ((height / 2) - (radius / 2)) ))
-    radialX=$(( x + ((width / 2) - (radius / 2)) ))
+    radius=$(round "$(echo "$(((width < height ? width : height) - upperBarHeight - lowerBarHeight)) * 1" | bc)")
+    radialY=$((y + ((height / 2) - (radius / 2))))
+    radialX=$((x + ((width / 2) - (radius / 2))))
 
     geometry="$radialX $radialY $radius $radius"
   fi
   unitName="glava-$type@$monitor"
-  if systemctl --user is-failed --quiet "$unitName"; then
+  if systemctl --user is-failed --quiet "$unitName" 2>/dev/null; then
     systemctl --user reset-failed "$unitName"
-  elif systemctl --user is-active --quiet "$unitName"; then
+  elif systemctl --user is-active --quiet "$unitName" 2>/dev/null; then
     systemctl --user stop "$unitName"
   fi
   systemd-run --user --unit "$unitName" --collect --nice 19 --setenv TRAY --setenv MONITOR --slice "glava-$type.slice" -- glava -m "$type" -r "setgeometry $geometry"

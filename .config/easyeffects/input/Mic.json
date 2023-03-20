@@ -691,7 +691,7 @@
             "formant": "Shifted",
             "input-gain": 0.0,
             "mode": "HighSpeed",
-            "octaves": 0,
+            "octaves": 1,
             "output-gain": 0.0,
             "phase": "Laminar",
             "semitones": 0,
@@ -724,15 +724,15 @@
             "bypass": false,
             "input-gain": 0.0,
             "model-path": "",
-            "output-gain": -21.0
+            "output-gain": 0.0
         },
         "speex#0": {
             "bypass": true,
-            "enable-agc": false,
+            "enable-agc": true,
             "enable-denoise": true,
-            "enable-dereverb": false,
+            "enable-dereverb": true,
             "input-gain": 0.0,
-            "noise-suppression": -40,
+            "noise-suppression": -70,
             "output-gain": 0.0,
             "vad": {
                 "enable": true,

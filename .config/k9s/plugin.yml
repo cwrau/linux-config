@@ -29,4 +29,4 @@ plugin:
         secretName="$(kubectl -n "$NAMESPACE" get openstackmachines "$NAME" -o jsonpath='{.spec.identityRef.name}')"
         kubectl -n "$NAMESPACE" get secret "$secretName" -o jsonpath='{.data.clouds\.yaml}' | base64 -d > clouds.yaml
         export OS_CLOUD="$(kubectl -n "$NAMESPACE" get openstackmachines "$NAME" -o jsonpath='{.spec.cloudName}')"
-        openstack console log show "$(kubectl -n "$NAMESPACE" get openstackmachines "$NAME" -o jsonpath='{.spec.instanceID}')" | less
+        openstack console log show "$(kubectl -n "$NAMESPACE" get openstackmachines "$NAME" -o jsonpath='{.spec.instanceID}')" | lnav

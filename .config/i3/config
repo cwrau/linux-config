@@ -156,16 +156,6 @@ for_window [class="jetbrains-.*" title="Get from Version Control"] floating enab
 
 $exaid $XDG_CONFIG_HOME/i3/rc.sh
 
-set $displayMode "Set display mode [w]ork [l]aptop"
-#bindsym $super+x mode $displayMode
-mode $displayMode {
-    bindsym w exec $XDG_CONFIG_HOME/screenlayouts/work.sh; mode "default"; restart
-    bindsym l exec $XDG_CONFIG_HOME/screenlayouts/laptop.sh; mode "default"; restart
-
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
-}
-
 set $Power " [S]leep, [p]oweroff, [l]ogoff or [r]eboot?"
 bindsym $super+q mode $Power
 
@@ -236,7 +226,7 @@ bindsym $super+i $exid networkmanager_dmenu -i
 # Mount-Manager
 bindsym $super+u $exid udiskie-dmenu
 
-bindsym $super+x $exid xkill
+bindsym --release $super+x $exid xkill
 
 # Clipboard-Manager
 bindsym $super+Shift+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i && xdotool key --clearmodifiers ctrl+shift+v'
@@ -260,10 +250,10 @@ bindsym Ctrl+Shift+$super+Print --release $exid "screenshot window --"
 bindsym $super+c exec "exo-open --launch WebBrowser"
 bindsym $super+Shift+c exec "exo-open --launch WebBrowser --incognito"
 bindsym $super+g exec rofi-custom-search
-bindsym $super+m exec "systemctl --user start google-chrome@meeting"
+bindsym $super+m $exid sh -c 'systemctl --user is-active google-chrome@meeting.service && systemctl --user stop google-chrome@meeting.service || systemctl --user start google-chrome@meeting.service'
 
 # Gamemode
-bindsym $super+shift+g $exid bash -c 'systemctl --user is-active gamemode.service && systemctl --user stop gamemode.service || systemctl --user start gamemode.service'
+bindsym $super+shift+g $exid sh -c 'systemctl --user is-active gamemode.service && systemctl --user stop gamemode.service || systemctl --user start gamemode.service'
 
 #new_window none
 
@@ -282,6 +272,7 @@ assign [class="daily"] 1
 for_window [class="daily"] move to workspace 1
 assign [class="Gfeeds"] 1
 for_window [class="Gfeeds"] move to workspace 1
+for_window [floating_from="auto" title=" is sharing your screen.$"] border none, sticky enable, move position 0 px -55 px
 
 bindsym $super+2 workspace 2
 bindsym $super+3 workspace 3

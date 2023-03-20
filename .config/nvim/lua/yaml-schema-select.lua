@@ -73,40 +73,62 @@ function M.setup()
   end
 
   local yaml = table.concat(vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), 0, -1, false), '\n')
-  for apiGroup in yaml:gmatch('\n?apiVersion: (.-)/.-\n') do
-    for apiVersion in yaml:gmatch('\n?apiVersion: ' .. apiGroup:gsub('([^%w])', '%%%1') .. '/(.-)\n') do
-      for kind in yaml:gmatch('\nkind: (.-)\n') do
-        local schemaFile = os.tmpname()
-        vim.api.nvim_create_autocmd('VimLeavePre', {
-          desc = 'yaml: auto-k8s-schema-detect: cleanup temporary file',
-          callback = function() os.remove(schemaFile) end
-        })
-        require('plenary.job'):new({
-          command = 'bash',
-          args = {
-            '-c', [[timeout 3 kubectl get crd -A -o json | jq -e '.items[] | select(.spec.names.singular == "]]
-                .. kind:lower()
-                .. [[" and .spec.group == "]]
-                .. apiGroup:lower()
-                .. [[") | .spec.versions[] | select(.name == "]]
-                .. apiVersion .. [[") | .schema.openAPIV3Schema' > ]] .. schemaFile
-          },
-          enable_recording = true,
-          on_exit = function(job, exitCode, _)
-            vim.schedule(function()
-              if exitCode == 0 then
-                vim.notify('Using schema from cluster-CRD')
-                change_settings('file://' .. schemaFile)
-              else
-                vim.notify('Using schema from github. Cluster-CRD failed with ' .. vim.inspect(job:stderr_result()))
-                change_settings('https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/'
-                  .. kind:lower() .. '.json')
-              end
-            end)
-          end
-        }):start()
-        return
+  ---@type string|nil
+  local apiVersion = yaml:match('\n?apiVersion: (.-)\n')
+  if apiVersion then
+    ---@type string
+    local apiGroup
+    if apiVersion:find('/') then
+      apiGroup = apiVersion:match('(.+)/.+')
+      apiVersion = apiVersion:match('.+/(.+)')
+    else
+      apiGroup = apiVersion
+      apiVersion = nil
+    end
+    ---@type string
+    local kind = yaml:match('\n?kind: (.-)\n')
+    if kind then
+      local crdSelectors = {
+        [[ .spec.names.singular == "]] .. kind:lower() .. [[" ]],
+        [[ .spec.group == "]] .. apiGroup:lower() .. [[" ]],
+      }
+      local versionFilter
+      if apiVersion then
+        versionFilter = [[ .spec.versions[] | select(.name == "]] .. apiVersion .. [[") ]]
+      else
+        versionFilter = [[ .spec.versions[0] ]]
       end
+
+      local schemaFile = os.tmpname()
+      vim.api.nvim_create_autocmd('VimLeavePre', {
+        desc = 'yaml: auto-k8s-schema-detect: cleanup temporary file',
+        callback = function() os.remove(schemaFile) end
+      })
+      require('plenary.job'):new({
+        command = 'bash',
+        args = {
+          '-c', [[timeout 3 kubectl get crd -A -o json | jq -e '.items[] | select( ]]
+        .. table.concat(crdSelectors, ' and ')
+        .. [[) | ]]
+        .. versionFilter
+        .. [[ | .schema.openAPIV3Schema' > ]] .. schemaFile
+        },
+        enable_recording = true,
+        on_exit = function(_, exitCode, _)
+          vim.schedule(function()
+            if exitCode == 0 then
+              vim.notify('Using schema from cluster-CRD.')
+              change_settings('file://' .. schemaFile)
+            else
+              vim.notify('Trying schema from github.')
+              change_settings(
+                'https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/'
+                .. kind:lower() .. '.json')
+            end
+          end)
+        end
+      }):start()
+      return
     end
   end
 end

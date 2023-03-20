@@ -19,6 +19,7 @@ text/csv=org.kde.kate.desktop
 x-scheme-handler/tg=userapp-Telegram Desktop-5CMCW1.desktop
 application/pdf=google-chrome.desktop
 x-scheme-handler/etcher=balena-etcher.desktop
+image/png=feh.desktop
 
 [Added Associations]
 x-scheme-handler/http=exo-web-browser.desktop;
