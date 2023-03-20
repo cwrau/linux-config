@@ -112,7 +112,7 @@ depends=(
     kube-bench-bin
     kube-score-bin
     kubectl
-    kubectl-access-matrix-bin
+    kubectl-rakkess-bin
     kubectl-konfig
     kubectl-neat-diff
     kubectl-node-shell
