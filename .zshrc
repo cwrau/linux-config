@@ -801,6 +801,12 @@ function _k9s() {
 }
 compdef _k9s k9s
 
+function _lnav() {
+  #_alternative 'local:local files:_files' \
+  _arguments  '1:remote files:_remote_files -- ssh'
+}
+compdef _lnav lnav
+
 #if command -v kubectl-neat-diff > /dev/null; then
 #  export KUBECTL_EXTERNAL_DIFF=kubectl-neat-diff
 #fi

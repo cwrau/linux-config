@@ -7,6 +7,8 @@ if sudo journalctl --since=1m | grep -q 30-systemd-udev-reload.hook; then
   exit 0
 fi
 
+i3-msg restart
+
 services=( feh.service polybar.slice glava.target xorg-settings.service easyeffects.service )
 
 systemctl --user reset-failed "${services[@]}"
