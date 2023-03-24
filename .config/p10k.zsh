@@ -33,6 +33,7 @@
   # The list of segments shown on the left. Fill it with the most important segments.
   typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
     os_icon                 # os identifier
+    openstack_shell
     newline
     # =========================[ Line #1 ]=========================
     vcs                     # git status
@@ -1689,6 +1690,12 @@
   # Type `p10k help segment` for documentation and a more sophisticated example.
   function prompt_example() {
     p10k segment -b 1 -f 3 -i '⭐' -t 'hello, %n'
+  }
+
+  function prompt_openstack_shell() {
+    if [[ -v OS_SHELL ]]; then
+      p10k segment -f 3 -i ' ' -t "OS access"
+    fi
   }
 
   # User-defined prompt segments may optionally provide an instant_prompt_* function. Its job

@@ -23,10 +23,20 @@ plugin:
     args:
       - -c
       - |
-        tmpDir="$(mktemp -d)"
-        trap 'rm -rf "$tmpDir"' EXIT
-        cd "$tmpDir"
-        secretName="$(kubectl -n "$NAMESPACE" get openstackmachines "$NAME" -o jsonpath='{.spec.identityRef.name}')"
-        kubectl -n "$NAMESPACE" get secret "$secretName" -o jsonpath='{.data.clouds\.yaml}' | base64 -d > clouds.yaml
-        export OS_CLOUD="$(kubectl -n "$NAMESPACE" get openstackmachines "$NAME" -o jsonpath='{.spec.cloudName}')"
-        openstack console log show "$(kubectl -n "$NAMESPACE" get openstackmachines "$NAME" -o jsonpath='{.spec.instanceID}')" | lnav
+        secretName="$(kubectl -n "$NAMESPACE" get openstackmachine "$NAME" -o jsonpath='{.spec.identityRef.name}')"
+        envs=( $(kubectl -n "$NAMESPACE" get secret "$secretName" -o jsonpath='{.data.clouds\.yaml}' | base64 -d | yq -r '.clouds.openstack | {OS_AUTH_TYPE: .["auth_type"], OS_AUTH_URL: .auth["auth_url"], OS_APPLICATION_CREDENTIAL_ID: .auth["application_credential_id"], OS_APPLICATION_CREDENTIAL_SECRET: .auth["application_credential_secret"], OS_REGION_NAME: .["region_name"], OS_INTERFACE: .interface, OS_IDENTITY_API_VERSION: .["identity_api_version"]} | to_entries[] | "\(.key)=\(.value)"') )
+        env "${envs[@]}" openstack console log show "$(kubectl -n "$NAMESPACE" get openstackmachine "$NAME" -o jsonpath='{.spec.instanceID}')" | exec lnav
+  openstack-shell:
+    shortCut: s
+    confirm: false
+    description: Enter openstack shell for cluster
+    scopes:
+      - openstackcluster
+    background: false
+    command: bash
+    args:
+      - -c
+      - |
+        secretName="$(kubectl -n "$NAMESPACE" get openstackcluster "$NAME" -o jsonpath='{.spec.identityRef.name}')"
+        envs=( $(kubectl -n "$NAMESPACE" get secret "$secretName" -o jsonpath='{.data.clouds\.yaml}' | base64 -d | yq -r '.clouds.openstack | {OS_AUTH_TYPE: .["auth_type"], OS_AUTH_URL: .auth["auth_url"], OS_APPLICATION_CREDENTIAL_ID: .auth["application_credential_id"], OS_APPLICATION_CREDENTIAL_SECRET: .auth["application_credential_secret"], OS_REGION_NAME: .["region_name"], OS_INTERFACE: .interface, OS_IDENTITY_API_VERSION: .["identity_api_version"]} | to_entries[] | "\(.key)=\(.value)"') )
+        exec env OS_SHELL=true "${envs[@]}" zsh
