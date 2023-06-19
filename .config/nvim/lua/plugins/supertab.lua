@@ -1,7 +1,7 @@
-return {
+---@type LazyPlugin[]
+local plugins = {
   -- Use <tab> for completion and snippets (supertab)
   -- first: disable default <tab> and <s-tab> behavior in LuaSnip
-  ---@class PluginLspOpts
   {
     "L3MON4D3/LuaSnip",
     keys = function()
@@ -9,7 +9,6 @@ return {
     end,
   },
   -- then: setup supertab in cmp
-  ---@class PluginLspOpts
   {
     "hrsh7th/nvim-cmp",
     dependencies = {
@@ -53,3 +52,5 @@ return {
     end,
   },
 }
+
+return plugins

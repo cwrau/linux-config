@@ -1,5 +1,5 @@
-return {
-  ---@class PluginLspOpts
+---@type LazyPlugin[]
+local plugins = {
   {
     "echasnovski/mini.surround",
     event = "BufEnter",
@@ -8,3 +8,5 @@ return {
     end,
   },
 }
+
+return plugins

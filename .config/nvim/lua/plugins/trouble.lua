@@ -1,10 +1,13 @@
-return {
-  -- change trouble config
-  ---@class PluginLspOpts
+---@type LazyPlugin[]
+local plugins = {
   {
     "folke/trouble.nvim",
     -- opts will be merged with the parent spec
-    opts = { use_diagnostic_signs = true },
+    ---@type TroubleOptions
+    opts = {
+      use_diagnostic_signs = true,
+    },
   },
-
 }
+
+return plugins

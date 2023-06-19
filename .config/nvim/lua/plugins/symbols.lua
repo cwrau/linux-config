@@ -1,6 +1,5 @@
-return {
-  -- add symbols-outline
-  ---@class PluginLspOpts
+---@type LazyPlugin[]
+local plugins = {
   {
     "simrat39/symbols-outline.nvim",
     cmd = "SymbolsOutline",
@@ -8,3 +7,5 @@ return {
     config = true,
   },
 }
+
+return plugins

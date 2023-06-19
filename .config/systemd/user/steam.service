@@ -9,11 +9,12 @@ ExecStartPre=-/usr/bin/steam-tweaks
 ExecStart=/usr/bin/steam
 OOMScoreAdjust=-500
 TimeoutStopSec=5s
-MemoryMax=80%
+MemoryMax=40%
 TasksMax=800
 RestartSec=0
 Restart=always
 ManagedOOMPreference=avoid
+Nice=-2
 
 [Install]
 WantedBy=graphical-session.target

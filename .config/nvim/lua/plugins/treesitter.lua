@@ -1,8 +1,8 @@
-return {
-  -- add more treesitter parsers
-  ---@class PluginLspOpts
+---@type LazyPlugin[]
+local plugins = {
   {
     "nvim-treesitter/nvim-treesitter",
+    ---@param opts TSConfig
     opts = function(_, opts)
       opts.ignore_install = { "help" }
       opts.ensure_installed = "all"
@@ -18,3 +18,5 @@ return {
     end,
   },
 }
+
+return plugins

@@ -1,9 +1,7 @@
-return {
-  -- change some telescope options and a keymap to browse plugin files
-  ---@class PluginLspOpts
+---@type LazyPlugin[]
+local plugins = {
   {
     "nvim-telescope/telescope.nvim",
-    -- change some options
     opts = {
       defaults = {
         layout_strategy = "horizontal",
@@ -14,8 +12,6 @@ return {
     },
   },
 
-  -- add telescope-fzf-native
-  ---@class PluginLspOpts
   {
     "telescope.nvim",
     dependencies = {
@@ -27,3 +23,5 @@ return {
     },
   },
 }
+
+return plugins

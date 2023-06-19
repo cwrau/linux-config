@@ -1,11 +1,12 @@
 [Unit]
 Description=Telegram
 PartOf=messengers.target
-Requires=graphical-session.target dunst.service
+Requires=graphical-session.target dunst.service org.freedesktop.IBus.session.generic.service
 After=graphical-session.target dunst.service
 
 [Service]
 Type=simple
+Environment=QT_IM_MODULE=ibus
 ExecStart=/usr/bin/telegram-desktop
 RestartSec=0
 Restart=always

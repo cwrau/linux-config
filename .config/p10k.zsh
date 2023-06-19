@@ -1692,10 +1692,24 @@
     p10k segment -b 1 -f 3 -i '⭐' -t 'hello, %n'
   }
 
+  typeset -g _openstack_cache
   function prompt_openstack_shell() {
     if [[ -v OS_SHELL ]]; then
-      p10k segment -f 3 -i ' ' -t "OS access"
+      local projectName
+      if [[ -z "${_openstack_cache}" ]]; then
+        projectName="$(openstack project list -c Name -f value | sort | head -1)"
+        if [[ $? == 0 ]]; then
+          _openstack_cache="$projectName"
+        fi
+      else
+        projectName="$_openstack_cache"
+      fi
+      p10k segment -f 3 -i ' ' -t "OS project ($projectName)"
     fi
+  }
+
+  function instant_prompt_openstack_shell() {
+    prompt_openstack_shell
   }
 
   # User-defined prompt segments may optionally provide an instant_prompt_* function. Its job

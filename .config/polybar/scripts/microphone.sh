@@ -31,10 +31,8 @@ function update() {
       symbol="$SYMBOL_MIC_MUTED"
       if [[ "$state" == RUNNING ]]; then
         if systemctl --user is-active -q gamemode.service; then
-          (
-            sleep 5
-            pactl set-source-mute @DEFAULT_SOURCE@ false
-          ) &
+          sleep 5
+          pactl set-source-mute @DEFAULT_SOURCE@ false
           return
         fi
         # shellcheck disable=SC2154
@@ -45,8 +43,13 @@ function update() {
       fi
     else
       symbol=" $SYMBOL_MIC "
-      # shellcheck disable=SC2154
-      color="$color_pink"
+      if [[ "$state" == RUNNING ]]; then
+        # shellcheck disable=SC2154
+        color="$color_pink"
+      else
+        # shellcheck disable=SC2154
+        color="$color_pishade7"
+      fi
     fi
   fi
 

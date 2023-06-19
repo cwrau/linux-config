@@ -1,6 +1,5 @@
-return {
-  -- override nvim-cmp and add cmp-emoji
-  ---@class PluginLspOpts
+---@type LazyPlugin[]
+local plugins = {
   {
     "hrsh7th/nvim-cmp",
     dependencies = { "hrsh7th/cmp-emoji" },
@@ -11,3 +10,5 @@ return {
     end,
   },
 }
+
+return plugins

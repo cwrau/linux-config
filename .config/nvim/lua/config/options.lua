@@ -10,3 +10,4 @@ vim.opt.directory = XDG_CACHE_HOME .. "/nvim/swapdir"
 vim.opt.mouse = {}
 vim.opt.softtabstop = 0
 vim.opt.relativenumber = false
+vim.opt.spelllang = { "en_gb", "de_de" }

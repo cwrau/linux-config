@@ -9,7 +9,8 @@ Type=simple
 ExecStart=/usr/bin/chromium --user-data-dir=%E/youtube-music --app=https://music.youtube.com --class=youtube-music-desktop-app
 RestartSec=0
 Restart=always
-MemoryMax=2G
+MemoryMax=1G
+Nice=-5
 ManagedOOMMemoryPressure=kill
 ManagedOOMMemoryPressureLimit=10%
 

@@ -163,8 +163,6 @@ mode $Power {
     bindsym s exec systemctl suspend; mode "default"
     bindsym p exec systemctl poweroff
     bindsym r exec systemctl reboot
-    bindsym k exec sudo systemctl kexec
-    bindsym l exec i3-msg exit
     bindsym Escape mode "default"
 }
 
@@ -230,7 +228,7 @@ bindsym --release $super+x $exid xkill
 
 # Clipboard-Manager
 bindsym $super+Shift+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i && xdotool key --clearmodifiers ctrl+shift+v'
-bindsym $super+Ctrl+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i'
+bindsym $super+Ctrl+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i && xdotool type "$(xclip -o)"'
 
 # Screenshots
 # Selection > Clipboard
@@ -249,7 +247,6 @@ bindsym Ctrl+Shift+$super+Print --release $exid "screenshot window --"
 # Browser stuff
 bindsym $super+c exec "exo-open --launch WebBrowser"
 bindsym $super+Shift+c exec "exo-open --launch WebBrowser --incognito"
-bindsym $super+g exec rofi-custom-search
 bindsym $super+m $exid sh -c 'systemctl --user is-active google-chrome@meeting.service && systemctl --user stop google-chrome@meeting.service || systemctl --user start google-chrome@meeting.service'
 
 # Gamemode
@@ -292,8 +289,8 @@ assign [class="discord"] 14:Discord
 for_window [class="discord"] move to workspace 14:Discord
 
 bindsym $super+$alt+5 workspace 15:Steam
-assign [class="Steam"] 15:Steam
-for_window [class="Steam"] move to workspace 15:Steam
+assign [class="steam"] 15:Steam
+for_window [class="steam"] move to workspace 15:Steam
 
 bindsym $super+$alt+6 workspace 16:YouTube
 assign [class="Google-chrome" title=".*YouTube$"] 16:YouTube
