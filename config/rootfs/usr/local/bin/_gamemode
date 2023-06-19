@@ -12,6 +12,7 @@ declare -A games=(
   [Ghost Watchers.exe]="Ghost Watchers"
   [Back4Blood.exe]="Back 4 Blood"
   [Among Us.exe]="Among Us"
+  [TheDivision2.exe]="The Division 2"
 )
 
 function detect_game() {
@@ -32,6 +33,9 @@ function adjust_for_game() {
     "Among Us")
       systemctl --user start discord-overlay.service
       ;;
+#    "The Division 2")
+#      systemctl --user start cloudflare-vpn.service
+#      ;;
     *)
       singleScreen
       ;;

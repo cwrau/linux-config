@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-wrapper=("systemd-run" "--user" "--same-dir" "--setenv=KUBECONFIG=$XDG_CONFIG_HOME/kube/config" "--unit=intellij-$(cat /proc/sys/kernel/random/uuid)" "--collect" "--slice=intellij.slice" "--property=Delegate=true" "--" "script" "--return" "--quiet" "--log-out" "/dev/null" "--command")
+wrapper=("systemd-run" "--user" "--same-dir" "--setenv=KUBECONFIG=$XDG_CONFIG_HOME/kube/config" "--unit=intellij-$(cat /proc/sys/kernel/random/uuid)" "--collect" "--slice=intellij.slice" "--property=Delegate=true" "--property=PrivateTmp=true" "--" "script" "--return" "--quiet" "--log-out" "/dev/null" "--command")
 codeEditor="vscode"
 codeEditor="intellij-idea-ultimate-edition"
+projectFoldersRegex="git|idea"
 
 if [[ -n $1 ]] && [[ -d $1 ]]; then
   project=$(realpath "$1")
@@ -11,8 +12,8 @@ elif [[ $1 == _ ]]; then
 elif [[ $1 =~ ^jetbrains://* ]]; then
   project="$1"
 else
-  project="$(fd --no-ignore-vcs --hidden --type directory --full-path "^$HOME/(work|projects/)[^.]*/\.(git|idea)\$" "$HOME" --exec-batch stat --format "%X:%n" |
-    grep -v node_modules |
+  project="$(fd --no-ignore-vcs --hidden --type directory --search-path="$HOME/"{work,projects} "\.($projectFoldersRegex)\$" --exec-batch stat --format "%X:%n" |
+    grep -v -P "node_modules|/\.(?!$projectFoldersRegex)" |
     sort --reverse --field-separator : --key 1 |
     cut --delimiter : --fields 2- |
     xargs --no-run-if-empty -- dirname |

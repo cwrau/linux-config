@@ -22,6 +22,7 @@ export ANSIBLE_HOME="$XDG_DATA_HOME/ansible"
 export AZURE_CONFIG_DIR="$XDG_DATA_HOME/azure"
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export CLUSTERCTL_DISABLE_VERSIONCHECK=true
+export CM_DIR=$XDG_CACHE_HOME/clipmenud
 export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
 export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
 export GOPATH="$XDG_DATA_HOME/go"
@@ -55,14 +56,14 @@ export FZF_CTRL_T_OPTS="--preview 'bat --color=always --pager=never -p {} | head
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
 export GRADLE_OPTS=-Dorg.gradle.jvmargs=-Xmx1G
 export HISTSIZE=9223372036854775807
+export KUBECTL_NODE_SHELL_POD_CPU=0
+export KUBECTL_NODE_SHELL_POD_MEMORY=0
 export PAGER=less
 export SAVEHIST=9223372036854775807
 export SDL_AUDIODRIVER="pulse"
 export SECRETS_EXTENSION=".gpg"
 export SYSTEMD_PAGERSECURE=false
 export VISUAL="$EDITOR"
-export KUBECTL_NODE_SHELL_POD_CPU=0
-export KUBECTL_NODE_SHELL_POD_MEMORY=0
 
 if [[ $- = *i* ]] && [[ "$XDG_VTNR" == 1 ]]; then
   if false; then
@@ -217,7 +218,7 @@ plugins=(
   zsh-autosuggestions
 )
 
-export HISTORY_BASE="$XDG_CACHE_HOME/directory_history"
+export HISTORY_BASE="$XDG_DATA_HOME/directory_history"
 export ZSH_COMPDUMP="${ZSH_CACHE_DIR}/.zcompdump-${ZSH_VERSION}"
 
 source $ZSH/oh-my-zsh.sh
@@ -264,13 +265,13 @@ function command_not_found_handler() {
   [[ "$1" =~ ^cccccc ]] && return 0
   local packages
   echo "Packages containing '$1' in name"
-  paru -- $1
+  tmpPackage -- $1
   _check_command $@
 }
 
 function _nop() {}
 
-function e.() {
+function e() .() {
   i3-msg "exec xdg-open $PWD"
 }
 compdef _nop e.
@@ -380,16 +381,17 @@ compdef _nop gop
 function kbuild() {
   kustomize build --enable-alpha-plugins "$@"
 }
+compdef _directories kbuild
 
 function kdiff() {
   kbuild "$@" | kubectl diff -f -
 }
-compdef _nop kdiff
+compdef _directories kdiff
 
 function kapply() {
   kbuild "$@" | kubectl apply -f - --server-side --force-conflicts
 }
-compdef _nop kapply
+compdef _directories kapply
 
 function cwatch() {
   local ns=$1
@@ -592,13 +594,17 @@ function TRAPEXIT() {
   _cleanTmpPackages
 }
 
-function :r(){
+function () :r(){
   _cleanTmpPackages
   exec zsh
 }
 
 function clip() {
-  xclip -selection clipboard
+  local xclipArgs=()
+  if [[ -t 0 ]]; then
+    xclipArgs+=( -o )
+  fi
+  xclip -selection clipboard "${xclipArgs[@]}"
 }
 compdef _nop clip
 
@@ -646,8 +652,8 @@ reAlias rm -i
 reAlias cp -i
 reAlias mv -i
 #reAlias ls --almost-all --indicator-style=slash --human-readable --sort=version --escape --format=long --color=always --time-style=long-iso
-nAlias ls exa --all --binary --group --classify --sort=filename --long --colour=always --time-style=long-iso --git
-#nAlias ls lsd --almost-all --color=always --long --date=+'%Y-%m-%dT%H:%M:%S'
+#nAlias ls exa --all --binary --group --classify --sort=filename --long --colour=always --time-style=long-iso --git
+nAlias ls lsd --almost-all --git --color=always --long --date=+'%Y-%m-%dT%H:%M:%S'
 if [[ "$(id -u)" != 0 ]] && command -v sudo &> /dev/null; then
   for cmd in systemctl pacman ip; do
     nAlias $cmd sudo $cmd
@@ -743,6 +749,7 @@ function kkk() {
   fi
 
   KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$config/kube-config"
+  stat "$KUBECONFIG" &>/dev/null
   if [[ ! -f "$KUBECONFIG" ]]; then
     KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$config/kubeconfig"
   fi
@@ -764,7 +771,7 @@ function kkk() {
 }
 
 function kk() {
-  TEMPORARY=true kkk
+  TEMPORARY=true kkk $*
 }
 
 function kk9s() {
@@ -803,7 +810,7 @@ compdef _k9s k9s
 
 function _lnav() {
   #_alternative 'local:local files:_files' \
-  _arguments  '1:remote files:_remote_files -- ssh'
+    _arguments  '1:remote files:_remote_files -- ssh'
 }
 compdef _lnav lnav
 

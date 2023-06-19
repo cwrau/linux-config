@@ -4,7 +4,7 @@ tar -h --exclude=.idea -cf rootfs.tar -C rootfs .
 
 pkgname=linux-config
 pkgver=0.1.0
-pkgrel=14
+pkgrel=16
 pkgdesc='linux config'
 url="https://github.com/cwrau/linux-config"
 license=('GPL3')
@@ -15,6 +15,7 @@ sha512sums=('SKIP')
   #startPackages
 depends=(
     advcpmv
+    alvr-git
     amd-ucode
     ananicy-cpp
     ananicy-rules-git
@@ -37,6 +38,8 @@ depends=(
     breeze-hacked-cursor-theme
     btop
     btrfs-progs
+    chart-testing
+    chimera
     chromium-bypass-paywalls-git
     clipmenu
     cloudflared
@@ -56,7 +59,6 @@ depends=(
     easyeffects
     edk2-ovmf
     efibootmgr
-    exa
     exo
     fd
     feh
@@ -74,8 +76,8 @@ depends=(
     git
     git-delete-merged-branches
     git-delta
-    git-secret
     github-cli
+    git-secret
     glab
     glava
     gnome-keyring
@@ -91,31 +93,32 @@ depends=(
     gvfs
     hadolint-bin
     helm
-    helm-diff-cwrau-git
+    helm-diff
     helm-docs
     helmrelease-tools
     hexchat
     hsetroot
     httpie
-    i3-wm
     i3lock-color
+    i3-wm
     informant
     inotify-tools
-    intel-ucode
     intellij-idea-ultimate-edition
     intellij-idea-ultimate-edition-jre
+    intel-ucode
     jdk-openjdk
     jq
     k9s
     kdeconnect
     kernel-modules-hook
+    ksops-bin
     kube-bench-bin
     kube-score-bin
     kubectl
-    kubectl-rakkess-bin
     kubectl-konfig
     kubectl-neat-diff
     kubectl-node-shell
+    kubectl-rakkess-bin
     kubefwd-bin
     kubeval-bin
     lab-bin
@@ -131,7 +134,7 @@ depends=(
     linux-zen-headers
     lnav
     lscolors-git
-    lsd
+    lsd-git
     luarocks
     maim
     man-db
@@ -157,7 +160,6 @@ depends=(
     noto-fonts-extra
     nss-mdns
     nvidia-dkms
-    nvidia-prime
     nvim-packer-git
     nvtop
     obs-studio
@@ -168,6 +170,7 @@ depends=(
     pacman-contrib
     papirus-icon-theme
     paru-bin
+    paruz
     pavucontrol
     pcmanfm
     perl-anyevent-i3
@@ -184,6 +187,7 @@ depends=(
     polymc-bin
     powertop
     prettyping
+    proton-ge-custom-bin
     procs
     pv
     python-dynmen
@@ -195,13 +199,13 @@ depends=(
     python-rope
     python-traitlets
     python-virtualenv
-    realvnc-vnc-viewer
+    rebuild-detector
     reflector
     remmina
     ripgrep
     rocketchat-client-bin
-    rofi-lbonn-wayland
     rofi-dmenu
+    rofi-lbonn-wayland
     shellcheck
     siji-git
     slit-git
@@ -218,6 +222,7 @@ depends=(
     systemd-boot-pacman-hook
     systemd-preset-pacman-hook
     systemd-resolvconf
+    sysz
     telegram-desktop
     telepresence2
     tree
@@ -234,6 +239,7 @@ depends=(
     wireguard-tools
     xarchiver
     xclip
+    xdg-desktop-portal-gtk
     xorg-server
     xorg-xinit
     xorg-xinput

@@ -34,14 +34,15 @@ if sudo informant check; then
 
   if (((UPDATES + AUR_UPDATES) >= 1)) && ! pgrep -x paru &>/dev/null; then
     if [ "$1" = '--unattended' ]; then
+      sudo systemctl reset-failed updates-run.scope || true
       if ! sudo systemctl is-active -q updates-run.scope; then
         notification_send -t 10000 -u low "$UPDATES | $AUR_UPDATES" "$(paru -Qu --devel | grep -v ignored | awk '{print $1}' | sed -z '$ s/\n$//' | tr '\n' ',')"
 
-        if systemd-inhibit --why Updates --mode block --what shutdown sudo -E systemd-run --uid "$USER" --unit updates-run --collect --nice 19 --property=CPUWeight=1 --scope -- paru -Syu --noconfirm; then
+        if systemd-inhibit --why Updates --mode block --what shutdown sudo -E systemd-run --uid "$USER" --unit updates-run --nice 19 --property=CPUWeight=1 --scope -- paru -Syu --noconfirm; then
           notification_send -t 10000 -u normal 'Updates done!'
         else
           if [[ "$(notification_send -t 3590000 -u critical 'Updates failed!' -A Show,Show)" == "Show" ]]; then
-            i3-sensible-terminal -- journalctl _SYSTEMD_INVOCATION_ID="$(systemctl --user show -p InvocationID --value updates-run.service)"
+            i3-sensible-terminal -- bash -c 'journalctl --unit=updates-run.scope --since=-1h | exec lnav'
           fi
         fi
       fi
@@ -54,6 +55,8 @@ else
   if [ "$items" -gt 100 ]; then
     notification_send -t 10000 -u normal 'Error checking Arch news!'
   else
-    notification_send -t 10000 -u critical "$items Unread Arch news articles!"
+    if [[ "$(notification_send -t 10000 -u critical "$items Unread Arch news articles!" -A Show,Show)" == "Show" ]]; then
+      i3-sensible-terminal -- bash -c 'sudo informant read'
+    fi
   fi
 fi
