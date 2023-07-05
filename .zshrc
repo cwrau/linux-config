@@ -749,7 +749,6 @@ function kkk() {
   fi
 
   KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$config/kube-config"
-  stat "$KUBECONFIG" &>/dev/null
   if [[ ! -f "$KUBECONFIG" ]]; then
     KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$config/kubeconfig"
   fi

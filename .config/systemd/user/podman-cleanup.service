@@ -3,5 +3,5 @@ Description=Clean podman storage
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/podman system prune --all --force --volumes
+ExecStart=/usr/bin/podman system prune --all --force --volumes --external
 SuccessExitStatus=0 125

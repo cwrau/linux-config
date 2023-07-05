@@ -15,7 +15,7 @@ sha512sums=('SKIP')
   #startPackages
 depends=(
     advcpmv
-    alvr-git
+    alvr
     amd-ucode
     ananicy-cpp
     ananicy-rules-git
@@ -38,6 +38,7 @@ depends=(
     breeze-hacked-cursor-theme
     btop
     btrfs-progs
+    calf
     chart-testing
     chimera
     chromium-bypass-paywalls-git
@@ -172,7 +173,6 @@ depends=(
     paru-bin
     paruz
     pavucontrol
-    pcmanfm
     perl-anyevent-i3
     perl-file-mimeinfo
     picom
@@ -224,7 +224,7 @@ depends=(
     systemd-resolvconf
     sysz
     telegram-desktop
-    telepresence2
+    telepresence
     tree
     ttf-dejavu
     ttf-font-awesome

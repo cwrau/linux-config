@@ -13,6 +13,7 @@ declare -A games=(
   [Back4Blood.exe]="Back 4 Blood"
   [Among Us.exe]="Among Us"
   [TheDivision2.exe]="The Division 2"
+  [SniperElite5.exe]="Sniper Elite 5"
 )
 
 function detect_game() {

@@ -48,7 +48,7 @@ function getUnitDescription() {
 }
 
 function filterBySystemdUnit() {
-  local -a blacklist=(Phone 'Google Chrome for work')
+  local -a blacklist=(Phone 'Google Chrome for work' WhatsApp)
   while read -r player; do
     if ! printf "%s\n" "${blacklist[@]}" | grep -Eq "^$(getUnitDescription "$player")\$"; then
       echo "$player"

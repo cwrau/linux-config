@@ -23,7 +23,7 @@
   process = git-lfs filter-process
   required = true
 [init]
-  defaultBranch = master
+  defaultBranch = main
 [log]
   date = iso
 [push]
