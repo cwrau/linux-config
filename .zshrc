@@ -21,20 +21,18 @@ export ANDROID_SDK_HOME="$XDG_CONFIG_HOME/android"
 export ANSIBLE_HOME="$XDG_DATA_HOME/ansible"
 export AZURE_CONFIG_DIR="$XDG_DATA_HOME/azure"
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
-export CLUSTERCTL_DISABLE_VERSIONCHECK=true
-export CM_DIR=$XDG_CACHE_HOME/clipmenud
+export CM_DIR="$XDG_CACHE_HOME/clipmenud"
 export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
 export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
 export GOPATH="$XDG_DATA_HOME/go"
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
-export HELM_DIFF_OUTPUT="dyff"
-export HELM_PLUGINS="/usr/lib/helm/plugins"
 export KONAN_DATA_DIR="$XDG_DATA_HOME/konan"
 export LESSHISTFILE="$XDG_CACHE_HOME/less/history"
 export MINIKUBE_HOME="$XDG_DATA_HOME/minikube"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 export NUGET_PACKAGES="$XDG_DATA_HOME/NuGet"
+export PEX_ROOT="$XDG_CACHE_HOME/pex"
 export PULSE_COOKIE="$XDG_RUNTIME_DIR/pulse/cookie"
 export REGISTRY_AUTH_FILE="$XDG_CONFIG_HOME/containers/auth.json"
 export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
@@ -49,6 +47,7 @@ export XAUTHORITY="$XDG_CACHE_HOME/x11/authority"
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
 
 export BROWSER=google-chrome-stable
+export CLUSTERCTL_DISABLE_VERSIONCHECK="true"
 export EDITOR=nvim
 export FZF_ALT_C_COMMAND='fd -t d --hidden'
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -20'"
@@ -56,6 +55,8 @@ export FZF_CTRL_T_COMMAND='fd -t f --hidden'
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --pager=never -p {} | head -20'"
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
 export GRADLE_OPTS=-Dorg.gradle.jvmargs=-Xmx1G
+export HELM_DIFF_OUTPUT="dyff"
+export HELM_PLUGINS="/usr/lib/helm/plugins"
 export HISTSIZE=9223372036854775807
 export KUBECTL_NODE_SHELL_POD_CPU=0
 export KUBECTL_NODE_SHELL_POD_MEMORY=0

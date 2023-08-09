@@ -22,6 +22,7 @@
 /.mozilla/
 /.pki/
 /.pulse-cookie
+/.renpy/
 /.sonarlint/
 /.steam*
 /.thumbnails/
@@ -51,7 +52,6 @@
 .config/kube/config.yaml
 .android/adbkey
 .config/filebrowser/files.db
-.config/org.gabmus.gfeeds.json
 .config/gh/hosts.yml
 .config/obs-studio/basic/profiles/Ultrawide/service.json
 .config/dconf/user
