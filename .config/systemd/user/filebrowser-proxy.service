@@ -1,0 +1,7 @@
+[Unit]
+Requires=filebrowser.service
+Wants=filebrowser.service
+After=filebrowser.service
+
+[Service]
+ExecStart=/usr/lib/systemd/systemd-socket-proxyd --exit-idle-time=1m 127.0.0.1:8051

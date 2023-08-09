@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -e
+
+path="${1?You need to specify the path to open}"
+if [[ "$path" =~ file://* ]]; then
+  path="${path/file:\/\//}"
+fi
+
+if [[ -d "$path" ]]; then
+  exec gnome-terminal --working-directory="$path"
+fi
+
+echo "Not an existing directory" >/dev/stderr
+exit 1

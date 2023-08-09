@@ -1,11 +1,11 @@
 [Unit]
 Description=Auto lock
-PartOf=graphical-session.target
+PartOf=i3-session.target
 
 [Service]
 Type=simple
 ExecStart=/usr/bin/xss-lock --transfer-sleep-lock --session ${XDG_SESSION_ID} -- lock
 
 [Install]
-WantedBy=graphical-session.target
+WantedBy=i3-session.target
 

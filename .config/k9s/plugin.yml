@@ -62,12 +62,7 @@ plugin:
     args:
       - -ec
       - |
-        NEW_KUBECONFIG="$(mktemp -p "$XDG_RUNTIME_DIR")"
-        trap 'rm -f $NEW_KUBECONFIG' EXIT
-        kubectl -n $NAMESPACE get secrets ${NAME}-kubeconfig -o jsonpath='{.data.value}' | base64 -d > "$NEW_KUBECONFIG"
-        secretName="$(kubectl -n "$NAMESPACE" get openstackcluster -l cluster.x-k8s.io/cluster-name="$NAME" -o yaml | yq -r '.items[0].spec.identityRef.name')"
-        envs=( $(kubectl -n "$NAMESPACE" get secret "$secretName" -o jsonpath='{.data.clouds\.yaml}' | base64 -d | yq -r '.clouds.openstack | {OS_AUTH_TYPE: .["auth_type"], OS_AUTH_URL: .auth["auth_url"], OS_APPLICATION_CREDENTIAL_ID: .auth["application_credential_id"], OS_APPLICATION_CREDENTIAL_SECRET: .auth["application_credential_secret"], OS_REGION_NAME: .["region_name"], OS_INTERFACE: .interface, OS_IDENTITY_API_VERSION: .["identity_api_version"]} | to_entries[] | "\(.key)=\(.value)"') )
-        exec env OS_SHELL=true "${envs[@]}" KUBECONFIG="$NEW_KUBECONFIG" zsh
+        exec capi_shell $NAMESPACE $NAME
   openstack-logs:
     shortCut: l
     confirm: false
@@ -102,7 +97,7 @@ plugin:
         imageProjectID="$(kubectl get teutonetescloud "$NAME" -o jsonpath='{.status.imageProject.id}')"
         exec env OS_SHELL=true "${envs[@]}" OS_PROJECT_ID=$imageProjectID zsh
   openstack-shell-teutonetescloud:
-    shortCut: o
+    shortCut: s
     confirm: false
     description: Enter openstack shell for cloud
     scopes:
@@ -145,9 +140,11 @@ plugin:
     args:
       - -c
       - |
-        flux -n $NAMESPACE suspend helmrelease $NAME
-        flux -n $NAMESPACE resume helmrelease $NAME
-        flux -n $NAMESPACE reconcile helmrelease $NAME --with-source
+        kubectl -n $NAMESPACE patch helmrelease $NAME --patch '{"spec":{"suspend":true}}' --type merge
+        kubectl -n $NAMESPACE patch helmrelease $NAME --patch '{"spec":{"suspend":null}}' --type merge
+        kubectl -n $NAMESPACE annotate --overwrite helmrelease $NAME reconcile.fluxcd.io/requestedAt=$(date --iso-8601=seconds)
+        mapfile -d ' ' -t sourceRef < <(kubectl -n $NAMESPACE get helmrelease $NAME -o yaml | yq -r '.spec.chart.spec.sourceRef | "\(.namespace) \(.kind) \(.name)"')
+        kubectl -n ${sourceRef[0]} annotate --overwrite ${sourceRef[1]} ${sourceRef[2]} reconcile.fluxcd.io/requestedAt=$(date --iso-8601=seconds)
   flux-kustomization-reconcile:
     shortCut: r
     confirm: false
@@ -159,6 +156,8 @@ plugin:
     args:
       - -c
       - |
-        flux -n $NAMESPACE suspend kustomization $NAME
-        flux -n $NAMESPACE resume kustomization $NAME
-        flux -n $NAMESPACE reconcile kustomization $NAME --with-source
+        kubectl -n $NAMESPACE patch kustomization $NAME --patch '{"spec":{"suspend":true}}' --type merge
+        kubectl -n $NAMESPACE patch kustomization $NAME --patch '{"spec":{"suspend":null}}' --type merge
+        kubectl -n $NAMESPACE annotate --overwrite kustomization $NAME reconcile.fluxcd.io/requestedAt=$(date --iso-8601=seconds)
+        mapfile -d ' ' -t sourceRef < <(kubectl -n $NAMESPACE get kustomization $NAME -o yaml | yq -r '.spec.chart.spec.sourceRef | "\(.namespace) \(.kind) \(.name)"')
+        kubectl -n ${sourceRef[0]} annotate --overwrite ${sourceRef[1]} ${sourceRef[2]} reconcile.fluxcd.io/requestedAt=$(date --iso-8601=seconds)

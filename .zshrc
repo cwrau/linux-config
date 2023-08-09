@@ -36,6 +36,7 @@ export MINIKUBE_HOME="$XDG_DATA_HOME/minikube"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 export NUGET_PACKAGES="$XDG_DATA_HOME/NuGet"
 export PULSE_COOKIE="$XDG_RUNTIME_DIR/pulse/cookie"
+export REGISTRY_AUTH_FILE="$XDG_CONFIG_HOME/containers/auth.json"
 export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
 export SECRETS_DIR="$(realpath --relative-base=$HOME $XDG_CONFIG_HOME/gitsecret)"
 export SLIT_DIR="$XDG_DATA_HOME/slit"
@@ -74,6 +75,7 @@ if [[ $- = *i* ]] && [[ "$XDG_VTNR" == 1 ]]; then
       export MOZ_ENABLE_WAYLAND=1
       export XDG_SESSION_TYPE=wayland
       export WLR_DRM_NO_MODIFIERS=1
+      export WLR_DRM_DEVICES=/dev/dri/card0
       command systemctl --user import-environment 2> /dev/null
       exec systemd-cat --stderr-priority=warning --identifier=sway sway --unsupported-gpu
     fi
@@ -698,7 +700,9 @@ nAlias mv advmv -g
 reAlias code '--user-data-dir $XDG_DATA_HOME/vscode --extensions-dir $XDG_DATA_HOME/vscode/extensions'
 nAlias wd 'while :; do .; sleep 0.1; clear; done'
 reAlias s3cmd '-c $XDG_CONFIG_HOME/s3cmd/config'
-nAlias journalctl command env SYSTEMD_PAGER=lnav journalctl
+nAlias journalctl command env SYSTEMD_PAGER=lnav journalctl -o short-iso-precise
+nAlias pacman echo use paru
+nAlias dmesg sudo dmesg -T
 
 alias -g A='| awk'
 alias -g B='| base64'
@@ -722,7 +726,7 @@ alias -g UR='U --unsafe-full-throttle'
 alias -g X='| xargs'
 alias -g Y='| yq'
 
-function kkk() {
+function kkkk() {
   local config
   local openRc
   local unitName
@@ -769,13 +773,20 @@ function kkk() {
   fi
 }
 
+function kkk() {
+  kk bash -c 'ln -fs "$KUBECONFIG" "$XDG_CONFIG_HOME/kube/config" && exec zsh'
+}
+
 function kk() {
-  TEMPORARY=true kkk $*
+  for cluster in $(gopass list --flat G 'kube-?config' G mgmt); do
+    KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$cluster k get cluster -A -o jsonpath='{range .items[*]}{"'"$cluster"':"}{.metadata.namespace}{":"}{.metadata.name}{":"}{.metadata.labels.t8s\.teuto\.net/customer-name}{":"}{.metadata.labels.t8s\.teuto\.net/cluster}{"\n"}{end}'
+  done | fzf -d : --with-nth=4,5 | IFS=: read -r mgmt namespace name _
+  [[ "$?" == 0 ]] || return "$?"
+  KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$mgmt" capi_shell "$namespace" "$name" "${@}"
 }
 
 function kk9s() {
-  kk || return $?
-  k9s "${@}"
+  kk k9s "${@}"
 }
 
 if ! [[ -f "$KUBECONFIG" ]]; then
@@ -789,9 +800,10 @@ fi
 
 function k9s() {
   if ! [[ -f "$KUBECONFIG" ]]; then
-    kk
+    kk k9s "${@}"
+  else
+    command k9s "${@}"
   fi
-  command k9s "${@}"
 }
 function _k9s() {
   if [[ -f $KUBECONFIG ]]; then

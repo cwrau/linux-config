@@ -6,7 +6,7 @@ Requires=graphical-session.target
 [Service]
 Type=simple
 ExecStartPre=-/usr/bin/steam-tweaks
-ExecStart=/usr/bin/steam
+ExecStart=/usr/bin/steam-native
 OOMScoreAdjust=-500
 TimeoutStopSec=5s
 MemoryMax=40%

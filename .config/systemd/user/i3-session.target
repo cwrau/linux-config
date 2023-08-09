@@ -10,3 +10,4 @@ Wants=polybar.target
 Wants=restart-service@picom.path
 Wants=restart-service@polybar.path
 Wants=xorg-settings.timer
+Wants=xss-lock.service

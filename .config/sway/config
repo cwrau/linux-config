@@ -46,8 +46,6 @@ set $opacity 0.9
 for_window [class=".*"] opacity $opacity
 for_window [app_id=".*"] opacity $opacity
 
-exec_always --no-startup-id systemctl --user restart swaybg.service
-
 # change focus
 #bindsym $super+j focus left
 #bindsym $super+k focus down

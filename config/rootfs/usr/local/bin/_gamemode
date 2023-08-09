@@ -6,6 +6,10 @@ function singleScreen() {
   autorandr --load desk --force
 }
 
+function widescreen() {
+  autorandr --load home-16:9 --force
+}
+
 declare -A games=(
   [HogwartsLegacy.exe]="Hogwarts Legacy"
   [Phasmophobia.exe]="Phasmophobia"
@@ -14,6 +18,10 @@ declare -A games=(
   [Among Us.exe]="Among Us"
   [TheDivision2.exe]="The Division 2"
   [SniperElite5.exe]="Sniper Elite 5"
+  [portal2.sh]="Portal 2"
+  [Anno1800.exe]="Anno 1800"
+  [Move or Die/start_linux32.sh]="Move or Die"
+  [UnrailedGame.exe]="Unrailed"
 )
 
 function detect_game() {
@@ -34,6 +42,9 @@ function adjust_for_game() {
     "Among Us")
       systemctl --user start discord-overlay.service
       ;;
+    "Portal 2")
+      widescreen
+      ;;
 #    "The Division 2")
 #      systemctl --user start cloudflare-vpn.service
 #      ;;
@@ -50,8 +61,7 @@ case "$1" in
   start)
     rm -rf "$STATE_DIR"
     mkdir -p "$STATE_DIR"
-    game="$(detect_game)"
-    if [[ $? == 0 ]]; then
+    if game="$(detect_game)"; then
       adjust_for_game "$game"
     fi
     for service in "${services[@]}"; do

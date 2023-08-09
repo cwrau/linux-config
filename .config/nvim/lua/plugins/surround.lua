@@ -2,7 +2,7 @@
 local plugins = {
   {
     "echasnovski/mini.surround",
-    event = "BufEnter",
+    event = { "BufEnter" },
     opts = function(_, opts)
       opts.mappings.add = 'S'
     end,

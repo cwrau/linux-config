@@ -5,5 +5,5 @@ Requires=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/packageUpdates --unattended
+ExecStart=/usr/bin/timeout -k 59m 58m /usr/local/bin/packageUpdates --unattended
 RestartSec=0

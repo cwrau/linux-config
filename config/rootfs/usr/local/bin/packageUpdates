@@ -25,9 +25,12 @@ if [ -e /var/lib/pacman/db.lck ]; then
 fi
 
 if sudo informant check; then
-  timeout 20 /usr/bin/paru -Sy
-
   sudo systemctl start reflector.service
+
+  if ! timeout 20 /usr/bin/paru -Sy; then
+    sudo rm /var/lib/pacman/db.lck
+    exit 1
+  fi
 
   UPDATES=$(paru -Qu --repo 2>/dev/null | (grep -v ignored -c || true))
   AUR_UPDATES=$(paru -Qu --aur --devel 2>/dev/null | (grep -v ignored -c || true))

@@ -1,7 +1,8 @@
 ---@type LazyPlugin[]
 local plugins = {
   {
-    "ggandor/leap.nvim",
+    "folke/flash.nvim",
+    enabled = false,
     keys = {}
   }
 }

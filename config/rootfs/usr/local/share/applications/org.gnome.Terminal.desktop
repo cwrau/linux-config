@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Terminal File Handler
+Icon=org.gnome.Terminal
+Type=Application
+Categories=GNOME;GTK;System;TerminalEmulator;
+StartupNotify=true
+StartupWMClass=Gnome-terminal
+SingleMainWindow=false
+MimeType=inode/directory
+TryExec=gnome-terminal
+Exec=gnome-terminal-file-handler %u

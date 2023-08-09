@@ -1,6 +1,25 @@
 #!/usr/bin/env bash
 
-wrapper=("systemd-run" "--user" "--same-dir" "--setenv=KUBECONFIG=$XDG_CONFIG_HOME/kube/config" "--unit=intellij-$(cat /proc/sys/kernel/random/uuid)" "--collect" "--slice=intellij.slice" "--property=Delegate=true" "--property=PrivateTmp=true" "--" "script" "--return" "--quiet" "--log-out" "/dev/null" "--command")
+wrapper=(
+  "systemd-run"
+  "--user"
+  "--same-dir"
+  "--setenv=KUBECONFIG=$XDG_CONFIG_HOME/kube/config"
+  "--unit=intellij-$(cat /proc/sys/kernel/random/uuid)"
+  "--collect"
+  "--slice=intellij.slice"
+  "--property=Delegate=true"
+  #  "--property=PrivateTmp=true"
+  #  "--property=JoinsNamespaceOf=intellij.service"
+  #  "--property=TemporaryFileSystem=/var"
+  "--"
+  "script"
+  "--return"
+  "--quiet"
+  "--log-out"
+  "/dev/null"
+  "--command"
+)
 codeEditor="vscode"
 codeEditor="intellij-idea-ultimate-edition"
 projectFoldersRegex="git|idea"

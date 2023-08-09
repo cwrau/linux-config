@@ -47,7 +47,6 @@ depends=(
     clusterctl-bin
     cocogitto
     curl
-    deluge-gtk
     diff-so-fancy
     direnv
     discord_arch_electron
@@ -216,7 +215,7 @@ depends=(
     sops
     splatmoji-git
     sshuttle
-    steam
+    steam-native-runtime
     sxiv
     systemd
     systemd-boot-pacman-hook

@@ -13,11 +13,11 @@ off
 output DP-1-4
 off
 output eDP-1-1
-mode 1920x1080
+mode 2560x1440
 pos 0x0
-rate 240.00
+rate 240
 output DP-1
 mode 2560x1440
-pos 1920x0
+pos 2560x0
 primary
-rate 59.95
+rate 60
