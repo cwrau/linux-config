@@ -19,6 +19,8 @@ export ANDROID_AVD_HOME="$XDG_DATA_HOME/android"
 export ANDROID_EMULATOR_HOME="$XDG_DATA_HOME/android"
 export ANDROID_SDK_HOME="$XDG_CONFIG_HOME/android"
 export ANSIBLE_HOME="$XDG_DATA_HOME/ansible"
+export AWS_CONFIG_FILE="$XDG_CONFIG_HOME/aws/config"
+export AWS_SHARED_CREDENTIALS_FILE="$XDG_CONFIG_HOME/aws/credentials"
 export AZURE_CONFIG_DIR="$XDG_DATA_HOME/azure"
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export CM_DIR="$XDG_CACHE_HOME/clipmenud"
@@ -195,7 +197,7 @@ COMPLETION_WAITING_DOTS="true"
 
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}'
 zstyle ':completion:*' use-ip false
-zstyle ':completion:*:hosts' known-hosts-files false
+#zstyle ':completion:*:hosts' known-hosts-files false
 
 export ZSH_CACHE_DIR=${XDG_CACHE_HOME}/oh-my-zsh
 [ -d $ZSH_CACHE_DIR ] || mkdir $ZSH_CACHE_DIR
@@ -704,6 +706,7 @@ reAlias s3cmd '-c $XDG_CONFIG_HOME/s3cmd/config'
 nAlias journalctl command env SYSTEMD_PAGER=lnav journalctl -o short-iso-precise
 nAlias pacman echo use paru
 nAlias dmesg sudo dmesg -T
+reAlias history -i 100
 
 alias -g A='| awk'
 alias -g B='| base64'
@@ -847,6 +850,8 @@ if ! command -v kustomize > /dev/null; then
     kubectl kustomize "${@}"
   }
 fi
+
+source /usr/share/bash-completion/completions/aws
 
 scu daemon-reload >/dev/null
 $(scu cat systemd-tmpfiles-setup.service | grep ^ExecStart | cut -d = -f 2)
