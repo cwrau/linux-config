@@ -1,10 +1,8 @@
 ---@type LazyPlugin[]
-local plugins = {
+return {
   {
     "folke/flash.nvim",
     enabled = false,
     keys = {}
   }
 }
-
-return plugins

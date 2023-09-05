@@ -12,6 +12,8 @@ function update() {
   local easyeffects_muted
   local symbol
   local color
+  local outputs
+  local outputString
   source=$(pactl info | grep 'Default Source' | grep -i -v monitor | awk -F ': ' '{print $2}')
 
   if [[ -z "$source" ]] || [[ "$source" == easyeffects_source ]]; then
@@ -19,12 +21,16 @@ function update() {
     color="$color_grey"
     symbol=" $SYMBOL_MIC_MUTED "
   else
-
     IFS=: read -r state muted <<<"$(pactl list sources | grep -E 'State:|Name:|Mute:' | sed -zr "s#^.*[\t ]+State: (\S+?)\n\s+Name: $source\n\tMute: (\S+?)\n.*\$#\1:\2#g")"
     IFS=: read -r easyeffects_muted <<<"$(pactl list sources | grep -E 'State:|Name:|Mute:' | sed -zr "s#^.*[\t ]+State: \S+?\n\s+Name: easyeffects_source\n\tMute: (\S+?)\n.*\$#\1#g")"
 
     if [[ "$easyeffects_muted" == yes ]]; then
       pactl set-source-mute easyeffects_source false
+    fi
+
+    outputs="$(pactl list source-outputs | grep -cE ^Source)"
+    if ((outputs > 1)); then
+      outputString="%{O-3pt}$outputs"
     fi
 
     if [[ "$muted" == yes ]]; then
@@ -53,7 +59,7 @@ function update() {
     fi
   fi
 
-  echo "%{F$color}$symbol%{F-}"
+  echo "%{F$color}$symbol${outputString}%{F-}"
 
   if [[ "$state" == RUNNING ]]; then
     flock -x "$XDG_RUNTIME_DIR/polybar/microphone_lock" bash -c "date +%s > '$XDG_RUNTIME_DIR/polybar/microphone'"
@@ -61,6 +67,11 @@ function update() {
     if ((($(date +%s) - $(cat "$XDG_RUNTIME_DIR/polybar/microphone")) > 10)); then
       pactl set-source-mute @DEFAULT_SOURCE@ true
       flock -x "$XDG_RUNTIME_DIR/polybar/microphone_lock" bash -c "echo 0 > '$XDG_RUNTIME_DIR/polybar/microphone'"
+    else
+      (
+        sleep 10
+        update
+      ) &
     fi
   fi
 }
@@ -68,6 +79,6 @@ function update() {
 [ -f "$XDG_RUNTIME_DIR/polybar/microphone" ] || (echo 0 >"$XDG_RUNTIME_DIR/polybar/microphone")
 
 update
-pactl subscribe | grep "'change' on source" --line-buffered | while read -r _; do
+pactl subscribe | grep -E "'(change|remove)' on (source|sink-input)" --line-buffered | while read -r _; do
   update
 done
