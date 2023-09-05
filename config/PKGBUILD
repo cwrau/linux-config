@@ -32,6 +32,7 @@ depends=(
     bat
     batsignal
     bc
+    bemoji
     bind
     blueman
     bluez-utils
@@ -213,7 +214,6 @@ depends=(
     socat
     sof-firmware
     sops
-    splatmoji-git
     sshuttle
     steam-native-runtime
     sxiv

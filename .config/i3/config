@@ -168,7 +168,7 @@ mode $Power {
 
 # Emoji Keyboard
 
-bindsym $super+period $exid splatmoji copypaste
+bindsym $super+period $exid bemoji -t
 bindsym $super+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
 bindsym $super+p $exid open_project
 
