@@ -213,7 +213,6 @@ plugins=(
   fd
   fzf
   helm
-  helmrelease-tools
   kubectl
   gradle
   ripgrep
@@ -275,11 +274,6 @@ function command_not_found_handler() {
 }
 
 function _nop() {}
-
-function e() .() {
-  i3-msg "exec xdg-open $PWD"
-}
-compdef _nop e.
 
 function e() {
   i3-msg "exec xdg-open \"$*\""
@@ -786,7 +780,7 @@ function kk() {
     KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$cluster k get cluster -A -o jsonpath='{range .items[*]}{"'"$cluster"':"}{.metadata.namespace}{":"}{.metadata.name}{":"}{.metadata.labels.t8s\.teuto\.net/customer-name}{":"}{.metadata.labels.t8s\.teuto\.net/cluster}{"\n"}{end}'
   done | fzf -d : --with-nth=4,5 | IFS=: read -r mgmt namespace name _
   [[ "$?" == 0 ]] || return "$?"
-  KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$mgmt" capi_shell "$namespace" "$name" "${@}"
+  KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$mgmt" capo-shell "$namespace" "$name" "${@}"
 }
 
 function kk9s() {
