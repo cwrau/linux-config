@@ -79,8 +79,8 @@ depends=(
     git
     git-delete-merged-branches
     git-delta
-    github-cli
     git-secret
+    github-cli
     glab
     glava
     gnome-keyring
@@ -103,14 +103,14 @@ depends=(
     hexchat
     hsetroot
     httpie
-    i3lock-color
     i3-wm
+    i3lock-color
     ibus
     informant
     inotify-tools
+    intel-ucode
     intellij-idea-ultimate-edition
     intellij-idea-ultimate-edition-jre
-    intel-ucode
     jdk-openjdk
     jq
     k9s
@@ -118,13 +118,13 @@ depends=(
     kernel-modules-hook
     ksops-bin
     kube-bench-bin
+    kube-score-bin
     kubectl
     kubectl-konfig
     kubectl-neat-diff
     kubectl-node-shell
     kubectl-rakkess-bin
     kubefwd-bin
-    kube-score-bin
     kubeval-bin
     lab-bin
     less
@@ -140,6 +140,7 @@ depends=(
     lnav
     lscolors-git
     lsd-git
+    lsp-plugins
     luarocks
     maim
     man-db
