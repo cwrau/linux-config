@@ -21,6 +21,7 @@ application/pdf=google-chrome.desktop
 x-scheme-handler/etcher=balena-etcher.desktop
 image/png=feh.desktop
 inode/directory=org.gnome.Terminal.desktop
+application/zip=xarchiver.desktop
 
 [Added Associations]
 x-scheme-handler/http=exo-web-browser.desktop;

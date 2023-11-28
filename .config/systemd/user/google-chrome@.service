@@ -1,7 +1,8 @@
 [Unit]
 Description=Google Chrome for %I
 After=graphical-session.target dunst.service
-Requires=graphical-session.target dunst.service
+Requires=graphical-session.target
+Wants=dunst.service
 
 [Service]
 Type=simple

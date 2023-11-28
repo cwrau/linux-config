@@ -6132,14 +6132,8 @@
           "modifierMask": 3
         },
         {
-          "macroActionType": "text",
-          "text": "df"
-        },
-        {
-          "macroActionType": "key",
-          "action": "tap",
-          "type": "basic",
-          "scancode": 44
+          "macroActionType": "command",
+          "command": "suppressMods write df "
         }
       ]
     },

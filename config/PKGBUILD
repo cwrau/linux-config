@@ -42,6 +42,7 @@ depends=(
     calf
     chart-testing
     chimera
+    chromium
     chromium-bypass-paywalls-git
     clipmenu
     cloudflared
@@ -184,11 +185,11 @@ depends=(
     polkit-gnome
     polybar
     polybar-scripts-git
-    polymc-bin
     powertop
     prettyping
-    proton-ge-custom-bin
+    prismlauncher-qt5-bin
     procs
+    proton-ge-custom-bin
     pv
     python-dynmen
     python-notify2
@@ -206,6 +207,7 @@ depends=(
     rocketchat-client-bin
     rofi-dmenu
     rofi-lbonn-wayland
+    rofi-randr
     shellcheck
     siji-git
     slit-git

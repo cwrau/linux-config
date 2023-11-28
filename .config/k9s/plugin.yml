@@ -58,11 +58,10 @@ plugin:
       - teutonetescluster
       - cluster
     background: false
-    command: bash
+    command: capo-shell
     args:
-      - -ec
-      - |
-        exec capi_shell $NAMESPACE $NAME
+      - $NAMESPACE
+      - $NAME
   openstack-logs:
     shortCut: l
     confirm: false
@@ -140,11 +139,9 @@ plugin:
     args:
       - -c
       - |
-        kubectl -n $NAMESPACE patch helmrelease $NAME --patch '{"spec":{"suspend":true}}' --type merge
-        kubectl -n $NAMESPACE patch helmrelease $NAME --patch '{"spec":{"suspend":null}}' --type merge
-        kubectl -n $NAMESPACE annotate --overwrite helmrelease $NAME reconcile.fluxcd.io/requestedAt=$(date --iso-8601=seconds)
-        mapfile -d ' ' -t sourceRef < <(kubectl -n $NAMESPACE get helmrelease $NAME -o yaml | yq -r '.spec.chart.spec.sourceRef | "\(.namespace) \(.kind) \(.name)"')
-        kubectl -n ${sourceRef[0]} annotate --overwrite ${sourceRef[1]} ${sourceRef[2]} reconcile.fluxcd.io/requestedAt=$(date --iso-8601=seconds)
+        flux -n $NAMESPACE suspend helmrelease $NAME
+        flux -n $NAMESPACE resume helmrelease $NAME
+        flux -n $NAMESPACE reconcile helmrelease $NAME --with-source
   flux-kustomization-reconcile:
     shortCut: r
     confirm: false
@@ -156,8 +153,6 @@ plugin:
     args:
       - -c
       - |
-        kubectl -n $NAMESPACE patch kustomization $NAME --patch '{"spec":{"suspend":true}}' --type merge
-        kubectl -n $NAMESPACE patch kustomization $NAME --patch '{"spec":{"suspend":null}}' --type merge
-        kubectl -n $NAMESPACE annotate --overwrite kustomization $NAME reconcile.fluxcd.io/requestedAt=$(date --iso-8601=seconds)
-        mapfile -d ' ' -t sourceRef < <(kubectl -n $NAMESPACE get kustomization $NAME -o yaml | yq -r '.spec.chart.spec.sourceRef | "\(.namespace) \(.kind) \(.name)"')
-        kubectl -n ${sourceRef[0]} annotate --overwrite ${sourceRef[1]} ${sourceRef[2]} reconcile.fluxcd.io/requestedAt=$(date --iso-8601=seconds)
+        flux -n $NAMESPACE suspend kustomization $NAME
+        flux -n $NAMESPACE resume kustomization $NAME
+        flux -n $NAMESPACE reconcile kustomization $NAME --with-source

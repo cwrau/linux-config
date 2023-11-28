@@ -1,8 +1,9 @@
 [Unit]
 Description=rocketchat
 PartOf=work.target
-Requires=graphical-session.target dunst.service
+Requires=graphical-session.target
 After=graphical-session.target dunst.service
+Wants=dunst.service
 
 [Service]
 Type=simple

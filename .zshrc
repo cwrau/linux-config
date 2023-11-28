@@ -31,6 +31,7 @@ export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
 export KONAN_DATA_DIR="$XDG_DATA_HOME/konan"
 export LESSHISTFILE="$XDG_CACHE_HOME/less/history"
+export MC_CONFIG_DIR="$XDG_CONFIG_HOME/mcli"
 export MINIKUBE_HOME="$XDG_DATA_HOME/minikube"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 export NUGET_PACKAGES="$XDG_DATA_HOME/NuGet"
@@ -158,7 +159,8 @@ COMPLETION_WAITING_DOTS="true"
 # "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
 # or set a custom format using the strftime function format specifications,
 # see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
+HIST_STAMPS="%Y-%m-%dT%H-%M-%S%z"
+HISTTIMEFORMAT="%Y-%m-%dT%T"
 
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
@@ -197,7 +199,8 @@ COMPLETION_WAITING_DOTS="true"
 
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}'
 zstyle ':completion:*' use-ip false
-#zstyle ':completion:*:hosts' known-hosts-files false
+# by specifying an empty hosts array we force zsh to load the hosts from the config file
+zstyle ':completion:*:hosts' hosts
 
 export ZSH_CACHE_DIR=${XDG_CACHE_HOME}/oh-my-zsh
 [ -d $ZSH_CACHE_DIR ] || mkdir $ZSH_CACHE_DIR
@@ -212,8 +215,6 @@ plugins=(
   fancy-ctrl-z
   fd
   fzf
-  helm
-  kubectl
   gradle
   ripgrep
   sudo
@@ -229,7 +230,7 @@ source $ZSH/oh-my-zsh.sh
 
 source /usr/share/zsh/plugins/zsh-you-should-use/you-should-use.plugin.zsh > /dev/null
 
-autoload -U compinit && compinit -d "$ZSH_COMPDUMP"
+autoload -Uz compinit && compinit -d "$ZSH_COMPDUMP"
 autoload -U bashcompinit && bashcompinit -d "$ZSH_COMPDUMP"
 
 zstyle ':fzf-tab:complete:*' fzf-bindings alt-space:toggle
@@ -517,7 +518,7 @@ function pkgSync() {
   fi
 
   local orphanedPackages
-  orphanedPackages=$(pacman -Qqtd)
+  orphanedPackages=$(paru -Qqtd)
 
   if [ ! -z $orphanedPackages ]; then
     echo "$(wc -l <<<$orphanedPackages) orphaned Packages"
@@ -526,7 +527,7 @@ function pkgSync() {
         echo "$(wc -l <<<$orphanedPackages) orphaned Packages"
         paru -R --noconfirm $(tr '\n' ' ' <<<$orphanedPackages)
         echo
-        orphanedPackages=$(pacman -Qqtd)
+        orphanedPackages=$(paru -Qqtd)
       done
     fi
   else
@@ -534,7 +535,7 @@ function pkgSync() {
   fi
 
   local unusedPackages
-  unusedPackages=$(pacman -Qi | awk '/^Name/{name=$3} /^Required By/{req=$4} /^Optional For/{opt=$0} /^Install Reason/{res=$4$5} /^$/{if (req == "None" && res != "Explicitlyinstalled"){print name}}' | rg -xv $(echo $targetPackages | tr '\n' '|' | sed 's#|$##g'))
+  unusedPackages=$(paru -Qi | awk '/^Name/{name=$3} /^Required By/{req=$4} /^Optional For/{opt=$0} /^Install Reason/{res=$4$5} /^$/{if (req == "None" && res != "Explicitlyinstalled"){print name}}' | rg -xv $(echo $targetPackages | tr '\n' '|' | sed 's#|$##g'))
 
   if [ ! -z $unusedPackages ]; then
     echo "$(wc -l <<<$unusedPackages) unused Packages"
@@ -543,7 +544,7 @@ function pkgSync() {
         echo "$(wc -l <<<$unusedPackages) unused Packages"
         paru -R --noconfirm $(tr '\n' ' ' <<<$unusedPackages)
         echo
-        unusedPackages=$(pacman -Qi | awk '/^Name/{name=$3} /^Required By/{req=$4} /^Optional For/{opt=$0} /^Install Reason/{res=$4$5} /^$/{if (req == "None" && res != "Explicitlyinstalled"){print name}}')
+        unusedPackages=$(paru -Qi | awk '/^Name/{name=$3} /^Required By/{req=$4} /^Optional For/{opt=$0} /^Install Reason/{res=$4$5} /^$/{if (req == "None" && res != "Explicitlyinstalled"){print name}}')
       done
     fi
   else
@@ -607,6 +608,11 @@ function clip() {
 }
 compdef _nop clip
 
+function column() {
+  local col="${1:-1}"
+  awk "{print \$$col}"
+}
+
 function releaseAur() {
   (
     set -e
@@ -654,7 +660,7 @@ reAlias mv -i
 #nAlias ls exa --all --binary --group --classify --sort=filename --long --colour=always --time-style=long-iso --git
 nAlias ls lsd --almost-all --git --color=always --long --date=+'%Y-%m-%dT%H:%M:%S'
 if [[ "$(id -u)" != 0 ]] && command -v sudo &> /dev/null; then
-  for cmd in systemctl pacman ip; do
+  for cmd in systemctl ip; do
     nAlias $cmd sudo $cmd
   done
 fi
@@ -668,7 +674,7 @@ reAlias prettyping --nolegend
 nAlias ping prettyping
 nAlias du gdu -x
 nAlias jq gojq
-reAlias rg -S
+reAlias rg -S --engine auto
 reAlias jq -r
 reAlias yq -r
 nAlias k 'kubectl' # "--context=${KUBECTL_CONTEXT:-$(kubectl config current-context)}" ${KUBECTL_NAMESPACE/[[:alnum:]-]*/--namespace=${KUBECTL_NAMESPACE}}'
@@ -706,6 +712,7 @@ alias -g A='| awk'
 alias -g B='| base64'
 alias -g BD='B -d'
 alias -g C='| clip'
+alias -g COL='| column'
 alias -g COUNT='| wc -l'
 alias -g G='| grep'
 alias -g GZ='| gzip'
@@ -777,8 +784,8 @@ function kkk() {
 
 function kk() {
   for cluster in $(gopass list --flat G 'kube-?config' G mgmt); do
-    KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$cluster k get cluster -A -o jsonpath='{range .items[*]}{"'"$cluster"':"}{.metadata.namespace}{":"}{.metadata.name}{":"}{.metadata.labels.t8s\.teuto\.net/customer-name}{":"}{.metadata.labels.t8s\.teuto\.net/cluster}{"\n"}{end}'
-  done | fzf -d : --with-nth=4,5 | IFS=: read -r mgmt namespace name _
+    KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$cluster k get cluster -A -o jsonpath='{range .items[*]}{"'"$cluster"':"}{.metadata.namespace}{":"}{.metadata.name}{":"}{.metadata.labels.t8s\.teuto\.net/customer-id}{":"}{.metadata.name}{"\n"}{end}'
+  done | fzf +s -d : --with-nth=4,5 | IFS=: read -r mgmt namespace name _
   [[ "$?" == 0 ]] || return "$?"
   KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$mgmt" capo-shell "$namespace" "$name" "${@}"
 }

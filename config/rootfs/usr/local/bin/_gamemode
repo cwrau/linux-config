@@ -3,84 +3,103 @@
 set -x
 
 function singleScreen() {
-  autorandr --load desk --force
+	if [[ "$(polybar -m | wc -l)" > 1 ]]; then
+		autorandr --load desk --force
+	fi
 }
 
 function widescreen() {
-  autorandr --load home-16:9 --force
+	if [[ "$(polybar -m | wc -l)" > 1 ]]; then
+		autorandr --load home-16:9 --force
+	fi
 }
 
-declare -A games=(
-  [HogwartsLegacy.exe]="Hogwarts Legacy"
-  [Phasmophobia.exe]="Phasmophobia"
-  [Ghost Watchers.exe]="Ghost Watchers"
-  [Back4Blood.exe]="Back 4 Blood"
-  [Among Us.exe]="Among Us"
-  [TheDivision2.exe]="The Division 2"
-  [SniperElite5.exe]="Sniper Elite 5"
-  [portal2.sh]="Portal 2"
-  [Anno1800.exe]="Anno 1800"
-  [Move or Die/start_linux32.sh]="Move or Die"
-  [UnrailedGame.exe]="Unrailed"
-)
+declare -A games
+declare -A gameServiceMappings
+declare -A gameScreenSettings
+source "$XDG_CONFIG_HOME/gamemode.bash"
 
 function detect_game() {
-  local processes
-  processes=$(ps ux)
-  for process in "${!games[@]}"; do
-    if grep -q "$process" <<<"$processes"; then
-      echo "${games[$process]}"
-      return 0
-    fi
-  done
-  return 1
+	local processes
+	processes=$(ps ux)
+	for process in "${!games[@]}"; do
+		if grep -E -q "$process" <<<"$processes"; then
+			echo "${games[$process]}"
+			return 0
+		fi
+	done
+	return 1
+}
+
+function resolve_steam_appmanifest() {
+	local path="$1"
+	local appmanifest
+	until appmanifest="$(grep -E -l "\"installdir\"\\s+\"$(basename "$path")\"" "$XDG_DATA_HOME/Steam/steamapps"/appmanifest_*.acf)" && grep -q SharedDepots "$appmanifest"; do
+		path="$(dirname "$path")"
+		[[ "$path" == "common" || "$path" == "/" ]] && return 1
+	done
+	echo "$appmanifest"
+	return 0
+}
+
+function auto_detect_steam_game() {
+	local -a candidates
+	local appmanifest
+	mapfile -t candidates < <(pgrep -f "$XDG_DATA_HOME/Steam/steamapps/common" | xargs -I{} cat /proc/{}/cmdline | grep -zZ steamapps | xargs -0 -r realpath)
+	for candidate in "${candidates[@]}"; do
+		if appmanifest="$(resolve_steam_appmanifest "$candidate")"; then
+			grep -P -o '^\s+"name"\s+"\K.+(?="$)' "$appmanifest"
+			return 0
+		fi
+	done
+	return 1
 }
 
 function adjust_for_game() {
-  local game="${1?}"
-  case "$game" in
-    "Among Us")
-      systemctl --user start discord-overlay.service
-      ;;
-    "Portal 2")
-      widescreen
-      ;;
-#    "The Division 2")
-#      systemctl --user start cloudflare-vpn.service
-#      ;;
-    *)
-      singleScreen
-      ;;
-    esac
+	local game="${1?}"
+	local service
+	for service in ${gameServiceMappings[$game]}; do
+		systemctl --user start "$service"
+	done
+	case "${gameScreenSettings[$game]}" in
+	wide)
+		widescreen
+		;;
+	*)
+		singleScreen
+		;;
+	esac
 }
 
-services=( glava.target picom.service )
+services=(glava.target picom.service)
 STATE_DIR="$XDG_RUNTIME_DIR/gamemode"
 
 case "$1" in
-  start)
-    rm -rf "$STATE_DIR"
-    mkdir -p "$STATE_DIR"
-    if game="$(detect_game)"; then
-      adjust_for_game "$game"
-    fi
-    for service in "${services[@]}"; do
-      if systemctl --user is-active -q "$service"; then
-        touch "$STATE_DIR/$service"
-        systemctl --user stop "$service"
-      fi
-    done
-    ;;
-  stop)
-    for service in "${services[@]}"; do
-      if [[ -f "$STATE_DIR/$service" ]]; then
-        systemctl --user start "$service"
-      fi
-    done
-    autorandr_dmenu
-    ;;
-  *)
-    echo "🤷"
-    exit 1
-    ;;
+start)
+	rm -rf "$STATE_DIR"
+	mkdir -p "$STATE_DIR"
+	if game="$(detect_game)"; then
+		adjust_for_game "$game"
+	elif game="$(auto_detect_steam_game)"; then
+		adjust_for_game "$game"
+	fi
+	for service in "${services[@]}"; do
+		if systemctl --user is-active -q "$service"; then
+			touch "$STATE_DIR/$service"
+			systemctl --user stop "$service"
+		fi
+	done
+	;;
+stop)
+	for service in "${services[@]}"; do
+		if [[ -f "$STATE_DIR/$service" ]]; then
+			systemctl --user start "$service"
+		fi
+	done
+	autorandr_dmenu
+	;;
+*)
+	echo "🤷"
+	exit 1
+	;;
 esac

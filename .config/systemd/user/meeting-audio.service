@@ -4,7 +4,7 @@ StopWhenUnneeded=true
 
 [Service]
 Type=oneshot
-ExecStart=-/usr/local/bin/pctl -s youtube-music-player.service volume 40
+ExecStart=-/usr/local/bin/pctl -s youtube-music-player.service volume 30
 RemainAfterExit=true
 ExecStop=/usr/local/bin/pctl -s youtube-music-player.service volume 100
 RestartSec=0
