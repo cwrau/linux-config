@@ -56,6 +56,7 @@ export FZF_ALT_C_COMMAND='fd -t d --hidden'
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -20'"
 export FZF_CTRL_T_COMMAND='fd -t f --hidden'
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --pager=never -p {} | head -20'"
+export GOFLAGS="-modcacherw"
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
 export GRADLE_OPTS=-Dorg.gradle.jvmargs=-Xmx1G
 export HELM_DIFF_OUTPUT="dyff"
@@ -85,6 +86,7 @@ if [[ $- = *i* ]] && [[ "$XDG_VTNR" == 1 ]]; then
     fi
   else
     if [[ ! -v DISPLAY ]]; then
+      export XDG_SESSION_TYPE=x11
       command systemctl --user import-environment 2> /dev/null
       exec systemd-cat --stderr-priority=warning --identifier=xorg startx
     fi
@@ -270,7 +272,7 @@ function command_not_found_handler() {
   [[ "$1" =~ ^cccccc ]] && return 0
   local packages
   echo "Packages containing '$1' in name"
-  tmpPackage -- $1
+  tmpPackage $1
   _check_command $@
 }
 
@@ -444,10 +446,10 @@ function pkgSync() {
   local originalPackages=$targetPackages
 
   local newPackages
-  newPackages=$(paru -Qqe | rg -xv $(echo $targetPackages | tr '\n' '|' | sed 's#|$##g'))
+  newPackages=$(paru -Qqe | rg -xv -e "$(echo $targetPackages | tr '\n' '|' | sed 's#|$##g')" -e linux-config)
 
-  if [ ! -z $newPackages ] && [[ "$(echo $newPackages | grep -v linux-config | wc -l)" -gt 0 ]]; then
-    echo "$(<<<$newPackages | grep -v linux-config | wc -l) new Packages"
+  if [ ! -z $newPackages ] && [[ "$(echo $newPackages | wc -l)" -gt 0 ]]; then
+    echo "$(<<<$newPackages | wc -l) new Packages"
     while read -r package; do
       if [[ "$package" == "linux-config" ]]; then
         continue
@@ -579,8 +581,15 @@ compdef _nop pkgSync
 
 declare -a tmpPackages
 function tmpPackage() {
-  paru "${@}"
-  tmpPackages+=( $(grep installed /var/log/pacman.log | awk '{print $4}' | tail -5 | tac | awk '!x[$0]++' | fzf --prompt='Choose package to be uninstalled on exit' -m) )
+  local packages=()
+  local package="${1?At least a single search term is required}"
+  paru -- "${@}"
+  packages=( $(grep installed /var/log/pacman.log | awk '{print $4}' | tail -5 | tac | awk '!x[$0]++') )
+  if [[ "${packages[(Ie)${package}]}" -gt 0 ]] && read -q "?Auto-uninstall '$package'? "; then
+    tmpPackages+=( "$package" )
+  else
+    tmpPackages+=( $( <<<"$packages" | tr ' ' $'\n' | fzf --prompt='Choose package to be uninstalled on exit' -m) )
+  fi
 }
 compdef _paru tmpPackage
 
@@ -659,7 +668,7 @@ reAlias mv -i
 #reAlias ls --almost-all --indicator-style=slash --human-readable --sort=version --escape --format=long --color=always --time-style=long-iso
 #nAlias ls exa --all --binary --group --classify --sort=filename --long --colour=always --time-style=long-iso --git
 nAlias ls lsd --almost-all --git --color=always --long --date=+'%Y-%m-%dT%H:%M:%S'
-if [[ "$(id -u)" != 0 ]] && command -v sudo &> /dev/null; then
+if [[ "$(id -u)" != 0 ]] && (( ${+commands[sudo]} )); then
   for cmd in systemctl ip; do
     nAlias $cmd sudo $cmd
   done
@@ -707,6 +716,8 @@ nAlias journalctl command env SYSTEMD_PAGER=lnav journalctl -o short-iso-precise
 nAlias pacman echo use paru
 nAlias dmesg sudo dmesg -T
 reAlias history -i 100
+nAlias watch hwatch
+nAlias task go-task
 
 alias -g A='| awk'
 alias -g B='| base64'
@@ -784,7 +795,7 @@ function kkk() {
 
 function kk() {
   for cluster in $(gopass list --flat G 'kube-?config' G mgmt); do
-    KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$cluster k get cluster -A -o jsonpath='{range .items[*]}{"'"$cluster"':"}{.metadata.namespace}{":"}{.metadata.name}{":"}{.metadata.labels.t8s\.teuto\.net/customer-id}{":"}{.metadata.name}{"\n"}{end}'
+    KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$cluster k get cluster -A -o json J '.items[] | "'"$cluster"':\(.metadata.namespace):\(.metadata.name):\(.metadata.labels["t8s.teuto.net/customer-name"] // .metadata.labels["t8s.teuto.net/customer-id"]):\(.metadata.labels["t8s.teuto.net/cluster"] // .metadata.name)"'
   done | fzf +s -d : --with-nth=4,5 | IFS=: read -r mgmt namespace name _
   [[ "$?" == 0 ]] || return "$?"
   KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$mgmt" capo-shell "$namespace" "$name" "${@}"
@@ -833,11 +844,11 @@ compdef _lnav lnav
 #if command -v kubectl-neat-diff > /dev/null; then
 #  export KUBECTL_EXTERNAL_DIFF=kubectl-neat-diff
 #fi
-if command -v dyff > /dev/null; then
+if (( ${+commands[dyff]} )); then
   export KUBECTL_EXTERNAL_DIFF="dyff between --omit-header --set-exit-code"
 fi
 
-if ! command -v kustomize > /dev/null; then
+if ! (( ${+commands[kustomize]} )); then
   function kustomize() {
     case "$1" in
       build)
@@ -854,5 +865,7 @@ fi
 
 source /usr/share/bash-completion/completions/aws
 
-scu daemon-reload >/dev/null
-$(scu cat systemd-tmpfiles-setup.service | grep ^ExecStart | cut -d = -f 2)
+if [ "$USER" != root ]; then
+  scu daemon-reload >/dev/null
+  $(scu cat systemd-tmpfiles-setup.service | grep ^ExecStart | cut -d = -f 2)
+fi

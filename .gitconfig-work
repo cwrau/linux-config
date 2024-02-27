@@ -1,3 +1,5 @@
 [user]
   signingkey = 9606B3A53EF968DDEB0508FA9856135CFEF46D3B
   email = cwr@teuto.net
+[core]
+  sshCommand = ssh -i $HOME/.ssh/id_work.pub

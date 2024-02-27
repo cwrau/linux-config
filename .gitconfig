@@ -1,6 +1,7 @@
 [core]
   autocrlf = input
   pager = delta
+  sshCommand = ssh -i $HOME/.ssh/id_private.pub
 [user]
   signingkey = 6ADCBD3FF206F341D2CF8E2C49D1B5ACCF53CA1C
   email = cwrau@cwrau.info
@@ -11,6 +12,8 @@
   path = .gitconfig-work
 [gui]
 [credential]
+[checkout]
+  defaultRemote = origin
 [advice]
   skippedCherryPicks = false
 [global]

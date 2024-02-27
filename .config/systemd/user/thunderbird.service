@@ -1,7 +1,7 @@
 [Unit]
 Description=Thunderbird
-After=gpg-agent.service graphical-session.target
-Requires=gpg-agent.service graphical-session.target
+After=gpg-agent.socket graphical-session.target
+Requires=gpg-agent.socket graphical-session.target
 
 [Service]
 Type=simple

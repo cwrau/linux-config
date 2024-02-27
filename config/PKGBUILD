@@ -103,6 +103,7 @@ depends=(
     hexchat
     hsetroot
     httpie
+    hwatch
     i3-wm
     i3lock-color
     ibus

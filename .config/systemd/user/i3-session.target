@@ -4,6 +4,7 @@ After=graphical-session-pre.target
 BindsTo=graphical-session.target
 Wants=clipmenud.service
 Wants=feh.service
+Wants=glava.target
 Wants=graphical-session-pre.target
 Wants=picom.service
 Wants=polybar.target

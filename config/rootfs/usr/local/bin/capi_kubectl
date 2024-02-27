@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+mgmt_kubeconfig="${1?}"
+mgmt_namespace="${2?}"
+mgmt_name="${3?}"
+shift
+shift
+shift
+
+NEW_KUBECONFIG="$(mktemp -p "$XDG_RUNTIME_DIR")"
+trap 'rm -f $NEW_KUBECONFIG' EXIT
+env KUBECONFIG="$mgmt_kubeconfig" kubectl -n "$mgmt_namespace" get secrets "${mgmt_name}-kubeconfig" -o jsonpath='{.data.value}' | base64 -d >"$NEW_KUBECONFIG"
+exec env KUBECONFIG="$NEW_KUBECONFIG" kubectl "${@}"

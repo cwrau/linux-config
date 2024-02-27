@@ -1,4 +1,4 @@
-plugin:
+plugins:
   node-shell:
     shortCut: s
     confirm: false
@@ -94,7 +94,7 @@ plugin:
         secretName="$(kubectl get teutonetescloud "$NAME" -o yaml | yq -r '.spec.identityRef.name')"
         envs=( $(kubectl -n "t8se-system" get secret "$secretName" -o jsonpath='{.data.clouds\.yaml}' | base64 -d | yq -r '.clouds.openstack | {OS_AUTH_PLUGIN: "password", OS_AUTH_URL: .auth["auth_url"], OS_USERNAME: .auth["username"], OS_PASSWORD: .auth["password"], OS_USER_DOMAIN_NAME: .auth["user_domain_name"], OS_DOMAIN_NAME: .auth["domain_name"], OS_REGION_NAME: .["region_name"], OS_INTERFACE: .interface, OS_IDENTITY_API_VERSION: .["identity_api_version"]} | to_entries[] | "\(.key)=\(.value)"') )
         imageProjectID="$(kubectl get teutonetescloud "$NAME" -o jsonpath='{.status.imageProject.id}')"
-        exec env OS_SHELL=true "${envs[@]}" OS_PROJECT_ID=$imageProjectID zsh
+        exec env -u OS_APPLICATION_CREDENTIAL_ID -u OS_APPLICATION_CREDENTIAL_SECRET -u OS_AUTH_TYPE OS_SHELL=true "${envs[@]}" OS_PROJECT_ID=$imageProjectID zsh
   openstack-shell-teutonetescloud:
     shortCut: s
     confirm: false
@@ -141,7 +141,7 @@ plugin:
       - |
         flux -n $NAMESPACE suspend helmrelease $NAME
         flux -n $NAMESPACE resume helmrelease $NAME
-        flux -n $NAMESPACE reconcile helmrelease $NAME --with-source
+        flux -n $NAMESPACE reconcile helmrelease $NAME --with-source --force
   flux-kustomization-reconcile:
     shortCut: r
     confirm: false

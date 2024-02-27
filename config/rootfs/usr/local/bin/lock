@@ -3,40 +3,39 @@
 set -x
 
 function unlock() {
-  pkill -x "$@" i3lock
-  dunstctl set-paused $notificationState
+	pkill -x "$@" i3lock
+	dunstctl set-paused $notificationState
 }
 
 function lock() {
-  dunstctl set-paused true
-  if systemctl --user is-active i3-session.target --quiet; then
-    i3lock -c 000000 -C -i $HOME/.config/lock.png \
-      --pass-media-keys \
-      --pass-screen-keys \
-      --pass-volume-keys \
-      --force-clock \
-      --inside-color 00000000 --insidever-color 00000000 --insidewrong-color 00000000 \
-      --date-str %F \
-      --date-color ffffff \
-      --time-color ffffff \
-      --verif-text= --wrong-text= --noinput-text= \
-      --redraw-thread
-  else
-    swaylock -c 000000ff --scaling center -i $HOME/.config/lock.png \
-      --inside-color 00000000 --inside-ver-color 00000000 --inside-wrong-color 00000000
-  fi
+	dunstctl set-paused true
+	if systemctl --user is-active i3-session.target --quiet; then
+		i3lock -c 000000 -C -i $HOME/.config/lock.png \
+			--pass-media-keys \
+			--pass-screen-keys \
+			--pass-volume-keys \
+			--force-clock \
+			--inside-color 00000000 --insidever-color 00000000 --insidewrong-color 00000000 \
+			--date-str %F \
+			--date-color ffffff \
+			--time-color ffffff \
+			--verif-text= --wrong-text= --noinput-text= \
+			--redraw-thread
+	else
+		swaylock -c 000000ff --scaling center -i $HOME/.config/lock.png \
+			--inside-color 00000000 --inside-ver-color 00000000 --inside-wrong-color 00000000
+	fi
 }
 
 notificationState=$(dunstctl is-paused)
-sudo chmod u+s "$(command -v i3lock)"
 trap unlock TERM INT EXIT
 
 if ! [[ -z "${XSS_SLEEP_LOCK_FD}" ]]; then
-  lock {XSS_SLEEP_LOCK_FD}<&-
+	lock {XSS_SLEEP_LOCK_FD}<&-
 
-  exec {XSS_SLEEP_LOCK_FD}<&-
+	exec {XSS_SLEEP_LOCK_FD}<&-
 else
-  lock
+	lock
 fi
 
 tail --pid=$(pgrep --newest --exact i3lock) -f /dev/null &

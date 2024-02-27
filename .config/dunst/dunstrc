@@ -100,7 +100,7 @@ follow = "keyboard"
 sticky_history = true
 
 # Maximum amount of notifications kept in history
-history_length = 15
+history_length = 100
 
 # Display indicators for URLs (U) and actions (A).
 show_indicators = true

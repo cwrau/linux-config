@@ -4,6 +4,7 @@ local plugins = {
     "neovim/nvim-lspconfig",
     dependencies = {
       "towolf/vim-helm",
+      "williamboman/mason-lspconfig.nvim",
     },
     ---@type PluginLspOpts
     opts = {
@@ -28,25 +29,25 @@ local plugins = {
           end,
           on_attach = function()
             require("utils.yaml-schema-select").setup()
-          end
+          end,
         },
         rust_analyzer = {
           settings = {
-            ['rust-analyzer'] = {
+            ["rust-analyzer"] = {
               cargo = {
-                features = "all"
-              }
-            }
-          }
+                features = "all",
+              },
+            },
+          },
         },
-        gopls = {}
+        gopls = {},
       },
     },
     init = function()
       local keys = require("lazyvim.plugins.lsp.keymaps")
       keys[#keys + 1] = { "=", "vim.lsp.buf.format" }
-    end
-  }
+    end,
+  },
 }
 
 return plugins

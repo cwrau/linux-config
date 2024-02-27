@@ -150,7 +150,7 @@
         "variant": "H264"
       },
       "encoder_config": {
-        "gui_collapsed": true,
+        "gui_collapsed": false,
         "rate_control_mode": {
           "variant": "Cbr"
         },
@@ -160,7 +160,7 @@
         },
         "use_10bit": false,
         "nvenc": {
-          "gui_collapsed": true,
+          "gui_collapsed": false,
           "quality_preset": {
             "variant": "P1"
           },

@@ -1,4 +1,0 @@
-k9s:
-  views:
-    stash.appscode.com/v1alpha1/repositories:
-      sortColumn: LAST-SUCCESSFUL-BACKUP:desc

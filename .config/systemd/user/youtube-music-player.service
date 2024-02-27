@@ -5,8 +5,7 @@ Requires=graphical-session.target pipewire.service
 
 [Service]
 Type=simple
-#ExecStart=/usr/bin/ytmdesktop
-ExecStart=/usr/bin/chromium --user-data-dir=%E/youtube-music --app=https://music.youtube.com --class=youtube-music-desktop-app
+ExecStart=/usr/bin/youtube-music-desktop-app
 RestartSec=0
 Restart=always
 MemoryMax=1G

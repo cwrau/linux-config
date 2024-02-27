@@ -1,0 +1,7 @@
+views:
+  stash.appscode.com/v1alpha1/repositories:
+    sortColumn: LAST-SUCCESSFUL-BACKUP:desc
+    columns: []
+  v1/pods:
+    sortColumn: AGE:asc
+    columns: []

@@ -15,6 +15,7 @@
 /Slack/
 /Unknown Organization/AusweisApp2.conf
 /Valve/vrmonitor.conf
+/YouTube Music Desktop App/
 /Yubico/YKPersonalization.conf
 /autostart/
 /cef_user_data/
@@ -48,6 +49,8 @@
 /pipewire/
 /protonfixes/
 /pulse/
+/r2modman/
+/r2modmanPlus-local/
 /remmina/
 /teams/
 /uhk-agent/
@@ -55,7 +58,5 @@
 /vlc/
 /whatsapp-nativefier-*/
 /xdg-terminals.list
-/youtube-music
-/youtube-music-desktop-app/
 /yuzu/
 /zoomus.conf

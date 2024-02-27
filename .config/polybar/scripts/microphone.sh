@@ -5,6 +5,10 @@ SYMBOL_MIC_MUTED=""
 # shellcheck source=/dev/null
 source "$XDG_CONFIG_HOME/polybar/scripts/parse_colors.sh"
 
+function notify() {
+  notify-send.sh -t 500 --replace-file=$XDG_RUNTIME_DIR/polybar/microphone-notification "${@}"
+}
+
 function update() {
 	local source
 	local state
@@ -28,7 +32,7 @@ function update() {
 			pactl set-source-mute easyeffects_source false
 		fi
 
-		outputs="$(pactl list source-outputs | grep -cE ^Source)"
+		outputs="$(pactl list source-outputs | grep 'application.name = "' | grep -v glava | wc -l)"
 		if ((outputs > 1)); then
 			outputString="%{O-3pt}$outputs"
 		fi
@@ -39,10 +43,7 @@ function update() {
 				# shellcheck disable=SC2154
 				color="$color_pishade7"
 				if systemctl --user is-active -q gamemode.service; then
-					(
-						sleep 5
-						pactl set-source-mute @DEFAULT_SOURCE@ false
-					) &
+					notify Microphone muted
 				fi
 			else
 				# shellcheck disable=SC2154
@@ -53,6 +54,9 @@ function update() {
 			if [[ "$state" == RUNNING ]]; then
 				# shellcheck disable=SC2154
 				color="$color_pink"
+				if systemctl --user is-active -q gamemode.service; then
+					notify Microphone unmuted
+				fi
 			else
 				# shellcheck disable=SC2154
 				color="$color_pishade7"
@@ -63,11 +67,11 @@ function update() {
 	echo "%{F$color}$symbol${outputString}%{F-}"
 
 	if [[ "$state" == RUNNING ]]; then
-		flock -x "$XDG_RUNTIME_DIR/polybar/microphone_lock" bash -c "date +%s > '$XDG_RUNTIME_DIR/polybar/microphone'"
+		flock -x "$XDG_RUNTIME_DIR/polybar/microphone-lock" bash -c "date +%s > '$XDG_RUNTIME_DIR/polybar/microphone'"
 	else
 		if ((($(date +%s) - $(cat "$XDG_RUNTIME_DIR/polybar/microphone")) > 10)); then
 			pactl set-source-mute @DEFAULT_SOURCE@ true
-			flock -x "$XDG_RUNTIME_DIR/polybar/microphone_lock" bash -c "echo 0 > '$XDG_RUNTIME_DIR/polybar/microphone'"
+			flock -x "$XDG_RUNTIME_DIR/polybar/microphone-lock" bash -c "echo 0 > '$XDG_RUNTIME_DIR/polybar/microphone'"
 		else
 			(
 				sleep 10

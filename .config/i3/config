@@ -24,6 +24,7 @@ font pango:monospace 9
 floating_modifier $super
 
 focus_follows_mouse yes
+focus_on_window_activation smart
 #mouse_warping none
 
 # start a terminal
@@ -301,8 +302,8 @@ assign [class="Google-chrome" title="Netflix"] 17:Netflix
 for_window [class="Google-chrome" title="^Netflix$"] move to workspace 17:Netflix
 
 bindsym $super+$alt+8 workspace 18:YMP
-assign [class="youtube-music-desktop-app"] 18:YMP
-for_window [class="youtube-music-desktop-app"] move to workspace 18:YMP
+assign [class="YouTube Music Desktop App"] 18:YMP
+for_window [class="YouTube Music Desktop App"] move to workspace 18:YMP
 
 bindsym $super+$alt+9 workspace 19:RocketChat
 assign [class="Rocket.Chat"] 19:RocketChat
