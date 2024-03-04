@@ -1,7 +1,7 @@
 [Unit]
 Description=batsignal
 After=graphical-session.target
-Requires=graphical-session.target
+Requisite=graphical-session.target
 
 [Service]
 Type=simple

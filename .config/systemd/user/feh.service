@@ -1,7 +1,7 @@
 [Unit]
 Description=feh background setter
-After=i3-session.target
-Requires=i3-session.target
+Requisite=xorg.service
+After=xorg.service
 
 [Service]
 Type=oneshot
@@ -20,4 +20,4 @@ ProtectControlGroups=true
 RestrictNamespaces=true
 
 [Install]
-WantedBy=i3-session.target
+WantedBy=xorg-session.target

@@ -1,0 +1,8 @@
+[Unit]
+Requires=xorg.service
+After=xorg.service
+BindsTo=i3-session.target
+
+[Service]
+ExecStart=/usr/bin/i3
+Nice=-15

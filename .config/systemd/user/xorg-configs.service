@@ -1,13 +1,13 @@
 [Unit]
-Description=udiskie
-After=graphical-session.target
-Requisite=graphical-session.target
+Description=Set xorg configs
+After=xorg.service
+Requisite=xorg.service
 
 [Service]
-Type=simple
-ExecStart=/usr/bin/udiskie -s
+Type=oneshot
+ExecStart=%E/xorg/config.sh
+RemainAfterExit=true
 RestartSec=0
-Restart=always
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=true
@@ -15,6 +15,7 @@ ProtectSystem=true
 NoNewPrivileges=true
 ProtectKernelTunables=true
 ProtectControlGroups=true
+RestrictNamespaces=true
 
 [Install]
-WantedBy=graphical-session.target
+WantedBy=xorg-session.target

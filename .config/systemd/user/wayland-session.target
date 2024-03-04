@@ -1,0 +1,8 @@
+[Unit]
+Description=wayland session
+After=graphical-session-pre.target
+BindsTo=graphical-session.target
+Wants=graphical-session-pre.target
+Wants=clipman.service
+Wants=restart-service@waybar.path
+

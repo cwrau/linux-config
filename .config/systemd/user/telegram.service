@@ -1,7 +1,7 @@
 [Unit]
 Description=Telegram
 PartOf=messengers.target
-Requires=graphical-session.target org.freedesktop.IBus.session.generic.service
+Requisite=graphical-session.target org.freedesktop.IBus.session.generic.service
 After=graphical-session.target dunst.service
 Wants=dunst.service
 

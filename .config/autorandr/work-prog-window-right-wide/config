@@ -14,7 +14,7 @@ output DP-1-4
 off
 output DP-1.1
 off
-output eDP-1-1
+output eDP-1-2
 mode 2560x1440
 pos 0x0
 rate 240

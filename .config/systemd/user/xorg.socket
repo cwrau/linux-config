@@ -1,0 +1,2 @@
+[Socket]
+ListenStream=/tmp/.X11-unix/X1

@@ -1,7 +1,7 @@
 [Unit]
 Description=YouTube Music Player
 After=graphical-session.target pipewire.service
-Requires=graphical-session.target pipewire.service
+Requisite=graphical-session.target pipewire.service
 
 [Service]
 Type=simple

@@ -1,5 +1,7 @@
 [Unit]
 Description=Clipmenu daemon
+Requisite=xorg.service
+After=xorg.service
 
 [Service]
 ExecStart=/usr/bin/clipmenud
@@ -18,4 +20,4 @@ RestrictRealtime=true
 TimeoutStopSec=2
 
 [Install]
-WantedBy=default.target
+WantedBy=xorg-session.target

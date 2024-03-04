@@ -17,5 +17,5 @@ mode 1920x1080
 pos 0x0
 primary
 rate 60.00
-output eDP-1-1
+output eDP-1-2
 off

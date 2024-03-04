@@ -1,7 +1,7 @@
 [Unit]
 Description=Package Updates
 After=graphical-session.target
-Requires=graphical-session.target
+Requisite=graphical-session.target
 
 [Service]
 Type=oneshot

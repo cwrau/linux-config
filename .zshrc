@@ -86,9 +86,12 @@ if [[ $- = *i* ]] && [[ "$XDG_VTNR" == 1 ]]; then
     fi
   else
     if [[ ! -v DISPLAY ]]; then
+      export DISPLAY=:0
       export XDG_SESSION_TYPE=x11
-      command systemctl --user import-environment 2> /dev/null
-      exec systemd-cat --stderr-priority=warning --identifier=xorg startx
+      systemctl --user import-environment DISPLAY XDG_SESSION_TYPE
+      systemctl --user start i3-session.target
+    #else
+    #  exec systemd-cat --stderr-priority=warning --identifier=wayland nice-n -19 Hyprland
     fi
   fi
 fi

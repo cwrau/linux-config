@@ -371,4 +371,4 @@ gaps outer 5
 gaps inner 10
 smart_borders on
 
-exec --no-startup-id systemctl --user start i3-session.target
+#exec --no-startup-id systemctl --user start i3-session.target

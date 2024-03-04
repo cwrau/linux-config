@@ -17,7 +17,7 @@ mode 2560x1440
 pos 0x0
 primary
 rate 60
-output eDP-1-1
+output eDP-1-2
 mode 2560x1440
 pos 2560x0
 rate 240

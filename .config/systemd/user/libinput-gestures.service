@@ -1,7 +1,7 @@
 [Unit]
 Description=libinput gestures
 After=graphical-session.target
-Requires=graphical-session.target
+Requisite=graphical-session.target
 CollectMode=inactive-or-failed
 
 [Service]

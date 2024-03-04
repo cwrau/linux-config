@@ -1,7 +1,7 @@
 [Unit]
 Description=kanshi
-After=sway-session.target
-Requires=sway-session.target
+After=wayland-session.target
+Requires=wayland-session.target
 
 [Service]
 Type=simple
@@ -10,4 +10,4 @@ RestartSec=0
 Restart=always
 
 [Install]
-WantedBy=sway-session.target
+WantedBy=wayland-session.target

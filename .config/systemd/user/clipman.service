@@ -1,7 +1,7 @@
 [Unit]
 Description=clipman
-After=sway-session.target
-Requires=sway-session.target
+After=wayland-session.target
+Requires=wayland-session.target
 
 [Service]
 ExecStart=/usr/bin/wl-paste -t text --watch clipman store
@@ -20,4 +20,4 @@ RestrictRealtime=true
 TimeoutStopSec=2
 
 [Install]
-WantedBy=sway-session.target
+WantedBy=wayland-session.target

@@ -1,0 +1,9 @@
+[Unit]
+Requires=xorg.socket
+After=xorg.socket
+BindsTo=xorg-session.target
+
+[Service]
+ExecStart=/usr/bin/Xorg :0 -nolisten tcp -noreset -verbose 2 vt1
+Nice=-19
+SuccessExitStatus=0 1

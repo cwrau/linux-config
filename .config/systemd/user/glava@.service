@@ -1,7 +1,10 @@
 [Unit]
 Description=glava %I
 PartOf=glava.target
+Requisite=xorg.service
+After=xorg.service
 Requires=picom.service
+Requires=pipewire.service
 CollectMode=inactive-or-failed
 
 [Service]
@@ -20,4 +23,4 @@ ProtectKernelTunables=true
 ProtectControlGroups=true
 
 [Install]
-WantedBy=i3-session.target
+WantedBy=xorg-session.target

@@ -1,6 +1,6 @@
 [Unit]
 Description=Work RSS
-Requires=graphical-session.target
+Requisite=graphical-session.target
 PartOf=telefondienst.target
 After=graphical-session.target
 

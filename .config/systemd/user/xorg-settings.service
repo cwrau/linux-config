@@ -1,13 +1,16 @@
 [Unit]
 Description=Set xorg settings
-After=i3-session.target
-Requires=i3-session.target
+Requisite=xorg.service
+After=xorg.service
 
 [Service]
 Type=oneshot
-ExecStart=%E/xorg/config.sh
+ExecStart=/usr/bin/dbus-update-activation-environment --systemd --all
+ExecStart=/usr/bin/xrandr --setprovideroutputsource modesetting NVIDIA-0
+ExecStart=/usr/bin/xrandr --output eDP-1-2 --mode 1920x1080 --primary
+ExecStart=/usr/bin/autorandr --skip-option gamma,brightness --change --default horizontal
 RemainAfterExit=true
-RestartSec=0
+RestartSec=10
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=true
@@ -18,4 +21,4 @@ ProtectControlGroups=true
 RestrictNamespaces=true
 
 [Install]
-WantedBy=i3-session.target
+WantedBy=xorg-session.target

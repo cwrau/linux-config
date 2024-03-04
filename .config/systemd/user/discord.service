@@ -1,7 +1,7 @@
 [Unit]
 Description=Discord
 PartOf=messengers.target
-Requires=graphical-session.target pipewire.service
+Requisite=graphical-session.target pipewire.service
 After=graphical-session.target pipewire.service dunst.service
 Wants=dunst.service
 StopWhenUnneeded=true
