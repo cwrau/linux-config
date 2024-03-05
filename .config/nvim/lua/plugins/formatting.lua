@@ -2,6 +2,7 @@
 local plugins = {
   {
     "stevearc/conform.nvim",
+    lazy = false,
     dependencies = {
       "williamboman/mason.nvim",
     },
@@ -17,7 +18,7 @@ local plugins = {
       },
       formatters_by_ft = {
         helm = {},
-        yaml = { "yamlfmt" },
+        ---yaml = { "yamlfix" },
         json = { "fixjson" },
         ["*"] = { "trim_whitespace", "trim_newlines", "codespell" },
       },

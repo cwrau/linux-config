@@ -71,27 +71,29 @@ export SECRETS_EXTENSION=".gpg"
 export SYSTEMD_PAGERSECURE=false
 export VISUAL="$EDITOR"
 
-if [[ $- = *i* ]] && [[ "$XDG_VTNR" == 1 ]]; then
+if ( [[ ! -v XDG_SESSION_TYPE ]] || [[ "$XDG_SESSION_TYPE" == "tty" ]] ) && [[ $- = *i* ]] && [[ "$XDG_VTNR" == 1 ]]; then
   if false; then
-    if [[ ! -v XDG_CURRENT_DESKTOP ]]; then
-      export XDG_CURRENT_DESKTOP=sway
-      export GBM_BACKEND=nvidia-drm
-      export __GLX_VENDOR_LIBRARY_NAME=nvidia
-      export MOZ_ENABLE_WAYLAND=1
-      export XDG_SESSION_TYPE=wayland
-      export WLR_DRM_NO_MODIFIERS=1
-      export WLR_DRM_DEVICES=/dev/dri/card0
-      command systemctl --user import-environment 2> /dev/null
-      exec systemd-cat --stderr-priority=warning --identifier=sway sway --unsupported-gpu
-    fi
+    export XDG_CURRENT_DESKTOP=sway
+    export GBM_BACKEND=nvidia-drm
+    export __GLX_VENDOR_LIBRARY_NAME=nvidia
+    export MOZ_ENABLE_WAYLAND=1
+    export XDG_SESSION_TYPE=wayland
+    export WLR_DRM_NO_MODIFIERS=1
+    export WLR_DRM_DEVICES=/dev/dri/card0
+    systemctl --user import-environment 2> /dev/null
+    exec systemd-cat --stderr-priority=warning --identifier=wayland nice -n -19 sway --unsupported-gpu
   else
-    if [[ ! -v DISPLAY ]]; then
-      export XDG_SESSION_TYPE=x11
-      command systemctl --user import-environment 2> /dev/null
-      exec systemd-cat --stderr-priority=warning --identifier=xorg startx
-    fi
+    export XDG_SESSION_TYPE=x11
+    systemctl --user import-environment 2> /dev/null
+    exec systemd-cat --stderr-priority=warning --identifier=xorg nice -n -19 startx -- -keeptty
   fi
 fi
+
+if ! [[ -v DISPLAY ]]; then
+  export GPG_TTY="$(tty)"
+fi
+
+renice -n -10 -p $(pgrep -s $$) >/dev/null
 
 #if ! cat /proc/self/cgroup | awk -F:: '{print $2}' | xargs -i cat /sys/fs/cgroup/{}/cgroup.controllers | grep -q cpu; then
 #  exec systemd-run --user --slice-inherit --property=Delegate=yes --same-dir --scope -S
@@ -496,7 +498,7 @@ function pkgSync() {
       fi
       paru -Si $package
       paru -Qi $package
-      read -k 1 "choice?[I]nstall, [r]emove or [s]kip $package? "
+      read -k 1 "choice?[I]install, [r]emove or [s]kip $package? "
       echo
       case $choice in;
         [Ii])
@@ -583,7 +585,11 @@ declare -a tmpPackages
 function tmpPackage() {
   local packages=()
   local package="${1?At least a single search term is required}"
-  paru -- "${@}"
+  if [[ "${#@}" -eq 1 ]] && paru -Si "$1" >/dev/null; then
+    paru -S "$1"
+  else
+    paru -- "${@}"
+  fi
   packages=( $(grep installed /var/log/pacman.log | awk '{print $4}' | tail -5 | tac | awk '!x[$0]++') )
   if [[ "${packages[(Ie)${package}]}" -gt 0 ]] && read -q "?Auto-uninstall '$package'? "; then
     tmpPackages+=( "$package" )
@@ -682,10 +688,9 @@ reAlias fzf --ansi
 reAlias prettyping --nolegend
 nAlias ping prettyping
 nAlias du gdu -x
-nAlias jq gojq
 reAlias rg -S --engine auto
-reAlias jq -r
-reAlias yq -r
+reAlias jq -er
+reAlias yq -er
 nAlias k 'kubectl' # "--context=${KUBECTL_CONTEXT:-$(kubectl config current-context)}" ${KUBECTL_NAMESPACE/[[:alnum:]-]*/--namespace=${KUBECTL_NAMESPACE}}'
 nAlias podman-run podman run --rm -i -t
 nAlias htop btop
@@ -696,7 +701,7 @@ nAlias dmakepkg podman-run --network host -v '$PWD:/pkg' 'whynothugo/makepkg' ma
 reAlias watch ' '
 nAlias scu command systemctl --user
 nAlias sc systemctl
-nAlias sru /usr/bin/systemd-run --user
+nAlias sru command systemd-run --user
 nAlias sr systemd-run
 nAlias urldecode 'sed "s@+@ @g;s@%@\\\\x@g" | xargs -0 printf "%b"'
 nAlias urlencode 'jq -s -R -r @uri'

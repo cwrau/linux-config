@@ -114,7 +114,7 @@ depends=(
     intellij-idea-ultimate-edition-jre
     jdk-openjdk
     jq
-    k9s
+    k9s-sbanka-bin
     kdeconnect
     kernel-modules-hook
     ksops-bin

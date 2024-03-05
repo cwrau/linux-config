@@ -5,6 +5,7 @@ enable bluetooth.service
 enable ebtables.service
 enable fwupd-refresh.timer
 enable fwupd.service
+enable linux-modules-cleanup.service
 enable pkgstats.timer
 enable reflector.timer
 enable snapper-cleanup.timer

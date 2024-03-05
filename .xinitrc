@@ -10,5 +10,5 @@ xrandr --setprovideroutputsource modesetting NVIDIA-0
 xrandr --output eDP-1-1 --mode 1920x1080 --primary
 autorandr --skip-option gamma,brightness --change --default horizontal
 
-systemd-cat --stderr-priority=warning --identifier=i3 i3
-systemctl --user stop i3-session.target
+systemd-cat --stderr-priority=warning --identifier=i3 nice -n -15 i3
+systemctl --user stop graphical-session.target

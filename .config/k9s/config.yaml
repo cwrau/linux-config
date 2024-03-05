@@ -1,0 +1,34 @@
+k9s:
+  liveViewAutoRefresh: false
+  refreshRate: 1
+  maxConnRetry: 5
+  readOnly: false
+  noExitOnCtrlC: false
+  shellPod:
+    image: busybox:1.35.0
+    namespace: default
+    limits:
+      cpu: 100m
+      memory: 100Mi
+  skipLatestRevCheck: true
+  logger:
+    tail: 100
+    buffer: 5000
+    sinceSeconds: 60
+    textWrap: true
+    showTime: false
+  thresholds:
+    cpu:
+      critical: 90
+      warn: 70
+    memory:
+      critical: 90
+      warn: 70
+  ui:
+    enableMouse: false
+    headless: true
+    logoless: true
+    crumbsless: false
+    reactive: true
+  screenDumpDir: /tmp/k9s-screens-cwr
+  disablePodCounting: false

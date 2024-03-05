@@ -9,7 +9,7 @@ ExecStart=/usr/bin/youtube-music-desktop-app
 RestartSec=0
 Restart=always
 MemoryMax=1G
-Nice=-5
+Nice=-10
 ManagedOOMMemoryPressure=kill
 ManagedOOMMemoryPressureLimit=10%
 

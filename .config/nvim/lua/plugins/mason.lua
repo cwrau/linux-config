@@ -1,10 +1,14 @@
 ---@type LazyPlugin[]
 local plugins = {
   {
+    "williamboman/mason.nvim",
+    lazy = false,
+    priority = 500,
+  },
+  {
     "williamboman/mason-lspconfig.nvim",
-    dependencies = {
-      "williamboman/mason.nvim",
-    },
+    lazy = false,
+    priority = 250,
     ---@type MasonLspconfigSettings
     opts = {
       automatic_installation = true,
@@ -13,9 +17,7 @@ local plugins = {
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     lazy = false,
-    dependencies = {
-      "williamboman/mason.nvim",
-    },
+    priority = 250,
     opts = {
       ensure_installed = {
         { "lua-language-server", version = "3.6.23" },
@@ -25,8 +27,9 @@ local plugins = {
   {
     "zapling/mason-conform.nvim",
     lazy = false,
+    priority = 250,
+    opts = {},
     dependencies = {
-      "williamboman/mason.nvim",
       "stevearc/conform.nvim",
     },
   },

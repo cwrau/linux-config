@@ -1,0 +1,1 @@
+SUBSYSTEM=="input", ACTION=="add", RUN+="/usr/local/bin/reload-xorg-settings"

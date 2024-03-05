@@ -182,7 +182,7 @@ bindsym XF86AudioMicMute $exid pactl set-source-mute @DEFAULT_SOURCE@ toggle
 bindsym Shift+XF86AudioLowerVolume $exid pctl volume 0.1-
 bindsym Shift+XF86AudioRaiseVolume $exid pctl volume 0.1+
 
-# Sreen brightness controls
+# Screen brightness controls
 bindsym XF86MonBrightnessUp $exid brightness up
 bindsym XF86MonBrightnessDown $exid brightness down
 

@@ -50,7 +50,6 @@
 .config/gh/hosts.yml
 .config/github-copilot/hosts.json
 .config/helm/repositories.yaml
-.config/k9s/config.yaml
 .config/kube/config.yaml
 .config/obs-studio/basic/profiles/Ultrawide/service.json
 .config/wireguard/wg0.conf

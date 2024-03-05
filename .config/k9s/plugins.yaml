@@ -42,14 +42,11 @@ plugins:
       - teutonetescluster
       - cluster
     background: false
-    command: bash
+    command: capo-shell
     args:
-      - -ec
-      - |
-        NEW_KUBECONFIG="$(mktemp -p "$XDG_RUNTIME_DIR")"
-        trap 'rm -f $NEW_KUBECONFIG' EXIT
-        kubectl -n $NAMESPACE get secrets ${NAME}-kubeconfig -o jsonpath='{.data.value}' | base64 -d > "$NEW_KUBECONFIG"
-        env KUBECONFIG="$NEW_KUBECONFIG" k9s
+      - $NAMESPACE
+      - $NAME
+      - k9s
   cluster-shell:
     shortCut: s
     confirm: false
@@ -73,13 +70,12 @@ plugins:
     args:
       - -c
       - |
-        secretName="$(kubectl -n "$NAMESPACE" get openstackmachine "$NAME" -o jsonpath='{.spec.identityRef.name}')"
-        envs=( $(kubectl -n "$NAMESPACE" get secret "$secretName" -o jsonpath='{.data.clouds\.yaml}' | base64 -d | yq -r '.clouds.openstack | {OS_AUTH_TYPE: .["auth_type"], OS_AUTH_URL: .auth["auth_url"], OS_APPLICATION_CREDENTIAL_ID: .auth["application_credential_id"], OS_APPLICATION_CREDENTIAL_SECRET: .auth["application_credential_secret"], OS_REGION_NAME: .["region_name"], OS_INTERFACE: .interface, OS_IDENTITY_API_VERSION: .["identity_api_version"]} | to_entries[] | "\(.key)=\(.value)"') )
+        clusterName="$(kubectl -n "$NAMESPACE" get openstackmachine "$NAME" -o jsonpath='{.metadata.labels.cluster\.x-k8s\.io/cluster-name}')"
           #while true; do
           #  env "${envs[@]}" openstack console log show "$(kubectl -n "$NAMESPACE" get openstackmachine "$NAME" -o jsonpath='{.spec.instanceID}')"
           #  sleep 1
           #done | awk '!x[$0]++' | lnav
-        env "${envs[@]}" openstack console log show "$(kubectl -n "$NAMESPACE" get openstackmachine "$NAME" -o jsonpath='{.spec.instanceID}')" | exec lnav
+        capo-shell "$NAMESPACE" "$clusterName" openstack console log show "$(kubectl -n "$NAMESPACE" get openstackmachine "$NAME" -o jsonpath='{.spec.instanceID}')" | exec lnav
   openstack-shell-teutonetescloud-images:
     shortCut: i
     confirm: false
