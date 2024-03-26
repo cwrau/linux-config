@@ -2,7 +2,6 @@
 
 set -e -o pipefail
 
-# shellcheck source=/dev/null
 source "$XDG_CONFIG_HOME/polybar/scripts/parse_colors.sh"
 
 function update() {
@@ -14,7 +13,6 @@ function update() {
     echo "%{F$color_green}%{F-}"
   fi
 }
-
 
 while :; do
   update

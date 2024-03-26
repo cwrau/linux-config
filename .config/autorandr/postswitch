@@ -7,9 +7,11 @@ set -x
 #  exit 0
 #fi
 
+systemctl --user start xorg-settings.service
+
 i3-msg restart
 
-services=(feh.service polybar.slice glava.target xorg-settings.service easyeffects.service)
+services=(feh.service polybar.slice glava.target easyeffects.service)
 
 systemctl --user reset-failed "${services[@]}"
 systemctl --user try-reload-or-restart "${services[@]}"

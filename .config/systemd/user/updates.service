@@ -2,6 +2,7 @@
 Description=Package Updates
 After=graphical-session.target
 Requires=graphical-session.target
+ConditionACPower=true
 
 [Service]
 Type=oneshot

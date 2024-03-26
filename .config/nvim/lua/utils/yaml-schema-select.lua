@@ -19,28 +19,28 @@ local function change_settings(schema)
   end
   local bufnr = vim.api.nvim_get_current_buf()
   local uri = vim.uri_from_bufnr(bufnr)
-  local previous_settings = client.config.settings
-  if previous_settings.yaml and previous_settings.yaml.schemas then
-    for key, value in pairs(previous_settings.yaml.schemas) do
-      if vim.tbl_islist(value) then
-        for idx, value_value in pairs(value) do
-          if value_value == uri or string.find(value_value, "*") then
-            table.remove(previous_settings.yaml.schemas[key], idx)
-          end
-        end
-      elseif value == uri or string.find(value, "*") then
-        previous_settings.yaml.schemas[key] = nil
-      end
-    end
-  end
-  local new_settings = vim.tbl_deep_extend("force", previous_settings, {
+  ---local previous_settings = client.config.settings
+  ---if previous_settings.yaml and previous_settings.yaml.schemas then
+  ---  for key, value in pairs(previous_settings.yaml.schemas) do
+  ---    if vim.tbl_islist(value) then
+  ---      for idx, value_value in pairs(value) do
+  ---        if value_value == uri or string.find(value_value, "*") then
+  ---          table.remove(previous_settings.yaml.schemas[key], idx)
+  ---        end
+  ---      end
+  ---    elseif value == uri or string.find(value, "*") then
+  ---      previous_settings.yaml.schemas[key] = nil
+  ---    end
+  ---  end
+  ---end
+  client.config.settings = vim.tbl_deep_extend("force", client.config.settings, {
     yaml = {
       schemas = {
         [schema] = uri,
       },
     },
   })
-  client.config.settings = new_settings
+  ---client.config.settings = new_settings
   client.notify("workspace/didChangeConfiguration")
 end
 
@@ -74,26 +74,26 @@ function M.setup()
 
   local yaml = table.concat(vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), 0, -1, false), "\n")
   ---@type string|nil
-  local apiVersion = yaml:match("\n?apiVersion: (.-)\n")
-  if apiVersion then
-    ---@type string
-    local apiGroup
-    if apiVersion:find("/") then
-      apiGroup = apiVersion:match("(.+)/.+")
-      apiVersion = apiVersion:match(".+/(.+)")
-    else
-      apiGroup = apiVersion
-      apiVersion = nil
-    end
+  local schemaOverride = yaml:match("\n?# yaml%-language%-server: $schema=(.-)\n")
+  if schemaOverride then
+    vim.notify("Using schema override")
+    change_settings(schemaOverride)
+  else
     ---@type string|nil
-    local kind = yaml:match("\n?kind: (.-)\n")
-    if kind then
-      ---@type string|nil
-      local schemaOverride = yaml:match("\n?# yaml%-language%-server: $schema=(.-)\n")
-      if schemaOverride then
-        vim.notify("Using schema override")
-        change_settings(schemaOverride)
+    local apiVersion = yaml:match("\n?apiVersion: (.-)\n")
+    if apiVersion then
+      ---@type string
+      local apiGroup
+      if apiVersion:find("/") then
+        apiGroup = apiVersion:match("(.+)/.+")
+        apiVersion = apiVersion:match(".+/(.+)")
       else
+        apiGroup = apiVersion
+        apiVersion = nil
+      end
+      ---@type string|nil
+      local kind = yaml:match("\n?kind: (.-)\n")
+      if kind then
         local crdSelectors = {
           [[ .spec.names.singular == "]] .. kind:lower() .. [[" ]],
           [[ .spec.group == "]] .. apiGroup:lower() .. [[" ]],

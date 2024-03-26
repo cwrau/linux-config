@@ -1,1 +1,1 @@
-SUBSYSTEM=="input", ACTION=="add", RUN+="/usr/local/bin/reload-xorg-settings"
+SUBSYSTEM=="input", ACTION=="add", ENV{SYSTEMD_USER_WANTS}+="xorg-settings.service", TAG+="systemd"

@@ -1,12 +1,12 @@
 [Unit]
 Description=Set xorg settings
 After=i3-session.target
-Requires=i3-session.target
+Requisite=i3-session.target
 
 [Service]
 Type=oneshot
 ExecStart=%E/xorg/config.sh
-RemainAfterExit=true
+RemainAfterExit=false
 RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...

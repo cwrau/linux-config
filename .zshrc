@@ -47,6 +47,7 @@ export STACK_ROOT="$XDG_CONFIG_HOME/stack"
 export TALOSCONFIG="$XDG_CONFIG_HOME/talos/config.yaml"
 export WINEPREFIX="$XDG_DATA_HOME/wine"
 export XAUTHORITY="$XDG_CACHE_HOME/x11/authority"
+export XINITRC="$XDG_CONFIG_HOME/xorg/initrc"
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
 
 export BROWSER=google-chrome-stable
@@ -85,7 +86,12 @@ if ( [[ ! -v XDG_SESSION_TYPE ]] || [[ "$XDG_SESSION_TYPE" == "tty" ]] ) && [[ $
   else
     export XDG_SESSION_TYPE=x11
     systemctl --user import-environment 2> /dev/null
-    exec systemd-cat --stderr-priority=warning --identifier=xorg nice -n -19 startx -- -keeptty
+    sudo systemd-cat --stderr-priority=warning --identifier=powertop powertop --auto-tune
+    xorgConfig=""
+    if lsmod | grep -q nvidia; then
+      xorgConfig="-config nvidia.conf"
+    fi
+    exec systemd-cat --stderr-priority=warning --identifier=xorg nice -n -19 startx -- -keeptty $xorgConfig
   fi
 fi
 
@@ -213,26 +219,26 @@ ZSH_THEME="../../zsh-theme-powerlevel10k/powerlevel10k"
 
 plugins=(
   direnv
-  git
-  git-auto-fetch
-  gitfast
+  dirhistory
   fancy-ctrl-z
   fd
   fzf
+  git
+  git-auto-fetch
+  gitfast
   gradle
+  per-directory-history
   ripgrep
   sudo
-  per-directory-history
-  zsh-syntax-highlighting
   zsh-autosuggestions
+  zsh-syntax-highlighting
+  zsh-you-should-use
 )
 
 export HISTORY_BASE="$XDG_DATA_HOME/directory_history"
 export ZSH_COMPDUMP="${ZSH_CACHE_DIR}/.zcompdump-${ZSH_VERSION}"
 
 source $ZSH/oh-my-zsh.sh
-
-source /usr/share/zsh/plugins/zsh-you-should-use/you-should-use.plugin.zsh > /dev/null
 
 autoload -Uz compinit && compinit -d "$ZSH_COMPDUMP"
 autoload -U bashcompinit && bashcompinit -d "$ZSH_COMPDUMP"
@@ -256,6 +262,25 @@ setopt INC_APPEND_HISTORY
 setopt HIST_REDUCE_BLANKS
 unsetopt HIST_IGNORE_DUPS
 unsetopt SHARE_HISTORY
+
+function fixHistory() {
+  local currentPath="${PWD}"
+  local currentHistory="${HISTORY_BASE}/${currentPath}/history"
+  local longestHistory
+  longestHistory="$(wc --total=never -l "${currentHistory}" "${HOME}/../.snapshots/"*"/snapshot/$(realpath --relative-to="$(dirname "$HOME")" "${HOME}")/$(realpath --relative-to="${HOME}" "${HISTORY_BASE}")/${currentPath}/history" | sort -h | tail -1 | awk '{print $2}')"
+  if ! [[ "$longestHistory" -ef "$currentHistory" ]]; then
+    cp "$longestHistory" "$currentHistory"
+  fi
+}
+
+function normalize-command-line() {
+  [[ -z "$BUFFER" ]] && return 0
+  functions[__normalize_command_line_tmp]=$BUFFER
+  echo -n ${${functions[__normalize_command_line_tmp]#$'\t'}//$'\n\t'/$'\n'} | clip
+  unset 'functions[__normalize_command_line_tmp]'
+}
+zle -N normalize-command-line
+bindkey "^Xn" normalize-command-line
 
 function _check_command() {
   local package
@@ -316,10 +341,14 @@ function idea() {
 
 function diff() {
   if [ -t 1 ]; then
-    command diff -u "${@}" | diff-so-fancy | /usr/bin/less --tabs=1,5 -RF
+    command diff "${@}" --color=always -u | diff-so-fancy | command less --tabs=1,5 -RF
   else
     command diff -u "${@}"
   fi
+}
+
+function reload-tmpfiles() {
+  command systemd-run --user --unit reload-tmpfiles $(scu cat systemd-tmpfiles-setup.service | grep ^ExecStart | cut -d = -f 2)
 }
 
 function swap() {
@@ -564,7 +593,7 @@ function pkgSync() {
   ) | sed -r 's#$#\\n#g' | tr -d '\n' | sed -r 's#\\n$##g')
 
   diff <(echo $originalPackages | sort) <(echo $targetPackages | sort)
-  if ! /usr/bin/diff <(echo $originalPackages) <(echo $targetPackages) &> /dev/null; then
+  if ! command diff <(echo $originalPackages) <(echo $targetPackages) &> /dev/null; then
     if read -q "?Commit? "; then
       sed -i -e "/#endPackages/a \\${newPackages}" -e '/#startPackages/,/#endPackages/d' -e 's#NewPackages#Packages#g' $HOME/config/PKGBUILD
       local pkgrel
@@ -682,6 +711,7 @@ fi
 nAlias top htop
 nAlias vim nvim
 nAlias vi vim
+nAlias v vi
 nAlias cat "bat --pager 'less -RF'"
 nAlias ps procs
 reAlias fzf --ansi
@@ -698,7 +728,6 @@ reAlias feh --scale-down --auto-zoom --auto-rotate
 nAlias grep rg
 nAlias o xdg-open
 nAlias dmakepkg podman-run --network host -v '$PWD:/pkg' 'whynothugo/makepkg' makepkg
-reAlias watch ' '
 nAlias scu command systemctl --user
 nAlias sc systemctl
 nAlias sru command systemd-run --user
@@ -721,8 +750,9 @@ nAlias journalctl command env SYSTEMD_PAGER=lnav journalctl -o short-iso-precise
 nAlias pacman echo use paru
 nAlias dmesg sudo dmesg -T
 reAlias history -i 100
-nAlias watch hwatch
+nAlias watch hwatch ' '
 nAlias task go-task
+unalias diff
 
 alias -g A='| awk'
 alias -g B='| base64'
@@ -870,7 +900,3 @@ fi
 
 source /usr/share/bash-completion/completions/aws
 
-if [ "$USER" != root ]; then
-  scu daemon-reload >/dev/null
-  $(scu cat systemd-tmpfiles-setup.service | grep ^ExecStart | cut -d = -f 2)
-fi

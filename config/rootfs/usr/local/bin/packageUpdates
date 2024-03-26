@@ -11,7 +11,7 @@ if systemctl --user is-active -q gamemode.service; then
 fi
 
 if nmcli -g name connection show --active | xargs -r -i nmcli -g connection.metered connection show {} | grep -q yes; then
-  notification_send -t 10000 -u normal $'Updates aborted!\n\nUsing metered connection'
+  notification_send -t 10000 -u normal $'Updates skipped!\n\nUsing metered connection'
   exit 0
 fi
 

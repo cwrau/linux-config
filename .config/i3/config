@@ -248,7 +248,8 @@ bindsym Ctrl+Shift+$super+Print --release $exid "screenshot window --"
 # Browser stuff
 bindsym $super+c exec "exo-open --launch WebBrowser"
 bindsym $super+Shift+c exec "exo-open --launch WebBrowser --incognito"
-bindsym $super+m $exid sh -c 'systemctl --user is-active google-chrome@meeting.service && systemctl --user stop google-chrome@meeting.service || systemctl --user start google-chrome@meeting.service'
+bindsym $super+m $exid sh -c 'systemctl --user is-active google-chrome@meeting.service && systemctl --user restart google-chrome@meeting.service || systemctl --user start google-chrome@meeting.service'
+bindsym $super+Shift+m $exid sh -c 'systemctl --user stop google-chrome@meeting.service google-chrome@daily.service'
 
 # Gamemode
 bindsym $super+shift+g $exid sh -c 'systemctl --user is-active gamemode.service && systemctl --user stop gamemode.service || systemctl --user start gamemode.service'

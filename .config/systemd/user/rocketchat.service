@@ -9,6 +9,7 @@ Wants=dunst.service
 Type=simple
 ExecStart=/usr/bin/rocketchat-desktop
 RestartSec=0
+TimeoutStopSec=5s
 Restart=always
 
 # disallow writing to /usr, /bin, /sbin, ...
@@ -16,4 +17,3 @@ ProtectSystem=true
 # more paranoid security settings
 ProtectKernelTunables=true
 ProtectControlGroups=true
-

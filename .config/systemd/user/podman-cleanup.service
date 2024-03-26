@@ -1,5 +1,6 @@
 [Unit]
 Description=Clean podman storage
+ConditionACPower=true
 
 [Service]
 Type=oneshot

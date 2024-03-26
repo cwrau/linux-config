@@ -2,8 +2,9 @@
 Description=glava
 Requires=i3-session.target pipewire.service
 Wants=glava@bars.service
-Wants=glava@radial.service
+#Wants=glava@radial.service
 Wants=glava-update.service
+ConditionACPower=true
 
 [Install]
 WantedBy=i3-session.target

@@ -2,28 +2,33 @@ title {{ .title }}
 
 {{- if (file.Exists (printf "/boot/vmlinuz-%s" .linux)) }}
 linux /vmlinuz-{{ .linux }}
-{{- else }}
-  {{- fail "vmlinuz not found" }}
-{{- end }}
+{{ else -}}
+  {{- fail "vmlinuz not found" -}}
+{{- end -}}
 
-{{- $cpu := "amd" }}
-{{- if (file.Exists (printf "/boot/%s-ucode.img" $cpu)) }}
+{{- $cpus := coll.Slice "amd" "intel" -}}
+{{- $ucodeFound := false -}}
+{{- range $cpu := $cpus -}}
+  {{- if (file.Exists (printf "/boot/%s-ucode.img" $cpu)) -}}
+    {{- $ucodeFound = true -}}
 initrd /{{ $cpu }}-ucode.img
-{{- else }}
-  {{- fail "ucode not found" }}
-{{- end }}
+{{- end -}}
+{{- end -}}
+{{- if not $ucodeFound -}}
+  {{- fail "ucode not found" -}}
+{{- end -}}
 
 {{- if (file.Exists (printf "/boot/initramfs-%s.img" .initramfs)) }}
 initrd /initramfs-{{ .initramfs }}.img
-{{- else }}
-  {{- fail "initramfs not found" }}
-{{- end }}
+{{- else -}}
+  {{- fail "initramfs not found" -}}
+{{- end -}}
 
-{{- $defaultOptions := coll.Slice "i8042.reset" "i8042.nomux" "i8042.nopnp" "i8042.noloop" "quiet" "loglevel=3" "systemd.show_status=auto" "rd.udev.log_level=3" }}
-{{- $options := coll.Slice "root=PARTUUID=3336d417-b19d-4fdc-af4d-4d363fba19e9" "rootflags=subvol=@" "rw" "rootfstype=btrfs" "noautogroups" }}
-{{- if not (has . "skipDefaultOptions") }}
-  {{- range $option := $defaultOptions }}
-    {{- $options = append $option $options }}
-  {{- end }}
+{{- $defaultOptions := coll.Slice "i8042.reset" "i8042.nomux" "i8042.nopnp" "i8042.noloop" "quiet" "loglevel=3" "systemd.show_status=auto" "rd.udev.log_level=3" -}}
+{{- $options := coll.Slice "root=PARTUUID=3336d417-b19d-4fdc-af4d-4d363fba19e9" "rootflags=subvol=@" "rw" "rootfstype=btrfs" "noautogroups" -}}
+{{- if not (has . "skipDefaultOptions") -}}
+  {{- range $option := $defaultOptions -}}
+    {{- $options = append $option $options -}}
+  {{- end -}}
 {{- end }}
 options {{ join $options " " }} {{ join .options " " }}

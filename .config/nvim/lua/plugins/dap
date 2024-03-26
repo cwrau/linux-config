@@ -1,0 +1,49 @@
+return {
+  {
+    "mfussenegger/nvim-dap",
+    config = function()
+      local dap = require("dap")
+      dap.adapters.codelldb = {
+        type = 'server',
+        port = "${port}",
+        executable = {
+          command = require("mason-registry").get_package("codelldb"):get_install_path(),
+          args = {
+            '--port',
+            '${port}'
+          }
+        }
+      }
+      dap.configurations = {
+        rust = {
+          {
+            type = "codelldb",
+            request = "launch",
+            name = "DEBUG",
+            cwd = '${workspaceFolder}',
+            sourceLanguages = { 'rust' },
+            terminal = "integrated",
+            program = function()
+              local workspaces = vim.lsp.buf.list_workspace_folders()
+              local currentWorkspaceName = workspaces[#workspaces]:match('[^/]*$')
+              local exitCode = os.execute('cargo build')
+              if exitCode ~= 0 then
+                vim.notify("Failed building with cargo")
+              else
+                return 'target/debug/' .. currentWorkspaceName
+              end
+            end
+          }
+        }
+      }
+    end
+  },
+  {
+    "jay-babu/mason-nvim-dap.nvim",
+    opts = {
+      ensure_installed = {
+        "codelldb"
+      }
+    }
+  },
+}

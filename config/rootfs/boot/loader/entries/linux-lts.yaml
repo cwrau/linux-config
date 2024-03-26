@@ -3,4 +3,3 @@ linux: linux-lts
 initramfs: linux-lts
 options: []
 skipDefaultOptions: true
-

@@ -16,7 +16,6 @@ sha512sums=('SKIP')
 depends=(
     advcpmv
     alvr
-    amd-ucode
     ananicy-cpp
     ananicy-rules-git
     ansible
@@ -109,9 +108,9 @@ depends=(
     ibus
     informant
     inotify-tools
-    intel-ucode
     intellij-idea-ultimate-edition
     intellij-idea-ultimate-edition-jre
+    ipmikvm
     jdk-openjdk
     jq
     k9s-sbanka-bin
@@ -265,6 +264,12 @@ depends=(
     zsh-you-should-use
   )
   #endPackages
+
+if grep -iq AMD /proc/cpuinfo; then
+  depends+=( amd-ucode )
+else
+  depends+=( intel-ucode )
+fi
 
 package() {
   tar -xf rootfs.tar -C "$pkgdir"

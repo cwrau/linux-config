@@ -1,0 +1,6 @@
+title: Arch Linux ZEN without NVIDIA
+linux: linux-zen
+initramfs: linux-zen
+options:
+  - module_blacklist=nvidia
+  - snd_hda_intel.power_save=1

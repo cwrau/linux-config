@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-udevadm settle
-
-loginctl list-sessions -o json | jq -er '.[] | select(.uid != 0) | .uid' | sort -u | while read -r uid; do
-  systemctl --user -M "$uid@" reload-or-restart --no-block xorg-settings.service
-done

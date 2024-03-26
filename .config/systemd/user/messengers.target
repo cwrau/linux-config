@@ -2,9 +2,9 @@
 Description=Messengers
 Requires=graphical-session.target
 After=graphical-session.target
-BindsTo=discord.service
-BindsTo=whatsapp.service
-BindsTo=telegram.service
+Wants=discord.service
+Wants=whatsapp.service
+Wants=telegram.service
 
 [Install]
 WantedBy=graphical-session.target

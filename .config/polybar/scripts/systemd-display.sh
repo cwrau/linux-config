@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# shellcheck source=/dev/null
 source "$XDG_CONFIG_HOME/polybar/scripts/parse_colors.sh"
 
 name=${1}
@@ -22,4 +21,3 @@ case $(systemctl --user is-active "${name}") in
     echo "%{F$color_red}${text}%{F-}"
     ;;
 esac
-

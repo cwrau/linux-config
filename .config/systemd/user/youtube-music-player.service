@@ -2,6 +2,7 @@
 Description=YouTube Music Player
 After=graphical-session.target pipewire.service
 Requires=graphical-session.target pipewire.service
+ConditionACPower=true
 
 [Service]
 Type=simple

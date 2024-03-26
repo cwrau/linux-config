@@ -3,6 +3,7 @@ Description=Gaming Mode
 Wants=steam.service
 Wants=discord.service
 StopWhenUnneeded=true
+ConditionACPower=true
 
 [Service]
 Type=oneshot
