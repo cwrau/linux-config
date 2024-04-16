@@ -86,7 +86,6 @@ if ( [[ ! -v XDG_SESSION_TYPE ]] || [[ "$XDG_SESSION_TYPE" == "tty" ]] ) && [[ $
   else
     export XDG_SESSION_TYPE=x11
     systemctl --user import-environment 2> /dev/null
-    sudo systemd-cat --stderr-priority=warning --identifier=powertop powertop --auto-tune
     xorgConfig=""
     if lsmod | grep -q nvidia; then
       xorgConfig="-config nvidia.conf"
@@ -348,7 +347,7 @@ function diff() {
 }
 
 function reload-tmpfiles() {
-  command systemd-run --user --unit reload-tmpfiles $(scu cat systemd-tmpfiles-setup.service | grep ^ExecStart | cut -d = -f 2)
+  command systemd-run --user --unit reload-tmpfiles $(command systemctl --user cat systemd-tmpfiles-setup.service | grep ^ExecStart | cut -d = -f 2)
 }
 
 function swap() {
@@ -663,7 +662,7 @@ function releaseAur() {
     local choice
     git add PKGBUILD .SRCINFO
     git clean -xfd
-    updpkgsums
+    grep -q source= PKGBUILD && updpkgsums
     makepkg -df
     makepkg --printsrcinfo > .SRCINFO
     choice=$(gum choose "Version Bump" custom)
@@ -711,8 +710,7 @@ fi
 nAlias top htop
 nAlias vim nvim
 nAlias vi vim
-nAlias v vi
-nAlias cat "bat --pager 'less -RF'"
+nAlias cat "bat --pager 'less -RF' --nonprintable-notation unicode"
 nAlias ps procs
 reAlias fzf --ansi
 reAlias prettyping --nolegend

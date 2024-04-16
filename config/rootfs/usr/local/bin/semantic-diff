@@ -3,16 +3,27 @@
 set -eu
 set -o pipefail
 
+filesToClean=()
+
+function cleanup() {
+  for tmpFile in "${filesToClean[@]}"; do
+    if [[ -f "$tmpFile" ]]; then
+      rm -f "$tmpFile"
+    elif [[ -d "$tmpFile" ]]; then
+      rm -rf "$tmpFile"
+    fi
+  done
+}
+
 function sameNumberOfDocuments() {
   local origPath="$1"
   local origNumberOfDocuments
   local newPath="$2"
   local newNumberOfDocuments
+  local tool="$3"
 
-  origNumberOfDocuments=$(grep -c -- --- "$origPath")
-  origNumberOfDocuments=${origNumberOfDocuments:0}
-  newNumberOfDocuments=$(grep -c -- --- "$newPath")
-  newNumberOfDocuments=${newNumberOfDocuments:0}
+  origNumberOfDocuments=$($tool -s length "$origPath")
+  newNumberOfDocuments=$($tool -s length "$newPath")
 
   if (((origNumberOfDocuments + newNumberOfDocuments) == 1)) || ((origNumberOfDocuments == newNumberOfDocuments)); then
     return 0
@@ -21,34 +32,97 @@ function sameNumberOfDocuments() {
   fi
 }
 
-function _semantic_diff() {
-  local diff
-  local origFilename="$1"
+function getToolForFileType() {
+  local filetype="$1"
   local origPath="$2"
   local newPath="$3"
-  local diff
-  local unifiedDiff
+  local tool
+  local tmpDir
   local filetype
+  local newName
+  case "$filetype" in
+    application/yaml | application/*-yaml | application/json | application/*-json)
+      tool=yq
+      ;;
+    application/toml)
+      tool=tomlq
+      ;;
+    text/xml | text/*-xml)
+      tool=xq
+      ;;
+    text/plain)
+      for path in "$origPath" "$newPath"; do
+        if [[ "$path" == *".ini" ]]; then
+          tool=tomlq
+          break
+        fi
+      done
+      ;;
+    application/x-trash)
+      tmpDir="$(mktemp -d)"
+      filesToClean+=("$tmpDir")
+      for path in "$origPath" "$newPath"; do
+        newName="$(basename -s .bak "$path")"
+        cp "$path" "$tmpDir/$newName"
+        filetype=$(xdg-mime query filetype "$tmpDir/$newName")
+        if tool="$(getToolForFileType "$filetype" "$origPath" "$newPath")"; then
+          break
+        fi
+      done
+      ;;
+    *) ;;
+  esac
 
-  unifiedDiff=$( (diff -u --unidirectional-new-file "$origPath" "$newPath" || true) | sed "s#$2#$origFilename#g")
-
-  if [[ -f "$origPath" ]]; then
-    filetype=$(xdg-mime query filetype "$origPath")
-  elif [[ -f "$newPath" ]]; then
-    filetype=$(xdg-mime query filetype "$newPath")
-  fi
-
-  if [[ "$filetype" == "application/x-yaml" ]] && (yq -e . "$origPath" && yq -e . "$newPath") &>/dev/null && sameNumberOfDocuments "$origPath" "$newPath"; then
-    diff=$(dyff --color on between "$origPath" "$newPath")
-    echo "$unifiedDiff" | (diff-so-fancy || true) | head -3
-    echo "$diff" | tail -n +9
+  if [[ -v tool ]]; then
+    echo "$tool"
   else
-    echo "$unifiedDiff" | diff-so-fancy
+    return 1
   fi
 }
 
+function _semantic_diff() {
+  local diff
+  local origFilename
+  local origPath
+  local newPath
+  if [[ "$#" -eq 3 ]]; then
+    origFilename="$1"
+    origPath="$2"
+    newPath="$3"
+  elif [[ "$#" -eq 2 ]]; then
+    origPath="$1"
+    origFilename="$(basename "$origPath")"
+    newPath="$2"
+  fi
+  local diff
+  local unifiedDiff
+  local filetype
+  local tool
+  local exitCode=0
+
+  unifiedDiff=$( (diff -u --unidirectional-new-file "$origPath" "$newPath") | sed "s#$origPath#$origFilename#g") || exitCode=$?
+
+  for path in "$origPath" "$newPath"; do
+    if [[ -f "$path" ]]; then
+      filetype=$(xdg-mime query filetype "$path")
+      break
+    fi
+  done
+
+  tool=$(getToolForFileType "$filetype" "$origPath" "$newPath")
+
+  if [[ -v tool ]] && { "$tool" -e . "$origPath" && "$tool" -e . "$newPath"; } &>/dev/null && sameNumberOfDocuments "$origPath" "$newPath" "$tool"; then
+    diff=$(dyff --color on between --omit-header "$origPath" "$newPath")
+    echo "$unifiedDiff" | (diff-so-fancy || true) | head -3
+    echo "$diff"
+  else
+    echo "$unifiedDiff" | diff-so-fancy
+  fi
+  return "$exitCode"
+}
+
 if [[ "$(ps -o comm= -p "$PPID")" == "git" ]]; then
-  _semantic_diff "$1" "$2" "$5"
+  _semantic_diff "$1" "$2" "$5" || true
 else
   _semantic_diff "$1" "$2"
 fi

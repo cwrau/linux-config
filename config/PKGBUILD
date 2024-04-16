@@ -17,7 +17,7 @@ depends=(
     advcpmv
     alvr
     ananicy-cpp
-    ananicy-rules-git
+    minq-ananicy-git
     ansible
     aria2
     ausweisapp2
@@ -25,7 +25,7 @@ depends=(
     autorandr
     bandwhich
     base
-    base-devel-meta
+    base-devel
     bash-completion
     bash-git-prompt
     bat
@@ -52,7 +52,7 @@ depends=(
     direnv
     discord_arch_electron
     discover-overlay
-    dive-bin
+    dive
     dnsmasq
     dolphin-emu
     dunst
@@ -64,7 +64,6 @@ depends=(
     exo
     fd
     feh
-    filebrowser
     flux-bin
     fprintd
     freerdp
@@ -116,6 +115,7 @@ depends=(
     k9s-sbanka-bin
     kdeconnect
     kernel-modules-hook
+    kitty
     ksops-bin
     kube-bench-bin
     kube-score-bin
@@ -139,7 +139,7 @@ depends=(
     linux-zen-headers
     lnav
     lscolors-git
-    lsd-git
+    lsd
     lsp-plugins
     luarocks
     maim
@@ -154,13 +154,11 @@ depends=(
     mpv-mpris
     mtr
     neovim-drop-in
-    nerd-fonts-complete
     net-tools
     networkmanager-dmenu-git
     nmap
     nodejs-neovim
     notify-send.sh
-    noto-fonts
     noto-fonts-cjk
     noto-fonts-emoji
     noto-fonts-extra
@@ -230,9 +228,12 @@ depends=(
     sysz
     telegram-desktop
     telepresence
+    tmux
     tree
     ttf-dejavu
+    ttf-firacode-nerd
     ttf-font-awesome
+    ttf-iosevka-nerd
     ttf-liberation
     udiskie-dmenu-git
     uhk-agent-appimage

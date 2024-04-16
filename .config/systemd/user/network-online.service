@@ -1,5 +1,5 @@
 [Unit]
-Description=Wait until internet server is accessable
+Description=Wait until internet is accessible
 
 [Service]
 Type=oneshot
@@ -7,3 +7,4 @@ ExecStart=/usr/bin/nm-online -s -q
 Environment=NM_ONLINE_TIMEOUT=60
 Restart=Always
 StartLimitBurst=128
+

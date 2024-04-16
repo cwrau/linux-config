@@ -1,0 +1,9 @@
+[Unit]
+Description=jaeger
+StopWhenUnneeded=true
+
+[Container]
+Image=jaegertracing/all-in-one
+PublishPort=127.0.0.2:4317:4317
+PublishPort=127.0.0.2:16686:16686
+Exec=--collector.otlp.enabled=true

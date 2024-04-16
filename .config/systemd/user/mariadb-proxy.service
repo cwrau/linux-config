@@ -1,6 +1,0 @@
-[Unit]
-Requires=mariadb.service
-After=mariadb.service
-
-[Service]
-ExecStart=/usr/lib/systemd/systemd-socket-proxyd --exit-idle-time=10m 127.0.0.1:3307

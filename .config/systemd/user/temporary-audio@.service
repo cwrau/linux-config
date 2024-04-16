@@ -1,16 +1,12 @@
 [Unit]
-Description=Gaming Mode
-Wants=steam.service
-Wants=discord.service
-Wants=temporary-audio@25.service
+Description=Lower music volume during service activation
 StopWhenUnneeded=true
-ConditionACPower=true
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/_gamemode start
+ExecStart=-/usr/local/bin/pctl -s youtube-music-player.service volume %i
 RemainAfterExit=true
-ExecStop=/usr/local/bin/_gamemode stop
+ExecStop=/usr/local/bin/pctl -s youtube-music-player.service volume 100
 RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...

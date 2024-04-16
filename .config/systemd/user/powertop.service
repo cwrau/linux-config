@@ -1,0 +1,8 @@
+[Unit]
+Description=auto-tune power
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sudo /usr/bin/powertop --auto-tune
+ExecStartPost=/bin/sh -exc 'for f in $(grep -l "UHK" /sys/bus/usb/devices/*/product | sed "s#product#power/control#"); do echo on | sudo tee "$f"; done'
+RemainAfterExit=yes

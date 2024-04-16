@@ -40,7 +40,7 @@ case "$1" in
     newIndex=$((newIndex < 0 ? 0 : newIndex))
     ;;
   *)
-    echo "'$1' not supported" >/dev/stderr
+    echo "'$1' not supported" >&2
     exit 1
     ;;
 esac

@@ -4,35 +4,35 @@ mode=${1:?Specify mode: full/selection/window}
 target=${2:?Specify output: <file>/clipboard}
 
 case "$mode" in
-full)
-	param=()
-	;;
-selection)
-	param=("-s" "-u")
-	;;
-window)
-	param=("-i" "$(xdotool getactivewindow)")
-	;;
-*)
-	echo "Wrong mode: $mode" >/dev/stderr
-	exit 1
-	;;
+  full)
+    param=()
+    ;;
+  selection)
+    param=("-s" "-u")
+    ;;
+  window)
+    param=("-i" "$(xdotool getactivewindow)")
+    ;;
+  *)
+    echo "Wrong mode: $mode" >&2
+    exit 1
+    ;;
 esac
 
 case "$target" in
-clipboard)
-	maim "${param[@]}" | xclip -selection clipboard -t image/png
-	;;
---)
-	target="$HOME/Screenshots/$(date +%FT%T.%2N%z).png"
-	mkdir -p "$(dirname "$target")"
-	maim "${param[@]}" "$target"
-	;;
--)
-	maim "${param[@]}"
-	;;
-*)
-	mkdir -p "$(dirname "$target")"
-	maim "${param[@]}" "$target"
-	;;
+  clipboard)
+    maim "${param[@]}" | xclip -selection clipboard -t image/png
+    ;;
+  --)
+    target="$HOME/Screenshots/$(date +%FT%T.%2N%z).png"
+    mkdir -p "$(dirname "$target")"
+    maim "${param[@]}" "$target"
+    ;;
+  -)
+    maim "${param[@]}"
+    ;;
+  *)
+    mkdir -p "$(dirname "$target")"
+    maim "${param[@]}" "$target"
+    ;;
 esac

@@ -20,7 +20,7 @@ function unlock() {
 trap "unlock" EXIT
 
 function fail() {
-  echo "$@" >/dev/stderr
+  echo "$@" >&2
   exit 1
 }
 

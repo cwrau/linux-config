@@ -2,8 +2,8 @@
 Description=Discord
 PartOf=messengers.target
 Requires=graphical-session.target pipewire.service
-After=graphical-session.target pipewire.service dunst.service
 Wants=dunst.service
+After=graphical-session.target pipewire.service dunst.service
 StopWhenUnneeded=true
 CollectMode=inactive-or-failed
 ConditionACPower=true

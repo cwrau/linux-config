@@ -1,0 +1,6 @@
+[Socket]
+ListenStream=127.0.0.1:16686
+Service=localhost-proxy@16686.service
+
+[Install]
+WantedBy=sockets.target

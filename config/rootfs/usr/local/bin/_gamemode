@@ -32,10 +32,14 @@ function detect_game() {
   return 1
 }
 
+toolIDs=("$( (
+  grep -Eo 'require_tool_appid"\s+"[0-9]+"' "$XDG_DATA_HOME/Steam/compatibilitytools.d/"*/toolmanifest.vdf | awk '{print $2}' | tr -d '"'
+  grep -Eo 'Loaded manifest for tool [0-9]+' "$XDG_DATA_HOME/Steam/logs/compat_log.txt" | awk '{print $5}'
+) | sort -u)")
 function resolve_steam_appmanifest() {
   local path="$1"
   local appmanifest
-  until appmanifest="$(grep -E -l "\"installdir\"\\s+\"$(basename "$path")\"" "$XDG_DATA_HOME/Steam/steamapps"/appmanifest_*.acf)" && grep -q SharedDepots "$appmanifest"; do
+  until appmanifest="$(grep -E -l "\"installdir\"\\s+\"$(basename "$path")\"" "$XDG_DATA_HOME/Steam/steamapps"/appmanifest_*.acf)" && ! grep -Eq '"appid"\s+"'"$(echo "${toolIDs[@]}" | paste -sd '|')"'"' "$appmanifest"; do
     path="$(dirname "$path")"
     [[ "$path" == "common" || "$path" == "/" ]] && return 1
   done
@@ -83,9 +87,7 @@ case "$1" in
   start)
     rm -rf "$STATE_DIR"
     mkdir -p "$STATE_DIR"
-    if game="$(detect_game)"; then
-      adjust_for_game "$game"
-    elif game="$(auto_detect_steam_game)"; then
+    if game="$(detect_game)" || game="$(auto_detect_steam_game)"; then
       adjust_for_game "$game"
     fi
     for service in "${services[@]}"; do

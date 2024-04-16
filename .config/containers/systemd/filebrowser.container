@@ -1,0 +1,15 @@
+[Unit]
+Description=filebrowser
+StopWhenUnneeded=true
+CollectMode=inactive-or-failed
+
+[Container]
+Image=filebrowser/filebrowser
+PublishPort=127.0.0.2:8050:8050
+Volume=%E/filebrowser/files.db:/database.db
+Volume=%h:/srv
+UserNS=keep-id
+User=%U
+Group=%G
+Environment=FB_PORT=8050
+Environment=FB_ADDRESS=localhost

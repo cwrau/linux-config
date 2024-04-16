@@ -3,9 +3,8 @@ Description=mariadb
 StopWhenUnneeded=true
 
 [Container]
-Notify=true
+#Notify=true
 Image=mariadb
-PublishPort=127.0.0.1:3307:3306
+PublishPort=127.0.0.2:3306:3306
 Environment=MARIADB_ROOT_PASSWORD=toor
 Tmpfs=/var/lib/mysql
-#ExecStart=/usr/bin/podman run --log-driver journald --sdnotify container --cgroups no-conmon --detach --publish 3307:3306 --log-driver=journald --name %N --tmpfs /var/lib/mysql -e MARIADB_ROOT_PASSWORD=toor mariadb

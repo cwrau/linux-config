@@ -1,6 +1,6 @@
 [Unit]
 Description=KDE Connect Daemon
-Requires=pipewire.service
+Wants=pipewire.service
 After=pipewire.service
 
 [Service]

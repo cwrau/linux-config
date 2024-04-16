@@ -2,7 +2,7 @@
 Description=Work applications
 Requires=work.target
 After=graphical-session.target
-Wants=work.target rocketchat.service google-chrome@work.service telefondienst.timer stop-telefondienst.timer daily.timer
+Wants=work.target rocketchat.service google-chrome@work.service google-chrome@work-todo.service telefondienst.timer stop-telefondienst.timer daily.timer
 
 [Install]
 WantedBy=graphical-session.target
