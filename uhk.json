@@ -1,6 +1,6 @@
 {
   "userConfigMajorVersion": 7,
-  "userConfigMinorVersion": 0,
+  "userConfigMinorVersion": 1,
   "userConfigPatchVersion": 0,
   "deviceName": "CWRKeyboard",
   "doubleTapSwitchLayerTimeout": 250,
@@ -92,6 +92,7 @@
       "caretAxisLock": true,
       "axisLockFirstTickSkew": 0.5,
       "axisLockSkew": 0.5,
+      "invertScrollDirectionX": false,
       "invertScrollDirectionY": false,
       "keyClusterSwapAxes": false,
       "keyClusterInvertHorizontalScrolling": false

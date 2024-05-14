@@ -3,7 +3,7 @@
 set -e
 set -o pipefail
 
-SCRIPT_DIR="$(dirname "$0")"
+SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 LIB_DIR="$SCRIPT_DIR/lib"
 STATE_FOLDER="$XDG_RUNTIME_DIR/player"
 mkdir -p "$STATE_FOLDER"
@@ -147,9 +147,14 @@ case "$1" in
     shift
     [[ -z "$unit" ]] && fail Need to provide the unit name
     initialize
-    while [[ ! "$(getUnitName "$PLAYER")" =~ $unit(.service)? ]]; do
+    maxTries=50
+    while [[ ! "$(getUnitName "$PLAYER")" =~ $unit(.service)? ]] && ((tries++ < maxTries)); do
       PLAYER=$(getNext)
     done
+    if ((tries >= maxTries)); then
+      fail "Could not find player with unit name matching $unit"
+    fi
+
     export PLAYER
     exec "$0" "$@"
     ;;

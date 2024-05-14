@@ -41,7 +41,8 @@ function getToolForFileType() {
   local filetype
   local newName
   case "$filetype" in
-    application/yaml | application/*-yaml | application/json | application/*-json)
+    application/yaml | application/*-yaml | application/*+yaml) ;&
+    application/json | application/*-json | application/*+json)
       tool=yq
       ;;
     application/toml)

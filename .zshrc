@@ -72,7 +72,7 @@ export SECRETS_EXTENSION=".gpg"
 export SYSTEMD_PAGERSECURE=false
 export VISUAL="$EDITOR"
 
-if ( [[ ! -v XDG_SESSION_TYPE ]] || [[ "$XDG_SESSION_TYPE" == "tty" ]] ) && [[ $- = *i* ]] && [[ "$XDG_VTNR" == 1 ]]; then
+if ( [[ ! -v XDG_SESSION_TYPE ]] || [[ "$XDG_SESSION_TYPE" == "tty" ]] ) && [[ -o interactive ]] && [[ "$XDG_VTNR" == 1 ]]; then
   if false; then
     export XDG_CURRENT_DESKTOP=sway
     export GBM_BACKEND=nvidia-drm
@@ -239,6 +239,7 @@ export ZSH_COMPDUMP="${ZSH_CACHE_DIR}/.zcompdump-${ZSH_VERSION}"
 
 source $ZSH/oh-my-zsh.sh
 
+ZSH_HIGHLIGHT_STYLES[comment]=fg=#7a7a7a
 autoload -Uz compinit && compinit -d "$ZSH_COMPDUMP"
 autoload -U bashcompinit && bashcompinit -d "$ZSH_COMPDUMP"
 
@@ -340,7 +341,7 @@ function idea() {
 
 function diff() {
   if [ -t 1 ]; then
-    command diff "${@}" --color=always -u | diff-so-fancy | command less --tabs=1,5 -RF
+    semantic-diff "$@"
   else
     command diff -u "${@}"
   fi
@@ -826,9 +827,38 @@ function kkk() {
   kk bash -c 'ln -fs "$KUBECONFIG" "$XDG_CONFIG_HOME/kube/config" && exec zsh'
 }
 
+function getHelm() {
+  local repo
+  local chart
+  local version
+  local chartname
+  case "${#@}" in
+    1)
+      chart="$1"
+    ;;
+    2)
+      if [[ "$1" == "oci://"* ]]; then
+        chart="$1"
+        version="$2"
+      else
+        repo="$1"
+        chart="$2"
+      fi
+    ;;
+    3)
+      repo="$1"
+      chart="$2"
+      version="$3"
+    ;;
+  esac
+  chartname="${chart##*/}"
+
+  helm pull --untar --untardir "${chartname}${version+-$version}" ${repo+--repo=$repo} "${chart}" ${version+--version=$version}
+}
+
 function kk() {
   for cluster in $(gopass list --flat G 'kube-?config' G mgmt); do
-    KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$cluster k get cluster -A -o json J '.items[] | "'"$cluster"':\(.metadata.namespace):\(.metadata.name):\(.metadata.labels["t8s.teuto.net/customer-name"] // .metadata.labels["t8s.teuto.net/customer-id"]):\(.metadata.labels["t8s.teuto.net/cluster"] // .metadata.name)"'
+    KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$cluster k get cluster -A -o json J '.items[] | "'"$cluster"':\(.metadata.namespace):\(.metadata.name):\(.metadata.annotations["t8s.teuto.net/customer-name"] // "" | try @base64d // .metadata.labels["t8s.teuto.net/customer-id"]):\((.metadata.annotations["t8s.teuto.net/cluster"] // "" | try @base64d) as $name | if $name == "" then .metadata.name else $name end)"'
   done | fzf +s -d : --with-nth=4,5 | IFS=: read -r mgmt namespace name _
   [[ "$?" == 0 ]] || return "$?"
   KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$mgmt" capo-shell "$namespace" "$name" "${@}"
@@ -895,6 +925,4 @@ if ! (( ${+commands[kustomize]} )); then
     kubectl kustomize "${@}"
   }
 fi
-
-source /usr/share/bash-completion/completions/aws
 

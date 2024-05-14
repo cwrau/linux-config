@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail
+set -e
 
-PID=${1?You need to provide the PID}
-
-exec ps -h -o uunit "$PID"
+exec ps -h -o uunit "${1?You need to provide the PID}"

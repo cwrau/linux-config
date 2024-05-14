@@ -1,0 +1,5 @@
+#!/user/bin/env bash
+
+if ! [[ -v DISPLAY ]]; then
+  exec /usr/bin/pinentry-curses "$@"
+fi

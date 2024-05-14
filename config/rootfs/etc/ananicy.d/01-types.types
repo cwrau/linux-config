@@ -1,1 +1,2 @@
 {"type":"compiler", "nice":19, "sched":"batch", "ioclass":"idle"}
+{"type":"audio-server", "sched":"fifo", "ioclass":"realtime", "ionice":4, "nice":-20, "rtprio":50}

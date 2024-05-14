@@ -63,7 +63,7 @@ function update() {
   if [[ "$state" == RUNNING ]]; then
     flock -x "$XDG_RUNTIME_DIR/polybar/microphone-lock" bash -c "date +%s > '$XDG_RUNTIME_DIR/polybar/microphone'"
   else
-    if ((($(date +%s) - $(cat "$XDG_RUNTIME_DIR/polybar/microphone")) > 10)); then
+    if [[ ! -s "$XDG_RUNTIME_DIR/polybar/microphone" ]] || ((($(date +%s) - $(cat "$XDG_RUNTIME_DIR/polybar/microphone")) > 10)); then
       pactl set-source-mute @DEFAULT_SOURCE@ true
       flock -x "$XDG_RUNTIME_DIR/polybar/microphone-lock" bash -c "echo 0 > '$XDG_RUNTIME_DIR/polybar/microphone'"
     else

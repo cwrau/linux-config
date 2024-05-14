@@ -11,6 +11,7 @@ ExecStart=/usr/bin/google-chrome-stable --user-data-dir=%E/google-chrome-%i --cl
 RestartSec=0
 Restart=always
 TimeoutStopSec=5
+Nice=-5
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=true

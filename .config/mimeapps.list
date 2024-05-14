@@ -40,6 +40,7 @@ image/heic=feh.desktop
 inode/directory=org.gnome.Terminal.desktop
 application/zip=xarchiver.desktop
 x-scheme-handler/ror2mm=r2modman.desktop
+application/x-shellscript=nvim.desktop
 
 [Added Associations]
 x-scheme-handler/http=exo-web-browser.desktop;

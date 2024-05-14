@@ -56,3 +56,4 @@
 .ssh/known_hosts
 .ssh/known_hosts.old
 .ssh/work.config
+.config/systemd/user/work-trigger.service.d/override.conf

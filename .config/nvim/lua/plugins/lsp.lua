@@ -16,12 +16,15 @@ local plugins = {
             end
             config.settings.yaml.keyOrdering = false
           end,
-          on_attach = function()
-            require("utils.yaml-schema-select").setup()
-          end,
         },
       },
     },
+  },
+  {
+    dir = vim.fn.stdpath("config") .. "/lua/utils/yaml-schema-detect.nvim",
+    dependencies = { "neovim/nvim-lspconfig", "which-key.nvim" },
+    config = true,
+    ft = { "yaml" },
   },
 }
 

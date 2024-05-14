@@ -1,4 +1,18 @@
 plugins:
+  debug:
+    shortCut: j
+    confirm: false
+    description: Debug with alpine container
+    scopes:
+      - pods
+    background: false
+    command: kubectl
+    args:
+      - debug
+      - -it
+      - --namespace=$NAMESPACE
+      - $NAME
+      - --image=alpine
   node-shell:
     shortCut: s
     confirm: false

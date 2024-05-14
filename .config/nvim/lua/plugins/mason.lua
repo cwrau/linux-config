@@ -33,6 +33,17 @@ local plugins = {
       "stevearc/conform.nvim",
     },
   },
+  ---{
+  ---  "RubixDev/mason-update-all",
+  ---  dependencies = {
+  ---    "williamboman/mason.nvim",
+  ---  },
+  ---  lazy = false,
+  ---  priority = 400,
+  ---  init = function()
+  ---    require("mason-update-all").update_all()
+  ---  end,
+  ---},
 }
 
 return plugins

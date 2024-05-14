@@ -16,7 +16,6 @@ sha512sums=('SKIP')
 depends=(
     advcpmv
     alvr
-    ananicy-cpp
     minq-ananicy-git
     ansible
     aria2
@@ -45,7 +44,7 @@ depends=(
     chromium-bypass-paywalls-git
     clipmenu
     cloudflared
-    clusterctl-bin
+    clusterctl
     cocogitto
     curl
     diff-so-fancy
@@ -56,7 +55,7 @@ depends=(
     dnsmasq
     dolphin-emu
     dunst
-    dyff-bin
+    dyff
     earlyoom
     easyeffects
     edk2-ovmf
@@ -64,7 +63,7 @@ depends=(
     exo
     fd
     feh
-    flux-bin
+    fluxcd
     fprintd
     freerdp
     freetype2
@@ -86,14 +85,13 @@ depends=(
     gnu-netcat
     gnupg
     go
-    gomplate-bin
+    gomplate
     google-chrome
     gopass
     gopass-fuse
     gradle
     gum
     gvfs
-    hadolint-bin
     helm
     helm-diff
     helm-docs
@@ -112,21 +110,19 @@ depends=(
     ipmikvm
     jdk-openjdk
     jq
-    k9s-sbanka-bin
+    k9s
     kdeconnect
     kernel-modules-hook
     kitty
     ksops-bin
     kube-bench-bin
-    kube-score-bin
+    kube-score
     kubectl
     kubectl-konfig
     kubectl-neat-diff
     kubectl-node-shell
-    kubectl-rakkess-bin
-    kubefwd-bin
-    kubeval-bin
-    lab-bin
+    kubectl-rakkess
+    kubeval
     less
     lib32-nvidia-utils
     libgnome-keyring
@@ -173,7 +169,7 @@ depends=(
     openssh
     pacman-contrib
     papirus-icon-theme
-    paru-bin
+    paru
     paruz
     pavucontrol
     perl-anyevent-i3
@@ -189,7 +185,7 @@ depends=(
     polybar-scripts-git
     powertop
     prettyping
-    prismlauncher-qt5-bin
+    prismlauncher-qt5
     procs
     proton-ge-custom-bin
     pv
@@ -206,7 +202,7 @@ depends=(
     reflector
     remmina
     ripgrep
-    rocketchat-client-bin
+    rocketchat-desktop
     rofi-dmenu
     rofi-lbonn-wayland
     rofi-randr
@@ -235,6 +231,7 @@ depends=(
     ttf-font-awesome
     ttf-iosevka-nerd
     ttf-liberation
+    ttyplot
     udiskie-dmenu-git
     uhk-agent-appimage
     unzip

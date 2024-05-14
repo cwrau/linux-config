@@ -56,7 +56,7 @@ local function file_exists(path)
   end
 end
 
-function M.setup()
+function M.refreshSchema()
   local fileName = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
   if fileName:find("values.yaml$") then
     local schemaPath
@@ -74,13 +74,13 @@ function M.setup()
 
   local yaml = table.concat(vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), 0, -1, false), "\n")
   ---@type string|nil
-  local schemaOverride = yaml:match("\n?# yaml%-language%-server: $schema=(.-)\n")
+  local schemaOverride = yaml:match("\n?# yaml%-language%-server: $schema=(.-)%s")
   if schemaOverride then
     vim.notify("Using schema override")
     change_settings(schemaOverride)
   else
     ---@type string|nil
-    local apiVersion = yaml:match("\n?apiVersion: (.-)\n")
+    local apiVersion = yaml:match("\n?apiVersion: (.-)%s")
     if apiVersion then
       ---@type string
       local apiGroup
@@ -92,7 +92,7 @@ function M.setup()
         apiVersion = nil
       end
       ---@type string|nil
-      local kind = yaml:match("\n?kind: (.-)\n")
+      local kind = yaml:match("\n?kind: (.-)%s") or yaml:match("\n?kind: (.-)$")
       if kind then
         local crdSelectors = {
           [[ .spec.names.singular == "]] .. kind:lower() .. [[" ]],
@@ -120,7 +120,7 @@ function M.setup()
               "-o",
               "pipefail",
               "-c",
-              [[timeout 3 kubectl get crd -A -o json | jq -e '.items[] | select( ]] .. table.concat(
+              [[timeout 10 kubectl get crd -A -o json | jq -e '.items[] | select( ]] .. table.concat(
                 crdSelectors,
                 " and "
               ) .. [[) | ]] .. versionFilter .. [[ | .schema.openAPIV3Schema' > ]] .. schemaFile,
@@ -149,6 +149,22 @@ function M.setup()
       end
     end
   end
+end
+
+function M.setup()
+  require("lspconfig").yamlls.setup({
+    on_attach = function()
+      M.refreshSchema()
+    end,
+  })
+  require("which-key").register({
+    x = {
+      r = {
+        M.refreshSchema,
+        "Refresh YAML schema",
+      },
+    },
+  }, { prefix = "<leader>" })
 end
 
 return M

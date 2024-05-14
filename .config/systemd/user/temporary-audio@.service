@@ -4,9 +4,9 @@ StopWhenUnneeded=true
 
 [Service]
 Type=oneshot
-ExecStart=-/usr/local/bin/pctl -s youtube-music-player.service volume %i
+ExecStart=-/usr/local/bin/pctl -s google-chrome@ytm.service volume %i
 RemainAfterExit=true
-ExecStop=/usr/local/bin/pctl -s youtube-music-player.service volume 100
+ExecStop=/usr/local/bin/pctl -s google-chrome@ytm.service volume 100
 RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...

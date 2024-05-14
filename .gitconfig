@@ -53,7 +53,7 @@
   conflictstyle = diff3
 [diff]
   colorMoved = default
-  external = "semantic-diff"
+  external = semantic-diff
 [color]
   ui = true
 [color "diff-highlight"]

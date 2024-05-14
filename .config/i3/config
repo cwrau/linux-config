@@ -143,6 +143,7 @@ default_border pixel 1
 for_window [class=".*"] border pixel 1
 hide_edge_borders both
 for_window [class="steam_app.*"] floating enable
+for_window [instance="steamwebhelper" title="^(?!Friends List)(?!Steam).*"] floating enable
 for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
 for_window [class="Gnome-network-displays"] floating enable
 for_window [title="ALVR dashboard"] floating enable
@@ -157,11 +158,11 @@ for_window [class="jetbrains-.*" title="Get from Version Control"] floating enab
 
 $exaid $XDG_CONFIG_HOME/i3/rc.sh
 
-set $Power " [S]leep, [p]oweroff, [l]ogoff or [r]eboot?"
+set $Power "Power menu"
 bindsym $super+q mode $Power
 
 mode $Power {
-    bindsym s exec systemctl suspend; mode "default"
+    bindsym s exec xset dpms force standby; mode "default"
     bindsym p exec systemctl poweroff
     bindsym r exec systemctl reboot
     bindsym Escape mode "default"
@@ -209,7 +210,7 @@ bindsym $super+Ctrl+o $exid audio_profile
 bindsym $super+o $exid audio_sink
 
 # Display Manager
-bindsym $super+Shift+p $exid rofi-randr
+bindsym $super+Shift+p $exid bash -c 'hash=$(xrandr --query | md5sum) && rofi-randr && [[ "$(xrandr --query | md5sum)" != "$hash" ]] && (sleep 1 && bash $XDG_CONFIG_HOME/autorandr/postswitch)'
 bindsym $super+Ctrl+p $exid autorandr_dmenu
 bindsym Shift+XF86Display $exid rofi-randr
 bindsym XF86Display $exid autorandr_dmenu
@@ -307,6 +308,8 @@ for_window [class="Google-chrome" title="^Netflix$"] move to workspace 17:Netfli
 bindsym $super+$alt+8 workspace 18:YMP
 assign [class="YouTube Music Desktop App"] 18:YMP
 for_window [class="YouTube Music Desktop App"] move to workspace 18:YMP
+assign [class="ytm"] 18:YMP
+for_window [class="ytm"] move to workspace 18:YMP
 
 bindsym $super+$alt+9 workspace 19:RocketChat
 assign [class="Rocket.Chat"] 19:RocketChat

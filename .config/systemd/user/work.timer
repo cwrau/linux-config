@@ -1,0 +1,8 @@
+[Unit]
+Description=Start Work
+
+[Timer]
+OnCalendar=Mon..Wed,Fri, 09:25
+OnCalendar=Thu, 09:00
+Persistent=true
+Unit=work-trigger.service
