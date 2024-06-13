@@ -48,6 +48,7 @@ function getToolForFileType() {
     application/toml)
       tool=tomlq
       ;;
+    application/xml | application/*-xml | application/*+xml) ;&
     text/xml | text/*-xml)
       tool=xq
       ;;
@@ -81,6 +82,18 @@ function getToolForFileType() {
   fi
 }
 
+function getDiffWithDyff() {
+  local origPath="$1"
+  local newPath="$2"
+  dyff --color on between --omit-header "$origPath" "$newPath"
+}
+
+function getDiffWith_xq() {
+  local origPath="$1"
+  local newPath="$2"
+  getDiffWithDyff <(xq . "$origPath" | yq -y) <(xq . "$newPath" | yq -y)
+}
+
 function _semantic_diff() {
   local diff
   local origFilename
@@ -110,10 +123,12 @@ function _semantic_diff() {
     fi
   done
 
-  tool=$(getToolForFileType "$filetype" "$origPath" "$newPath")
-
-  if [[ -v tool ]] && { "$tool" -e . "$origPath" && "$tool" -e . "$newPath"; } &>/dev/null && sameNumberOfDocuments "$origPath" "$newPath" "$tool"; then
-    diff=$(dyff --color on between --omit-header "$origPath" "$newPath")
+  if [[ -v filetype ]] && tool=$(getToolForFileType "$filetype" "$origPath" "$newPath") && [[ -v tool ]] && { "$tool" -e . "$origPath" && "$tool" -e . "$newPath"; } &>/dev/null && sameNumberOfDocuments "$origPath" "$newPath" "$tool"; then
+    if declare -F "getDiffWith_$tool" >/dev/null; then
+      diff=$("getDiffWith_$tool" "$origPath" "$newPath")
+    else
+      diff=$(getDiffWithDyff "$origPath" "$newPath")
+    fi
     echo "$unifiedDiff" | (diff-so-fancy || true) | head -3
     echo "$diff"
   else

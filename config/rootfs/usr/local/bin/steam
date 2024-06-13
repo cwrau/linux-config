@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+if [[ "${#@}" -gt 0 ]]; then
+  systemd-run --user --collect --property=Wants=steam.service --slice=steam.slice "--unit=steam-$(cat /proc/sys/kernel/random/uuid)" -- /usr/bin/steam "${@}"
+fi

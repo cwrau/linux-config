@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+systemd-run --user --same-dir --property=Wants=gamemode.service --property=Delegate=true --service-type=forking --collect --slice=bottles.slice "--unit=bottles-$(cat /proc/sys/kernel/random/uuid)" -- /usr/bin/bottles-cli "${@}"

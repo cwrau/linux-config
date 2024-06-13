@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+if [[ "${#@}" -gt 0 ]]; then
+  systemd-run --user --same-dir --property=Wants=bottles.service --property=Delegate=true --collect --slice=bottles.slice "--unit=bottles-$(cat /proc/sys/kernel/random/uuid)" -- /usr/bin/bottles "${@}"
+fi

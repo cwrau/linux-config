@@ -5,12 +5,10 @@ set -x
 lockscreenPicture=("-i" "$XDG_CONFIG_HOME/lock.png")
 
 function unlock() {
-  pkill -x "$@" i3lock
-  dunstctl set-paused "$notificationState"
+  pkill --exact "$@" i3lock
 }
 
 function lock() {
-  dunstctl set-paused true
   if systemctl --user is-active i3-session.target --quiet; then
     i3lock -c 000000 -C "${lockscreenPicture[@]}" \
       --pass-media-keys \
@@ -29,7 +27,6 @@ function lock() {
   fi
 }
 
-notificationState=$(dunstctl is-paused)
 trap unlock TERM INT EXIT
 
 if [[ -n "${XSS_SLEEP_LOCK_FD}" ]]; then
@@ -40,6 +37,6 @@ else
   lock
 fi
 
-tail --pid=$(pgrep --newest --exact i3lock) -f /dev/null &
+systemd-run --user --property=Requires=pause-notifications.service --scope --unit=lock -- tail --pid=$(pgrep --newest --exact i3lock) -f /dev/null &
 
 wait $!

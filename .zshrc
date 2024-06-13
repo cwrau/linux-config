@@ -63,6 +63,7 @@ export GRADLE_OPTS=-Dorg.gradle.jvmargs=-Xmx1G
 export HELM_DIFF_OUTPUT="dyff"
 export HELM_PLUGINS="/usr/lib/helm/plugins"
 export HISTSIZE=9223372036854775807
+export HWATCH="--differences word"
 export KUBECTL_NODE_SHELL_POD_CPU=0
 export KUBECTL_NODE_SHELL_POD_MEMORY=0
 export PAGER=less
@@ -342,6 +343,7 @@ function idea() {
 function diff() {
   if [ -t 1 ]; then
     semantic-diff "$@"
+    #command diff "${@}" --color=always -u | diff-so-fancy | command less --tabs=1,5 -RF
   else
     command diff -u "${@}"
   fi
@@ -702,7 +704,7 @@ reAlias cp -i
 reAlias mv -i
 #reAlias ls --almost-all --indicator-style=slash --human-readable --sort=version --escape --format=long --color=always --time-style=long-iso
 #nAlias ls exa --all --binary --group --classify --sort=filename --long --colour=always --time-style=long-iso --git
-nAlias ls lsd --almost-all --git --color=always --long --date=+'%Y-%m-%dT%H:%M:%S'
+nAlias ls lsd --almost-all --git --color=always --long --date=+'%Y-%m-%dT%H:%M:%S' -I .git
 if [[ "$(id -u)" != 0 ]] && (( ${+commands[sudo]} )); then
   for cmd in systemctl ip; do
     nAlias $cmd sudo $cmd
@@ -752,6 +754,7 @@ reAlias history -i 100
 nAlias watch hwatch ' '
 nAlias task go-task
 unalias diff
+nAlias openstack CLIFF_MAX_TERM_WIDTH=999 openstack
 
 alias -g A='| awk'
 alias -g B='| base64'
@@ -764,6 +767,7 @@ alias -g GZ='| gzip'
 alias -g GZD='GZ -d'
 alias -g J='| jq'
 alias -g L='| less --raw-control-chars'
+alias -g NL='| /bin/cat'
 alias -g LO='| lnav'
 alias -g S='| sed'
 alias -g SP='| sponge'
@@ -859,7 +863,7 @@ function getHelm() {
 function kk() {
   for cluster in $(gopass list --flat G 'kube-?config' G mgmt); do
     KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$cluster k get cluster -A -o json J '.items[] | "'"$cluster"':\(.metadata.namespace):\(.metadata.name):\(.metadata.annotations["t8s.teuto.net/customer-name"] // "" | try @base64d // .metadata.labels["t8s.teuto.net/customer-id"]):\((.metadata.annotations["t8s.teuto.net/cluster"] // "" | try @base64d) as $name | if $name == "" then .metadata.name else $name end)"'
-  done | fzf +s -d : --with-nth=4,5 | IFS=: read -r mgmt namespace name _
+  done | fzf --track --preview="awk -v name={} 'BEGIN{split(name,splitted,\":\"); cols=split(splitted[1], splitted, \"/\"); print splitted[cols-1]}'" +s -d : --with-nth=4,5 | IFS=: read -r mgmt namespace name _
   [[ "$?" == 0 ]] || return "$?"
   KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$mgmt" capo-shell "$namespace" "$name" "${@}"
 }
