@@ -167,14 +167,32 @@ foreground = "#B7472A"
 background = "#191311B0"
 #background = "#2B313C"
 timeout = 8
+override_pause_level = 100
 
 [updates]
 stack_tag = updates
 history_ignore = true
+override_pause_level = 100
+
+[microphone]
+stack_tag = microphone
+history_ignore = true
+override_pause_level = 100
+
+[bluetooth]
+appname = blueman
+history_ignore = true
+override_pause_level = 100
+
+[brightness]
+stack_tag = brightness
+history_ignore = true
+override_pause_level = 100
 
 [player]
 stack_tag = player
 history_ignore = true
+override_pause_level = 100
 
 [zentrale]
 summary = "Eingehender Anruf"

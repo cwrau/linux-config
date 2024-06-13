@@ -1,9 +1,12 @@
+---@module "lazy"
 ---@type LazyPlugin[]
 local plugins = {
   {
     "neovim/nvim-lspconfig",
+    ---@module "lazyvim"
     ---@type PluginLspOpts
     opts = {
+      ---@module "lspconfig.configs"
       ---@type lspconfig.options
       servers = {
         yamlls = {
@@ -21,9 +24,10 @@ local plugins = {
     },
   },
   {
-    dir = vim.fn.stdpath("config") .. "/lua/utils/yaml-schema-detect.nvim",
-    dependencies = { "neovim/nvim-lspconfig", "which-key.nvim" },
+    "cwrau/yaml-schema-detect.nvim",
+    dev = true,
     config = true,
+    dependencies = { "neovim/nvim-lspconfig", "which-key.nvim" },
     ft = { "yaml" },
   },
 }

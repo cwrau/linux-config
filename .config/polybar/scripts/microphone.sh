@@ -5,7 +5,7 @@ SYMBOL_MIC_MUTED=""
 source "$XDG_CONFIG_HOME/polybar/scripts/parse_colors.sh"
 
 function notify() {
-  notify-send.sh -t 500 --replace-file=$XDG_RUNTIME_DIR/polybar/microphone-notification "${@}"
+  dunstify -h string:x-dunst-stack-tag:microphone -t 500 "$@"
 }
 
 function update() {

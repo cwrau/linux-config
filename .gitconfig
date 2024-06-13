@@ -10,14 +10,12 @@
   path = .gitconfig-work
 [includeIf "gitdir:~/.local/share/gopass/"]
   path = .gitconfig-work
-[gui]
-[credential]
 [checkout]
   defaultRemote = origin
 [advice]
   skippedCherryPicks = false
 [global]
- program = gpg2
+  program = gpg2
 [commit]
   gpgsign = true
 [filter "lfs"]

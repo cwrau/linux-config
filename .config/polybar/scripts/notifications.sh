@@ -5,12 +5,12 @@ set -e -o pipefail
 source "$XDG_CONFIG_HOME/polybar/scripts/parse_colors.sh"
 
 function update() {
+  # shellcheck disable=SC2154
+  echo -n "%{F$color_green}"
   if dunstctl is-paused | grep -q false; then
-    # shellcheck disable=SC2154
-    echo "%{F$color_green}%{F-}"
+    echo "%{F-}"
   else
-    # shellcheck disable=SC2154
-    echo "%{F$color_green}%{F-}"
+    echo "%{F-}"
   fi
 }
 

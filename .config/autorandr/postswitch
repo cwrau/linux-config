@@ -15,3 +15,6 @@ services=(feh.service polybar.slice glava.target easyeffects.service)
 
 systemctl --user reset-failed "${services[@]}"
 systemctl --user try-reload-or-restart "${services[@]}"
+
+pactl set-sink-volume @DEFAULT_SINK@ -1%
+pactl set-sink-volume @DEFAULT_SINK@ +1%

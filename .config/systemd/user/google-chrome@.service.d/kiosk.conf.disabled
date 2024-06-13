@@ -1,0 +1,3 @@
+[Service]
+ExecStartPre=/usr/bin/sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' '%E/google-chrome-%i/Local State' '%E/google-chrome-%i/Default/Preferences'
+ExecStartPre=/usr/bin/sed -ri 's/"exit_type":"[^"]+"/"exit_type":"Normal"/' '%E/google-chrome-%i/Default/Preferences'

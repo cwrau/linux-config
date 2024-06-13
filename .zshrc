@@ -7,7 +7,7 @@ export XDG_DOWNLOAD_DIR="$HOME/Downloads"
 export XDG_MUSIC_DIR="$HOME/Downloads"
 export XDG_PICTURES_DIR="$HOME/Downloads"
 export XDG_PUBLICSHARE_DIR="$HOME/Downloads"
-export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export XDG_RUNTIME_DIR="/run/user/${UID:-$(id -u)}"
 export XDG_SCREENSHOT_DIR="$HOME/Screenshots"
 export XDG_TEMPLATES_DIR="$HOME/Downloads"
 export XDG_VIDEOS_DIR="$HOME/Downloads"
@@ -686,6 +686,134 @@ function releaseAur() {
   )
 }
 
+function kkkk() {
+  local config
+  local openRc
+  local unitName
+  local query
+  local exitCode
+
+  if ! command systemctl --user is-active -q gopass-fuse.service; then
+    command systemctl --user start --no-block gopass-fuse
+  fi
+
+  if [[ ! -v 1 ]]; then
+    query=""
+  elif [[ -f "$XDG_RUNTIME_DIR/gopass/$1" ]]; then
+    config="$1"
+  else
+    query="$1"
+  fi
+  if [[ -z "$config" ]]; then
+    config="$(gopass ls -flat | grep --pcre2 -o '^.+(?=/kube-?config)' | fzf --query "$query" -1)"
+    exitCode="$?"
+    if [[ "$exitCode" != 0 ]]; then
+      return "$exitCode"
+    fi
+  fi
+
+  KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$config/kube-config"
+  if [[ ! -f "$KUBECONFIG" ]]; then
+    KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$config/kubeconfig"
+  fi
+
+  export KUBECONFIG
+  openRc="$XDG_RUNTIME_DIR/gopass/$config/open-rc"
+  if [[ -f "$openRc" ]]; then
+    unitName="$(md5sum "$openRc" | awk NF=1)"
+    if ! command systemctl --user is-active -q "$unitName"; then
+      systemd-run --user --collect -q --slice sshuttle --unit="$unitName" -- bash -c "source '$openRc'"
+    fi
+  fi
+
+  if [[ "$TEMPORARY" != true ]]; then
+    mkdir -p "$XDG_RUNTIME_DIR/kconfig"
+    echo "$config" > "$XDG_RUNTIME_DIR/kconfig/current_kubeconfig"
+    ln -fs "$KUBECONFIG" "$XDG_CONFIG_HOME/kube/config"
+  fi
+}
+
+function kkk() {
+  kk bash -c 'ln -fs "$KUBECONFIG" "$XDG_CONFIG_HOME/kube/config" && exec zsh'
+}
+
+function getHelm() {
+  local repo
+  local chart
+  local version
+  local chartname
+  case "${#@}" in
+    1)
+      chart="$1"
+    ;;
+    2)
+      if [[ "$1" == "oci://"* ]]; then
+        chart="$1"
+        version="$2"
+      else
+        repo="$1"
+        chart="$2"
+      fi
+    ;;
+    3)
+      repo="$1"
+      chart="$2"
+      version="$3"
+    ;;
+  esac
+  chartname="${chart##*/}"
+
+  helm pull --untar --untardir "${chartname}${version+-$version}" ${repo+--repo=$repo} "${chart}" ${version+--version=$version}
+}
+
+function kk() {
+  for cluster in $(gopass list --flat G 'kube-?config' G mgmt); do
+    KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$cluster kubectl get cluster -A -o json | jq -r '.items[] | "'"$cluster"':\(.metadata.namespace):\(.metadata.name):\(.metadata.annotations["t8s.teuto.net/customer-name"] // "" | try @base64d // .metadata.labels["t8s.teuto.net/customer-id"]):\((.metadata.annotations["t8s.teuto.net/cluster"] // "" | try @base64d) as $name | if $name == "" then .metadata.name else $name end)"'
+  done | fzf --track --preview="awk -v name={} 'BEGIN{split(name,splitted,\":\"); cols=split(splitted[1], splitted, \"/\"); print splitted[cols-1]}'" +s -d : --with-nth=4,5 | IFS=: read -r mgmt namespace name _
+  [[ "$?" == 0 ]] || return "$?"
+  KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$mgmt" capo-shell "$namespace" "$name" "${@}"
+}
+
+function kk9s() {
+  kk k9s "${@}"
+}
+
+if ! [[ -f "$KUBECONFIG" ]]; then
+  unset KUBECONFIG
+  if [[ -f "$XDG_RUNTIME_DIR/kconfig/current_kubeconfig" ]]; then
+    export KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$(gopass ls -flat | grep '^.+/kube-?config' | grep "^$(cat $XDG_RUNTIME_DIR/kconfig/current_kubeconfig)" | tail -1)"
+  else
+    rm -f "$XDG_RUNTIME_DIR/current_kubeconfig"
+  fi
+fi
+
+function k9s() {
+  if ! [[ -f "$KUBECONFIG" ]]; then
+    kk k9s "${@}"
+  else
+    command k9s "${@}"
+  fi
+}
+function _k9s() {
+  if [[ -f $KUBECONFIG ]]; then
+    _arguments "1:The name of the kubeconfig context to use:($(kubectl config get-contexts --no-headers -o name))"
+  else
+    _arguments "1:The path of the kubeconfig file to use:($(gopass ls -flat | /bin/grep -E 'kube.?config'))"
+    _arguments "2:The name of the kubeconfig context to use:->context"
+  fi
+
+  if [[ "$state" == "context" ]]; then
+    compadd $(kubectl --kubeconfig $XDG_RUNTIME_DIR/gopass/${words[2]} config get-contexts --no-headers -o name)
+  fi
+}
+compdef _k9s k9s
+
+function _lnav() {
+  #_alternative 'local:local files:_files' \
+    _arguments  '1:remote files:_remote_files -- ssh'
+}
+compdef _lnav lnav
+
 function reAlias() {
   nAlias $1 $1 ${@:2}
 }
@@ -779,134 +907,6 @@ alias -g UD='| urldecode'
 alias -g UR='U --unsafe-full-throttle'
 alias -g X='| xargs'
 alias -g Y='| yq'
-
-function kkkk() {
-  local config
-  local openRc
-  local unitName
-  local query
-  local exitCode
-
-  if ! command systemctl --user is-active -q gopass-fuse.service; then
-    command systemctl --user start --no-block gopass-fuse
-  fi
-
-  if [[ ! -v 1 ]]; then
-    query=""
-  elif [[ -f "$XDG_RUNTIME_DIR/gopass/$1" ]]; then
-    config="$1"
-  else
-    query="$1"
-  fi
-  if [[ -z "$config" ]]; then
-    config="$(gopass ls -flat | grep --pcre2 -o '^.+(?=/kube-?config)' | fzf --query "$query" -1)"
-    exitCode="$?"
-    if [[ "$exitCode" != 0 ]]; then
-      return "$exitCode"
-    fi
-  fi
-
-  KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$config/kube-config"
-  if [[ ! -f "$KUBECONFIG" ]]; then
-    KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$config/kubeconfig"
-  fi
-
-  export KUBECONFIG
-  openRc="$XDG_RUNTIME_DIR/gopass/$config/open-rc"
-  if [[ -f "$openRc" ]]; then
-    unitName="$(md5sum "$openRc" | awk NF=1)"
-    if ! command systemctl --user is-active -q "$unitName"; then
-      systemd-run --user --collect -q --slice sshuttle --unit="$unitName" -- bash -c "source '$openRc'"
-    fi
-  fi
-
-  if [[ "$TEMPORARY" != true ]]; then
-    mkdir -p "$XDG_RUNTIME_DIR/kconfig"
-    echo "$config" > "$XDG_RUNTIME_DIR/kconfig/current_kubeconfig"
-    ln -fs "$KUBECONFIG" "$XDG_CONFIG_HOME/kube/config"
-  fi
-}
-
-function kkk() {
-  kk bash -c 'ln -fs "$KUBECONFIG" "$XDG_CONFIG_HOME/kube/config" && exec zsh'
-}
-
-function getHelm() {
-  local repo
-  local chart
-  local version
-  local chartname
-  case "${#@}" in
-    1)
-      chart="$1"
-    ;;
-    2)
-      if [[ "$1" == "oci://"* ]]; then
-        chart="$1"
-        version="$2"
-      else
-        repo="$1"
-        chart="$2"
-      fi
-    ;;
-    3)
-      repo="$1"
-      chart="$2"
-      version="$3"
-    ;;
-  esac
-  chartname="${chart##*/}"
-
-  helm pull --untar --untardir "${chartname}${version+-$version}" ${repo+--repo=$repo} "${chart}" ${version+--version=$version}
-}
-
-function kk() {
-  for cluster in $(gopass list --flat G 'kube-?config' G mgmt); do
-    KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$cluster k get cluster -A -o json J '.items[] | "'"$cluster"':\(.metadata.namespace):\(.metadata.name):\(.metadata.annotations["t8s.teuto.net/customer-name"] // "" | try @base64d // .metadata.labels["t8s.teuto.net/customer-id"]):\((.metadata.annotations["t8s.teuto.net/cluster"] // "" | try @base64d) as $name | if $name == "" then .metadata.name else $name end)"'
-  done | fzf --track --preview="awk -v name={} 'BEGIN{split(name,splitted,\":\"); cols=split(splitted[1], splitted, \"/\"); print splitted[cols-1]}'" +s -d : --with-nth=4,5 | IFS=: read -r mgmt namespace name _
-  [[ "$?" == 0 ]] || return "$?"
-  KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$mgmt" capo-shell "$namespace" "$name" "${@}"
-}
-
-function kk9s() {
-  kk k9s "${@}"
-}
-
-if ! [[ -f "$KUBECONFIG" ]]; then
-  unset KUBECONFIG
-  if [[ -f "$XDG_RUNTIME_DIR/kconfig/current_kubeconfig" ]]; then
-    export KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$(gopass ls -flat | grep '^.+/kube-?config' | grep "^$(cat $XDG_RUNTIME_DIR/kconfig/current_kubeconfig)" | tail -1)"
-  else
-    rm -f "$XDG_RUNTIME_DIR/current_kubeconfig"
-  fi
-fi
-
-function k9s() {
-  if ! [[ -f "$KUBECONFIG" ]]; then
-    kk k9s "${@}"
-  else
-    command k9s "${@}"
-  fi
-}
-function _k9s() {
-  if [[ -f $KUBECONFIG ]]; then
-    _arguments "1:The name of the kubeconfig context to use:($(kubectl config get-contexts --no-headers -o name))"
-  else
-    _arguments "1:The path of the kubeconfig file to use:($(gopass ls -flat | /bin/grep -E 'kube.?config'))"
-    _arguments "2:The name of the kubeconfig context to use:->context"
-  fi
-
-  if [[ "$state" == "context" ]]; then
-    compadd $(kubectl --kubeconfig $XDG_RUNTIME_DIR/gopass/${words[2]} config get-contexts --no-headers -o name)
-  fi
-}
-compdef _k9s k9s
-
-function _lnav() {
-  #_alternative 'local:local files:_files' \
-    _arguments  '1:remote files:_remote_files -- ssh'
-}
-compdef _lnav lnav
 
 #if command -v kubectl-neat-diff > /dev/null; then
 #  export KUBECTL_EXTERNAL_DIFF=kubectl-neat-diff

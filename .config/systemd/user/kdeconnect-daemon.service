@@ -5,7 +5,7 @@ After=pipewire.service
 
 [Service]
 Type=simple
-ExecStart=/usr/lib/kdeconnectd
+ExecStart=/usr/bin/kdeconnectd
 RestartSec=0
 Restart=always
 

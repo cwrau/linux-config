@@ -1,8 +1,8 @@
 [Unit]
 Description=Gaming Mode
-Wants=steam.service
 Wants=discord.service
 Wants=temporary-audio@25.service
+Wants=pause-notifications.service
 StopWhenUnneeded=true
 ConditionACPower=true
 

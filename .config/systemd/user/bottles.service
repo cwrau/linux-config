@@ -1,5 +1,6 @@
 [Unit]
-Description=Steam
+Description=Bottles
+Wants=gamemode.service
 After=graphical-session.target
 Requires=graphical-session.target
 ConditionACPower=true
@@ -7,9 +8,7 @@ ConditionACPower=true
 [Service]
 Type=simple
 ExecCondition=bash -eo pipefail -c 'lsmod | grep -q nvidia'
-ExecStartPre=-/usr/bin/bash -exc '/usr/bin/steam-tweaks; pkill -fx "python /usr/libexec/chimera/chimera-splash --pipe-file /tmp/chimera-splash-msg"'
-ExecStart=/usr/bin/steam-native
-ExecStopPost=/usr/bin/bash -exc 'shopt -u failglob; shopt -s nullglob; rm -vf "/dev/shm/u$U"* "/dev/shm/wine-"*'
+ExecStart=/usr/bin/bottles
 OOMScoreAdjust=-500
 TimeoutStopSec=5s
 MemoryMax=80%
@@ -18,7 +17,7 @@ RestartSec=0
 Restart=on-failure
 ManagedOOMPreference=avoid
 Nice=-2
-Slice=steam.slice
+Slice=bottles.slice
 
 [Install]
 WantedBy=graphical-session.target

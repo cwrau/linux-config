@@ -162,7 +162,7 @@ set $Power "Power menu"
 bindsym $super+q mode $Power
 
 mode $Power {
-    bindsym s exec xset dpms force standby; mode "default"
+    bindsym s exec loginctl lock-session; exec xset dpms force standby; mode "default"
     bindsym p exec systemctl poweroff
     bindsym r exec systemctl reboot
     bindsym Escape mode "default"

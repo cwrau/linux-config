@@ -4,6 +4,7 @@ prefer_unzip=true
 confirm_deletion=true
 sort_filename_content=false
 advanced_isearch=true
+auto_expand=true
 store_output=false
 icon_size=2
 show_archive_comment=false
