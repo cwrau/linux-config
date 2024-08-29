@@ -7,9 +7,9 @@
   email = cwrau@cwrau.info
   name = Chris Werner Rau
 [includeIf "gitdir:~/work/"]
-  path = .gitconfig-work
+  path = ./config-work
 [includeIf "gitdir:~/.local/share/gopass/"]
-  path = .gitconfig-work
+  path = ./config-work
 [checkout]
   defaultRemote = origin
 [advice]
@@ -49,9 +49,13 @@
   diffFilter = delta --color-only
 [merge]
   conflictstyle = diff3
+  autoStash = true
 [diff]
   colorMoved = default
   external = semantic-diff
+  #external = bash -x semantic-diff
+[diff "sopsdiff"]
+  textconv = sops decrypt
 [color]
   ui = true
 [color "diff-highlight"]

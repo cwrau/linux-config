@@ -1,19 +1,15 @@
 [Unit]
 Description=YouTube Music Player
-Wants=pipewire.service
+Wants=pipewire-pulse.service
 Requires=graphical-session.target
-After=graphical-session.target pipewire.service
+After=graphical-session.target pipewire-pulse.service
 ConditionACPower=true
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/youtube-music-desktop-app
-RestartSec=0
 Restart=always
 MemoryMax=1G
 Nice=-10
 ManagedOOMMemoryPressure=kill
 ManagedOOMMemoryPressureLimit=10%
-
-[Install]
-WantedBy=graphical-session.target

@@ -6,5 +6,6 @@ Type=oneshot
 ExecStart=systemctl --user start work.target
 ExecStart=autorandr --change
 ExecStart=loginctl unlock-session
-ExecCondition=bash -eo pipefail -c 'curl -m 10 -fsSLq -H "Authorization: Bearer $HA_TOKEN" https://homeassistant.cwrau.de/api/states/binary_sensor.workday | jq -e \'.state == "on"\' >/dev/null'
+EnvironmentFile=%E/credstore/homeassistant-token
+ExecCondition=bash -euo pipefail -c 'curl -m 10 -fsSLq -H "Authorization: Bearer $HA_TOKEN" https://homeassistant.cwrau.de/api/states/binary_sensor.workday | jq -e \'.state == "on"\' >/dev/null'
 ExecCondition=not systemctl --user is-active -q work.target

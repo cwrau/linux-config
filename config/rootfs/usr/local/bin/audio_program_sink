@@ -10,7 +10,7 @@ def audio_program_sink():
     if prog_input is None:
         return
 
-    sink: PulseSinkInfo = get_choice(sinks, "sink", lambda s: s.description,
+    sink: PulseSinkInfo = get_choice(sinks, f'sink for {program_description_getter(prog_input)}', lambda s: s.description,
                                      lambda s: s.index == prog_input.sink)
 
     if sink is None:

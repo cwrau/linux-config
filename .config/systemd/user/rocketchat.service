@@ -6,9 +6,10 @@ After=graphical-session.target dunst.service
 Wants=dunst.service
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/rocketchat-desktop
-RestartSec=0
+# this shit just always core-dumps on exit 🤷
+ExecStopPost=/usr/bin/systemctl --user reset-failed %n
 TimeoutStopSec=5s
 Restart=always
 

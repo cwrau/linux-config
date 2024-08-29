@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+systemctl --user start google-chrome@stuff.service
+
+/usr/bin/google-chrome-stable "$@"

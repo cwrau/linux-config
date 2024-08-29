@@ -1,17 +1,16 @@
 [Unit]
 Description=Discord
 PartOf=messengers.target
-Requires=graphical-session.target pipewire.service
+Requires=graphical-session.target pipewire-pulse.service
 Wants=dunst.service
-After=graphical-session.target pipewire.service dunst.service
+After=graphical-session.target pipewire-pulse.service dunst.service
 StopWhenUnneeded=true
 CollectMode=inactive-or-failed
 ConditionACPower=true
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/discord
-RestartSec=0
 Restart=always
 MemoryHigh=1.5G
 MemoryMax=2G

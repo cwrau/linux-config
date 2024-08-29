@@ -1,0 +1,10 @@
+[Unit]
+Description=Creates a timer to stop the work.target, if applicable
+Requisite=work.target
+After=work.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecCondition=not systemctl --user is-active -q work-stop-tmp.timer
+ExecStart=/usr/bin/bash -c 'systemd-run --user --collect --on-calendar=@$(date --date="$(systemctl --user show work.target --value --property ActiveEnterTimestamp) + 8hours" +%%s) --timer-property=PartOf=work.target --property=ExecCondition="systemctl --user is-active -q work.target" --unit=work-stop-tmp --property=Type=oneshot --property=ExecStart="systemctl --user stop work.target" -- notify-send.sh -u critical "Stop working! No overtime allowed!" -t 60000'

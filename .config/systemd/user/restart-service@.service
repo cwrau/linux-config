@@ -3,8 +3,6 @@ Description=Restart service %I
 
 [Service]
 Type=oneshot
+ExecCondition=bash -ec "/usr/bin/systemctl --user is-active -q '%i.target' || /usr/bin/systemctl --user is-active -q '%i.service'"
 ExecStart=-/usr/bin/systemctl --user reload-or-restart '%i.target'
 ExecStart=-/usr/bin/systemctl --user reload-or-restart '%i.service'
-
-[Install]
-WantedBy=graphical-session.target

@@ -8,6 +8,7 @@ Wants=glava.target
 Wants=graphical-session-pre.target
 Wants=picom.service
 Wants=polybar.target
+Wants=restart-service@dunst.path
 Wants=restart-service@picom.path
 Wants=restart-service@polybar.path
 Wants=xorg-settings.timer

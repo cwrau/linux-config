@@ -12,6 +12,3 @@ ExecStart=/usr/bin/wg-quick up %E/wireguard/%I.conf
 #ExecStart=/usr/bin/bash -ex -o pipefail -c "until ! timeout 30 ping -I %I -c 5 $(grep DNS %E/wireguard/%I.conf | awk '{print $3}' | tr -d ,); do sleep 10; done; exit 1"
 ExecStop=/usr/bin/wg-quick down %E/wireguard/%I.conf
 Restart=always
-
-[Install]
-WantedBy=graphical-session.target

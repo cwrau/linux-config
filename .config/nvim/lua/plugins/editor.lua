@@ -18,22 +18,20 @@ local plugins = {
     dev = true,
     dependencies = { "which-key.nvim" },
     config = true,
-    lazy = false,
   },
   {
     "deponian/nvim-base64",
     dependencies = { "which-key.nvim" },
     config = function()
       require("nvim-base64").setup()
-      require("which-key").register({
-        c = {
-          b = {
-            name = "Base64",
-            b = { "<Plug>(ToBase64)", "Encode to Base64" },
-            d = { "<Plug>(FromBase64)", "Decode Base64" },
-          },
+      require("which-key").add({
+        {
+          mode = { "x" },
+          { "<leader>cb", group = "Base64" },
+          { "<leader>cbb", "<Plug>(ToBase64)", desc = "Encode to Base64" },
+          { "<leader>cbd", "<Plug>(FromBase64)", desc = "Decode from Base64" },
         },
-      }, { prefix = "<leader>", mode = "x" })
+      })
     end,
   },
   {

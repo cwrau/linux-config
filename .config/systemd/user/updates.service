@@ -7,4 +7,3 @@ ConditionACPower=true
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/timeout -k 59m 58m /usr/local/bin/packageUpdates --unattended
-RestartSec=0

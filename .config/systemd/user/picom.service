@@ -4,10 +4,9 @@ Requires=i3-session.target
 ConditionACPower=true
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/picom
 ExecReload=/usr/bin/kill -s SIGUSR1 $MAINPID
-RestartSec=0
 Restart=always
 
 # disallow writing to /usr, /bin, /sbin, ...
@@ -17,7 +16,3 @@ NoNewPrivileges=true
 ProtectKernelTunables=true
 ProtectControlGroups=true
 RestrictNamespaces=true
-
-[Install]
-WantedBy=i3-session.target
-

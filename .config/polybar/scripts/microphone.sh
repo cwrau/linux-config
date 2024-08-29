@@ -19,7 +19,7 @@ function update() {
   local outputString
   source=$(pactl info | grep 'Default Source' | grep -i -v monitor | awk -F ': ' '{print $2}')
 
-  if [[ -z "$source" ]] || [[ "$source" == easyeffects_source ]]; then
+  if [[ -z "$source" || "$source" == easyeffects_source ]]; then
     color="$color_grey"
     symbol=" $SYMBOL_MIC_MUTED "
   else
@@ -79,6 +79,6 @@ function update() {
 [ -f "$XDG_RUNTIME_DIR/polybar/microphone" ] || (echo 0 >"$XDG_RUNTIME_DIR/polybar/microphone")
 
 update
-pactl subscribe | grep -E "'(change|remove|new)' on (source|sink-input)" --line-buffered | while read -r _; do
+pactl subscribe | grep --line-buffered -E "'(change|remove|new)' on (source|sink-input)" | while read -r _; do
   update
 done

@@ -5,7 +5,7 @@ type=${1:?Must provide type: bars/radial}
 set -exu
 
 function round() {
-  printf "%.0f" "$1"
+  /usr/bin/printf "%.0f" "$1"
 }
 
 function getHeight() {
@@ -33,5 +33,5 @@ while read -r monitor width height x y; do
   elif systemctl --user is-active --quiet "$unitName" 2>/dev/null; then
     systemctl --user stop "$unitName"
   fi
-  systemd-run --user --unit "$unitName" --collect --nice 19 --setenv TRAY --setenv MONITOR --slice "glava-$type.slice" -- glava -m "$type" -r "setgeometry $geometry"
+  systemd-run --user --unit "$unitName" --collect --nice 19 --slice "glava-$type.slice" -- glava -m "$type" -r "setgeometry $geometry"
 done < <(polybar -m | tr ':x+' '   ' | sed -r 's# +# #g; s# \(.*\)##g')

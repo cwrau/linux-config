@@ -3,10 +3,7 @@ Description=cloudflared for %I
 CollectMode=inactive-or-failed
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/cloudflared tunnel --no-autoupdate --name=%I --origincert=%E/cloudflared/cert.pem --credentials-file=%E/cloudflared/%I.json $FLAGS
 Restart=always
 RestartSec=30s
-
-[Install]
-WantedBy=graphical-session.target

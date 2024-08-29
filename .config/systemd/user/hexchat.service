@@ -4,7 +4,7 @@ After=graphical-session.target
 Requires=graphical-session.target
 
 [Service]
-Type=simple
+Type=exec
 Environment=TARGET_DIR=%E/hexchat/logs
 ExecStart=/usr/bin/hexchat
 ExecStopPost=/usr/bin/mkdir -p '${TARGET_DIR}.d'

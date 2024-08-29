@@ -6,6 +6,3 @@ PartOf=work.target
 OnCalendar=Thu 09:00
 Persistent=true
 Unit=telefondienst.target
-
-[Install]
-WantedBy=work.target

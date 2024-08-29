@@ -1,6 +1,3 @@
 [Socket]
 ListenStream=127.0.0.1:4317
 Service=localhost-proxy@4317.service
-
-[Install]
-WantedBy=sockets.target

@@ -8,7 +8,6 @@ Type=oneshot
 ExecStart=/usr/bin/swaymsg output '*' background '%E/background.jpg' fill
 RemainAfterExit=true
 ExecStop=/usr/bin/swaymsg output '*' background '#000000' solid_color
-RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=true
@@ -17,6 +16,3 @@ NoNewPrivileges=true
 ProtectKernelTunables=true
 ProtectControlGroups=true
 RestrictNamespaces=true
-
-[Install]
-WantedBy=sway-session.target

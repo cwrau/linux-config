@@ -4,10 +4,6 @@ After=graphical-session.target
 Requires=graphical-session.target
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
-RestartSec=0
 Restart=always
-
-[Install]
-WantedBy=graphical-session.target

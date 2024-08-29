@@ -7,7 +7,6 @@ ExecCondition=/usr/bin/bash -ec '[[ "$(dunstctl is-paused)" == "false" ]]'
 ExecStart=-/usr/bin/dunstctl set-pause-level 50
 RemainAfterExit=true
 ExecStop=/usr/bin/dunstctl set-paused false
-RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=true

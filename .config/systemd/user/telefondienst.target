@@ -3,7 +3,4 @@ Description=Telefondienst applications
 Requires=graphical-session.target
 Requisite=work.target
 After=graphical-session.target
-Wants=rss.service google-chrome@telefondienst.service
-
-[Install]
-WantedBy=graphical-session.target
+Wants=rss.service google-chrome@telefondienst.service telefondienst.service

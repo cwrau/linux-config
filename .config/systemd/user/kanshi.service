@@ -4,10 +4,6 @@ After=sway-session.target
 Requires=sway-session.target
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/kanshi
-RestartSec=0
 Restart=always
-
-[Install]
-WantedBy=sway-session.target

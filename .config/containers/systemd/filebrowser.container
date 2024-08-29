@@ -3,6 +3,10 @@ Description=filebrowser
 StopWhenUnneeded=true
 CollectMode=inactive-or-failed
 
+[Service]
+ExecStartPre=/usr/bin/dunstify -u critical -t 60000 -a filebrowser "Starting filebrowser"
+SuccessExitStatus=1
+
 [Container]
 Image=filebrowser/filebrowser
 PublishPort=127.0.0.2:8050:8050

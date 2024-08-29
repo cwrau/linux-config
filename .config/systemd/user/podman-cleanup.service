@@ -4,6 +4,6 @@ ConditionACPower=true
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/podman system prune --all --force --volumes
+ExecStart=/usr/bin/podman system prune --all --force --volumes --filter="label!=org.opencontainers.image.title=runner-image-amd64"
 ExecStart=/usr/bin/podman system prune --force --external
 SuccessExitStatus=0 125

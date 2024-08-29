@@ -6,10 +6,9 @@ After=graphical-session.target dunst.service
 Wants=dunst.service
 
 [Service]
-Type=simple
+Type=exec
 Environment=QT_IM_MODULE=ibus
 ExecStart=/usr/bin/telegram-desktop
-RestartSec=0
 Restart=always
 Slice=messengers.slice
 

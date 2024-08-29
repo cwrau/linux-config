@@ -6,6 +6,3 @@ PartOf=work.target
 OnCalendar=Mon..Fri, 09:30
 Persistent=true
 Unit=google-chrome@daily.service
-
-[Install]
-WantedBy=work.target

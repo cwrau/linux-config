@@ -9,7 +9,7 @@ from lib.choices import get_choice as get_choice_shadow, ITEM
 
 def get_choice(items: Sequence[ITEM], item_name: str, name_getter: Callable[[ITEM], str],
                active_selector: Callable[[ITEM], bool] = None) -> ITEM:
-    return get_choice_shadow(items, item_name, name_getter, "Bluetooth Script", active_selector, auto_select=False)
+    return get_choice_shadow(items, item_name, name_getter, "Bluetooth", active_selector, auto_select=False)
 
 
 class BluetoothDevice:

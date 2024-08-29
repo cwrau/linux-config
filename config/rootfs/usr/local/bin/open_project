@@ -1,56 +1,57 @@
 #!/usr/bin/env bash
 
 wrapper=(
-	"systemd-run"
-	"--user"
-	"--same-dir"
-	"--setenv=KUBECONFIG=$XDG_CONFIG_HOME/kube/config"
-	"--unit=intellij-$(cat /proc/sys/kernel/random/uuid)"
-	"--collect"
-	"--slice=intellij.slice"
-	"--property=Delegate=true"
-	#  "--property=PrivateTmp=true"
-	#  "--property=JoinsNamespaceOf=intellij.service"
-	#  "--property=TemporaryFileSystem=/var"
-	"--"
-	"script"
-	"--return"
-	"--quiet"
-	"--log-out"
-	"/dev/null"
-	"--command"
+  "systemd-run"
+  "--user"
+  "--same-dir"
+  "--setenv=KUBECONFIG=$XDG_CONFIG_HOME/kube/config"
+  "--unit=intellij-$(cat /proc/sys/kernel/random/uuid)"
+  "--collect"
+  "--quiet"
+  "--slice=intellij.slice"
+  "--property=Delegate=true"
+  #  "--property=PrivateTmp=true"
+  #  "--property=JoinsNamespaceOf=intellij.service"
+  #  "--property=TemporaryFileSystem=/var"
+  "--"
+  "script"
+  "--return"
+  "--quiet"
+  "--log-out"
+  "/dev/null"
+  "--command"
 )
 codeEditor="vscode"
-codeEditor="intellij-idea-ultimate-edition"
+codeEditor="/opt/intellij-idea-ultimate-edition/bin/idea"
 projectFoldersRegex="git|idea"
 
-if [[ -n $1 ]] && [[ -e $1 ]]; then
-	project=$(realpath "$1")
+if [[ -n $1 && -e $1 ]]; then
+  project=$(realpath "$1")
 elif [[ $1 == _ ]]; then
-	project=
+  project=
 elif [[ $1 =~ ^jetbrains://* ]]; then
-	project="$1"
+  project="$1"
 else
-	project="$(fd --no-ignore-vcs --hidden --type directory --search-path="$HOME/"{work,projects} "\.($projectFoldersRegex)\$" --exec-batch stat --format "%X:%n" |
-		grep -v -P "node_modules|/\.(?!$projectFoldersRegex)" |
-		sort --reverse --field-separator : --key 1 |
-		cut --delimiter : --fields 2- |
-		xargs --no-run-if-empty -- dirname |
-		xargs --no-run-if-empty -- realpath --relative-to "$HOME" |
-		awk '!x[$0]++' |
-		dmenu -sync -i --no-custom -p Project)"
-	# shellcheck disable=SC2181
-	if [[ "$?" != 0 ]] || [[ ! -e "$project" ]]; then
-		exit 1
-	else
-		project="$HOME/$project"
-	fi
+  project="$(fd --no-ignore-vcs --hidden --type directory --search-path="$HOME/"{work,projects} "\.($projectFoldersRegex)\$" --exec-batch stat --format "%X:%n" |
+    grep -v -P "node_modules|/\.(?!$projectFoldersRegex)" |
+    sort --reverse --field-separator : --key 1 |
+    cut --delimiter : --fields 2- |
+    xargs --no-run-if-empty -- dirname |
+    xargs --no-run-if-empty -- realpath --relative-to "$HOME" |
+    awk '!x[$0]++' |
+    dmenu -sync -i --no-custom -p Project)"
+  # shellcheck disable=SC2181
+  if [[ "$?" != 0 || ! -e "$project" ]]; then
+    exit 1
+  else
+    project="$HOME/$project"
+  fi
 fi
 
 if [[ -z "$project" ]]; then
-	"${wrapper[@]}" "$codeEditor"
+  "${wrapper[@]}" "$codeEditor"
 elif [[ -n "$project" ]]; then
-	"${wrapper[@]}" "$codeEditor '$project'"
+  "${wrapper[@]}" "$codeEditor '$project'"
 fi
 [[ -d "$project/.git" ]] && touch "$project/.git"
 [[ -d "$project/.idea" ]] && touch "$project/.idea"

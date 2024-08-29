@@ -4,9 +4,8 @@ After=gpg-agent.socket graphical-session.target
 Requires=gpg-agent.socket graphical-session.target
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/thunderbird
-RestartSec=0
 Restart=always
 
 # disallow writing to /usr, /bin, /sbin, ...
@@ -15,6 +14,3 @@ ProtectSystem=true
 NoNewPrivileges=true
 ProtectKernelTunables=true
 ProtectControlGroups=true
-
-[Install]
-WantedBy=graphical-session.target

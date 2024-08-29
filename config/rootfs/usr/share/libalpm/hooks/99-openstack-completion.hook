@@ -1,0 +1,10 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = python-*client
+
+[Action]
+Description = Generating OpenStack completion
+When = PostTransaction
+Exec = /bin/bash -ec 'openstack complete > /usr/share/bash-completion/completions/openstack'

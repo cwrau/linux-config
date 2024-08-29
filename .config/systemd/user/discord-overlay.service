@@ -6,8 +6,7 @@ After=discord.service
 CollectMode=inactive-or-failed
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/discover-overlay
-RestartSec=0
 Restart=always
 Slice=messengers.slice

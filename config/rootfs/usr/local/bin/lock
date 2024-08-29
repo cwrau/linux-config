@@ -37,6 +37,6 @@ else
   lock
 fi
 
-systemd-run --user --property=Requires=pause-notifications.service --scope --unit=lock -- tail --pid=$(pgrep --newest --exact i3lock) -f /dev/null &
+systemd-run --user --property=Requires=pause-notifications.service --scope --quiet --unit=lock -- tail --pid=$(pgrep --newest --exact i3lock) -f /dev/null &
 
 wait $!

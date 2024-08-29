@@ -4,9 +4,8 @@ After=graphical-session.target
 Requires=graphical-session.target
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/earlyoom -r 3600 -n --avoid "i3.*|teams|glava|polybar|.*electron.*|.*steam.*|Xorg" -m 2
-RestartSec=0
 Restart=always
 
 # disallow writing to /usr, /bin, /sbin, ...
@@ -14,6 +13,3 @@ ProtectSystem=true
 # more paranoid security settings
 NoNewPrivileges=true
 ProtectKernelTunables=true
-ProtectControlGroups=true
-[Install]
-WantedBy=graphical-session.target

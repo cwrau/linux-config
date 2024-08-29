@@ -13,8 +13,10 @@ i3-msg restart
 
 services=(feh.service polybar.slice glava.target easyeffects.service)
 
-systemctl --user reset-failed "${services[@]}"
-systemctl --user try-reload-or-restart "${services[@]}"
+for service in "${services[@]}"; do
+  systemctl --user reset-failed "${service}"
+  systemctl --user try-reload-or-restart "${service}"
+done
 
 pactl set-sink-volume @DEFAULT_SINK@ -1%
 pactl set-sink-volume @DEFAULT_SINK@ +1%

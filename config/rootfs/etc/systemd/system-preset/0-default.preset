@@ -2,14 +2,16 @@ enable NetworkManager.service
 enable ananicy-cpp.service
 enable auto-cpufreq.service
 enable bluetooth.service
+enable btrfs-scrub@.timer dev-nvme0n1p2
 enable ebtables.service
 enable fwupd-refresh.timer
 enable fwupd.service
 enable linux-modules-cleanup.service
+enable paccache.timer
 enable pkgstats.timer
 enable reflector.timer
 enable snapper-cleanup.timer
 enable snapper-timeline.timer
 enable systemd-oomd.service
 enable systemd-timesyncd.service
-enable btrfs-scrub@.timer dev-nvme0n1p2
+enable tccd.service

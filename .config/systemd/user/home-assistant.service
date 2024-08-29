@@ -6,7 +6,3 @@ Type=forking
 Delegate=true
 ExecStartPre=-/usr/bin/podman rm home-assistant
 ExecStart=/usr/bin/podman run --log-driver journald --cgroups no-conmon --detach --publish 8123:8123 --log-driver=journald --name home-assistant --volume %E/home-assistant:/config ghcr.io/home-assistant/home-assistant:stable
-
-[Install]
-WantedBy=basic.target
-

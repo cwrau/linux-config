@@ -5,13 +5,14 @@ target=${2:?Specify output: <file>/clipboard}
 
 case "$mode" in
   full)
-    param=()
+    params=(full)
     ;;
   selection)
-    param=("-s" "-u")
+    params=(gui)
     ;;
   window)
-    param=("-i" "$(xdotool getactivewindow)")
+    eval "$(xdotool getactivewindow getwindowgeometry --shell)"
+    params=(full --region "${WIDTH}x${HEIGHT}+${X}+${Y}")
     ;;
   *)
     echo "Wrong mode: $mode" >&2
@@ -21,18 +22,18 @@ esac
 
 case "$target" in
   clipboard)
-    maim "${param[@]}" | xclip -selection clipboard -t image/png
+    params+=(-c)
+    ;;
+  -)
+    params+=(-r)
     ;;
   --)
     target="$HOME/Screenshots/$(date +%FT%T.%2N%z).png"
-    mkdir -p "$(dirname "$target")"
-    maim "${param[@]}" "$target"
-    ;;
-  -)
-    maim "${param[@]}"
-    ;;
+    ;&
   *)
     mkdir -p "$(dirname "$target")"
-    maim "${param[@]}" "$target"
+    params+=(-p "$target")
     ;;
 esac
+
+flameshot "${params[@]}"

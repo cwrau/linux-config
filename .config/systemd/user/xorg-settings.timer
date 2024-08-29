@@ -4,9 +4,6 @@ After=i3-session.target
 Requires=i3-session.target
 
 [Timer]
-OnActiveSec=10
+OnStartupSec=10
 AccuracySec=1s
 Persistent=true
-
-[Install]
-WantedBy=i3-session.target

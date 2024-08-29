@@ -3,6 +3,3 @@ Description=gamemode
 Requires=gamemode.service
 Wants=gamemode.service
 Conflicts=work.target
-
-[Install]
-WantedBy=graphical-session.target

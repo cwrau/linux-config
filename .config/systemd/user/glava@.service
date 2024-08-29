@@ -1,8 +1,10 @@
 [Unit]
 Description=glava %I
 PartOf=glava.target
-Requires=picom.service
+Upholds=glava-update.service
+Requires=picom.service pipewire-pulse.service
 CollectMode=inactive-or-failed
+ConditionACPower=true
 
 [Service]
 Type=oneshot
@@ -18,6 +20,3 @@ ProtectSystem=true
 NoNewPrivileges=true
 ProtectKernelTunables=true
 ProtectControlGroups=true
-
-[Install]
-WantedBy=i3-session.target

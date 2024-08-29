@@ -8,7 +8,8 @@ if [[ "$path" =~ file://* ]]; then
 fi
 
 if [[ -d "$path" ]]; then
-  exec gnome-terminal --working-directory="$path"
+  cd "$path"
+  exec gnome-terminal -- "$SHELL"
 fi
 
 echo "Not an existing directory" >&2

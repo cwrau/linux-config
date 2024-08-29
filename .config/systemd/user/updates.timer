@@ -5,6 +5,3 @@ Description=Package Updates
 OnCalendar=hourly
 AccuracySec=1m
 Persistent=true
-
-[Install]
-WantedBy=graphical-session.target

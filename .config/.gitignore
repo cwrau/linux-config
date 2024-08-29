@@ -2,6 +2,7 @@
 /0ad/
 /Code Industry/Master PDF Editor.conf
 /Craftomation101/
+/Epic/
 /Google Play Music Desktop Player/
 /JetBrains/
 /Loop_Hero/
@@ -17,6 +18,7 @@
 /Valve/vrmonitor.conf
 /YouTube Music Desktop App/
 /Yubico/YKPersonalization.conf
+/arena/
 /autostart/
 /cef_user_data/
 /chimera/
@@ -29,6 +31,7 @@
 /easyeffects_preset
 /fah/
 /freerdp/
+/glib-2.0/settings/keyfile
 /google-chrome
 /google-chrome-*/
 /google-cloud-tools-java/
@@ -41,7 +44,7 @@
 /lab.hcl
 /lab/
 /lnav/
-/lutris
+/lutris/
 /menus/
 /mitmproxy/
 /openvr/openvrpaths.vrpath
@@ -52,8 +55,13 @@
 /r2modman/
 /r2modmanPlus-local/
 /remmina/
+/retroarch/
+/s3cmd/
+/suyu/
 /teams/
+/tuxedo-control-center/
 /uhk-agent/
+/unity3d/
 /user-dirs.dirs
 /vlc/
 /whatsapp-nativefier-*/

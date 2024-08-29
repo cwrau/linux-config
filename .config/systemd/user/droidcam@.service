@@ -5,10 +5,6 @@ Requires=graphical-session.target
 After=graphical-session.target
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/droidcam-cli %I 4747
-RestartSec=0
 Restart=always
-
-[Install]
-WantedBy=graphical-session.target

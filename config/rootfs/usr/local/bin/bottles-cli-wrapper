@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+set -x
+set -o pipefail
+
+unitName=$(ps -h -o uunit "$$")
+controlGroup=$(systemctl --user show --property ControlGroup --value "$unitName")
+
+systemctl --user set-property "$unitName" "ExecStop='pkill --cgroup $controlGroup -9 winedevice.exe'"
+
+/usr/bin/bottles-cli "$@" &!
+
+declare -a applications
+source "$XDG_CONFIG_HOME/bottles.bash"
+
+systemd-notify --status "Waiting for application to start..."
+maxTries=100
+until [[ -n "$mainPID" ]] || !(( maxTries-- )); do
+  for application in "${applications[@]}"; do
+    if mainPID=$(pgrep --cgroup "$controlGroup" -f "$application" | head -1); then
+      break
+    fi
+  done
+  sleep 1
+done
+
+if (( maxTries > 0 )); then
+  systemd-notify --ready --pid="$mainPID" --status "Application running."
+else
+  notify-send.sh -u critical "Couldn't find bottles application."
+fi

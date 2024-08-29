@@ -1,3 +1,46 @@
 #!/usr/bin/env bash
 
-systemd-run --user --same-dir --property=Wants=gamemode.service --property=Delegate=true --service-type=forking --collect --slice=bottles.slice "--unit=bottles-$(cat /proc/sys/kernel/random/uuid)" -- /usr/bin/bottles-cli "${@}"
+oldFlags=("${@}")
+
+parsed="$(getopt --options "p:b:" --name "$0" -- "$@")"
+
+eval set -- "$parsed"
+unset parsed
+
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    '-b')
+      shift
+      bottle="$1"
+      ;;
+    '-p')
+      shift
+      program="$1"
+      ;;
+    *)
+      break
+      ;;
+  esac
+  shift
+done
+
+unitName=bottles
+description=bottles
+
+if [[ -v bottle ]]; then
+  unitName+="-${bottle}"
+  description="Bottle: $bottle"
+fi
+
+if [[ -v program ]]; then
+  unitName+="-${program}"
+  description="${bottle:+$bottle, }Program: $program"
+fi
+
+if [[ -v bottle || -v program ]]; then
+  unitName="$(echo "${unitName}" | tr '[:upper:] ' '[:lower:]-')"
+fi
+
+unitName+="-$(cat /proc/sys/kernel/random/uuid)"
+
+systemd-run --user --same-dir --property=NotifyAccess=all --property=Wants=gamemode.service "--property=Description=$description" --property=Delegate=true --service-type=notify --collect --quiet --slice=bottles.slice "--unit=$unitName.service" -- bottles-cli-wrapper "${oldFlags[@]}"

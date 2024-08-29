@@ -1,7 +1,13 @@
 [Unit]
 Description=Work applications
 After=graphical-session.target
-Wants=rocketchat.service google-chrome@work.service google-chrome@work-todo.service telefondienst.timer stop-telefondienst.timer daily.timer
-
-[Install]
-WantedBy=graphical-session.target
+Wants=daily.timer
+Wants=google-chrome@work-todo.service
+Wants=google-chrome@work.service
+Wants=real-daily.timer
+Wants=rocketchat.service
+Wants=stop-telefondienst.timer
+Wants=telefondienst.timer
+Wants=update-work-git-repos.service
+Wants=work-stop-trigger.service
+#Wants=work-stop.timer # TODO: See https://github.com/systemd/systemd/pull/18517

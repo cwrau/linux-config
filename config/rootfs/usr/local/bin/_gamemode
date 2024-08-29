@@ -2,27 +2,15 @@
 
 set -x
 
-function singleScreen() {
-  if [[ "$(polybar -m | wc -l)" -gt 1 ]]; then
-    autorandr --load desk --force
-  fi
-}
-
-function widescreen() {
-  if [[ "$(polybar -m | wc -l)" -gt 1 ]]; then
-    autorandr --load home-16:9 --force
-  fi
-}
-
 declare -A games
 declare -A gameServiceMappings
-declare -A gameScriptMappings
+declare -A gameScriptMapping
 declare -A gameScreenSettings
 source "$XDG_CONFIG_HOME/gamemode.bash"
 
 function detect_game() {
   local processes
-  processes=$(ps ux)
+  processes=$(ps x)
   for process in "${!games[@]}"; do
     if grep -E -q "$process" <<<"$processes"; then
       echo "${games[$process]}"
@@ -61,23 +49,43 @@ function auto_detect_steam_game() {
   return 1
 }
 
+function auto_detect_bottles_game() {
+  local pid
+  local -a candidate
+  local cmdline
+  if systemctl --user is-active -q bottles.slice; then
+    sleep 5
+    if pid="$(pgrep -f '/usr/bin/python3 /usr/bin/bottles-cli')"; then
+      mapfile -d $'\0' -t candidate <"/proc/$pid/cmdline"
+      eval "cmdline=( $(getopt --options "p:" -- "${candidate[@]}") )"
+      if [[ "${cmdline[0]}" == '-p' ]]; then
+        echo "${cmdline[1]}"
+        return 0
+      fi
+    fi
+    echo generic_bottles
+    return 0
+  else
+    return 1
+  fi
+}
+
 function adjust_for_game() {
   local game="${1?}"
   local service
+  local screenSetting
+  local script
   for service in ${gameServiceMappings[$game]}; do
-    systemctl --user start "$service"
+    systemctl --user start --no-block "$service"
   done
-  for script in ${gameScriptMappings[$game]}; do
-    eval "$script" &
-  done
-  case "${gameScreenSettings[$game]}" in
-    wide)
-      widescreen
-      ;;
-    *)
-      singleScreen
-      ;;
-  esac
+  script="${gameScriptMapping[$game]}"
+  if [[ -n "$script" ]]; then
+    systemd-run --user --slice=gamemode.slice --property=Requires=gamemode.service --quiet --unit "script-$(systemd-escape "$game")" -- "$script"
+  fi
+  screenSetting="${gameScreenSettings[$game]:-single}Screen"
+  if [[ "$(type -t "${screenSetting}")" == function ]]; then
+    "${screenSetting}"
+  fi
 }
 
 services=(glava.target picom.service)
@@ -87,7 +95,8 @@ case "$1" in
   start)
     rm -rf "$STATE_DIR"
     mkdir -p "$STATE_DIR"
-    if game="$(detect_game)" || game="$(auto_detect_steam_game)"; then
+    if game="$(detect_game)" || game="$(auto_detect_bottles_game)" || game="$(auto_detect_steam_game)"; then
+      systemd-notify --status="Game detected: $game"
       adjust_for_game "$game"
     fi
     for service in "${services[@]}"; do

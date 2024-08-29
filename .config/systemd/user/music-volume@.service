@@ -6,8 +6,7 @@ StopWhenUnneeded=true
 Type=oneshot
 ExecStart=-/usr/local/bin/pctl -s youtube-music-player.service volume %i
 RemainAfterExit=true
-ExecStop=/usr/local/bin/pctl -s youtube-music-player.service volume 100
-RestartSec=0
+ExecStop=-/usr/local/bin/pctl -s youtube-music-player.service volume 100
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=true

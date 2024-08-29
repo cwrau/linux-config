@@ -1,12 +1,11 @@
 [Unit]
 Description=KDE Connect Daemon
-Wants=pipewire.service
-After=pipewire.service
+Wants=pipewire-pulse.service
+After=pipewire-pulse.service
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/kdeconnectd
-RestartSec=0
 Restart=always
 
 # disallow writing to /usr, /bin, /sbin, ...
@@ -16,6 +15,3 @@ NoNewPrivileges=true
 ProtectKernelTunables=true
 ProtectControlGroups=true
 RestrictNamespaces=true
-
-[Install]
-WantedBy=graphical-session.target

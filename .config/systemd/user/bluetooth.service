@@ -6,6 +6,3 @@ Requires=graphical-session.target
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/bluetoothctl power on
-
-[Install]
-WantedBy=graphical-session.target

@@ -4,10 +4,6 @@ After=graphical-session.target
 Requires=graphical-session.target
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/xfce4-power-manager --no-daemon
-RestartSec=0
 Restart=always
-
-[Install]
-WantedBy=graphical-session.target

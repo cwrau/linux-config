@@ -85,7 +85,7 @@ function getToolForFileType() {
 function getDiffWithDyff() {
   local origPath="$1"
   local newPath="$2"
-  dyff --color on between --omit-header "$origPath" "$newPath"
+  dyff --color on between --omit-header "$origPath" "$newPath" | tail -n +2
 }
 
 function getDiffWith_xq() {
@@ -114,7 +114,13 @@ function _semantic_diff() {
   local tool
   local exitCode=0
 
-  unifiedDiff=$( (diff -u --unidirectional-new-file "$origPath" "$newPath") | sed "s#$origPath#$origFilename#g") || exitCode=$?
+  unifiedDiff=$(diff -u --unidirectional-new-file "$origPath" "$newPath") || exitCode=$?
+  if [[ "$origPath" != /dev/null ]]; then
+    unifiedDiff=$(<<<"$unifiedDiff" sed "1s#--- $origPath#--- $origFilename#g")
+  fi
+  if [[ "$newPath" != /dev/null ]]; then
+    unifiedDiff=$(<<<"$unifiedDiff" sed "2s#+++ $newPath#+++ $origFilename#")
+  fi
 
   for path in "$origPath" "$newPath"; do
     if [[ -f "$path" ]]; then

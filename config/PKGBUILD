@@ -20,7 +20,7 @@ depends=(
   ansible
   aria2
   ausweisapp2
-  auto-cpufreq
+  #auto-cpufreq
   autorandr
   bandwhich
   base
@@ -47,6 +47,7 @@ depends=(
   clusterctl
   cocogitto
   curl
+  ddcutil
   diff-so-fancy
   direnv
   discord_arch_electron
@@ -63,6 +64,7 @@ depends=(
   exo
   fd
   feh
+  flameshot
   fluxcd
   fprintd
   freerdp
@@ -119,8 +121,6 @@ depends=(
   kube-bench-bin
   kube-score
   kubectl
-  kubectl-konfig
-  kubectl-neat-diff
   kubectl-node-shell
   kubectl-rakkess
   kubeval
@@ -217,6 +217,7 @@ depends=(
   sops
   sshuttle
   steam-native-runtime
+  suyu-bin
   sxiv
   systemd
   systemd-boot-pacman-hook
@@ -233,6 +234,7 @@ depends=(
   ttf-iosevka-nerd
   ttf-liberation
   ttyplot
+  tuxedo-control-center-bin
   udiskie-dmenu-git
   uhk-agent-appimage
   unzip
@@ -245,6 +247,7 @@ depends=(
   xclip
   xdg-desktop-portal-gtk
   xorg-server
+  xorg-xev
   xorg-xinit
   xorg-xinput
   xorg-xkill

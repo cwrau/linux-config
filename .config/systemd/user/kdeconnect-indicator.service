@@ -4,9 +4,8 @@ After=kdeconnect-daemon.service
 Requires=kdeconnect-daemon.service
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/kdeconnect-indicator
-RestartSec=0
 Restart=always
 
 # disallow writing to /usr, /bin, /sbin, ...
@@ -16,6 +15,3 @@ NoNewPrivileges=true
 ProtectKernelTunables=true
 ProtectControlGroups=true
 RestrictNamespaces=true
-
-[Install]
-WantedBy=graphical-session.target

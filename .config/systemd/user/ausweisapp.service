@@ -4,8 +4,5 @@ StopWhenUnneeded=true
 CollectMode=inactive-or-failed
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/AusweisApp2 --address 127.0.0.2
-
-[Install]
-WantedBy=graphical-session.target

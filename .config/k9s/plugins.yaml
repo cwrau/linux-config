@@ -13,19 +13,6 @@ plugins:
       - --namespace=$NAMESPACE
       - $NAME
       - --image=alpine
-  node-shell:
-    shortCut: s
-    confirm: false
-    description: Start shell in node
-    scopes:
-      - nodes
-    background: false
-    command: kubectl
-    args:
-      - node-shell
-      - -n
-      - kube-system
-      - $NAME
   management-k9s:
     shortCut: k
     confirm: false
@@ -44,7 +31,6 @@ plugins:
           export KUBECONFIG="${XDG_RUNTIME_DIR}/gopass/${mgmt_cluter}"
           if kubectl -n $clusterNamespace get cluster $clusterName &>/dev/null; then
             exec k9s -c cluster -n $clusterNamespace
-            exit 0
           fi
         done
         exit 1
@@ -73,52 +59,6 @@ plugins:
     args:
       - $NAMESPACE
       - $NAME
-  openstack-logs:
-    shortCut: l
-    confirm: false
-    description: View logs of openstack machine
-    scopes:
-      - openstackmachines
-    background: false
-    command: bash
-    args:
-      - -c
-      - |
-        clusterName="$(kubectl -n "$NAMESPACE" get openstackmachine "$NAME" -o jsonpath='{.metadata.labels.cluster\.x-k8s\.io/cluster-name}')"
-          #while true; do
-          #  env "${envs[@]}" openstack console log show "$(kubectl -n "$NAMESPACE" get openstackmachine "$NAME" -o jsonpath='{.spec.instanceID}')"
-          #  sleep 1
-          #done | awk '!x[$0]++' | lnav
-        capo-shell "$NAMESPACE" "$clusterName" openstack console log show "$(kubectl -n "$NAMESPACE" get openstackmachine "$NAME" -o jsonpath='{.spec.instanceID}')" | exec lnav
-  openstack-shell-teutonetescloud-images:
-    shortCut: i
-    confirm: false
-    description: Enter openstack shell for cloud images
-    scopes:
-      - teutonetescloud
-    background: false
-    command: bash
-    args:
-      - -c
-      - |
-        secretName="$(kubectl get teutonetescloud "$NAME" -o yaml | yq -r '.spec.identityRef.name')"
-        envs=( $(kubectl -n "t8se-system" get secret "$secretName" -o jsonpath='{.data.clouds\.yaml}' | base64 -d | yq -r '.clouds.openstack | {OS_AUTH_PLUGIN: "password", OS_AUTH_URL: .auth["auth_url"], OS_USERNAME: .auth["username"], OS_PASSWORD: .auth["password"], OS_USER_DOMAIN_NAME: .auth["user_domain_name"], OS_DOMAIN_NAME: .auth["domain_name"], OS_REGION_NAME: .["region_name"], OS_INTERFACE: .interface, OS_IDENTITY_API_VERSION: .["identity_api_version"]} | to_entries[] | "\(.key)=\(.value)"') )
-        imageProjectID="$(kubectl get teutonetescloud "$NAME" -o jsonpath='{.status.imageProject.id}')"
-        exec env -u OS_APPLICATION_CREDENTIAL_ID -u OS_APPLICATION_CREDENTIAL_SECRET -u OS_AUTH_TYPE OS_SHELL=true "${envs[@]}" OS_PROJECT_ID=$imageProjectID zsh
-  openstack-shell-teutonetescloud:
-    shortCut: s
-    confirm: false
-    description: Enter openstack shell for cloud
-    scopes:
-      - teutonetescloud
-    background: false
-    command: bash
-    args:
-      - -c
-      - |
-        secretName="$(kubectl get teutonetescloud "$NAME" -o yaml | yq -r '.spec.identityRef.name')"
-        envs=( $(kubectl -n "t8se-system" get secret "$secretName" -o jsonpath='{.data.clouds\.yaml}' | base64 -d | yq -r '.clouds.openstack | {OS_AUTH_PLUGIN: "password", OS_AUTH_URL: .auth["auth_url"], OS_USERNAME: .auth["username"], OS_PASSWORD: .auth["password"], OS_USER_DOMAIN_NAME: .auth["user_domain_name"], OS_DOMAIN_NAME: .auth["domain_name"], OS_REGION_NAME: .["region_name"], OS_INTERFACE: .interface, OS_IDENTITY_API_VERSION: .["identity_api_version"]} | to_entries[] | "\(.key)=\(.value)"') )
-        exec env OS_SHELL=true "${envs[@]}" zsh
   logs:
     shortCut: k
     description: Real logs
@@ -131,38 +71,10 @@ plugins:
     args:
       - -c
       - |
-        set -x
+        set -o pipefail
         if [[ -n "$POD" ]]; then
           containerFlags=( "pod/$POD" --container "$NAME" )
         else
           containerFlags=( "pod/$NAME" --all-containers --max-log-requests 20 --prefix )
         fi
-        kubectl logs -n "$NAMESPACE" "${containerFlags[@]}" --tail 999999 -f | lnav
-  flux-helmrelease-reconcile:
-    shortCut: r
-    confirm: false
-    description: Reconcile Flux HelmRelease
-    scopes:
-      - helmrelease
-    background: true
-    command: bash
-    args:
-      - -c
-      - |
-        flux -n $NAMESPACE suspend helmrelease $NAME
-        flux -n $NAMESPACE resume helmrelease $NAME
-        flux -n $NAMESPACE reconcile helmrelease $NAME --with-source --force
-  flux-kustomization-reconcile:
-    shortCut: r
-    confirm: false
-    description: Reconcile Flux Kustomization
-    scopes:
-      - kustomization
-    background: true
-    command: bash
-    args:
-      - -c
-      - |
-        flux -n $NAMESPACE suspend kustomization $NAME
-        flux -n $NAMESPACE resume kustomization $NAME
-        flux -n $NAMESPACE reconcile kustomization $NAME --with-source
+        kubectl logs -n "$NAMESPACE" "${containerFlags[@]}" --tail 999999 -f | exec lnav

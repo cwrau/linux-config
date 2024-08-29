@@ -122,7 +122,7 @@ case "$1" in
       (
         set -e
         tail -F "$STATE_FOLDER/current" 2>/dev/null &
-        pactl subscribe | grep -E --line-buffered "'(new|remove)' on sink-input"
+        pactl subscribe | grep --line-buffered -E "'(new|remove)' on sink-input"
       ) | while read -r _; do
         "$0" PRINT -i
       done

@@ -5,10 +5,9 @@ Requires=graphical-session.target
 After=graphical-session.target
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/signal-desktop
 ExecStop=/usr/bin/kill $MAINPID
-RestartSec=0
 Restart=always
 Slice=messengers.slice
 

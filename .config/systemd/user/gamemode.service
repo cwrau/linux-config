@@ -1,17 +1,18 @@
 [Unit]
 Description=Gaming Mode
 Wants=discord.service
-Wants=temporary-audio@25.service
+Wants=music-volume@25.service
 Wants=pause-notifications.service
 StopWhenUnneeded=true
 ConditionACPower=true
 
 [Service]
 Type=oneshot
+NotifyAccess=all
 ExecStart=/usr/local/bin/_gamemode start
 RemainAfterExit=true
 ExecStop=/usr/local/bin/_gamemode stop
-RestartSec=0
+Slice=gamemode.slice
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=true

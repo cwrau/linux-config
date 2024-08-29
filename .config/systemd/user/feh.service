@@ -9,7 +9,6 @@ ExecStart=/usr/bin/feh --bg-fill %E/background.jpg --no-fehbg
 ExecReload=/usr/bin/feh --bg-fill %E/background.jpg --no-fehbg
 RemainAfterExit=true
 ExecStop=/usr/bin/feh --bg-tile %E/black.jpg --no-fehbg
-RestartSec=0
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=true
@@ -18,6 +17,3 @@ NoNewPrivileges=true
 ProtectKernelTunables=true
 ProtectControlGroups=true
 RestrictNamespaces=true
-
-[Install]
-WantedBy=i3-session.target

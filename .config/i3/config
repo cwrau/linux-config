@@ -24,11 +24,11 @@ font pango:monospace 9
 floating_modifier $super
 
 focus_follows_mouse yes
-focus_on_window_activation smart
+focus_on_window_activation urgent
 #mouse_warping none
 
 # start a terminal
-bindsym $super+Return $exid gnome-terminal
+bindsym $super+Return $exid exo-open --launch TerminalEmulator
 
 # kill focused window
 bindsym $super+Shift+q kill
@@ -143,6 +143,7 @@ default_border pixel 1
 for_window [class=".*"] border pixel 1
 hide_edge_borders both
 for_window [class="steam_app.*"] floating enable
+for_window [class="steam_proton"] floating enable
 for_window [instance="steamwebhelper" title="^(?!Friends List)(?!Steam).*"] floating enable
 for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
 for_window [class="Gnome-network-displays"] floating enable
@@ -162,9 +163,10 @@ set $Power "Power menu"
 bindsym $super+q mode $Power
 
 mode $Power {
-    bindsym s exec loginctl lock-session; exec xset dpms force standby; mode "default"
+    bindsym s $exid loginctl lock-session; $exid xset dpms force standby; mode "default"
     bindsym p exec systemctl poweroff
     bindsym r exec systemctl reboot
+    bindsym l exit
     bindsym Escape mode "default"
 }
 
@@ -247,8 +249,8 @@ bindsym Ctrl+Shift+Print --release $exid "screenshot full --"
 bindsym Ctrl+Shift+$super+Print --release $exid "screenshot window --"
 
 # Browser stuff
-bindsym $super+c exec "exo-open --launch WebBrowser"
-bindsym $super+Shift+c exec "exo-open --launch WebBrowser --incognito"
+bindsym $super+c $exid "exo-open --launch WebBrowser"
+bindsym $super+Shift+c $exid "exo-open --launch WebBrowser --incognito"
 bindsym $super+m $exid sh -c 'systemctl --user is-active google-chrome@meeting.service && systemctl --user restart google-chrome@meeting.service || systemctl --user start google-chrome@meeting.service'
 bindsym $super+Shift+m $exid sh -c 'systemctl --user stop google-chrome@meeting.service google-chrome@daily.service'
 
@@ -294,8 +296,8 @@ assign [class="discord"] 14:Discord
 for_window [class="discord"] move to workspace 14:Discord
 
 bindsym $super+$alt+5 workspace 15:Steam
-assign [class="steam"] 15:Steam
-for_window [class="steam"] move to workspace 15:Steam
+assign [class="^steam$"] 15:Steam
+for_window [class="^steam$"] move to workspace 15:Steam
 
 bindsym $super+$alt+6 workspace 16:YouTube
 assign [class="Google-chrome" title=".*YouTube$"] 16:YouTube

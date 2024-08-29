@@ -5,6 +5,3 @@ After=graphical-session.target
 Wants=discord.service
 Wants=whatsapp.service
 Wants=telegram.service
-
-[Install]
-WantedBy=graphical-session.target

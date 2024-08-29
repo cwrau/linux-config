@@ -1,0 +1,6 @@
+[Unit]
+Description=Stop Work
+#PartOf=work.target # TODO: See https://github.com/systemd/systemd/pull/18517
+
+[Timer]
+OnActiveSec=8h

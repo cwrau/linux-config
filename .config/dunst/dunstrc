@@ -194,6 +194,19 @@ stack_tag = player
 history_ignore = true
 override_pause_level = 100
 
+[rss]
+appname = Feeds
+timeout = 60
+urgent = critical
+
+[udiskie]
+appname = udiskie
+override_pause_level = 100
+
+[cwrscript]
+appname = CWRScript
+override_pause_level = 100
+
 [zentrale]
 summary = "Eingehender Anruf"
 body = "*Zentrale:*"

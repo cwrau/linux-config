@@ -4,9 +4,8 @@ After=graphical-session.target
 Requires=graphical-session.target
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/nm-applet
-RestartSec=0
 Restart=always
 
 # disallow writing to /usr, /bin, /sbin, ...
@@ -16,6 +15,3 @@ NoNewPrivileges=true
 ProtectKernelTunables=true
 ProtectControlGroups=true
 RestrictNamespaces=true
-
-[Install]
-WantedBy=graphical-session.target

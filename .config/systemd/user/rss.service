@@ -5,9 +5,8 @@ PartOf=telefondienst.target
 After=graphical-session.target
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=/usr/bin/gfeeds
-RestartSec=0
 Restart=always
 
 # disallow writing to /usr, /bin, /sbin, ...

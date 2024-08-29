@@ -3,7 +3,7 @@ Description=%I VPN
 StopWhenUnneeded=true
 
 [Service]
-Type=simple
+Type=exec
 ExecStartPre=/usr/bin/sleep 1
 ExecStartPre=-/usr/bin/nmcli connection down %I
 ExecStartPre=/usr/bin/sleep 1

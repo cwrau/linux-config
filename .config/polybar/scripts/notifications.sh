@@ -14,7 +14,6 @@ function update() {
   fi
 }
 
-while :; do
+dbus-monitor path=/org/freedesktop/Notifications,member=PropertiesChanged --profile | while read -r _; do
   update
-  sleep 1
 done

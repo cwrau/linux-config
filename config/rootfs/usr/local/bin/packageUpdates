@@ -36,7 +36,7 @@ if sudo informant check; then
       if ! sudo systemctl is-active -q updates-run.scope; then
         notification_send -t 10000 -u low "$UPDATES | $AUR_UPDATES" "$(paru -Qu --devel | grep -v ignored | awk '{print $1}' | sed -z '$ s/\n$//' | tr '\n' ',')"
 
-        if systemd-inhibit --why Updates --mode block --what shutdown sudo -E systemd-run --uid "$USER" --unit updates-run --nice 19 --property=CPUWeight=1 --setenv=NICE=19 --scope -- paru -Syu --noconfirm; then
+        if systemd-inhibit --why Updates --mode block --what shutdown sudo -E systemd-run --uid "$USER" --unit updates-run --nice 19 --property=CPUWeight=1 --setenv=NICE=19 --scope --quiet -- paru -Syu --noconfirm; then
           notification_send -t 10000 -u normal 'Updates finished!'
         else
           if [[ "$(notification_send -t 3590000 -u critical 'Updates failed!' -A Show,Show)" == "Show" ]]; then

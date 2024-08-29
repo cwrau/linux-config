@@ -57,9 +57,11 @@ export FZF_ALT_C_COMMAND='fd -t d --hidden'
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -20'"
 export FZF_CTRL_T_COMMAND='fd -t f --hidden'
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --pager=never -p {} | head -20'"
+export GLAMOUR_STYLE=dracula
 export GOFLAGS="-modcacherw"
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
 export GRADLE_OPTS=-Dorg.gradle.jvmargs=-Xmx1G
+export GUM_SPIN_SPINNER=points
 export HELM_DIFF_OUTPUT="dyff"
 export HELM_PLUGINS="/usr/lib/helm/plugins"
 export HISTSIZE=9223372036854775807
@@ -73,7 +75,7 @@ export SECRETS_EXTENSION=".gpg"
 export SYSTEMD_PAGERSECURE=false
 export VISUAL="$EDITOR"
 
-if ( [[ ! -v XDG_SESSION_TYPE ]] || [[ "$XDG_SESSION_TYPE" == "tty" ]] ) && [[ -o interactive ]] && [[ "$XDG_VTNR" == 1 ]]; then
+if [[ "${XDG_SESSION_TYPE:-tty}" == "tty" && -o interactive && "$XDG_VTNR" == 1 ]]; then
   if false; then
     export XDG_CURRENT_DESKTOP=sway
     export GBM_BACKEND=nvidia-drm
@@ -91,11 +93,11 @@ if ( [[ ! -v XDG_SESSION_TYPE ]] || [[ "$XDG_SESSION_TYPE" == "tty" ]] ) && [[ -
     if lsmod | grep -q nvidia; then
       xorgConfig="-config nvidia.conf"
     fi
-    exec systemd-cat --stderr-priority=warning --identifier=xorg nice -n -19 startx -- -keeptty $xorgConfig
+    exec systemd-cat --stderr-priority=warning --identifier=xorg nice -n -19 startx -- $xorgConfig
   fi
 fi
 
-if ! [[ -v DISPLAY ]]; then
+if [[ ! -v DISPLAY ]]; then
   export GPG_TTY="$(tty)"
 fi
 
@@ -221,14 +223,12 @@ plugins=(
   direnv
   dirhistory
   fancy-ctrl-z
-  fd
   fzf
   git
   git-auto-fetch
   gitfast
   gradle
   per-directory-history
-  ripgrep
   sudo
   zsh-autosuggestions
   zsh-syntax-highlighting
@@ -241,8 +241,8 @@ export ZSH_COMPDUMP="${ZSH_CACHE_DIR}/.zcompdump-${ZSH_VERSION}"
 source $ZSH/oh-my-zsh.sh
 
 ZSH_HIGHLIGHT_STYLES[comment]=fg=#7a7a7a
-autoload -Uz compinit && compinit -d "$ZSH_COMPDUMP"
-autoload -U bashcompinit && bashcompinit -d "$ZSH_COMPDUMP"
+autoload -Uz +X compinit && compinit -d "$ZSH_COMPDUMP"
+autoload -Uz +X bashcompinit && bashcompinit -d "$ZSH_COMPDUMP"
 
 zstyle ':fzf-tab:complete:*' fzf-bindings alt-space:toggle
 zstyle ':completion:*:descriptions' format '[%d]'
@@ -255,7 +255,12 @@ source /usr/share/zsh/plugins/fzf-tab-git/fzf-tab.plugin.zsh #> /dev/null
 compdef _gradle gradle-or-gradlew
 
 [[ -f $XDG_CONFIG_HOME/p10k.zsh ]] && source $XDG_CONFIG_HOME/p10k.zsh
-[[ -f /opt/azure-cli/az.completion ]] && source /opt/azure-cli/az.completion
+
+for custom_completion in /opt/azure-cli/az.completion; do # /usr/share/bash-completion/completions/openstack; do
+  [[ -f "$custom_completion" ]] && source "$custom_completion"
+done
+unset custom_completion
+
 [[ -f /usr/share/LS_COLORS/dircolors.sh ]] && source /usr/share/LS_COLORS/dircolors.sh
 
 setopt KSH_GLOB
@@ -269,7 +274,7 @@ function fixHistory() {
   local currentHistory="${HISTORY_BASE}/${currentPath}/history"
   local longestHistory
   longestHistory="$(wc --total=never -l "${currentHistory}" "${HOME}/../.snapshots/"*"/snapshot/$(realpath --relative-to="$(dirname "$HOME")" "${HOME}")/$(realpath --relative-to="${HOME}" "${HISTORY_BASE}")/${currentPath}/history" | sort -h | tail -1 | awk '{print $2}')"
-  if ! [[ "$longestHistory" -ef "$currentHistory" ]]; then
+  if [[ ! "$longestHistory" -ef "$currentHistory" ]]; then
     cp "$longestHistory" "$currentHistory"
   fi
 }
@@ -283,25 +288,14 @@ function normalize-command-line() {
 zle -N normalize-command-line
 bindkey "^Xn" normalize-command-line
 
-function _check_command() {
-  local package
-  if [ $? -eq 0 ] && command -v $1 &> /dev/null; then
-    package=$(rg --text installed /var/log/pacman.log | tail -1 | awk '{print $4}')
-    $@
-    local ret=$?
-    paru -Rs "$package"
-    return $ret
-  fi
-  return 137
-}
-
 function command_not_found_handler() {
+  local exitCode=0
   [[ "${1:0:1}" == : ]] && return 0
   [[ "$1" =~ ^cccccc ]] && return 0
-  local packages
-  echo "Packages containing '$1' in name"
   tmpPackage $1
-  _check_command $@
+  $@ || exitCode=$?
+  [[ "${#tmpPackages[@]}" -gt 0 ]] && paru -Rs -- "${tmpPackages[@]}"
+  return $exitCode
 }
 
 function _nop() {}
@@ -311,7 +305,7 @@ function e() {
 }
 
 #function ssh() {
-#  if [[ "${#@}" > 1 ]] || [[ "${#@}" == 0 ]]; then
+#  if [[ "${#@}" > 1 || "${#@}" == 0 ]]; then
 #    /usr/bin/ssh "$@"
 #  elif [[ -f ~/.ssh/checked_hosts ]] && grep -q -- "$1" ~/.ssh/checked_hosts; then
 #    name="$1"
@@ -350,7 +344,7 @@ function diff() {
 }
 
 function reload-tmpfiles() {
-  command systemd-run --user --unit reload-tmpfiles $(command systemctl --user cat systemd-tmpfiles-setup.service | grep ^ExecStart | cut -d = -f 2)
+  command systemd-run --user -q --scope --unit reload-tmpfiles $(command systemctl --user cat systemd-tmpfiles-setup.service | grep ^ExecStart | cut -d = -f 2)
 }
 
 function swap() {
@@ -399,8 +393,8 @@ function knodes() {
 function gop() {
   local pass
   local name="$1"
-  if [[ -z "$name" ]] || ! [[ -f "$XDG_RUNTIME_DIR/gopass/$name" ]]; then
-    pass="$(gopass ls --flat | grep -v 'kube.?config' | fzf --preview "cat $XDG_RUNTIME_DIR/gopass/{}" | xargs -r -i cat $XDG_RUNTIME_DIR/gopass/{})"
+  if [[ -z "$name" || ! -f "$XDG_RUNTIME_DIR/gopass/$name" ]]; then
+    pass="$(gopass ls --flat | grep -v 'kube.?config' | fzf --preview "cat $XDG_RUNTIME_DIR/gopass/{}" | parallel -r cat $XDG_RUNTIME_DIR/gopass/{})"
   else
     pass="$(cat "$XDG_RUNTIME_DIR/gopass/$name")"
   fi
@@ -481,7 +475,7 @@ function pkgSync() {
   local newPackages
   newPackages=$(paru -Qqe | rg -xv -e "$(echo $targetPackages | tr '\n' '|' | sed 's#|$##g')" -e linux-config)
 
-  if [ ! -z $newPackages ] && [[ "$(echo $newPackages | wc -l)" -gt 0 ]]; then
+  if [[ ! -z $newPackages && "$(echo $newPackages | wc -l)" -gt 0 ]]; then
     echo "$(<<<$newPackages | wc -l) new Packages"
     while read -r package; do
       if [[ "$package" == "linux-config" ]]; then
@@ -616,13 +610,18 @@ declare -a tmpPackages
 function tmpPackage() {
   local packages=()
   local package="${1?At least a single search term is required}"
+  local installationSuccessful=0
   if [[ "${#@}" -eq 1 ]] && paru -Si "$1" >/dev/null; then
-    paru -S "$1"
+    paru -S "$1" || installationSuccessful=$?
   else
-    paru -- "${@}"
+    paru -- "${@}" || installationSuccessful=$?
+  fi
+  if [[ "$installationSuccessful" != 0 ]]; then
+    return "$installationSuccessful"
   fi
   packages=( $(grep installed /var/log/pacman.log | awk '{print $4}' | tail -5 | tac | awk '!x[$0]++') )
   if [[ "${packages[(Ie)${package}]}" -gt 0 ]] && read -q "?Auto-uninstall '$package'? "; then
+    [[ -v tmpPackages ]] || echo what?
     tmpPackages+=( "$package" )
   else
     tmpPackages+=( $( <<<"$packages" | tr ' ' $'\n' | fzf --prompt='Choose package to be uninstalled on exit' -m) )
@@ -655,8 +654,8 @@ function clip() {
 compdef _nop clip
 
 function column() {
-  local col="${1:-1}"
-  awk "{print \$$col}"
+  local col="${(P)${#@}:-1}"
+  awk ${@:1:-1} "{print \$$col}"
 }
 
 function releaseAur() {
@@ -767,6 +766,10 @@ function getHelm() {
 }
 
 function kk() {
+  if ! timeout 10s bash -c 'until systemctl --user start gopass-fuse.service -q; do sleep 1; done'; then
+    echo "gopass-fuse not starting, aborting..." >&2
+    return 1
+  fi
   for cluster in $(gopass list --flat G 'kube-?config' G mgmt); do
     KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$cluster kubectl get cluster -A -o json | jq -r '.items[] | "'"$cluster"':\(.metadata.namespace):\(.metadata.name):\(.metadata.annotations["t8s.teuto.net/customer-name"] // "" | try @base64d // .metadata.labels["t8s.teuto.net/customer-id"]):\((.metadata.annotations["t8s.teuto.net/cluster"] // "" | try @base64d) as $name | if $name == "" then .metadata.name else $name end)"'
   done | fzf --track --preview="awk -v name={} 'BEGIN{split(name,splitted,\":\"); cols=split(splitted[1], splitted, \"/\"); print splitted[cols-1]}'" +s -d : --with-nth=4,5 | IFS=: read -r mgmt namespace name _
@@ -778,7 +781,7 @@ function kk9s() {
   kk k9s "${@}"
 }
 
-if ! [[ -f "$KUBECONFIG" ]]; then
+if [[ ! -f "$KUBECONFIG" ]]; then
   unset KUBECONFIG
   if [[ -f "$XDG_RUNTIME_DIR/kconfig/current_kubeconfig" ]]; then
     export KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$(gopass ls -flat | grep '^.+/kube-?config' | grep "^$(cat $XDG_RUNTIME_DIR/kconfig/current_kubeconfig)" | tail -1)"
@@ -788,7 +791,7 @@ if ! [[ -f "$KUBECONFIG" ]]; then
 fi
 
 function k9s() {
-  if ! [[ -f "$KUBECONFIG" ]]; then
+  if [[ ! -f "$KUBECONFIG" ]]; then
     kk k9s "${@}"
   else
     command k9s "${@}"
@@ -832,7 +835,7 @@ reAlias cp -i
 reAlias mv -i
 #reAlias ls --almost-all --indicator-style=slash --human-readable --sort=version --escape --format=long --color=always --time-style=long-iso
 #nAlias ls exa --all --binary --group --classify --sort=filename --long --colour=always --time-style=long-iso --git
-nAlias ls lsd --almost-all --git --color=always --long --date=+'%Y-%m-%dT%H:%M:%S' -I .git
+nAlias ls lsd --almost-all --git --color=always --long --date=+'%Y-%m-%dT%H:%M:%S'
 if [[ "$(id -u)" != 0 ]] && (( ${+commands[sudo]} )); then
   for cmd in systemctl ip; do
     nAlias $cmd sudo $cmd
@@ -847,13 +850,13 @@ reAlias fzf --ansi
 reAlias prettyping --nolegend
 nAlias ping prettyping
 nAlias du gdu -x
-reAlias rg -S --engine auto
+reAlias rg -S --engine auto --hidden --context-separator=──────────
 reAlias jq -er
 reAlias yq -er
 nAlias k 'kubectl' # "--context=${KUBECTL_CONTEXT:-$(kubectl config current-context)}" ${KUBECTL_NAMESPACE/[[:alnum:]-]*/--namespace=${KUBECTL_NAMESPACE}}'
 nAlias podman-run podman run --rm -i -t
 nAlias htop btop
-reAlias feh --scale-down --auto-zoom --auto-rotate
+reAlias feh --scale-down --auto-zoom
 nAlias grep rg
 nAlias o xdg-open
 nAlias dmakepkg podman-run --network host -v '$PWD:/pkg' 'whynothugo/makepkg' makepkg
@@ -861,12 +864,10 @@ nAlias scu command systemctl --user
 nAlias sc systemctl
 nAlias sru command systemd-run --user
 nAlias sr systemd-run
-nAlias urldecode 'sed "s@+@ @g;s@%@\\\\x@g" | xargs -0 printf "%b"'
+nAlias urldecode 'sed "s@+@ @g;s@%@\\\\x@g" | parallel -0 printf "%b"'
 nAlias urlencode 'jq -s -R -r @uri'
 nAlias base64 'base64 -w 0'
-nAlias b base64
-nAlias bd 'base64 -d'
-nAlias tree ls --tree
+nAlias tree ls --tree -I .git
 reAlias mitmproxy "--set confdir=$XDG_CONFIG_HOME/mitmproxy"
 reAlias mitmweb "--set confdir=$XDG_CONFIG_HOME/mitmproxy"
 nAlias . ls
@@ -881,7 +882,6 @@ nAlias dmesg sudo dmesg -T
 reAlias history -i 100
 nAlias watch hwatch ' '
 nAlias task go-task
-unalias diff
 nAlias openstack CLIFF_MAX_TERM_WIDTH=999 openstack
 
 alias -g A='| awk'
@@ -897,6 +897,7 @@ alias -g J='| jq'
 alias -g L='| less --raw-control-chars'
 alias -g NL='| /bin/cat'
 alias -g LO='| lnav'
+alias -g P='| parallel'
 alias -g S='| sed'
 alias -g SP='| sponge'
 alias -g T='| tee'

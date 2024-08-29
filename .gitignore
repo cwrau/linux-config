@@ -45,10 +45,12 @@
 .config/cloudflared/cert.pem
 .config/cloudflared/files.json
 .config/cloudflared/kdeconnect.json
+.config/credstore/*
+!.config/credstore/*.gpg
 .config/dconf/user
 .config/filebrowser/files.db
 .config/gh/hosts.yml
-.config/github-copilot/hosts.json
+.config/github-copilot/apps.json
 .config/kube/config.yaml
 .config/obs-studio/basic/profiles/Ultrawide/service.json
 .config/wireguard/wg0.conf
@@ -56,4 +58,3 @@
 .ssh/known_hosts
 .ssh/known_hosts.old
 .ssh/work.config
-.config/systemd/user/work-trigger.service.d/override.conf

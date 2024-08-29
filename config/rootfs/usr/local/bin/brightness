@@ -47,7 +47,7 @@ esac
 
 if [[ $currentIndex != "$newIndex" ]]; then
   nextValue=$(printf %.0f "$(echo "scale=2; (${levels[$newIndex]} / 100) * $max" | bc)")
-  echo "$nextValue" | sudo tee "$backlight/brightness"
+  flock -x "$XDG_RUNTIME_DIR/brightness" bash -c "echo '$nextValue' | sudo tee '$backlight/brightness'; ddcutil setvcp 10 '${levels[$newIndex]}' || true"
 fi
 
 notify-send.sh -h string:x-dunst-stack-tag:brightness -t 1001 "Brightness: ${levels[$newIndex]}%"

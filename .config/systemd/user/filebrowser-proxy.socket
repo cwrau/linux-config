@@ -1,6 +1,5 @@
 [Socket]
 ListenStream=127.0.0.1:8050
+ListenStream=192.168.69.69:8050
+FreeBind=yes
 Service=localhost-proxy@8050.service
-
-[Install]
-WantedBy=sockets.target

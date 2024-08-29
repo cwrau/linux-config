@@ -1,0 +1,8 @@
+[Unit]
+Description=Stops the work.target, if applicable
+Requisite=work.target
+
+[Service]
+Type=oneshot
+ExecStart=systemctl --user stop work.target
+ExecStart=/usr/bin/notify-send.sh -u critical "Stop working! No overtime allowed!" -t 60000

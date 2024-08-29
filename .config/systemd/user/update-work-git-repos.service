@@ -1,0 +1,10 @@
+[Unit]
+Description=update important work git repos
+PartOf=work.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/git -C %h/work/technik/teutoops pull
+RemainAfterExit=true
+Restart=on-failure
+RestartSec=1m

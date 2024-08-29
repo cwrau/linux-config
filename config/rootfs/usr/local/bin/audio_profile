@@ -7,7 +7,10 @@ from lib.audio_script import *
 
 
 def card_name_getter(card: PulseCardInfo) -> str:
-    name: str = card.proplist.get("bluez.alias") or card.proplist.get("device.description")
+    return card.proplist.get("bluez.alias") or card.proplist.get("device.description")
+
+def card_description_getter(card: PulseCardInfo) -> str:
+    name = card_name_getter(card)
     return f'{name} ({card.profile_active.description})'
 
 
@@ -25,15 +28,15 @@ def audio_profile():
         card: [profile for profile in card.profile_list if profile.available != 0] for card in cards}
     profile_cards: Dict[PulseCardInfo, Sequence[PulseCardProfileInfo]] = {card: profiles for card, profiles in
                                                                           profile_cards.items() if len(profiles) > 1}
-    card: PulseCardInfo = get_choice(list(profile_cards.keys()), "card", card_name_getter,
+    card: PulseCardInfo = get_choice(list(profile_cards.keys()), "card", card_description_getter,
                                      lambda c: c.index == default_sink_card_index,
-                                     card_name_getter)
+                                     card_description_getter)
     if card is None:
         return
 
     profiles: Sequence[PulseCardProfileInfo] = profile_cards[card]
 
-    profile: PulseCardProfileInfo = get_choice(profiles, "profile", lambda p: p.description,
+    profile: PulseCardProfileInfo = get_choice(profiles, f'profile for {card_name_getter(card)}', lambda p: p.description,
                                                lambda p: p.name == card.profile_active.name)
 
     if profile is None:

@@ -1,0 +1,10 @@
+[Unit]
+Requires=graphical-session.target
+PartOf=telefondienst.target
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/notify-send.sh 'Telefondienst is starting\nReset 3cx status'
+RemainAfterExit=true
+ExecStop=/usr/bin/notify-send.sh 'Telefondienst is over\nReset 3cx status'

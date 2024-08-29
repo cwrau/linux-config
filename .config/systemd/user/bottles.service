@@ -6,18 +6,14 @@ Requires=graphical-session.target
 ConditionACPower=true
 
 [Service]
-Type=simple
+Type=exec
 ExecCondition=bash -eo pipefail -c 'lsmod | grep -q nvidia'
 ExecStart=/usr/bin/bottles
 OOMScoreAdjust=-500
 TimeoutStopSec=5s
 MemoryMax=80%
 TasksMax=800
-RestartSec=0
 Restart=on-failure
 ManagedOOMPreference=avoid
 Nice=-2
 Slice=bottles.slice
-
-[Install]
-WantedBy=graphical-session.target

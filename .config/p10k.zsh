@@ -1697,8 +1697,7 @@
     if [[ -v OS_SHELL ]]; then
       local projectName
       if [[ -z "${_openstack_cache}" ]]; then
-        projectName="$(openstack project list -c Name -f value | sort | head -1)"
-        if [[ $? == 0 ]]; then
+        if projectName="$(openstack project list -c Name -f value | sort | head -1)"; then
           _openstack_cache="$projectName"
         fi
       else

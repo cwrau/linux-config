@@ -1,11 +1,14 @@
 [Unit]
 Description=glava output updater
-PartOf=glava.target
+Requires=pipewire-pulse.service
+StopWhenUnneeded=true
+ConditionACPower=true
 
 [Service]
-Type=simple
+Type=notify
+Slice=glava.slice
+NotifyAccess=all
 ExecStart=%E/glava/update.sh
-RestartSec=0
 Restart=always
 
 # disallow writing to /usr, /bin, /sbin, ...
@@ -14,6 +17,3 @@ ProtectSystem=true
 NoNewPrivileges=true
 ProtectKernelTunables=true
 ProtectControlGroups=true
-
-[Install]
-WantedBy=graphical-session.target
