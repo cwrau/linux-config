@@ -1,18 +1,4 @@
 plugins:
-  debug:
-    shortCut: j
-    confirm: false
-    description: Debug with alpine container
-    scopes:
-      - pods
-    background: false
-    command: kubectl
-    args:
-      - debug
-      - -it
-      - --namespace=$NAMESPACE
-      - $NAME
-      - --image=alpine
   management-k9s:
     shortCut: k
     confirm: false
@@ -47,18 +33,6 @@ plugins:
       - $NAMESPACE
       - $NAME
       - k9s
-  cluster-shell:
-    shortCut: s
-    confirm: false
-    description: Enter shell with KUBECONFIG and openstack credentials for cluster
-    scopes:
-      - teutonetescluster
-      - cluster
-    background: false
-    command: capo-shell
-    args:
-      - $NAMESPACE
-      - $NAME
   logs:
     shortCut: k
     description: Real logs

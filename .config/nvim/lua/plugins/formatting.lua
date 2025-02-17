@@ -1,4 +1,3 @@
----@type LazyPlugin[]
 local plugins = {
   {
     "stevearc/conform.nvim",
@@ -6,7 +5,8 @@ local plugins = {
     dependencies = {
       "williamboman/mason.nvim",
     },
-    ---@type ConformOpts
+    ---@module "conform"
+    ---@type conform.setupOpts
     opts = {
       formatters = {
         shfmt = {
@@ -20,7 +20,7 @@ local plugins = {
         helm = {},
         ---yaml = { "yamlfix" },
         json = { "fixjson" },
-        ["*"] = { "trim_whitespace", "trim_newlines", "codespell" },
+        ["*"] = { "trim_whitespace", "trim_newlines" },
       },
     },
   },

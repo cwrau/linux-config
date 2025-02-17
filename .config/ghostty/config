@@ -1,0 +1,11 @@
+theme = "GNOME"
+window-theme = system
+window-decoration = false
+gtk-titlebar = false
+font-family = "FiraCode Nerd Font"
+font-size = 14
+shell-integration-features = no-cursor, sudo, title
+cursor-style = block
+cursor-style-blink = true
+cursor-text = cell-background
+cursor-color = cell-foreground

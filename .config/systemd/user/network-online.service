@@ -5,6 +5,5 @@ Description=Wait until internet is accessible
 Type=oneshot
 ExecStart=/usr/bin/nm-online -s -q
 Environment=NM_ONLINE_TIMEOUT=60
-Restart=Always
+Restart=on-failure
 StartLimitBurst=128
-

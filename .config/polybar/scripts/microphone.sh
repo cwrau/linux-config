@@ -4,6 +4,8 @@ SYMBOL_MIC_MUTED=""
 
 source "$XDG_CONFIG_HOME/polybar/scripts/parse_colors.sh"
 
+conferenceServices=(google-chrome@daily.service google-chrome@meeting.service discord.service)
+
 function notify() {
   dunstify -h string:x-dunst-stack-tag:microphone -t 500 "$@"
 }
@@ -52,13 +54,14 @@ function update() {
         if systemctl --user is-active -q gamemode.service; then
           notify Microphone unmuted
         fi
+        pactl set-source-volume @DEFAULT_SOURCE@ 100%
       else
         color="$color_pishade7"
       fi
     fi
   fi
 
-  echo "%{F$color}$symbol${outputString}%{F-}"
+  echo "%{A1:/usr/bin/pactl set-source-mute @DEFAULT_SOURCE@ toggle:}%{F$color}$symbol${outputString}%{F-}%{A}"
 
   if [[ "$state" == RUNNING ]]; then
     flock -x "$XDG_RUNTIME_DIR/polybar/microphone-lock" bash -c "date +%s > '$XDG_RUNTIME_DIR/polybar/microphone'"

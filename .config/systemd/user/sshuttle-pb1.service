@@ -1,0 +1,16 @@
+[Unit]
+Description=sshuttle for PB1
+PartOf=smartcard.target
+After=smartcard.target
+Requisite=work.target
+RefuseManualStart=true
+RefuseManualStop=true
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/sshuttle -r gateway api.pb1.teutostack.de
+Restart=always
+RestartSec=1
+RestartSteps=10
+RestartMaxDelaySec=300
+Slice=sshuttle.slice

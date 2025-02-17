@@ -1,7 +1,6 @@
 [Unit]
 Description=Set xorg settings
 After=i3-session.target
-Requires=i3-session.target
 
 [Timer]
 OnStartupSec=10

@@ -9,6 +9,7 @@ export XDG_PICTURES_DIR="$HOME/Downloads"
 export XDG_PUBLICSHARE_DIR="$HOME/Downloads"
 export XDG_RUNTIME_DIR="/run/user/${UID:-$(id -u)}"
 export XDG_SCREENSHOT_DIR="$HOME/Screenshots"
+export XDG_STATE_HOME="$HOME/.local/state"
 export XDG_TEMPLATES_DIR="$HOME/Downloads"
 export XDG_VIDEOS_DIR="$HOME/Downloads"
 
@@ -53,9 +54,9 @@ export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
 export BROWSER=google-chrome-stable
 export CLUSTERCTL_DISABLE_VERSIONCHECK="true"
 export EDITOR=nvim
-export FZF_ALT_C_COMMAND='fd -t d --hidden'
+export FZF_ALT_C_COMMAND='fd -t d --hidden --exclude=.git'
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -20'"
-export FZF_CTRL_T_COMMAND='fd -t f --hidden'
+export FZF_CTRL_T_COMMAND='fd -t f --hidden --exclude=.git'
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --pager=never -p {} | head -20'"
 export GLAMOUR_STYLE=dracula
 export GOFLAGS="-modcacherw"
@@ -65,7 +66,7 @@ export GUM_SPIN_SPINNER=points
 export HELM_DIFF_OUTPUT="dyff"
 export HELM_PLUGINS="/usr/lib/helm/plugins"
 export HISTSIZE=9223372036854775807
-export HWATCH="--differences word"
+export HWATCH="--differences word --no-help-banner"
 export KUBECTL_NODE_SHELL_POD_CPU=0
 export KUBECTL_NODE_SHELL_POD_MEMORY=0
 export PAGER=less
@@ -75,26 +76,40 @@ export SECRETS_EXTENSION=".gpg"
 export SYSTEMD_PAGERSECURE=false
 export VISUAL="$EDITOR"
 
-if [[ "${XDG_SESSION_TYPE:-tty}" == "tty" && -o interactive && "$XDG_VTNR" == 1 ]]; then
-  if false; then
-    export XDG_CURRENT_DESKTOP=sway
-    export GBM_BACKEND=nvidia-drm
-    export __GLX_VENDOR_LIBRARY_NAME=nvidia
-    export MOZ_ENABLE_WAYLAND=1
-    export XDG_SESSION_TYPE=wayland
-    export WLR_DRM_NO_MODIFIERS=1
-    export WLR_DRM_DEVICES=/dev/dri/card0
-    systemctl --user import-environment 2> /dev/null
-    exec systemd-cat --stderr-priority=warning --identifier=wayland nice -n -19 sway --unsupported-gpu
-  else
-    export XDG_SESSION_TYPE=x11
-    systemctl --user import-environment 2> /dev/null
-    xorgConfig=""
-    if lsmod | grep -q nvidia; then
-      xorgConfig="-config nvidia.conf"
-    fi
-    exec systemd-cat --stderr-priority=warning --identifier=xorg nice -n -19 startx -- $xorgConfig
-  fi
+if [[ "${XDG_SESSION_TYPE:-tty}" == "tty" && -o interactive ]]; then
+  case "${XDG_VTNR}" in
+    1)
+      export XDG_SESSION_TYPE=x11
+      systemctl --user import-environment 2> /dev/null
+      xorgConfig=""
+      if lsmod | grep -Eq ^nvidia; then
+        xorgConfig="-config nvidia.conf"
+      fi
+      exec systemd-cat --stderr-priority=warning --identifier=xorg nice -n -19 startx -- $xorgConfig
+      ;;
+    a)
+      export XDG_CURRENT_DESKTOP=sway
+      export GBM_BACKEND=nvidia-drm
+      export __GLX_VENDOR_LIBRARY_NAME=nvidia
+      export MOZ_ENABLE_WAYLAND=1
+      export XDG_SESSION_TYPE=wayland
+      #export WLR_DRM_NO_MODIFIERS=1
+      #export WLR_DRM_DEVICES=/dev/dri/card0
+      systemctl --user import-environment 2> /dev/null
+      exec systemd-cat --stderr-priority=warning --identifier=wayland nice -n -19 sway --unsupported-gpu
+      ;;
+    a)
+      export XDG_CURRENT_DESKTOP=hyprland
+      export GBM_BACKEND=nvidia-drm
+      export __GLX_VENDOR_LIBRARY_NAME=nvidia
+      export MOZ_ENABLE_WAYLAND=1
+      export XDG_SESSION_TYPE=wayland
+      export WLR_DRM_NO_MODIFIERS=1
+      export WLR_DRM_DEVICES=/dev/dri/card0
+      systemctl --user import-environment 2> /dev/null
+      exec systemd-cat --stderr-priority=warning --identifier=wayland nice -n -19 Hyprland
+      ;;
+  esac
 fi
 
 if [[ ! -v DISPLAY ]]; then
@@ -228,6 +243,7 @@ plugins=(
   git-auto-fetch
   gitfast
   gradle
+  kubectl
   per-directory-history
   sudo
   zsh-autosuggestions
@@ -266,6 +282,7 @@ unset custom_completion
 setopt KSH_GLOB
 setopt INC_APPEND_HISTORY
 setopt HIST_REDUCE_BLANKS
+setopt CORRECT
 unsetopt HIST_IGNORE_DUPS
 unsetopt SHARE_HISTORY
 
@@ -354,7 +371,7 @@ function swap() {
 }
 
 function bak() {
-  cp -r "${1%/}" "${1%/}-$(date --iso-8601=seconds)"
+  cp -ar "${1%/}" "${1%/}-$(date --iso-8601=seconds)"
 }
 
 function helmUpdates() {
@@ -391,10 +408,14 @@ function knodes() {
 }
 
 function gop() {
+  if ! timeout 10s bash -c 'until systemctl --user is-active -q gopass-fuse.service; do sleep 1; done'; then
+    echo "gopass-fuse not started, aborting..." >&2
+    return 1
+  fi
   local pass
   local name="$1"
   if [[ -z "$name" || ! -f "$XDG_RUNTIME_DIR/gopass/$name" ]]; then
-    pass="$(gopass ls --flat | grep -v 'kube.?config' | fzf --preview "cat $XDG_RUNTIME_DIR/gopass/{}" | parallel -r cat $XDG_RUNTIME_DIR/gopass/{})"
+    pass="$(gopass ls --flat | grep -v 'kube.?config' | fzf --preview "cat $XDG_RUNTIME_DIR/gopass/{}" | xargs -i -r cat $XDG_RUNTIME_DIR/gopass/{})"
   else
     pass="$(cat "$XDG_RUNTIME_DIR/gopass/$name")"
   fi
@@ -654,8 +675,29 @@ function clip() {
 compdef _nop clip
 
 function column() {
-  local col="${(P)${#@}:-1}"
-  awk ${@:1:-1} "{print \$$col}"
+  local -a args
+  args=( $(getopt -u -o "f" -n "$0" -- "$@") ) || return 1
+  local flush
+  local -i col=1
+
+  while [[ "${#args}" -gt 0 ]]; do
+    case "${args[1]}" in
+      -f)
+        flush=";fflush()"
+        ;;
+      --) # positional arguments
+        if [[ "${args[2]}" =~ [0-9]+ ]]; then
+          col=${args[2]}
+          shift args
+        fi
+        ;;
+      *)
+        break
+        ;;
+    esac
+    shift args
+  done
+  awk ${args[@]} "{print \$$col$flush}"
 }
 
 function releaseAur() {
@@ -670,7 +712,7 @@ function releaseAur() {
     choice=$(gum choose "Version Bump" custom)
     case "$choice" in
       "Version Bump")
-        git commit . -m "Version Bump"
+        git commit . -m "chore: Version Bump"
         ;;
       custom)
         git commit -v .
@@ -692,8 +734,8 @@ function kkkk() {
   local query
   local exitCode
 
-  if ! command systemctl --user is-active -q gopass-fuse.service; then
-    command systemctl --user start --no-block gopass-fuse
+  if ! command systemctl --user is-active -q gopass-fuse; then
+    return 1
   fi
 
   if [[ ! -v 1 ]]; then
@@ -766,8 +808,8 @@ function getHelm() {
 }
 
 function kk() {
-  if ! timeout 10s bash -c 'until systemctl --user start gopass-fuse.service -q; do sleep 1; done'; then
-    echo "gopass-fuse not starting, aborting..." >&2
+  if ! timeout 10s bash -c 'until systemctl --user is-active -q gopass-fuse.service; do sleep 1; done'; then
+    echo "gopass-fuse not started, aborting..." >&2
     return 1
   fi
   for cluster in $(gopass list --flat G 'kube-?config' G mgmt); do
@@ -811,6 +853,23 @@ function _k9s() {
 }
 compdef _k9s k9s
 
+
+function schedule_meeting() {
+  local time="${1?}"
+  local type
+  if [[ "$2" =~ https://* ]]; then
+    local url="$2"
+    type="${3:-meeting}"
+  else
+    type="${2:-meeting}"
+  fi
+  if [[ -v url ]]; then
+    command systemd-run --user --on-calendar=@$(date --date="today $time" +%s) --property={Wants,After}="google-chrome@$type.service" -- google-chrome-stable --user-data-dir="$XDG_CONFIG_HOME/google-chrome-$type" "$url"
+  else
+    command systemd-run --user --on-calendar=@$(date --date="today $time" +%s) -- systemctl --user start "google-chrome@$type"
+  fi
+}
+
 function _lnav() {
   #_alternative 'local:local files:_files' \
     _arguments  '1:remote files:_remote_files -- ssh'
@@ -844,13 +903,17 @@ fi
 nAlias top htop
 nAlias vim nvim
 nAlias vi vim
+nAlias dig dog
 nAlias cat "bat --pager 'less -RF' --nonprintable-notation unicode"
+nAlias man batman
+compdef _man batman
 nAlias ps procs
 reAlias fzf --ansi
 reAlias prettyping --nolegend
 nAlias ping prettyping
 nAlias du gdu -x
-reAlias rg -S --engine auto --hidden --context-separator=──────────
+nAlias df duf -width 999
+reAlias rg -S --engine auto --hidden --glob '!.git' --context-separator=──────────
 reAlias jq -er
 reAlias yq -er
 nAlias k 'kubectl' # "--context=${KUBECTL_CONTEXT:-$(kubectl config current-context)}" ${KUBECTL_NAMESPACE/[[:alnum:]-]*/--namespace=${KUBECTL_NAMESPACE}}'
@@ -879,6 +942,7 @@ reAlias s3cmd '-c $XDG_CONFIG_HOME/s3cmd/config'
 nAlias journalctl command env SYSTEMD_PAGER=lnav journalctl -o short-iso-precise
 nAlias pacman echo use paru
 nAlias dmesg sudo dmesg -T
+nAlias machinectl sudo machinectl
 reAlias history -i 100
 nAlias watch hwatch ' '
 nAlias task go-task
@@ -891,13 +955,15 @@ alias -g C='| clip'
 alias -g COL='| column'
 alias -g COUNT='| wc -l'
 alias -g G='| grep'
+alias -g GF'G --line-buffered'
 alias -g GZ='| gzip'
 alias -g GZD='GZ -d'
 alias -g J='| jq'
 alias -g L='| less --raw-control-chars'
 alias -g NL='| /bin/cat'
 alias -g LO='| lnav'
-alias -g P='| parallel'
+alias -g P='| parallel --bar'
+alias -g PB='| parallel'
 alias -g S='| sed'
 alias -g SP='| sponge'
 alias -g T='| tee'
@@ -909,9 +975,6 @@ alias -g UR='U --unsafe-full-throttle'
 alias -g X='| xargs'
 alias -g Y='| yq'
 
-#if command -v kubectl-neat-diff > /dev/null; then
-#  export KUBECTL_EXTERNAL_DIFF=kubectl-neat-diff
-#fi
 if (( ${+commands[dyff]} )); then
   export KUBECTL_EXTERNAL_DIFF="dyff between --omit-header --set-exit-code"
 fi
@@ -930,4 +993,3 @@ if ! (( ${+commands[kustomize]} )); then
     kubectl kustomize "${@}"
   }
 fi
-

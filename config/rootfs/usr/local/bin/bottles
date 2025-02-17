@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [[ "${#@}" -gt 0 ]]; then
-  systemd-run --user --same-dir --property=Wants=bottles.service --property=Description=Bottles --property=Delegate=true --collect --slice=bottles.slice "--unit=bottles-$(cat /proc/sys/kernel/random/uuid)" --scope --quiet -- /usr/bin/bottles "${@}"
+  systemd-run --user --same-dir --property=Wants=bottles.service --property=Description=Bottles --property=Delegate=true --collect --slice=bottles.slice "--unit=bottles-$(cat /proc/sys/kernel/random/uuid)" --scope --quiet --wait -- /usr/bin/bottles "${@}"
 else
   systemctl --user start bottles
 fi

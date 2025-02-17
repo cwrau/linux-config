@@ -1,0 +1,10 @@
+[Unit]
+Description=Modify user settings
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/usermod -aG nix-users,gamemode cwr
+ExecStart=/usr/bin/usermod -v 10000-65536 -w 10000-65536 cwr
+
+[Install]
+WantedBy=first-boot-complete.target

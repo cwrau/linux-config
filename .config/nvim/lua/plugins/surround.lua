@@ -1,4 +1,3 @@
----@type LazyPlugin[]
 local plugins = {
   {
     "echasnovski/mini.surround",

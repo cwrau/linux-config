@@ -1,0 +1,9 @@
+[Unit]
+StopWhenUnneeded=true
+RefuseManualStart=true
+RefuseManualStop=true
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/joystickwake
+Restart=always

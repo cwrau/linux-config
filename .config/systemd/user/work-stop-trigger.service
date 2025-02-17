@@ -7,4 +7,7 @@ After=work.target
 Type=oneshot
 RemainAfterExit=true
 ExecCondition=not systemctl --user is-active -q work-stop-tmp.timer
-ExecStart=/usr/bin/bash -c 'systemd-run --user --collect --on-calendar=@$(date --date="$(systemctl --user show work.target --value --property ActiveEnterTimestamp) + 8hours" +%%s) --timer-property=PartOf=work.target --property=ExecCondition="systemctl --user is-active -q work.target" --unit=work-stop-tmp --property=Type=oneshot --property=ExecStart="systemctl --user stop work.target" -- notify-send.sh -u critical "Stop working! No overtime allowed!" -t 60000'
+Environment=STATE_FOLDER=%S/work
+Environment=TODAY_FILE="$STATE_FOLDER/$(date --iso-8601=date)"
+ExecStartPre=/usr/bin/bash -xc '[[ ! -f "${TODAY_FILE}" ]] && rm -f "$STATE_FOLDER/"*-*-*; touch "${TODAY_FILE}"'
+ExecStart=/usr/bin/bash -xc 'systemd-run --user --collect --on-calendar=@$(date --date=@"$(( $(stat -c %%W "${TODAY_FILE}") + (8*60*60) ))" +%%s) --timer-property=PartOf=work.target --property=ExecCondition="systemctl --user is-active -q work.target" --unit=work-stop-tmp --property=Type=oneshot --property=ExecStart="systemctl --user stop work.target" -- notify-send.sh -u critical "Stop working! No overtime allowed!" -t 60000'

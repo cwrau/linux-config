@@ -1,2 +1,4 @@
 {"type":"compiler", "nice":19, "sched":"batch", "ioclass":"idle"}
-{"type":"audio-server", "sched":"fifo", "ioclass":"realtime", "ionice":4, "nice":-20, "rtprio":50}
+{"type":"audio-server", "sched":"fifo", "ioclass":"realtime", "ionice":1, "nice":-15, "rtprio":50}
+{"type":"ide", "sched":"normal", "ioclass":"best-effort", "ionice":4, "nice":-10}
+{"type":"web-browser", "sched":"normal", "ioclass":"best-effort", "ionice":2, "nice":-12}

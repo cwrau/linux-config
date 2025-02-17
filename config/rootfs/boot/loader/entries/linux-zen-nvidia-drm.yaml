@@ -1,5 +1,5 @@
-title: Arch Linux ZEN NVIDIA DRM
+title: Arch Linux ZEN no NVIDIA DRM
 linux: linux-zen
 initramfs: linux-zen
 options:
-  - nvidia_drm.modeset=1
+  - nvidia_drm.modeset=0

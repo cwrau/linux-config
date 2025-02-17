@@ -3,9 +3,15 @@
 from lib.audio_script import *
 
 
+def get_sink_by_id(sink_id: str) -> PulseSinkInfo:
+    for sink in sinks:
+        if sink.index == sink_id:
+            return sink
+    return None
+
 def audio_program_sink():
     prog_input: PulseSinkInputInfo = get_choice(
-        inputs, "source", program_description_getter, sorter=program_description_getter)
+        inputs, "source", lambda p: f'{program_description_getter(p)} ({get_sink_by_id(p.sink).description})', sorter=program_description_getter)
 
     if prog_input is None:
         return

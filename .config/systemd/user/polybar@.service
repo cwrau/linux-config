@@ -9,7 +9,6 @@ RemainAfterExit=true
 ExecStartPre=/bin/bash -c 'until i3-msg; do sleep 1; done'
 ExecStartPre=/bin/sleep 1
 ExecStart=%E/polybar/launch.sh %i
-ExecReload=%E/polybar/launch.sh %i restart
 ExecStop=systemctl --user stop "polybar-%i.slice"
 KillSignal=SIGKILL
 Slice=polybar.slice

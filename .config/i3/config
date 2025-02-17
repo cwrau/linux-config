@@ -76,8 +76,6 @@ bindsym $super+v split h
 
 # enter fullscreen mode for the focused container
 bindsym $super+f fullscreen toggle
-# toggle polybar
-bindsym $super+Shift+f $exid "sh -c 'if systemctl --user -q is-active polybar@\*; then systemctl --user stop polybar@\*; else systemctl --user start polybar@\* -all; fi'"
 
 # change container layout (stacked, tabbed, toggle split)
 bindsym $super+t layout toggle stacking tabbed
@@ -143,8 +141,10 @@ default_border pixel 1
 for_window [class=".*"] border pixel 1
 hide_edge_borders both
 for_window [class="steam_app.*"] floating enable
+for_window [class="steam"] focus
 for_window [class="steam_proton"] floating enable
-for_window [instance="steamwebhelper" title="^(?!Friends List)(?!Steam).*"] floating enable
+for_window [class="kdeconnect.daemon"] floating enable
+for_window [class="steam" instance="steamwebhelper" title="^(?!Friends List)(?!Steam).*"] floating enable
 for_window [instance="sun-awt-X11-XWindowPeer"] floating enable
 for_window [class="Gnome-network-displays"] floating enable
 for_window [title="ALVR dashboard"] floating enable
@@ -172,6 +172,7 @@ mode $Power {
 
 # Emoji Keyboard
 
+#bindsym $super+period $exid rofi -show emoji -emoji-mode insert_no_copy
 bindsym $super+period $exid bemoji -t
 bindsym $super+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
 bindsym $super+p $exid open_project
@@ -182,8 +183,6 @@ bindsym XF86AudioLowerVolume $exid pactl set-sink-volume @DEFAULT_SINK@ -5%
 bindsym XF86AudioMute $exid pactl set-sink-mute @DEFAULT_SINK@ toggle
 bindsym Shift+XF86AudioMute $exid pactl set-source-mute @DEFAULT_SOURCE@ toggle
 bindsym XF86AudioMicMute $exid pactl set-source-mute @DEFAULT_SOURCE@ toggle
-bindsym Shift+XF86AudioLowerVolume $exid pctl volume 0.1-
-bindsym Shift+XF86AudioRaiseVolume $exid pctl volume 0.1+
 
 # Screen brightness controls
 bindsym XF86MonBrightnessUp $exid brightness up
@@ -251,12 +250,10 @@ bindsym Ctrl+Shift+$super+Print --release $exid "screenshot window --"
 # Browser stuff
 bindsym $super+c $exid "exo-open --launch WebBrowser"
 bindsym $super+Shift+c $exid "exo-open --launch WebBrowser --incognito"
-bindsym $super+m $exid sh -c 'systemctl --user is-active google-chrome@meeting.service && systemctl --user restart google-chrome@meeting.service || systemctl --user start google-chrome@meeting.service'
+bindsym $super+m $exid sh -c 'systemctl --user reload-or-restart google-chrome@meeting.service'
 bindsym $super+Shift+m $exid sh -c 'systemctl --user stop google-chrome@meeting.service google-chrome@daily.service'
 
-# Gamemode
-bindsym $super+shift+g $exid sh -c 'systemctl --user is-active gamemode.service && systemctl --user stop gamemode.service || systemctl --user start gamemode.service'
-
+bindsym $super+g $exid rofi -show calc -location 2 -automatic-save-to-history -no-fixed-num-lines -no-show-match -no-sort
 #new_window none
 
 bindsym $super+Page_Up workspace prev
@@ -293,11 +290,14 @@ bindsym $super+$alt+3 workspace 13
 
 bindsym $super+$alt+4 workspace 14:Discord
 assign [class="discord"] 14:Discord
-for_window [class="discord"] move to workspace 14:Discord
+assign [class="vesktop"] 14:Discord
+for_window [class="vesktop"] move to workspace 14:Discord
 
 bindsym $super+$alt+5 workspace 15:Steam
 assign [class="^steam$"] 15:Steam
 for_window [class="^steam$"] move to workspace 15:Steam
+assign [class="^/usr/libexec/chimera/chimera-splash$"] 15:Steam
+for_window [class="^/usr/libexec/chimera/chimera-splash$"] 15:Steam
 
 bindsym $super+$alt+6 workspace 16:YouTube
 assign [class="Google-chrome" title=".*YouTube$"] 16:YouTube
@@ -377,6 +377,6 @@ workspace 20:Chat output $internal
 
 gaps outer 5
 gaps inner 10
-smart_borders on
+popup_during_fullscreen all
 
 exec --no-startup-id systemctl --user start i3-session.target

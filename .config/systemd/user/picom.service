@@ -1,6 +1,6 @@
 [Unit]
 Description=Picom
-Requires=i3-session.target
+After=i3-session.target
 ConditionACPower=true
 
 [Service]

@@ -1,0 +1,2 @@
+[Service]
+Environment=BASE_ARGS=--autoplay-policy=no-user-gesture-required

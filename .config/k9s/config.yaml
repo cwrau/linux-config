@@ -1,7 +1,7 @@
 k9s:
-  liveViewAutoRefresh: false
+  liveViewAutoRefresh: true
   refreshRate: 1
-  maxConnRetry: 5
+  maxConnRetry: 60
   readOnly: false
   noExitOnCtrlC: false
   shellPod:

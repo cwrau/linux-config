@@ -5,4 +5,4 @@ PartOf=work.target
 [Timer]
 OnCalendar=Mon..Fri, 10:00
 Persistent=true
-Unit=google-chrome@meeting.service
+Unit=real-daily-trigger.service

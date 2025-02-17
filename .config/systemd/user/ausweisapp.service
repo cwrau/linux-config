@@ -5,4 +5,4 @@ CollectMode=inactive-or-failed
 
 [Service]
 Type=exec
-ExecStart=/usr/bin/AusweisApp2 --address 127.0.0.2
+ExecStart=/usr/bin/AusweisApp --address 127.0.0.2

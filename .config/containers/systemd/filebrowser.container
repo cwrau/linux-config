@@ -16,4 +16,4 @@ UserNS=keep-id
 User=%U
 Group=%G
 Environment=FB_PORT=8050
-Environment=FB_ADDRESS=localhost
+Environment=FB_ADDRESS=0.0.0.0

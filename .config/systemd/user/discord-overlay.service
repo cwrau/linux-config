@@ -1,7 +1,8 @@
 [Unit]
 Description=Discord Overlay
 PartOf=messengers.target
-Requires=discord.service gamemode.service
+Requires=discord.service
+Requisite=gamemode.service
 After=discord.service
 CollectMode=inactive-or-failed
 

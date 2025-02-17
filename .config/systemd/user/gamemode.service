@@ -3,6 +3,7 @@ Description=Gaming Mode
 Wants=discord.service
 Wants=music-volume@25.service
 Wants=pause-notifications.service
+Wants=joystickwake.service
 StopWhenUnneeded=true
 ConditionACPower=true
 

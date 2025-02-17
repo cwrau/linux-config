@@ -82,16 +82,33 @@ function getToolForFileType() {
   fi
 }
 
-function getDiffWithDyff() {
+function diffWithDyff() {
   local origPath="$1"
   local newPath="$2"
   dyff --color on between --omit-header "$origPath" "$newPath" | tail -n +2
 }
 
-function getDiffWith_xq() {
+function diffWith_xq() {
   local origPath="$1"
   local newPath="$2"
-  getDiffWithDyff <(xq . "$origPath" | yq -y) <(xq . "$newPath" | yq -y)
+  diffWithDyff <(xq . "$origPath" | yq -y) <(xq . "$newPath" | yq -y)
+}
+
+function runTextConversion() {
+  local origPath="$1"
+  local newPath="$2"
+  local attributeMatchers=()
+  local attributeMatcher
+
+  mapfile -t attributeMatchers < <(cat "$XDG_CONFIG_HOME/git/attributes")
+
+  if [[ "$origPath" != /dev/null ]]; then
+    for attributeMatcher in "${attributeMatchers[@]}"; do
+      if [[ "$origPath" =~ $attributeMatcher ]]; then
+        break
+      fi
+    done
+  fi
 }
 
 function _semantic_diff() {
@@ -114,9 +131,10 @@ function _semantic_diff() {
   local tool
   local exitCode=0
 
+  runTextConversion "$origPath" "$newPath"
   unifiedDiff=$(diff -u --unidirectional-new-file "$origPath" "$newPath") || exitCode=$?
   if [[ "$origPath" != /dev/null ]]; then
-    unifiedDiff=$(<<<"$unifiedDiff" sed "1s#--- $origPath#--- $origFilename#g")
+    unifiedDiff=$(<<<"$unifiedDiff" sed "1s#--- $origPath#--- $origFilename#")
   fi
   if [[ "$newPath" != /dev/null ]]; then
     unifiedDiff=$(<<<"$unifiedDiff" sed "2s#+++ $newPath#+++ $origFilename#")
@@ -130,10 +148,10 @@ function _semantic_diff() {
   done
 
   if [[ -v filetype ]] && tool=$(getToolForFileType "$filetype" "$origPath" "$newPath") && [[ -v tool ]] && { "$tool" -e . "$origPath" && "$tool" -e . "$newPath"; } &>/dev/null && sameNumberOfDocuments "$origPath" "$newPath" "$tool"; then
-    if declare -F "getDiffWith_$tool" >/dev/null; then
-      diff=$("getDiffWith_$tool" "$origPath" "$newPath")
+    if declare -F "diffWith_$tool" >/dev/null; then
+      diff=$("diffWith_$tool" "$origPath" "$newPath")
     else
-      diff=$(getDiffWithDyff "$origPath" "$newPath")
+      diff=$(diffWithDyff "$origPath" "$newPath")
     fi
     echo "$unifiedDiff" | (diff-so-fancy || true) | head -3
     echo "$diff"

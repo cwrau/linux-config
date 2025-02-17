@@ -43,4 +43,4 @@ fi
 
 unitName+="-$(cat /proc/sys/kernel/random/uuid)"
 
-systemd-run --user --same-dir --property=NotifyAccess=all --property=Wants=gamemode.service "--property=Description=$description" --property=Delegate=true --service-type=notify --collect --quiet --slice=bottles.slice "--unit=$unitName.service" -- bottles-cli-wrapper "${oldFlags[@]}"
+systemd-run --user --same-dir --property=NotifyAccess=all --property=Wants=gamemode.service "--property=Description=$description" --property=Delegate=true --service-type=notify --collect --quiet --slice=bottles.slice "--unit=$unitName.service" --wait -- bottles-cli-wrapper "${oldFlags[@]}"

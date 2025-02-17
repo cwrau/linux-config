@@ -14,7 +14,7 @@
 /Rocket.Chat
 /Signal/
 /Slack/
-/Unknown Organization/AusweisApp2.conf
+/AusweisApp/AusweisApp2.conf
 /Valve/vrmonitor.conf
 /YouTube Music Desktop App/
 /Yubico/YKPersonalization.conf
@@ -67,4 +67,5 @@
 /whatsapp-nativefier-*/
 /xdg-terminals.list
 /yuzu/
+/zoom.conf
 /zoomus.conf

@@ -29,40 +29,46 @@ function resolve_steam_appmanifest() {
   local appmanifest
   until appmanifest="$(grep -E -l "\"installdir\"\\s+\"$(basename "$path")\"" "$XDG_DATA_HOME/Steam/steamapps"/appmanifest_*.acf)" && ! grep -Eq '"appid"\s+"'"$(echo "${toolIDs[@]}" | paste -sd '|')"'"' "$appmanifest"; do
     path="$(dirname "$path")"
-    [[ "$path" == "common" || "$path" == "/" ]] && return 1
+    [[ "$path" == "common" || "$path" == "$HOME" ]] && return 1
   done
   echo "$appmanifest"
   return 0
 }
 
 function auto_detect_steam_game() {
-  local -a candidates
-  local appmanifest
-  sleep 5
-  mapfile -t candidates < <(pgrep -f "$XDG_DATA_HOME/Steam/steamapps/common" | xargs -I{} cat /proc/{}/cmdline | grep -zZ steamapps | xargs -0 -r realpath)
-  for candidate in "${candidates[@]}"; do
-    if appmanifest="$(resolve_steam_appmanifest "$candidate")"; then
-      grep -P -o '^\s+"name"\s+"\K.+(?="$)' "$appmanifest"
-      return 0
-    fi
+  SECONDS=0
+  until (("$SECONDS" >= 5)); do
+    local -a candidates=()
+    local appmanifest=
+    mapfile -t candidates < <(pgrep -f "$XDG_DATA_HOME/Steam/steamapps/common" | xargs -I{} cat /proc/{}/cmdline | grep -zZ steamapps | xargs -0 -r realpath)
+    for candidate in "${candidates[@]}"; do
+      if appmanifest="$(resolve_steam_appmanifest "$candidate")"; then
+        grep -P -o '^\s+"name"\s+"\K.+(?="$)' "$appmanifest"
+        return 0
+      fi
+    done
+    sleep 0.2
   done
   return 1
 }
 
 function auto_detect_bottles_game() {
-  local pid
-  local -a candidate
-  local cmdline
+  SECONDS=0
   if systemctl --user is-active -q bottles.slice; then
-    sleep 5
-    if pid="$(pgrep -f '/usr/bin/python3 /usr/bin/bottles-cli')"; then
-      mapfile -d $'\0' -t candidate <"/proc/$pid/cmdline"
-      eval "cmdline=( $(getopt --options "p:" -- "${candidate[@]}") )"
-      if [[ "${cmdline[0]}" == '-p' ]]; then
-        echo "${cmdline[1]}"
-        return 0
+    until (("$SECONDS" >= 5)); do
+      local pid=
+      local -a candidate=()
+      local cmdline=
+      if pid="$(pgrep -f '/usr/bin/python3 /usr/bin/bottles-cli')"; then
+        mapfile -d $'\0' -t candidate <"/proc/$pid/cmdline"
+        eval "cmdline=( $(getopt --options "p:" -- "${candidate[@]}") )"
+        if [[ "${cmdline[0]}" == '-p' ]]; then
+          echo "${cmdline[1]}"
+          return 0
+        fi
+        sleep 0.2
       fi
-    fi
+    done
     echo generic_bottles
     return 0
   else
@@ -95,7 +101,7 @@ case "$1" in
   start)
     rm -rf "$STATE_DIR"
     mkdir -p "$STATE_DIR"
-    if game="$(detect_game)" || game="$(auto_detect_bottles_game)" || game="$(auto_detect_steam_game)"; then
+    if game="$(detect_game)" || game="$(auto_detect_steam_game)" || game="$(auto_detect_bottles_game)"; then
       systemd-notify --status="Game detected: $game"
       adjust_for_game "$game"
     fi
@@ -110,6 +116,7 @@ case "$1" in
     for service in "${services[@]}"; do
       if [[ -f "$STATE_DIR/$service" ]]; then
         systemctl --user start "$service"
+        rm -f "$STATE_DIR/$service"
       fi
     done
     autorandr_dmenu

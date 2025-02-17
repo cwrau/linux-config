@@ -1,4 +1,3 @@
----@type LazyPlugin[]
 local plugins = {
   -- Use <tab> for completion and snippets (supertab)
   -- first: disable default <tab> and <s-tab> behavior in LuaSnip
@@ -14,6 +13,7 @@ local plugins = {
     dependencies = {
       "hrsh7th/cmp-emoji",
     },
+    ---@module "cmp.config"
     ---@param opts cmp.ConfigSchema
     opts = function(_, opts)
       local has_words_before = function()

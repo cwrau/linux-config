@@ -1,6 +1,6 @@
 [Unit]
 Description=glava
-Requires=i3-session.target
+After=i3-session.target
 Wants=glava@bars.service
 Wants=glava@radial.service
 Wants=restart-service@glava.path

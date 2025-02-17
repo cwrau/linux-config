@@ -52,7 +52,7 @@
   autoStash = true
 [diff]
   colorMoved = default
-  external = semantic-diff
+  #external = semantic-diff
   #external = bash -x semantic-diff
 [diff "sopsdiff"]
   textconv = sops decrypt

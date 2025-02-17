@@ -77,7 +77,6 @@ local pkgbuildcheckArgs = {}
 vim.list_extend(pkgbuildcheckArgs, pkgbuildcheckExtraArgs)
 vim.list_extend(pkgbuildcheckArgs, shellcheckArgs)
 
----@type LazyPlugin[]
 local plugins = {
   {
     "mfussenegger/nvim-lint",
@@ -85,6 +84,7 @@ local plugins = {
       linters_by_ft = {
         sh = { "shellcheck" },
         PKGBUILD = { "pkgbuildcheck" },
+        systemd = { "systemdlint", "systemd-analyze" },
       },
       linters = {
         shellcheck = {

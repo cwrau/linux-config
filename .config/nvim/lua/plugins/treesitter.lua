@@ -1,20 +1,16 @@
----@type LazyPlugin[]
 local plugins = {
   {
     "nvim-treesitter/nvim-treesitter",
+    ---@module "nvim-treesitter.configs"
     ---@param opts TSConfig
     opts = function(_, opts)
       opts.ignore_install = { "help" }
       opts.ensure_installed = "all"
-      if opts.indent == nil then
-        opts.indent = {}
+      if opts.modules == nil then
+        opts.modules = { indent = { disable = { "yaml" } } }
+      else
+        opts.modules["indent"].disable = { "yaml" }
       end
-      if opts.indent.disable == nil then
-        opts.indent.disable = {}
-      end
-      vim.list_extend(opts.indent.disable, {
-        "yaml",
-      })
     end,
   },
 }

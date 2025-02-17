@@ -3,5 +3,5 @@ Description=Messengers
 Requires=graphical-session.target
 After=graphical-session.target
 Wants=discord.service
-Wants=whatsapp.service
+Wants=google-chrome@whatsapp.service
 Wants=telegram.service

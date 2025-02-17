@@ -1,4 +1,3 @@
----@type LazyPlugin[]
 local plugins = {
   {
     "simrat39/symbols-outline.nvim",

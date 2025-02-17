@@ -1,18 +1,16 @@
----@type LazyPlugin[]
 local plugins = {
-  ---{
-  ---  "nvim-neo-tree/neo-tree.nvim",
-  ---  opts = {
-  ---    event_handlers = {
-  ---      {
-  ---        event = "file_opened",
-  ---        handler = function(_)
-  ---          require("neo-tree.command").execute({ action = "close" })
-  ---        end,
-  ---      },
-  ---    },
-  ---  },
-  ---},
+  {
+    "nvim-neo-tree/neo-tree.nvim",
+    opts = {
+      window = {
+        filesystem = {
+          filtered_items = {
+            hide_gitignored = false,
+          },
+        },
+      },
+    },
+  },
   {
     "cwrau/copy-github-url.nvim",
     dev = true,
@@ -37,6 +35,21 @@ local plugins = {
   {
     "voxelprismatic/rabbit.nvim",
     config = true,
+  },
+  {
+    "folke/snacks.nvim",
+    ---@module 'snacks'
+    ---@type snacks.Config
+    opts = {
+      indent = {
+        enable = true,
+      },
+      dim = {
+        scope = {
+          siblings = true,
+        },
+      },
+    },
   },
 }
 

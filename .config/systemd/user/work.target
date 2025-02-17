@@ -10,4 +10,5 @@ Wants=stop-telefondienst.timer
 Wants=telefondienst.timer
 Wants=update-work-git-repos.service
 Wants=work-stop-trigger.service
+Wants=work.timer
 #Wants=work-stop.timer # TODO: See https://github.com/systemd/systemd/pull/18517

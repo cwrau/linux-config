@@ -1,7 +1,6 @@
 [Unit]
 Description=feh background setter
 After=i3-session.target
-Requires=i3-session.target
 
 [Service]
 Type=oneshot

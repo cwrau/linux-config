@@ -8,7 +8,12 @@ vim.opt.clipboard:append({ "unnamed", "unnamedplus" })
 vim.opt.directory = XDG_CACHE_HOME .. "/nvim/swapdir"
 
 vim.opt.mouse = {}
+vim.opt.tabstop = 4
 vim.opt.softtabstop = 0
+vim.opt.shiftwidth = 0
+vim.opt.listchars = { tab = ">~" }
 vim.opt.relativenumber = true
 vim.opt.spelllang = { "en_gb", "de_de" }
 vim.opt.wrap = true
+-- Ignore URLs for spell checking
+vim.cmd([[syntax match UrlNoSpell '\(http[s]*:\/\/\|www\.\)\S*' contains=@NoSpell]])

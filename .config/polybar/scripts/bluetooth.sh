@@ -32,6 +32,7 @@ mkdir -p "$LOCKDIR"
 
 exec 4<>"$LOCKDIR/run-lock"
 exec 5<>"$LOCKDIR/message-lock"
+touch "$LOCKDIR/message"
 trap unlock EXIT
 
 supportsHSPHFPD=false
@@ -56,7 +57,7 @@ function update() {
               battery=$(dbus bluez "$mac")
             elif grep -q '0000111e-0000-1000-8000-00805f9b34fb' <<<"$info"; then # Handsfree
               battery=$(echo "from bluetooth_battery import BatteryStateQuerier; print(int(BatteryStateQuerier(\"$mac\")))" | python 2>/dev/null)
-            elif [[ "$supportsHSPHFPD" == true ]] && grep -q '00001200-0000-1000-8000-00805f9b34fb' <<<"$info"; then # PnP Information
+            elif $supportsHSPHFPD && grep -q '00001200-0000-1000-8000-00805f9b34fb' <<<"$info"; then # PnP Information
               for protocol in hfp_hf hfp_ag hsp_hs; do
                 battery=$(dbus hsphfpd "$mac" $protocol)
                 if [[ -n "$battery" && "$battery" != "-1" ]]; then
@@ -83,6 +84,6 @@ function update() {
 
 update
 
-sudo dbus-monitor --system --profile member=PropertiesChanged | grep --line-buffered -e /org/bluez/hci0 -e /org/hsphfpd | while read -r _; do
+dbus-monitor --system --profile member=PropertiesChanged 2>/dev/null | grep --line-buffered -e /org/bluez/hci0 -e /org/hsphfpd | while read -r _; do
   update
 done

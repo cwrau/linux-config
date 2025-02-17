@@ -17,6 +17,16 @@ declare -A games=(
   #[TheAscent.exe]="The Ascent"
   #[Gears5.*.exe]="Gears 5"
   #[Diggles.exe]="Wiggles"
+  #[portal2.sh]="Portal 2"
+  #[Move or Die/start_linux32.sh]="Move or Die"
+  #[Bread&Fred.exe]="Bread & Fred"
+  #[conviction_game.exe]="Tom Clancy's Splinter Cell Conviction"
+  #[We Were Here.exe]="We Were Here"
+  #[Magicka.exe]=Magicka
+  #[BloonsTD6.exe]="Bloons TD 6"
+  #[Mindustry]=Mindustry
+  #[Shift Happens.exe]="Shift Happens"
+  #[Lethal Company.exe]="Lethal Company"
 )
 
 # space-separated list of service to start
@@ -59,4 +69,5 @@ declare -A gameScreenSettings=(
   [Cultures 2]="small"
   [Vermeer 2]="small"
   ["Tom Clancy's Splinter Cell Conviction"]="wide"
+  ["The Witcher 3: Wild Hunt"]="wide"
 )

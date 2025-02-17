@@ -1,5 +1,5 @@
 configuration {
-  modi: "drun";
+  modi: "drun,calc";
   show-icons: true;
   terminal: "gnome-terminal";
 }
