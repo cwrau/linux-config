@@ -66,6 +66,8 @@ a8"     ""  `8b    d88b    d8'  88P'   "Y8  ""     `Y8  88       88
 }
 local headerKeys = vim.tbl_keys(headers)
 
+---@module "lazy"
+---@type LazyPluginSpec[]
 return {
   {
     "folke/snacks.nvim",

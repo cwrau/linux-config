@@ -1,4 +1,6 @@
-local plugins = {
+---@module "lazy"
+---@type LazyPluginSpec[]
+return {
   {
     "simrat39/symbols-outline.nvim",
     cmd = "SymbolsOutline",
@@ -6,5 +8,3 @@ local plugins = {
     config = true,
   },
 }
-
-return plugins

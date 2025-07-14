@@ -1,4 +1,6 @@
-local plugins = {
+---@module "lazy"
+---@type LazyPluginSpec[]
+return {
   {
     "nvim-neo-tree/neo-tree.nvim",
     opts = {
@@ -51,6 +53,32 @@ local plugins = {
       },
     },
   },
+  {
+    "lucidph3nx/nvim-sops",
+    keys = {
+      { "<leader>cse", vim.cmd.SopsEncrypt, desc = "[E]ncrypt [F]ile" },
+      { "<leader>csd", vim.cmd.SopsDecrypt, desc = "[D]ecrypt [F]ile" },
+    },
+  },
+  ---{
+  ---  "ramilito/winbar.nvim",
+  ---  event = "BufReadPre",
+  ---  dependencies = {
+  ---    "nvim-tree/nvim-web-devicons",
+  ---  },
+  ---  config = function()
+  ---    require("winbar").setup({
+  ---      icons = true,
+  ---      diagnostics = true,
+  ---      buf_modified = true,
+  ---      buf_modified_symbol = "M",
+  ---      dim_inactive = {
+  ---        enabled = false,
+  ---        highlight = "WinbarNC",
+  ---        icons = true, -- whether to dim the icons
+  ---        name = true, -- whether to dim the name
+  ---      },
+  ---    })
+  ---  end,
+  ---},
 }
-
-return plugins

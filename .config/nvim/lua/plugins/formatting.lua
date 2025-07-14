@@ -1,9 +1,11 @@
-local plugins = {
+---@module "lazy"
+---@type LazyPluginSpec[]
+return {
   {
     "stevearc/conform.nvim",
     lazy = false,
     dependencies = {
-      "williamboman/mason.nvim",
+      "mason-org/mason.nvim",
     },
     ---@module "conform"
     ---@type conform.setupOpts
@@ -25,5 +27,3 @@ local plugins = {
     },
   },
 }
-
-return plugins

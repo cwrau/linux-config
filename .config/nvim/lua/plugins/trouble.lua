@@ -1,4 +1,6 @@
-local plugins = {
+---@module "lazy"
+---@type LazyPluginSpec[]
+return {
   {
     "folke/trouble.nvim",
     -- opts will be merged with the parent spec
@@ -9,5 +11,3 @@ local plugins = {
     },
   },
 }
-
-return plugins

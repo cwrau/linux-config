@@ -1,4 +1,6 @@
-local plugins = {
+---@module "lazy"
+---@type LazyPluginSpec[]
+return {
   {
     "hrsh7th/nvim-cmp",
     dependencies = { "hrsh7th/cmp-emoji" },
@@ -10,5 +12,3 @@ local plugins = {
     end,
   },
 }
-
-return plugins

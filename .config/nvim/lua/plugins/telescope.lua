@@ -1,4 +1,6 @@
-local plugins = {
+---@module "lazy"
+---@type LazyPluginSpec[]
+return {
   {
     "nvim-telescope/telescope.nvim",
     opts = {
@@ -37,5 +39,3 @@ local plugins = {
     end,
   },
 }
-
-return plugins

@@ -1,4 +1,6 @@
-local plugins = {
+---@module "lazy"
+---@type LazyPluginSpec[]
+return {
   {
     "nvim-treesitter/nvim-treesitter",
     ---@module "nvim-treesitter.configs"
@@ -14,5 +16,3 @@ local plugins = {
     end,
   },
 }
-
-return plugins

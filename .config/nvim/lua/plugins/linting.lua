@@ -77,7 +77,9 @@ local pkgbuildcheckArgs = {}
 vim.list_extend(pkgbuildcheckArgs, pkgbuildcheckExtraArgs)
 vim.list_extend(pkgbuildcheckArgs, shellcheckArgs)
 
-local plugins = {
+---@module "lazy"
+---@type LazyPluginSpec[]
+return {
   {
     "mfussenegger/nvim-lint",
     opts = {
@@ -114,5 +116,3 @@ local plugins = {
     },
   },
 }
-
-return plugins

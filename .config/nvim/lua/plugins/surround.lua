@@ -1,4 +1,6 @@
-local plugins = {
+---@module "lazy"
+---@type LazyPluginSpec[]
+return {
   {
     "echasnovski/mini.surround",
     opts = function(_, opts)
@@ -9,5 +11,3 @@ local plugins = {
     end,
   },
 }
-
-return plugins

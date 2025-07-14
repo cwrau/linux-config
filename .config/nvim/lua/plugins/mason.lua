@@ -1,25 +1,36 @@
-local plugins = {
+---@module "lazy"
+---@type LazyPluginSpec[]
+return {
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     lazy = false,
     priority = 500,
-    opts = {
-      registries = {
-        "file:~/projects/mason-registry",
-      },
-    },
+    ---@module "mason"
+    ---@type MasonSettings
+    opts = {},
   },
   {
-    "williamboman/mason-lspconfig.nvim",
+    "mason-org/mason-lspconfig.nvim",
+    ---@module "mason-lspconfig"
+    ---@type MasonLspconfigSettings
+    opts = {
+      automatic_installation = true,
+    },
+    dependencies = {
+      { "mason-org/mason.nvim", opts = {} },
+      "neovim/nvim-lspconfig",
+    },
     lazy = false,
-    dev = true,
   },
   {
     "rshkarin/mason-nvim-lint",
     lazy = false,
-    dev = true,
     priority = 250,
+    ---@module "mason-nvim-lint"
+    ---@type MasonNvimLintSettings
     opts = {
+      ensure_installed = {},
+      ignore_install = {},
       automatic_installation = true,
       quiet_mode = true,
     },
@@ -36,20 +47,17 @@ local plugins = {
   {
     "RubixDev/mason-update-all",
     dependencies = {
-      "williamboman/mason.nvim",
+      "mason-org/mason.nvim",
     },
     lazy = false,
-    dev = true,
     priority = 400,
     ---@module "mason-update-all"
     ---@type MasonUpdateAllSettings
     opts = {
-      showNoUpdatesNotification = false,
+      show_no_updates_notification = false,
     },
     init = function()
       require("mason-update-all").update_all()
     end,
   },
 }
-
-return plugins

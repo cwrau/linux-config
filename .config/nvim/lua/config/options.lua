@@ -8,7 +8,7 @@ vim.opt.clipboard:append({ "unnamed", "unnamedplus" })
 vim.opt.directory = XDG_CACHE_HOME .. "/nvim/swapdir"
 
 vim.opt.mouse = {}
-vim.opt.tabstop = 4
+vim.opt.tabstop = 2
 vim.opt.softtabstop = 0
 vim.opt.shiftwidth = 0
 vim.opt.listchars = { tab = ">~" }

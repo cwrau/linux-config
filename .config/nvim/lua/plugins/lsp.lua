@@ -1,4 +1,6 @@
-local plugins = {
+---@module "lazy"
+---@type LazyPluginSpec[]
+return {
   {
     "neovim/nvim-lspconfig",
     opts = {
@@ -16,33 +18,6 @@ local plugins = {
             vim.tbl_deep_extend("force", config, { settings = { yaml = { keyOrdering = false } } })
           end,
         },
-        ["systemd-language-server"] = {},
-      },
-      setup = {
-        ["systemd-language-server"] = function(_, _)
-          require("lspconfig.configs")["systemd-language-server"] = {
-            default_config = {
-              cmd = { "systemd-language-server" },
-              filetypes = { "systemd" },
-              root_dir = function(fname)
-                return vim.fs.dirname(vim.fs.find(".git", { path = fname, upward = true })[1])
-              end,
-              single_file_support = true,
-            },
-            docs = {
-              description = [[
-https://github.com/psacawa/systemd-language-server
-
-`systemd-language-server` can be installed via `pip`:
-```sh
-pip install systemd-language-server
-```
-
-Language Server for Systemd unit files
-]],
-            },
-          }
-        end,
       },
     },
   },
@@ -54,10 +29,10 @@ Language Server for Systemd unit files
   {
     "cwrau/yaml-schema-detect.nvim",
     dev = true,
-    config = true,
+    ---@module "yaml-schema-detect"
+    ---@type YamlSchemaDetectOptions
+    opts = {},
     dependencies = { "neovim/nvim-lspconfig", "which-key.nvim" },
     ft = { "yaml" },
   },
 }
-
-return plugins
