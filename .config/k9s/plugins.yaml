@@ -1,4 +1,21 @@
 plugins:
+  #shell:
+  #  shortCut: s
+  #  confirm: false
+  #  description: start a container on the node
+  #  scopes:
+  #    - node
+  #  command: kubectl
+  #  args:
+  #    - debug
+  #    - node/$NAME
+  #    - --profile=general
+  #    - --image=alpine
+  #    - -it
+  #    - --
+  #    - nsenter
+  #    - -t
+  #    - 1
   management-k9s:
     shortCut: k
     confirm: false

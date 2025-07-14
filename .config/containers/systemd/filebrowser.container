@@ -10,7 +10,7 @@ SuccessExitStatus=1
 [Container]
 Image=filebrowser/filebrowser
 PublishPort=127.0.0.2:8050:8050
-Volume=%E/filebrowser/files.db:/database.db
+Volume=%E/filebrowser/files.db:/database/filebrowser.db
 Volume=%h:/srv
 UserNS=keep-id
 User=%U

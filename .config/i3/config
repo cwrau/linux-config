@@ -28,7 +28,7 @@ focus_on_window_activation urgent
 #mouse_warping none
 
 # start a terminal
-bindsym $super+Return $exid exo-open --launch TerminalEmulator
+bindsym $super+Return $exid terminal
 
 # kill focused window
 bindsym $super+Shift+q kill
@@ -155,6 +155,10 @@ for_window [class="jetbrains-.*" title="win0"] floating enable
 for_window [class="jetbrains-.*" title="Welcome to IntelliJ IDEA"] floating enable
 for_window [class="jetbrains-.*" title="splash"] floating enable
 for_window [class="jetbrains-.*" title="Get from Version Control"] floating enable
+no_focus [title="Java iKVM Viewer.*"]
+for_window [title="Java iKVM Viewer.*"] floating disable
+for_window [title="AusweisApp"] floating enable
+for_window [class="oidc"] floating enable
 
 
 $exaid $XDG_CONFIG_HOME/i3/rc.sh
@@ -230,8 +234,8 @@ bindsym $super+u $exid udiskie-dmenu
 bindsym --release $super+x $exid xkill
 
 # Clipboard-Manager
-bindsym $super+Shift+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i && xdotool key --clearmodifiers ctrl+shift+v'
-bindsym $super+Ctrl+v $exid sh -c 'CM_DIR=$XDG_CACHE_HOME/clipmenud clipmenu -i && xdotool type "$(xclip -o)"'
+bindsym $super+Shift+v $exid sh -c 'clipmenu -i && xdotool key --clearmodifiers ctrl+shift+v'
+bindsym $super+Ctrl+v $exid sh -c 'clipmenu -i && xdotool type "$(xclip -o)"'
 
 # Screenshots
 # Selection > Clipboard
@@ -248,12 +252,12 @@ bindsym Ctrl+Shift+Print --release $exid "screenshot full --"
 bindsym Ctrl+Shift+$super+Print --release $exid "screenshot window --"
 
 # Browser stuff
-bindsym $super+c $exid "exo-open --launch WebBrowser"
-bindsym $super+Shift+c $exid "exo-open --launch WebBrowser --incognito"
-bindsym $super+m $exid sh -c 'systemctl --user reload-or-restart google-chrome@meeting.service'
-bindsym $super+Shift+m $exid sh -c 'systemctl --user stop google-chrome@meeting.service google-chrome@daily.service'
+bindsym $super+c $exid browser
+bindsym $super+Shift+c $exid browser --incognito
+bindsym $super+m $exid sh -c 'systemctl --user start browser@meeting.service'
+bindsym $super+Shift+m $exid sh -c 'systemctl --user stop browser@meeting.service browser@daily.service'
 
-bindsym $super+g $exid rofi -show calc -location 2 -automatic-save-to-history -no-fixed-num-lines -no-show-match -no-sort
+bindsym $super+g $exid rofi -show calc -location 2 -automatic-save-to-history -no-fixed-num-lines -no-show-match -no-sort -calc-command "echo -n '{result}' | xclip -selection clipbboard"
 #new_window none
 
 bindsym $super+Page_Up workspace prev
@@ -377,6 +381,5 @@ workspace 20:Chat output $internal
 
 gaps outer 5
 gaps inner 10
-popup_during_fullscreen all
 
 exec --no-startup-id systemctl --user start i3-session.target

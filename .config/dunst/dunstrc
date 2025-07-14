@@ -63,7 +63,7 @@ stack_duplicates = true
 # screen width minus the width defined in within the geometry option.
 #geometry = "250x50-40+40"
 #geometry = "300x50-15+49"
-offset = "15x42"
+offset = "(15, 42)"
 
 # Shrink window if it's smaller than the width.  Will be ignored if
 # width is 0.
@@ -100,7 +100,7 @@ follow = "keyboard"
 sticky_history = true
 
 # Maximum amount of notifications kept in history
-history_length = 100
+history_length = 99999
 
 # Display indicators for URLs (U) and actions (A).
 show_indicators = true
@@ -139,8 +139,10 @@ browser = "/usr/bin/xdg-open"
 icon_position = "left"
 max_icon_size = 80
 
-# Paths to default icons.
-icon_path = "/usr/share/icons/Papirus/16x16/mimetypes/:/usr/share/icons/Papirus/48x48/status/:/usr/share/icons/Papirus/16x16/devices/:/usr/share/icons/Papirus/48x48/notifications/:/usr/share/icons/Papirus/48x48/emblems/"
+icon_theme = "Papirus-Dark"
+
+enable_recursive_icon_lookup = true
+enable_posix_regex = true
 
 frame_width = 3
 frame_color = "#8EC07C"
@@ -169,6 +171,14 @@ background = "#191311B0"
 timeout = 8
 override_pause_level = 100
 
+[Chrome]
+appname = "Google Chrome"
+urgency = normal # somehow chrome defaulted to critical?
+
+[Google Calendar]
+body = ".*calendar.google.com.*"
+timeout = 10
+
 [updates]
 stack_tag = updates
 history_ignore = true
@@ -180,7 +190,7 @@ history_ignore = true
 override_pause_level = 100
 
 [bluetooth]
-appname = blueman
+appname = bluetooth
 history_ignore = true
 override_pause_level = 100
 
@@ -197,7 +207,7 @@ override_pause_level = 100
 [rss]
 appname = Feeds
 timeout = 60
-urgent = critical
+urgency = critical
 
 [udiskie]
 appname = udiskie
@@ -207,10 +217,30 @@ override_pause_level = 100
 appname = CWRScript
 override_pause_level = 100
 
+[discord]
+appname = discord
+override_pause_level = 75
+
+[screenshots]
+appname = flameshot
+body = "Screenshot aborted."
+skip_display = true
+
+[whatsapp]
+appname = "Google Chrome"
+body = ".*web.whatsapp.com.*"
+override_pause_level = 75
+
+[screenshot]
+appname = "flameshot"
+override_pause_level = 100
+
 [zentrale]
 summary = "Eingehender Anruf"
-body = "*Zentrale:*"
-script = playerctl -a pause
+body = "Zentrale"
+script = ppause
+override_pause_level = 100
+urgency = critical
 
 # Every section that isn't one of the above is interpreted as a rules to
 # override settings for certain messages.

@@ -4,10 +4,10 @@ SYMBOL_MIC_MUTED=""
 
 source "$XDG_CONFIG_HOME/polybar/scripts/parse_colors.sh"
 
-conferenceServices=(google-chrome@daily.service google-chrome@meeting.service discord.service)
+conferenceServices=(browser@daily.service browser@meeting.service discord.service)
 
 function notify() {
-  dunstify -h string:x-dunst-stack-tag:microphone -t 500 "$@"
+  dunstify -a microphone -h string:x-dunst-stack-tag:microphone -t 500 "$@"
 }
 
 function update() {
@@ -42,7 +42,7 @@ function update() {
       if [[ "$state" == RUNNING ]]; then
         color="$color_pishade7"
         if systemctl --user is-active -q gamemode.service; then
-          notify Microphone muted
+          notify -i audio-input-microphone-muted-symbolic Microphone muted
         fi
       else
         color="$color_green"
@@ -52,7 +52,7 @@ function update() {
       if [[ "$state" == RUNNING ]]; then
         color="$color_pink"
         if systemctl --user is-active -q gamemode.service; then
-          notify Microphone unmuted
+          notify -i audio-input-microphone-symbolic Microphone unmuted
         fi
         pactl set-source-volume @DEFAULT_SOURCE@ 100%
       else
@@ -77,11 +77,20 @@ function update() {
     fi
   fi
 
+  #for conferenceService in "${conferenceServices[@]}"; do
+  #  if systemctl --user is-active -q "$conferenceService"; then
+  #    local clients
+  #    mapfile -t clients < <(pactl -f json list | jq -er --argjson pids "$(pgrep -g "$(systemctl --user show -p MainPID --value "$conferenceService")" | jq -cers)" '.sink_inputs[] | .properties["application.process.id"] as $pid | select($pid and ($pid | tonumber | IN($pids[]))) | .index')
+  #    for client in "${clients[@]}"; do
+  #      pactl move-sink-input "$client" easyeffects_sink
+  #    done
+  #  fi
+  #done
 }
 
 [ -f "$XDG_RUNTIME_DIR/polybar/microphone" ] || (echo 0 >"$XDG_RUNTIME_DIR/polybar/microphone")
 
 update
-pactl subscribe | grep --line-buffered -E "'(change|remove|new)' on (source|sink-input)" | while read -r _; do
+pactl subscribe | grep --line-buffered -E "'(change|remove|new)' on source" | while read -r _; do
   update
 done

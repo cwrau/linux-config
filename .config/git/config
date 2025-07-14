@@ -1,4 +1,5 @@
 [core]
+  eol = lf
   autocrlf = input
   pager = delta
   sshCommand = ssh -i $HOME/.ssh/id_private.pub
@@ -16,6 +17,8 @@
   skippedCherryPicks = false
 [global]
   program = gpg2
+[help]
+  autocorrect = immediate
 [commit]
   gpgsign = true
 [filter "lfs"]
@@ -42,20 +45,24 @@
 [credential]
   helper = store
 [pager]
-  diff = less --tabs=1,5 -RFS
+  diff = bash -c 'semantic-diff | less --tabs=1,5 -RFS' # delta # less --tabs=1,5 -RFS
   show = less --tabs=1,5 -RFS
 [interactive]
-#  diffFilter = diff-so-fancy --patch
-  diffFilter = delta --color-only
+  diffFilter = diff-so-fancy --patch # delta --color-only
+[delta]
+  navigate = true
 [merge]
-  conflictstyle = diff3
+  conflictstyle = zdiff3
   autoStash = true
 [diff]
   colorMoved = default
-  #external = semantic-diff
+  external = semantic-diff
+  #external = $HOME/config/rootfs/usr/local/bin/semantic-diff
   #external = bash -x semantic-diff
 [diff "sopsdiff"]
   textconv = sops decrypt
+[diff "gpg"]
+  textconv = gpg -d --quiet --yes --compress-algo=none --no-encrypt-to --batch --use-agent
 [color]
   ui = true
 [color "diff-highlight"]

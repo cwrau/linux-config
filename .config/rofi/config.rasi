@@ -1,6 +1,6 @@
 configuration {
   modi: "drun,calc";
   show-icons: true;
-  terminal: "gnome-terminal";
+  terminal: "terminal";
 }
 @theme "Arc-Dark"

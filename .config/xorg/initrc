@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 userresources=$XDG_CONFIG_HOME/xorg/.Xresources
 usermodmap=$XDG_CONFIG_HOME/xorg/.Xmodmap
 sysresources=/etc/X11/xinit/.Xresources
@@ -32,8 +32,17 @@ fi
 if lsmod | grep -q nvidia; then
   xrandr --setprovideroutputsource modesetting NVIDIA-0
 fi
-xrandr --output eDP-1-1 --mode 1920x1080 --primary
-autorandr --skip-option gamma,brightness --change --default horizontal
+
+mapfile -t detectedProfiles < <(autorandr --skip-options gamma,brightness --detected)
+
+if [[ ${detectedProfiles[@]} =~ home ]]; then
+  autorandr --load home
+elif [[ ${detectedProfiles[@]} =~ work-k8s-window-left ]]; then
+  autorandr --load work-k8s-window-left
+else
+  autorandr --load laptop
+fi
 
 systemd-cat --stderr-priority=warning --identifier=i3 nice -n -15 i3
+#systemd-cat --stderr-priority=warning --identifier=xmonad nice -n -15 xmonad
 systemctl --user stop --wait graphical-session.target

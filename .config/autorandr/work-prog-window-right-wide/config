@@ -15,15 +15,13 @@ off
 output DP-1.1
 off
 output eDP-1-1
-mode 2560x1440
-pos 0x0
-rate 240
+off
 output DP-1.8
 mode 2560x1440
-pos 1920x0
+pos 0x0
 primary
 rate 60
 output HDMI-0
 mode 2560x1440
-pos 5120x0
+pos 2560x0
 rate 60

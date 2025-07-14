@@ -1,1 +1,3 @@
 *.enc.* diff=sopsdiff
+*.gpg filter=gpg diff=gpg
+*.asc filter=gpg diff=gpg

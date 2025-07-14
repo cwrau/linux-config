@@ -11,6 +11,12 @@ function update() {
   echo "${failedUnits:+%{F$color_red\}${failedUnits}}"
 }
 
+#(
+#  dbus-monitor member=PropertiesChanged --system --profile &
+#  dbus-monitor member=PropertiesChanged --profile
+#) | while read -r _; do
+#  update
+#done
 while true; do
   update
   sleep 2
