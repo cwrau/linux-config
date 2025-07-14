@@ -99,12 +99,15 @@ function runTextConversion() {
   local newPath="$2"
   local attributeMatchers=()
   local attributeMatcher
+  local glob
+  local converter
 
   mapfile -t attributeMatchers < <(cat "$XDG_CONFIG_HOME/git/attributes")
 
   if [[ "$origPath" != /dev/null ]]; then
     for attributeMatcher in "${attributeMatchers[@]}"; do
-      if [[ "$origPath" =~ $attributeMatcher ]]; then
+      IFS=' ' read -r glob converter <<<"$attributeMatcher"
+      if [[ "$origPath" == $glob ]]; then
         break
       fi
     done
