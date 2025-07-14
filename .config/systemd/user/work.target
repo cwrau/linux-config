@@ -1,14 +1,16 @@
 [Unit]
 Description=Work applications
 After=graphical-session.target
+Wants=browser@work-todo.service
+Wants=browser@work.service
 Wants=daily.timer
-Wants=google-chrome@work-todo.service
-Wants=google-chrome@work.service
+Wants=gopass-fuse.service
+Wants=powerprofile@performance.service
 Wants=real-daily.timer
 Wants=rocketchat.service
-Wants=stop-telefondienst.timer
 Wants=telefondienst.timer
 Wants=update-work-git-repos.service
+Wants=work-start-smartcard.service
 Wants=work-stop-trigger.service
 Wants=work.timer
 #Wants=work-stop.timer # TODO: See https://github.com/systemd/systemd/pull/18517

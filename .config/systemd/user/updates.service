@@ -1,10 +1,10 @@
 [Unit]
-Description=Package Updates
+Description=Updates
 After=graphical-session.target
 Requires=graphical-session.target
 ConditionACPower=true
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/timeout -k 59m 58m /usr/local/bin/packageUpdates --unattended
+ExecStart=/usr/bin/timeout -k 59m 58m /usr/local/bin/updates --unattended
 SuccessExitStatus=5 6 7

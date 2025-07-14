@@ -1,16 +1,18 @@
 [Unit]
-Description=Telegram
-PartOf=messengers.target
-Requires=graphical-session.target org.freedesktop.IBus.session.generic.service
+Description=Google Chrome for %I
 After=graphical-session.target dunst.service
+Requires=graphical-session.target
 Wants=dunst.service
 
 [Service]
 Type=exec
-Environment=QT_IM_MODULE=ibus
-ExecStart=/usr/bin/Telegram
+Environment=FLATPAK_SANDBOX_DIR=%T
+Environment=EXTRA_ARGS=
+Environment=BASE_ARGS=
+ExecStart=/usr/local/bin/browser profile %i $BASE_ARGS $EXTRA_ARGS
 Restart=always
-Slice=messengers.slice
+TimeoutStopSec=5
+Nice=-5
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=true
@@ -18,3 +20,6 @@ ProtectSystem=true
 NoNewPrivileges=true
 ProtectKernelTunables=true
 ProtectControlGroups=true
+
+[Install]
+DefaultInstance=stuff

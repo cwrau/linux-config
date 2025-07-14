@@ -1,6 +1,6 @@
 [Unit]
 Description=Stop Telefondienst
-PartOf=work.target
+PartOf=telefondienst.target
 
 [Timer]
 OnCalendar=Thu 12:30

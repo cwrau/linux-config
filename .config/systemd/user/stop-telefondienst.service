@@ -3,6 +3,7 @@ Description=Stop Telefondienst
 
 [Service]
 Type=oneshot
+ExecCondition=/bin/bash -ec '[[ $(date +%%a) == Thu ]]'
 ExecStart=/usr/bin/systemctl --user stop telefondienst.target
 
 # disallow writing to /usr, /bin, /sbin, ...

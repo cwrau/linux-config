@@ -4,5 +4,9 @@ Description=Start Work
 [Timer]
 OnCalendar=Mon..Wed,Fri, 09:25
 OnCalendar=Thu, 09:00
+#OnCalendar=Mon..Wed,Fri 09:25,30..50/10
+#OnCalendar=Mon..Wed,Fri 10..16:00..50/10
+#OnCalendar=Mon..Wed,Fri 17:00..25/10
+#OnCalendar=Thu, 09..16:00..50/10
 Persistent=true
 Unit=work-trigger.service

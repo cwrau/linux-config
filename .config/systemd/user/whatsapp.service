@@ -1,5 +1,5 @@
 [Unit]
-Description=Google Chrome for %I
+Description=WhatsApp
 After=graphical-session.target dunst.service
 Requires=graphical-session.target
 Wants=dunst.service
@@ -7,9 +7,7 @@ Wants=dunst.service
 [Service]
 Type=exec
 Environment=FLATPAK_SANDBOX_DIR=%T
-Environment=EXTRA_ARGS=
-Environment=BASE_ARGS=
-ExecStart=/usr/bin/google-chrome-stable $BASE_ARGS --user-data-dir=%E/google-chrome-%i --class=%i $EXTRA_ARGS
+ExecStart=/usr/local/bin/browser whatsapp
 Restart=always
 TimeoutStopSec=5
 Nice=-5
@@ -20,6 +18,3 @@ ProtectSystem=true
 NoNewPrivileges=true
 ProtectKernelTunables=true
 ProtectControlGroups=true
-
-[Install]
-DefaultInstance=stuff

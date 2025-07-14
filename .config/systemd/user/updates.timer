@@ -1,5 +1,5 @@
 [Unit]
-Description=Package Updates
+Description=Updates
 
 [Timer]
 OnCalendar=hourly

@@ -1,0 +1,9 @@
+[Unit]
+Description=Starts the smartcard.target, and all its member units, if applicable
+RefuseManualStart=true
+RefuseManualStop=true
+
+[Service]
+Type=oneshot
+ExecCondition=systemctl --user is-active -q smartcard.target
+ExecStart=systemctl --user start smartcard.target

@@ -3,6 +3,6 @@ Description=Start Telefondienst
 PartOf=work.target
 
 [Timer]
-OnCalendar=Thu 09:00
-Persistent=true
+OnCalendar=Thu 09..11:00..50/10
+OnCalendar=Thu 12:00..25/10
 Unit=telefondienst.target

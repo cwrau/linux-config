@@ -1,0 +1,9 @@
+[Unit]
+StopWhenUnneeded=true
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/powerprofile %I
+ExecStop=/usr/local/bin/powerprofile office
+Restart=on-failure

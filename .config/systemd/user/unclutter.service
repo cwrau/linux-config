@@ -1,0 +1,7 @@
+[Unit]
+Description=Auto-hide mouse cursor
+PartOf=i3-session.target
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/unclutter

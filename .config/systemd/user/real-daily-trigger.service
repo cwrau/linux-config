@@ -1,3 +1,3 @@
 [Service]
 ExecCondition=/bin/bash -ec 'now=$(date +%%k%%M); (( 1000 <= now && now <= 1010 ))'
-ExecStart=/bin/systemctl --user start google-chrome@meeting.service
+ExecStart=/bin/systemctl --user start browser@meeting.service

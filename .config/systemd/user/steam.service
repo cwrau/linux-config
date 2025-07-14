@@ -7,7 +7,6 @@ ConditionACPower=true
 [Service]
 Type=exec
 ExecCondition=bash -eo pipefail -c 'lsmod | grep -q nvidia'
-ExecStartPre=-/usr/bin/bash -exc '/usr/bin/steam-tweaks; sleep 10; pkill -fx "python /usr/libexec/chimera/chimera-splash --pipe-file /tmp/chimera-splash-msg"'
 ExecStart=/usr/bin/steam-native
 ExecStopPost=/usr/bin/bash -exc 'shopt -u failglob; shopt -s nullglob; rm -vf "/dev/shm/u$U"* "/dev/shm/wine-"*'
 OOMScoreAdjust=-500
