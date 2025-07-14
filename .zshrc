@@ -24,10 +24,9 @@ export AWS_CONFIG_FILE="$XDG_CONFIG_HOME/aws/config"
 export AWS_SHARED_CREDENTIALS_FILE="$XDG_CONFIG_HOME/aws/credentials"
 export AZURE_CONFIG_DIR="$XDG_DATA_HOME/azure"
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
-export CM_DIR="$XDG_CACHE_HOME/clipmenud"
 export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
 export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
-export GOPATH="$XDG_DATA_HOME/go"
+export GOPATH="$XDG_CACHE_HOME/go"
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
 export KONAN_DATA_DIR="$XDG_DATA_HOME/konan"
@@ -51,8 +50,11 @@ export XAUTHORITY="$XDG_CACHE_HOME/x11/authority"
 export XINITRC="$XDG_CONFIG_HOME/xorg/initrc"
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
 
-export BROWSER=google-chrome-stable
+export BROWSER=browser
 export CLUSTERCTL_DISABLE_VERSIONCHECK="true"
+export CM_DIR="$XDG_DATA_HOME/clipmenud"
+export CM_LAUNCHER=rofi
+export CM_MAX_CLIPS=0
 export EDITOR=nvim
 export FZF_ALT_C_COMMAND='fd -t d --hidden --exclude=.git'
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -20'"
@@ -125,8 +127,8 @@ renice -n -10 -p $(pgrep -s $$) >/dev/null
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+if [[ -r "${XDG_CACHE_HOME}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
 # Path to your oh-my-zsh installation.
@@ -264,18 +266,13 @@ zstyle ':fzf-tab:complete:*' fzf-bindings alt-space:toggle
 zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':fzf-tab:*' switch-group 'left' 'right'
 zstyle ':fzf-tab:*' prefix ''
-zstyle ':fzf-tab:*:*' fzf-flags -i
+zstyle ':fzf-tab:*:*' fzf-flags -i --scheme=history
 #zstyle ':completion:*' matcher-list 'b:=*'
 source /usr/share/zsh/plugins/fzf-tab-git/fzf-tab.plugin.zsh #> /dev/null
 
 compdef _gradle gradle-or-gradlew
 
 [[ -f $XDG_CONFIG_HOME/p10k.zsh ]] && source $XDG_CONFIG_HOME/p10k.zsh
-
-for custom_completion in /opt/azure-cli/az.completion; do # /usr/share/bash-completion/completions/openstack; do
-  [[ -f "$custom_completion" ]] && source "$custom_completion"
-done
-unset custom_completion
 
 [[ -f /usr/share/LS_COLORS/dircolors.sh ]] && source /usr/share/LS_COLORS/dircolors.sh
 
@@ -321,33 +318,11 @@ function e() {
   i3-msg "exec xdg-open \"$*\""
 }
 
-#function ssh() {
-#  if [[ "${#@}" > 1 || "${#@}" == 0 ]]; then
-#    /usr/bin/ssh "$@"
-#  elif [[ -f ~/.ssh/checked_hosts ]] && grep -q -- "$1" ~/.ssh/checked_hosts; then
-#    name="$1"
-#    shift
-#    scp -q ~/.bashrc ${name}:/tmp/cwr.bashrc > /dev/null
-#
-#    /usr/bin/ssh $name -t "sh -c 'if which bash &> /dev/null; then bash --rcfile /tmp/cwr.bashrc -i; else if which ash &> /dev/null; then ash; else sh; fi; fi'"
-#    return $?
-#  else
-#    ssh-copy-id $1
-#    ret=$?
-#    if [ $ret -eq 0 ]; then
-#      echo "$1" >> ~/.ssh/checked_hosts
-#      ssh "$@"
-#      return $?
-#    fi
-#    return $ret
-#  fi
-#}
-
 function idea() {
   if [[ ! -v 1 ]]; then
-    open_project _
+    systemd-run -d --user open_project _
   else
-    open_project "$(realpath "$1")"
+    systemd-run -d --user open_project "$(realpath "$1")"
   fi
 }
 
@@ -457,13 +432,6 @@ function _cwatch() {
   fi
 }
 compdef _cwatch cwatch
-
-function findCluster() {
-  local cluster="$1"
-  for mgmt_cluster in $(gopass list --flat | command grep -E 'kube-?config' | grep mgmt); do
-    KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$mgmt_cluster kubectl get cluster -A | grep -q sustago && echo $mgmt_cluster && break
-  done
-}
 
 function krsdiff() {
   local namespace
@@ -666,11 +634,25 @@ function () :r(){
 }
 
 function clip() {
-  local xclipArgs=()
+  local xclipCommand=(xclip -selection clipboard -r)
+  local type
+  local image=false
   if [[ -t 0 ]]; then
-    xclipArgs+=( -o )
+    xclipCommand+=( -o )
+    if type="$(xclip -selection clipboard -o -t TARGETS | grep image)"; then
+      image=true
+      xclipCommand+=( -t "$type" )
+    fi
   fi
-  xclip -selection clipboard "${xclipArgs[@]}"
+  if [[ "$image" == true && -t 1 ]]; then
+    if [[ "$TERM" =~ ^xterm-(kitty|ghostty)$ ]] && (( ${+commands[chafa]} )); then
+      "${xclipCommand[@]}" | chafa -
+    else
+      "${xclipCommand[@]}" | feh -
+    fi
+  else
+    "${xclipCommand[@]}"
+  fi
 }
 compdef _nop clip
 
@@ -808,29 +790,12 @@ function getHelm() {
 }
 
 function kk() {
-  if ! timeout 10s bash -c 'until systemctl --user is-active -q gopass-fuse.service; do sleep 1; done'; then
-    echo "gopass-fuse not started, aborting..." >&2
-    return 1
-  fi
-  for cluster in $(gopass list --flat G 'kube-?config' G mgmt); do
-    KUBECONFIG=$XDG_RUNTIME_DIR/gopass/$cluster kubectl get cluster -A -o json | jq -r '.items[] | "'"$cluster"':\(.metadata.namespace):\(.metadata.name):\(.metadata.annotations["t8s.teuto.net/customer-name"] // "" | try @base64d // .metadata.labels["t8s.teuto.net/customer-id"]):\((.metadata.annotations["t8s.teuto.net/cluster"] // "" | try @base64d) as $name | if $name == "" then .metadata.name else $name end)"'
-  done | fzf --track --preview="awk -v name={} 'BEGIN{split(name,splitted,\":\"); cols=split(splitted[1], splitted, \"/\"); print splitted[cols-1]}'" +s -d : --with-nth=4,5 | IFS=: read -r mgmt namespace name _
-  [[ "$?" == 0 ]] || return "$?"
-  KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$mgmt" capo-shell "$namespace" "$name" "${@}"
+  MANAGEMENT_KUBECONFIGS="$XDG_CONFIG_HOME/kube/mgmt-dev;$XDG_CONFIG_HOME/kube/mgmt-prod;$XDG_CONFIG_HOME/kube/mgmt-bfe-prod" MULTI_CAPO_SHELL_CUSTOM_NAME_EXPRESSION='.metadata.annotations["t8s.teuto.net/cluster"] // "" | try @base64d' MULTI_CAPO_SHELL_CUSTOM_COLUMN_CUSTOMER_NAME='.metadata.annotations["t8s.teuto.net/customer-name"] // "" | try @base64d // .metadata.labels["t8s.teuto.net/customer-id"]' CAPO_SHELL_KUBECONFIG_FILTER='.users |= map({name: .name, user: {exec: {apiVersion: "client.authentication.k8s.io/v1beta1", command: "kubectl", args: ["oidc-login", "get-token", "--oidc-issuer-url=https://auth.k8s.teuto.net", "--token-cache-storage=keyring", "--oidc-client-id=kubernetes", "--oidc-extra-scope=email", "--oidc-extra-scope=groups", "--oidc-extra-scope=offline_access", "--open-url-after-authentication="]}}})' multi-capo-shell "${@}"
 }
 
 function kk9s() {
   kk k9s "${@}"
 }
-
-if [[ ! -f "$KUBECONFIG" ]]; then
-  unset KUBECONFIG
-  if [[ -f "$XDG_RUNTIME_DIR/kconfig/current_kubeconfig" ]]; then
-    export KUBECONFIG="$XDG_RUNTIME_DIR/gopass/$(gopass ls -flat | grep '^.+/kube-?config' | grep "^$(cat $XDG_RUNTIME_DIR/kconfig/current_kubeconfig)" | tail -1)"
-  else
-    rm -f "$XDG_RUNTIME_DIR/current_kubeconfig"
-  fi
-fi
 
 function k9s() {
   if [[ ! -f "$KUBECONFIG" ]]; then
@@ -853,7 +818,6 @@ function _k9s() {
 }
 compdef _k9s k9s
 
-
 function schedule_meeting() {
   local time="${1?}"
   local type
@@ -864,9 +828,28 @@ function schedule_meeting() {
     type="${2:-meeting}"
   fi
   if [[ -v url ]]; then
-    command systemd-run --user --on-calendar=@$(date --date="today $time" +%s) --property={Wants,After}="google-chrome@$type.service" -- google-chrome-stable --user-data-dir="$XDG_CONFIG_HOME/google-chrome-$type" "$url"
+    command systemd-run --user --on-calendar=@$(date --date="today $time" +%s) --property={Wants,After}="browser@$type.service" -- browser profile $type "$url"
   else
-    command systemd-run --user --on-calendar=@$(date --date="today $time" +%s) -- systemctl --user start "google-chrome@$type"
+    command systemd-run --user --on-calendar=@$(date --date="today $time" +%s) -- systemctl --user start "browser@$type"
+  fi
+}
+
+function share() {
+  local curlCommand=(curl -fsSL https://0x0.st)
+  local url
+  if [[ ! -t 0 ]]; then
+    url="$("${curlCommand[@]}" -F 'file=@-')"
+  elif [[ -v 1 && -f "$1" ]]; then
+    url="$("${curlCommand[@]}" -F "file=@$1")"
+  else
+    echo "Neither stdin nor a file has been given or the file doesn't exist" >&2
+    return 1
+  fi
+  echo "$url" | if [[ -t 1 ]]; then
+    clip
+    echo "$url"
+  else
+    cat -
   fi
 }
 
@@ -888,30 +871,28 @@ function nAlias() {
 nAlias $ ''
 nAlias :q exit
 nAlias :e nvim
-reAlias env "-0 | sort -z | tr '\0' '\n'"
 reAlias rm -i
 reAlias cp -i
 reAlias mv -i
+nAlias http xh
 #reAlias ls --almost-all --indicator-style=slash --human-readable --sort=version --escape --format=long --color=always --time-style=long-iso
 #nAlias ls exa --all --binary --group --classify --sort=filename --long --colour=always --time-style=long-iso --git
 nAlias ls lsd --almost-all --git --color=always --long --date=+'%Y-%m-%dT%H:%M:%S'
 if [[ "$(id -u)" != 0 ]] && (( ${+commands[sudo]} )); then
-  for cmd in systemctl ip; do
+  for cmd in systemctl systemd-run ip; do
     nAlias $cmd sudo $cmd
   done
 fi
 nAlias top htop
 nAlias vim nvim
 nAlias vi vim
-nAlias dig dog
 nAlias cat "bat --pager 'less -RF' --nonprintable-notation unicode"
 nAlias man batman
 compdef _man batman
-nAlias ps procs
 reAlias fzf --ansi
 reAlias prettyping --nolegend
 nAlias ping prettyping
-nAlias du gdu -x
+nAlias du dua -x interactive
 nAlias df duf -width 999
 reAlias rg -S --engine auto --hidden --glob '!.git' --context-separator=──────────
 reAlias jq -er
@@ -922,7 +903,7 @@ nAlias htop btop
 reAlias feh --scale-down --auto-zoom
 nAlias grep rg
 nAlias o xdg-open
-nAlias dmakepkg podman-run --network host -v '$PWD:/pkg' 'whynothugo/makepkg' makepkg
+nAlias actionlint podman-run -v $PWD:$PWD -w $PWD rhysd/actionlint
 nAlias scu command systemctl --user
 nAlias sc systemctl
 nAlias sru command systemd-run --user
@@ -930,7 +911,7 @@ nAlias sr systemd-run
 nAlias urldecode 'sed "s@+@ @g;s@%@\\\\x@g" | parallel -0 printf "%b"'
 nAlias urlencode 'jq -s -R -r @uri'
 nAlias base64 'base64 -w 0'
-nAlias tree ls --tree -I .git
+nAlias tree ls --tree -I .git -I node_modules
 reAlias mitmproxy "--set confdir=$XDG_CONFIG_HOME/mitmproxy"
 reAlias mitmweb "--set confdir=$XDG_CONFIG_HOME/mitmproxy"
 nAlias . ls
@@ -947,6 +928,7 @@ reAlias history -i 100
 nAlias watch hwatch ' '
 nAlias task go-task
 nAlias openstack CLIFF_MAX_TERM_WIDTH=999 openstack
+nAlias auniq "awk '!x[\$0]++'"
 
 alias -g A='| awk'
 alias -g B='| base64'
@@ -959,7 +941,7 @@ alias -g GF'G --line-buffered'
 alias -g GZ='| gzip'
 alias -g GZD='GZ -d'
 alias -g J='| jq'
-alias -g L='| less --raw-control-chars'
+alias -g L='| less'
 alias -g NL='| /bin/cat'
 alias -g LO='| lnav'
 alias -g P='| parallel --bar'
