@@ -8,8 +8,7 @@ if [[ "$path" =~ file://* ]]; then
 fi
 
 if [[ -d "$path" ]]; then
-  cd "$path"
-  exec gnome-terminal -- "$SHELL"
+  exec exo-open --launch TerminalEmulator --working-directory="$path"
 fi
 
 echo "Not an existing directory" >&2

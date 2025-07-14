@@ -3,17 +3,24 @@
 set -e
 set -o pipefail
 
-TEMPLATE_PATH=${1?You need to provide the template path}
+TEMPLATE_PATH="$(realpath "${1?You need to provide the template path}")"
 
-for c in "$TEMPLATE_PATH/"*.yaml; do
-  echo ---
-  echo "templating $c:"
-  echo ---
-  if gomplate -f "$TEMPLATE_PATH/entry.tmpl" -c ".=file://$c" | tee "${c/.yaml/}.conf"; then
-    echo
+if [[ -d "$TEMPLATE_PATH" ]]; then
+  rm -f "$TEMPLATE_PATH"/gen_*.conf
+  for config in "$TEMPLATE_PATH/"*.yaml; do
     echo ---
-  else
-    echo error during templating
-    exit 1
-  fi
-done
+    echo "templating $config:"
+    echo ---
+    name="$(basename "$config" .yaml)"
+    if gomplate -f "$TEMPLATE_PATH/entry.tmpl" -c ".=file://$config" | tee "$TEMPLATE_PATH/gen_$name.conf"; then
+      echo
+      echo ---
+    else
+      echo error during templating
+      exit 1
+    fi
+  done
+else
+  echo "'$TEMPLATE_PATH' doesn't exist" >&2
+  exit 1
+fi

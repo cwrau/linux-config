@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+[[ -v BROWSER_LOG ]] && set -x
+
+browser=(google-chrome-stable)
+silent="${BROWSER_SILENT:-false}"
+args=()
+
+case "$1" in
+  https://3cx.teuto.net/meet/82214e8a663bf1373fda9e8cd0133de281802573)
+    systemctl --user start browser@daily.service
+    ;;
+  https://3cx.teuto.net/meet/e4137641ace7978f5234a42b416fc79fb1795c71)
+    systemctl --user start browser@meeting.service
+    ;;
+  https://3cx.teuto.net/*)
+    systemctl --user start browser@meeting.service
+    args=(--user-data-dir="$XDG_CONFIG_HOME/google-chrome-meeting")
+    ;;
+  whatsapp)
+    shift
+    args=(--user-data-dir="$XDG_CONFIG_HOME/google-chrome-whatsapp" --class=whatsapp --app=https://web.whatsapp.com)
+    ;;
+  profile)
+    shift
+    profile="$1"
+    shift
+    case "$profile" in
+      *)
+        args=(--user-data-dir="$XDG_CONFIG_HOME/google-chrome-$profile" --class="$profile")
+        ;;
+    esac
+    ;;
+  *)
+    # basename /bin/kubectl-oidc_login <- ps args $pid_of_kubectl-oidc_login <- ps ppid $pid_of_xdg-open
+    # suppress output for kubectl-oidc_login, otherwise this messes with commands like k9s
+    parentParentBinary="$(basename "$(realpath "/proc/$(ps -o ppid:1= -p "$PPID")/exe")")"
+    if [[ "$parentParentBinary" == "kubelogin" || "$parentParentBinary" == "kubectl-oidc_login" ]]; then
+      browser=(timeout 5 ${browser[@]})
+      args=(--user-data-dir="$XDG_CONFIG_HOME/google-chrome-oidc" --class=oidc "--app=$1")
+      shift
+      silent=true
+    else
+      if [[ "$1" =~ ^https://api.ffm3.teutostack.de:6080/vnc_auto.html* ]]; then
+        args=(--new-window)
+      fi
+      systemctl --user start browser@stuff.service
+    fi
+    ;;
+esac
+
+if [[ "$silent" == true ]]; then
+  exec "${browser[@]}" "${args[@]}" "$@" &>/dev/null
+else
+  exec "${browser[@]}" "${args[@]}" "$@"
+fi

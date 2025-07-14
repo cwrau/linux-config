@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+set -euxo pipefail
+
+case "$1" in
+  performance)
+    profile=__high_performance__
+    ;;
+  powersave)
+    profile=__profile_max_energy_save__
+    ;;
+  silent)
+    profile=__profile_silent__
+    ;;
+  office)
+    profile=__office__
+    ;;
+  *)
+    echo "Profile $1 not supported" >&2
+    exit 1
+    ;;
+esac
+
+backlight="$(fd --maxdepth 1 . /sys/class/backlight | head -1)"
+oldBrightness=$(cat "$backlight/brightness")
+
+sudo systemctl start tccd.service
+
+gdbus call --system --dest com.tuxedocomputers.tccd --object-path /com/tuxedocomputers/tccd --method com.tuxedocomputers.tccd.SetTempProfileById -- "$profile"
+
+for i in 0 1 2 5 10; do
+  sleep $i
+  echo "$oldBrightness" | sudo tee "$backlight/brightness"
+done

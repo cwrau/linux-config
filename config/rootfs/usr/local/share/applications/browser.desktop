@@ -1,8 +1,8 @@
 [Desktop Entry]
 Version=1.0
-Name=Google Chrome
-StartupWMClass=Google-chrome
-Exec=/usr/local/bin/google-chrome-stable %U
+Name=Browser
+StartupWMClass=broswer
+Exec=/usr/local/bin/browser %U
 StartupNotify=true
 Terminal=false
 Icon=google-chrome

@@ -1,0 +1,29 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Type = Package
+Target = nvidia
+Target = nvidia-dkms
+Target = nvidia-open
+Target = nvidia-open-git
+Target = nvidia-open-dkms
+Target = nvidia-open-dkms-git
+Target = nvidia-open-beta
+Target = nvidia-open-beta-dkms
+Target = nvidia-lts
+Target = linux
+Target = linux-lts
+Target = linux-zen
+
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Type = File
+Target = boot/loader/entries/*.yaml
+
+[Action]
+Description = Regenerate boot loader entries
+When = PostTransaction
+Exec = /usr/local/bin/gen_boot_entries /boot/loader/entries/

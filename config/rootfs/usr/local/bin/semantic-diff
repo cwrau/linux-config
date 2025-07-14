@@ -133,10 +133,10 @@ function _semantic_diff() {
 
   runTextConversion "$origPath" "$newPath"
   unifiedDiff=$(diff -u --unidirectional-new-file "$origPath" "$newPath") || exitCode=$?
-  if [[ "$origPath" != /dev/null ]]; then
+  if [[ "$origPath" =~ /tmp/git-blob* ]]; then
     unifiedDiff=$(<<<"$unifiedDiff" sed "1s#--- $origPath#--- $origFilename#")
   fi
-  if [[ "$newPath" != /dev/null ]]; then
+  if [[ "$newPath" =~ /tmp/git-blob* ]]; then
     unifiedDiff=$(<<<"$unifiedDiff" sed "2s#+++ $newPath#+++ $origFilename#")
   fi
 
@@ -147,7 +147,7 @@ function _semantic_diff() {
     fi
   done
 
-  if [[ -v filetype ]] && tool=$(getToolForFileType "$filetype" "$origPath" "$newPath") && [[ -v tool ]] && { "$tool" -e . "$origPath" && "$tool" -e . "$newPath"; } &>/dev/null && sameNumberOfDocuments "$origPath" "$newPath" "$tool"; then
+  if [[ -v filetype ]] && tool=$(getToolForFileType "$filetype" "$origPath" "$newPath") && { "$tool" -e . "$origPath" && "$tool" -e . "$newPath"; } &>/dev/null && sameNumberOfDocuments "$origPath" "$newPath" "$tool"; then
     if declare -F "diffWith_$tool" >/dev/null; then
       diff=$("diffWith_$tool" "$origPath" "$newPath")
     else
@@ -161,8 +161,12 @@ function _semantic_diff() {
   return "$exitCode"
 }
 
-if [[ "$(ps -o comm= -p "$PPID")" == "git" ]]; then
-  _semantic_diff "$1" "$2" "$5" || true
+if [[ -v 1 ]]; then
+  if [[ "$(ps -o comm:1= -p "$PPID")" == "git" ]]; then
+    _semantic_diff "$1" "$2" "$5" || true
+  else
+    _semantic_diff "$1" "$2"
+  fi
 else
-  _semantic_diff "$1" "$2"
+  cat - | diff-so-fancy
 fi

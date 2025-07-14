@@ -27,7 +27,7 @@ toolIDs=("$( (
 function resolve_steam_appmanifest() {
   local path="$1"
   local appmanifest
-  until appmanifest="$(grep -E -l "\"installdir\"\\s+\"$(basename "$path")\"" "$XDG_DATA_HOME/Steam/steamapps"/appmanifest_*.acf)" && ! grep -Eq '"appid"\s+"'"$(echo "${toolIDs[@]}" | paste -sd '|')"'"' "$appmanifest"; do
+  until appmanifest="$(grep -P -l '"installdir"\s+"\Q'"$(basename "$path")"'\E"' "$XDG_DATA_HOME/Steam/steamapps"/appmanifest_*.acf)" && ! grep -Eq '"appid"\s+"'"$(echo "${toolIDs[@]}" | paste -sd '|')"'"' "$appmanifest"; do
     path="$(dirname "$path")"
     [[ "$path" == "common" || "$path" == "$HOME" ]] && return 1
   done

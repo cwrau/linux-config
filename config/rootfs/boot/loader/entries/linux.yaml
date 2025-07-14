@@ -1,0 +1,4 @@
+title: Arch Linux
+linux: linux
+initramfs: linux
+options: []

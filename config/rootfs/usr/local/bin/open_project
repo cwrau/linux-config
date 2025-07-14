@@ -1,70 +1,68 @@
 #!/usr/bin/env bash
 
 wrapper=(
-  "systemd-run"
-  "--user"
-  "--same-dir"
-  "--setenv=KUBECONFIG=$XDG_CONFIG_HOME/kube/config"
-  "--unit=intellij-$(cat /proc/sys/kernel/random/uuid)"
-  "--collect"
-  "--quiet"
-  "--wait"
-  "--slice=intellij.slice"
-  "--property=Delegate=true"
-  #  "--property=PrivateTmp=true"
-  #  "--property=JoinsNamespaceOf=intellij.service"
-  #  "--property=TemporaryFileSystem=/var"
-  "--"
-  "script"
-  "--return"
-  "--quiet"
-  "--log-out"
-  "/dev/null"
-  "--command"
+    "systemd-run"
+    "--user"
+    "--same-dir"
+    "--setenv=KUBECONFIG=$XDG_CONFIG_HOME/kube/config"
+    "--unit=intellij-$(cat /proc/sys/kernel/random/uuid)"
+    "--collect"
+    "--quiet"
+    "--wait"
+    "--slice=intellij.slice"
+    "--property=Delegate=true"
+    "--"
+    "script"
+    "--return"
+    "--quiet"
+    "--log-out"
+    "/dev/null"
+    "--command"
 )
 codeEditor="vscode"
 codeEditor="/opt/intellij-idea-ultimate-edition/bin/idea"
 projectFoldersRegex="git|idea"
 
 if [[ -n $1 ]]; then
-  if [[ -d $1 ]]; then
-    project=$(realpath "$1")
-  elif [[ -f $1 ]]; then
-    file=$(realpath "$1")
-  elif [[ $1 =~ ^jetbrains://* ]]; then
-    url="$1"
-  fi
+    if [[ -d $1 ]]; then
+        project=$(realpath "$1")
+    elif [[ -f $1 ]]; then
+        file=$(realpath "$1")
+    elif [[ $1 =~ ^jetbrains://* ]]; then
+        url="$1"
+    fi
 elif [[ $1 == _ ]]; then
-  project=
+    project=
 else
-  if ! project="$(fd --no-ignore-vcs --hidden --type directory --search-path="$HOME/"{work,projects} "\.($projectFoldersRegex)\$" --exec-batch stat --format "%X:%n" |
-    grep -v -P "node_modules|/\.(?!$projectFoldersRegex)" |
-    sort --reverse --field-separator : --key 1 |
-    cut --delimiter : --fields 2- |
-    xargs --no-run-if-empty -- dirname |
-    xargs --no-run-if-empty -- realpath --relative-to "$HOME" |
-    awk '!x[$0]++' |
-    dmenu -sync -i --no-custom -p Project)" || [[ ! -e "$project" ]]; then
-    exit 1
-  else
-    project="$HOME/$project"
-  fi
+    if ! project="$(fd --no-ignore-vcs --hidden --type directory --search-path="$HOME/"{work,projects} "\.($projectFoldersRegex)\$" --exec-batch stat --format "%X:%n" |
+        grep -v -P "node_modules|/\.(?!$projectFoldersRegex)" |
+        sort --reverse --field-separator : --key 1 |
+        cut --delimiter : --fields 2- |
+        xargs --no-run-if-empty -- dirname |
+        xargs --no-run-if-empty -- realpath --relative-to "$HOME" |
+        awk '!x[$0]++' |
+        dmenu -sync -i --no-custom -p Project)" || [[ ! -e "$project" ]]; then
+        exit 1
+    else
+        project="$HOME/$project"
+    fi
 fi
 
 if [[ -n "$project" ]]; then
-  command=("${wrapper[@]}" "$codeEditor '$project'")
+    command=("${wrapper[@]}" "$codeEditor '$project'")
 elif [[ -n "$url" ]]; then
-  command=("${wrapper[@]}" "$codeEditor '$url'")
+    command=("${wrapper[@]}" "$codeEditor '$url'")
 elif [[ -n "$file" ]]; then
-  command=("${wrapper[@]}" "$codeEditor --temp-project '$file'")
+    command=("${wrapper[@]}" "$codeEditor --temp-project '$file'")
 else
-  command=("${wrapper[@]}" "$codeEditor")
+    command=("${wrapper[@]}" "$codeEditor")
 fi
 
 exitCode=2
 while [[ "$exitCode" == 2 ]]; do
-  exitCode=0
-  "${command[@]}" || exitCode="$?"
+    exitCode=0
+    "${command[@]}" || exitCode="$?"
+    command=("${wrapper[@]}" "$codeEditor")
 done
 
 exit "$exitCode"
