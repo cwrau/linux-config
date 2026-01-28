@@ -4,8 +4,6 @@ return {
   {
     "neovim/nvim-lspconfig",
     opts = {
-      ---@module "lspconfig.configs"
-      ---@type table<string, lspconfig.Config>
       servers = {
         bashls = {
           on_attach = function(client)
@@ -14,10 +12,25 @@ return {
           end,
         },
         yamlls = {
-          before_init = function(_, config)
-            vim.tbl_deep_extend("force", config, { settings = { yaml = { keyOrdering = false } } })
-          end,
+          settings = {
+            yaml = {
+              keyOrdering = false,
+              schemaStore = {
+                enable = true,
+              },
+            },
+          },
         },
+        nil_ls = {
+          settings = {
+            nix = {
+              flake = {
+                autoArchive = true,
+              },
+            },
+          },
+        },
+        tofu_ls = {},
       },
     },
   },
@@ -32,7 +45,6 @@ return {
     ---@module "yaml-schema-detect"
     ---@type YamlSchemaDetectOptions
     opts = {},
-    dependencies = { "neovim/nvim-lspconfig", "which-key.nvim" },
-    ft = { "yaml" },
+    ft = { "yaml", "yaml.helm-values" },
   },
 }

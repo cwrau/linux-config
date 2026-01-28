@@ -55,7 +55,7 @@ export CLUSTERCTL_DISABLE_VERSIONCHECK="true"
 export CM_DIR="$XDG_DATA_HOME/clipmenud"
 export CM_LAUNCHER=rofi
 export CM_MAX_CLIPS=0
-export EDITOR=nvim
+export EDITOR=editor
 export FZF_ALT_C_COMMAND='fd -t d --hidden --exclude=.git'
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -20'"
 export FZF_CTRL_T_COMMAND='fd -t f --hidden --exclude=.git'
@@ -65,7 +65,7 @@ export GOFLAGS="-modcacherw"
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
 export GRADLE_OPTS=-Dorg.gradle.jvmargs=-Xmx1G
 export GUM_SPIN_SPINNER=points
-export HELM_DIFF_OUTPUT="dyff"
+export HELM_DIFF_OUTPUT="dyff --color=on"
 export HELM_PLUGINS="/usr/lib/helm/plugins"
 export HISTSIZE=9223372036854775807
 export HWATCH="--differences word --no-help-banner"
@@ -119,6 +119,11 @@ if [[ ! -v DISPLAY ]]; then
 fi
 
 renice -n -10 -p $(pgrep -s $$) >/dev/null
+
+if [[ -v XDG_DIR ]] && [[ -d "$XDG_DIR" ]]; then
+  cd "$XDG_DIR" >/dev/null
+  unset XDG_DIR
+fi
 
 #if ! cat /proc/self/cgroup | awk -F:: '{print $2}' | xargs -i cat /sys/fs/cgroup/{}/cgroup.controllers | grep -q cpu; then
 #  exec systemd-run --user --slice-inherit --property=Delegate=yes --same-dir --scope -S
@@ -238,7 +243,7 @@ ZSH_THEME="../../zsh-theme-powerlevel10k/powerlevel10k"
 
 plugins=(
   direnv
-  dirhistory
+  #dirhistory
   fancy-ctrl-z
   fzf
   git
@@ -258,17 +263,20 @@ export ZSH_COMPDUMP="${ZSH_CACHE_DIR}/.zcompdump-${ZSH_VERSION}"
 
 source $ZSH/oh-my-zsh.sh
 
+unfunction work_in_progress
+
 ZSH_HIGHLIGHT_STYLES[comment]=fg=#7a7a7a
 autoload -Uz +X compinit && compinit -d "$ZSH_COMPDUMP"
 autoload -Uz +X bashcompinit && bashcompinit -d "$ZSH_COMPDUMP"
 
 zstyle ':fzf-tab:complete:*' fzf-bindings alt-space:toggle
 zstyle ':completion:*:descriptions' format '[%d]'
-zstyle ':fzf-tab:*' switch-group 'left' 'right'
+zstyle ':fzf-tab:*' switch-group left right
 zstyle ':fzf-tab:*' prefix ''
 zstyle ':fzf-tab:*:*' fzf-flags -i --scheme=history
 #zstyle ':completion:*' matcher-list 'b:=*'
-source /usr/share/zsh/plugins/fzf-tab-git/fzf-tab.plugin.zsh #> /dev/null
+source /usr/share/zsh/plugins/fzf-tab-git/fzf-tab.plugin.zsh
+source /usr/share/zsh/plugins/zsh-nix-shell/nix-shell.plugin.zsh
 
 compdef _gradle gradle-or-gradlew
 
@@ -301,16 +309,6 @@ function normalize-command-line() {
 }
 zle -N normalize-command-line
 bindkey "^Xn" normalize-command-line
-
-function command_not_found_handler() {
-  local exitCode=0
-  [[ "${1:0:1}" == : ]] && return 0
-  [[ "$1" =~ ^cccccc ]] && return 0
-  tmpPackage $1
-  $@ || exitCode=$?
-  [[ "${#tmpPackages[@]}" -gt 0 ]] && paru -Rs -- "${tmpPackages[@]}"
-  return $exitCode
-}
 
 function _nop() {}
 
@@ -595,41 +593,7 @@ function pkgSync() {
 }
 compdef _nop pkgSync
 
-declare -a tmpPackages
-function tmpPackage() {
-  local packages=()
-  local package="${1?At least a single search term is required}"
-  local installationSuccessful=0
-  if [[ "${#@}" -eq 1 ]] && paru -Si "$1" >/dev/null; then
-    paru -S "$1" || installationSuccessful=$?
-  else
-    paru -- "${@}" || installationSuccessful=$?
-  fi
-  if [[ "$installationSuccessful" != 0 ]]; then
-    return "$installationSuccessful"
-  fi
-  packages=( $(grep installed /var/log/pacman.log | awk '{print $4}' | tail -5 | tac | awk '!x[$0]++') )
-  if [[ "${packages[(Ie)${package}]}" -gt 0 ]] && read -q "?Auto-uninstall '$package'? "; then
-    [[ -v tmpPackages ]] || echo what?
-    tmpPackages+=( "$package" )
-  else
-    tmpPackages+=( $( <<<"$packages" | tr ' ' $'\n' | fzf --prompt='Choose package to be uninstalled on exit' -m) )
-  fi
-}
-compdef _paru tmpPackage
-
-function _cleanTmpPackages() {
-  if [[ "${#tmpPackages}" -gt 0 ]]; then
-    paru -Rs --noconfirm "${tmpPackages[@]}"
-  fi
-}
-
-function TRAPEXIT() {
-  _cleanTmpPackages
-}
-
 function () :r(){
-  _cleanTmpPackages
   exec zsh
 }
 
@@ -660,12 +624,15 @@ function column() {
   local -a args
   args=( $(getopt -u -o "f" -n "$0" -- "$@") ) || return 1
   local flush
-  local -i col=1
+  local col=1
 
   while [[ "${#args}" -gt 0 ]]; do
     case "${args[1]}" in
       -f)
         flush=";fflush()"
+        ;;
+      -l)
+        col=NF
         ;;
       --) # positional arguments
         if [[ "${args[2]}" =~ [0-9]+ ]]; then
@@ -790,7 +757,11 @@ function getHelm() {
 }
 
 function kk() {
-  MANAGEMENT_KUBECONFIGS="$XDG_CONFIG_HOME/kube/mgmt-dev;$XDG_CONFIG_HOME/kube/mgmt-prod;$XDG_CONFIG_HOME/kube/mgmt-bfe-prod" MULTI_CAPO_SHELL_CUSTOM_NAME_EXPRESSION='.metadata.annotations["t8s.teuto.net/cluster"] // "" | try @base64d' MULTI_CAPO_SHELL_CUSTOM_COLUMN_CUSTOMER_NAME='.metadata.annotations["t8s.teuto.net/customer-name"] // "" | try @base64d // .metadata.labels["t8s.teuto.net/customer-id"]' CAPO_SHELL_KUBECONFIG_FILTER='.users |= map({name: .name, user: {exec: {apiVersion: "client.authentication.k8s.io/v1beta1", command: "kubectl", args: ["oidc-login", "get-token", "--oidc-issuer-url=https://auth.k8s.teuto.net", "--token-cache-storage=keyring", "--oidc-client-id=kubernetes", "--oidc-extra-scope=email", "--oidc-extra-scope=groups", "--oidc-extra-scope=offline_access", "--open-url-after-authentication="]}}})' multi-capo-shell "${@}"
+  local management_kubeconfigs="$XDG_CONFIG_HOME/kube/mgmt-dev;$XDG_CONFIG_HOME/kube/mgmt-prod;$XDG_CONFIG_HOME/kube/mgmt-bfe-prod"
+  local multi_capo_shell_custom_name_expression='.metadata.annotations["t8s.teuto.net/cluster"] // "" | try @base64d'
+  local multi_capo_shell_custom_column_customer_name='.metadata.annotations["t8s.teuto.net/customer-name"] // "" | try @base64d // .metadata.labels["t8s.teuto.net/customer-id"]'
+  local capo_shell_kubeconfig_filter='.users |= map({name: .name, user: {exec: {apiVersion: "client.authentication.k8s.io/v1beta1", command: "kubectl", args: ["oidc-login", "get-token", "--oidc-issuer-url=https://staff-auth.k8s.teuto.net", "--token-cache-storage=keyring", "--oidc-client-id=kubernetes", "--oidc-extra-scope=email", "--oidc-extra-scope=groups", "--oidc-extra-scope=offline_access", "--open-url-after-authentication="]}}})'
+  MANAGEMENT_KUBECONFIGS="${MANAGEMENT_KUBECONFIGS:-$management_kubeconfigs}" MULTI_CAPO_SHELL_CUSTOM_NAME_EXPRESSION="${MULTI_CAPO_SHELL_CUSTOM_NAME_EXPRESSION:-$multi_capo_shell_custom_name_expression}" MULTI_CAPO_SHELL_CUSTOM_COLUMN_CUSTOMER_NAME="${MULTI_CAPO_SHELL_CUSTOM_COLUMN_CUSTOMER_NAME:-$multi_capo_shell_custom_column_customer_name}" CAPO_SHELL_KUBECONFIG_FILTER="${CAPO_SHELL_KUBECONFIG_FILTER:-$capo_shell_kubeconfig_filter}" multi-capo-shell "${@}"
 }
 
 function kk9s() {
@@ -821,6 +792,7 @@ compdef _k9s k9s
 function schedule_meeting() {
   local time="${1?}"
   local type
+  mkdir -p "${XDG_RUNTIME_DIR}/browser"
   if [[ "$2" =~ https://* ]]; then
     local url="$2"
     type="${3:-meeting}"
@@ -828,10 +800,9 @@ function schedule_meeting() {
     type="${2:-meeting}"
   fi
   if [[ -v url ]]; then
-    command systemd-run --user --on-calendar=@$(date --date="today $time" +%s) --property={Wants,After}="browser@$type.service" -- browser profile $type "$url"
-  else
-    command systemd-run --user --on-calendar=@$(date --date="today $time" +%s) -- systemctl --user start "browser@$type"
+    echo -n "$url" > "$XDG_RUNTIME_DIR/browser/$type"
   fi
+  command systemd-run --user --on-calendar=@$(date --date="$time" +%s) -- systemctl --user restart "browser@$type"
 }
 
 function share() {
@@ -870,23 +841,24 @@ function nAlias() {
 
 nAlias $ ''
 nAlias :q exit
-nAlias :e nvim
+nAlias :e editor
 reAlias rm -i
 reAlias cp -i
 reAlias mv -i
 nAlias http xh
 #reAlias ls --almost-all --indicator-style=slash --human-readable --sort=version --escape --format=long --color=always --time-style=long-iso
 #nAlias ls exa --all --binary --group --classify --sort=filename --long --colour=always --time-style=long-iso --git
-nAlias ls lsd --almost-all --git --color=always --long --date=+'%Y-%m-%dT%H:%M:%S'
+nAlias ls lsd --almost-all --color=always --long --date=+'%Y-%m-%dT%H:%M:%S'
 if [[ "$(id -u)" != 0 ]] && (( ${+commands[sudo]} )); then
   for cmd in systemctl systemd-run ip; do
     nAlias $cmd sudo $cmd
   done
 fi
 nAlias top htop
-nAlias vim nvim
+nAlias vim editor
 nAlias vi vim
 nAlias cat "bat --pager 'less -RF' --nonprintable-notation unicode"
+reAlias dyff --color=on
 nAlias man batman
 compdef _man batman
 reAlias fzf --ansi
@@ -920,7 +892,7 @@ nAlias mv advmv -g
 reAlias code '--user-data-dir $XDG_DATA_HOME/vscode --extensions-dir $XDG_DATA_HOME/vscode/extensions'
 nAlias wd 'while :; do .; sleep 0.1; clear; done'
 reAlias s3cmd '-c $XDG_CONFIG_HOME/s3cmd/config'
-nAlias journalctl command env SYSTEMD_PAGER=lnav journalctl -o short-iso-precise
+nAlias journalctl command env SYSTEMD_PAGER=lnav journalctl -o short-iso-precise --no-hostname
 nAlias pacman echo use paru
 nAlias dmesg sudo dmesg -T
 nAlias machinectl sudo machinectl
@@ -954,11 +926,12 @@ alias -g U='| up'
 alias -g U='| urlencode'
 alias -g UD='| urldecode'
 alias -g UR='U --unsafe-full-throttle'
+alias -g V='| vipe'
 alias -g X='| xargs'
 alias -g Y='| yq'
 
 if (( ${+commands[dyff]} )); then
-  export KUBECTL_EXTERNAL_DIFF="dyff between --omit-header --set-exit-code"
+  export KUBECTL_EXTERNAL_DIFF="dyff between --omit-header --set-exit-code --use-indent-lines=false --color=on"
 fi
 
 if ! (( ${+commands[kustomize]} )); then

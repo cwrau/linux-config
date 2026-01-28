@@ -1,9 +1,9 @@
 [Unit]
 Description=Work applications
 After=graphical-session.target
+Wants=daily.timer
 Wants=browser@work-todo.service
 Wants=browser@work.service
-Wants=daily.timer
 Wants=gopass-fuse.service
 Wants=powerprofile@performance.service
 Wants=real-daily.timer

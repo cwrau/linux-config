@@ -2,11 +2,12 @@ enable NetworkManager.service
 enable ananicy.service
 enable auto-cpufreq.service
 enable bluetooth.service
-enable btrfs-scrub@.timer dev-nvme0n1p2
+enable btrfs-scrub@.timer - var-log
 enable ebtables.service
 enable fwupd-refresh.timer
 enable fwupd.service
 enable linux-modules-cleanup.service
+enable nix-daemon.socket
 enable paccache.timer
 enable pkgstats.timer
 enable reflector.timer

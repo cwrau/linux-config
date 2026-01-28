@@ -55,6 +55,7 @@ return {
     ---@type MasonUpdateAllSettings
     opts = {
       show_no_updates_notification = false,
+      show_checking_for_updates_notification = false,
     },
     init = function()
       require("mason-update-all").update_all()

@@ -1,0 +1,5 @@
+title: Arch Linux no NVIDIA DRM
+linux: linux
+initramfs: linux
+options:
+  - nvidia_drm.modeset=0

@@ -14,3 +14,4 @@ MemoryMax=2G
 Nice=-10
 ManagedOOMMemoryPressure=kill
 ManagedOOMMemoryPressureLimit=10%
+TimeoutStopSec=10

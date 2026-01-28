@@ -4,10 +4,10 @@ Wants=gamemode.service
 After=graphical-session.target
 Requires=graphical-session.target
 ConditionACPower=true
+ConditionKernelModuleLoaded=nvidia
 
 [Service]
 Type=exec
-ExecCondition=bash -eo pipefail -c 'lsmod | grep -q nvidia'
 ExecStart=/usr/bin/bottles
 OOMScoreAdjust=-500
 TimeoutStopSec=5s

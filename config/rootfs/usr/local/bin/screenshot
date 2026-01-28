@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 mode=${1:?Specify mode: full/selection/window}
-target=${2:?Specify output: <file>/clipboard}
 
 case "$mode" in
   full)
@@ -14,11 +13,23 @@ case "$mode" in
     eval "$(xdotool getactivewindow getwindowgeometry --shell)"
     params=(full --region "${WIDTH}x${HEIGHT}+${X}+${Y}")
     ;;
+  screen-replay)
+    if systemctl --user is-active --quiet gpu-screen-recorder.service; then
+      systemctl --user kill -s USR1 gpu-screen-recorder.service
+      notify-send -t 2000 -u low "Replay saved"
+      exit 0
+    else
+      notify-send -t 2000 -u low "No replay recording in progress"
+      exit 1
+    fi
+    ;;
   *)
     echo "Wrong mode: $mode" >&2
     exit 1
     ;;
 esac
+
+target=${2:?Specify output: <file>/clipboard}
 
 case "$target" in
   clipboard)

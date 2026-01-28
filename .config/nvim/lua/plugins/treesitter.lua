@@ -3,16 +3,11 @@
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    ---@module "nvim-treesitter.configs"
-    ---@param opts TSConfig
+    ---@module "lazyvim"
+    ---@module "nvim-treesitter.config"
+    ---@param opts lazyvim.TSConfig | TSConfig
     opts = function(_, opts)
-      opts.ignore_install = { "help" }
-      opts.ensure_installed = "all"
-      if opts.modules == nil then
-        opts.modules = { indent = { disable = { "yaml" } } }
-      else
-        opts.modules["indent"].disable = { "yaml" }
-      end
+      opts.ensure_installed = { "all" }
     end,
   },
 }

@@ -1,7 +1,9 @@
 {
-  "userConfigMajorVersion": 9,
+  "userConfigMajorVersion": 13,
   "userConfigMinorVersion": 0,
   "userConfigPatchVersion": 0,
+  "lastSaveAgentTag": "UltimateHackingKeyboard/agent/v9.0.0",
+  "lastSaveFirmwareTag": "UltimateHackingKeyboard/firmware/v16.0.0",
   "deviceName": "CWRKeyboard",
   "doubleTapSwitchLayerTimeout": 250,
   "perKeyRgbPresent": false,
@@ -81,6 +83,8 @@
   "displayFadeOutBatteryTimeout": 0,
   "keyBacklightFadeOutTimeout": 0,
   "keyBacklightFadeOutBatteryTimeout": 0,
+  "keyBacklightBrightnessChargingDefault": 50,
+  "batteryChargingMode": "Full",
   "hostConnections": [
     {
       "type": "UsbRight",
@@ -952,7 +956,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 9
+                  "macroIndex": 9,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -981,7 +986,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 10
+                  "macroIndex": 10,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -1011,11 +1017,13 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 6
+                  "macroIndex": 6,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 3
+                  "macroIndex": 3,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -1106,7 +1114,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 2
+                  "macroIndex": 2,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -1127,7 +1136,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 0
+                  "macroIndex": 0,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -2480,7 +2490,7 @@
                 {
                   "keyActionType": "switchLayer",
                   "layer": "fn",
-                  "switchLayerMode": "holdAndDoubleTapToggle"
+                  "switchLayerMode": "hold"
                 },
                 {
                   "keyActionType": "keystroke",
@@ -2656,7 +2666,7 @@
                 {
                   "keyActionType": "switchLayer",
                   "layer": "fn",
-                  "switchLayerMode": "holdAndDoubleTapToggle"
+                  "switchLayerMode": "hold"
                 },
                 {
                   "keyActionType": "switchLayer",
@@ -2819,9 +2829,7 @@
                   "modifierMask": 32
                 },
                 {
-                  "keyActionType": "keystroke",
-                  "type": "basic",
-                  "scancode": 44
+                  "keyActionType": "none"
                 },
                 {
                   "keyActionType": "none"
@@ -3024,7 +3032,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 9
+                  "macroIndex": 9,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -3053,7 +3062,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 10
+                  "macroIndex": 10,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -3083,11 +3093,13 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 6
+                  "macroIndex": 6,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 3
+                  "macroIndex": 3,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -3122,7 +3134,7 @@
                 {
                   "keyActionType": "switchLayer",
                   "layer": "fn",
-                  "switchLayerMode": "holdAndDoubleTapToggle"
+                  "switchLayerMode": "hold"
                 },
                 {
                   "keyActionType": "keystroke",
@@ -3148,25 +3160,39 @@
               "id": 1,
               "keyActions": [
                 {
-                  "keyActionType": "none"
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 83
                 },
                 {
-                  "keyActionType": "none"
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 89
                 },
                 {
-                  "keyActionType": "none"
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 90
                 },
                 {
-                  "keyActionType": "none"
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 91
                 },
                 {
-                  "keyActionType": "none"
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 92
                 },
                 {
-                  "keyActionType": "none"
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 93
                 },
                 {
-                  "keyActionType": "none"
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 94
                 },
                 {
                   "keyActionType": "none"
@@ -3179,7 +3205,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 2
+                  "macroIndex": 2,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -3200,7 +3227,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 0
+                  "macroIndex": 0,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -3253,7 +3281,7 @@
                 {
                   "keyActionType": "switchLayer",
                   "layer": "fn",
-                  "switchLayerMode": "holdAndDoubleTapToggle"
+                  "switchLayerMode": "hold"
                 },
                 {
                   "keyActionType": "switchKeymap",
@@ -4233,7 +4261,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 9
+                  "macroIndex": 9,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -4262,7 +4291,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 10
+                  "macroIndex": 10,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -4292,11 +4322,13 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 6
+                  "macroIndex": 6,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 3
+                  "macroIndex": 3,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -4386,7 +4418,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 2
+                  "macroIndex": 2,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -4405,7 +4438,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 0
+                  "macroIndex": 0,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -5408,7 +5442,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 9
+                  "macroIndex": 9,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -5437,7 +5472,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 12
+                  "macroIndex": 12,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -5467,11 +5503,13 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 8
+                  "macroIndex": 8,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 5
+                  "macroIndex": 5,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -6063,7 +6101,7 @@
                 {
                   "keyActionType": "switchLayer",
                   "layer": "fn",
-                  "switchLayerMode": "holdAndDoubleTapToggle"
+                  "switchLayerMode": "hold"
                 },
                 {
                   "keyActionType": "keystroke",
@@ -6239,7 +6277,7 @@
                 {
                   "keyActionType": "switchLayer",
                   "layer": "fn",
-                  "switchLayerMode": "holdAndDoubleTapToggle"
+                  "switchLayerMode": "hold"
                 },
                 {
                   "keyActionType": "switchLayer",
@@ -6386,10 +6424,12 @@
                 {
                   "keyActionType": "keystroke",
                   "type": "basic",
-                  "scancode": 86
+                  "scancode": 54
                 },
                 {
-                  "keyActionType": "none"
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 55
                 },
                 {
                   "keyActionType": "keystroke",
@@ -6607,7 +6647,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 9
+                  "macroIndex": 9,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -6636,7 +6677,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 10
+                  "macroIndex": 10,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -6666,11 +6708,13 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 6
+                  "macroIndex": 6,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 3
+                  "macroIndex": 3,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -6705,7 +6749,7 @@
                 {
                   "keyActionType": "switchLayer",
                   "layer": "fn",
-                  "switchLayerMode": "holdAndDoubleTapToggle"
+                  "switchLayerMode": "hold"
                 },
                 {
                   "keyActionType": "keystroke",
@@ -6762,7 +6806,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 2
+                  "macroIndex": 2,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -6783,7 +6828,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 0
+                  "macroIndex": 0,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -6836,7 +6882,7 @@
                 {
                   "keyActionType": "switchLayer",
                   "layer": "fn",
-                  "switchLayerMode": "holdAndDoubleTapToggle"
+                  "switchLayerMode": "hold"
                 },
                 {
                   "keyActionType": "switchKeymap",
@@ -7815,7 +7861,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 9
+                  "macroIndex": 9,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -7844,7 +7891,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 10
+                  "macroIndex": 10,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -7874,11 +7922,13 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 6
+                  "macroIndex": 6,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 3
+                  "macroIndex": 3,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -7968,7 +8018,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 2
+                  "macroIndex": 2,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -7989,7 +8040,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 0
+                  "macroIndex": 0,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -9021,7 +9073,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 9
+                  "macroIndex": 9,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -9050,7 +9103,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 12
+                  "macroIndex": 12,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -9080,11 +9134,13 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 8
+                  "macroIndex": 8,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 5
+                  "macroIndex": 5,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -9144,7 +9200,39 @@
               "id": 1,
               "keyActions": [
                 {
-                  "keyActionType": "none"
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 83
+                },
+                {
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 89
+                },
+                {
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 90
+                },
+                {
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 91
+                },
+                {
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 92
+                },
+                {
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 93
+                },
+                {
+                  "keyActionType": "keystroke",
+                  "type": "basic",
+                  "scancode": 94
                 },
                 {
                   "keyActionType": "none"
@@ -9153,11 +9241,12 @@
                   "keyActionType": "none"
                 },
                 {
-                  "keyActionType": "switchKeymap",
-                  "keymapAbbreviation": "CLS"
+                  "keyActionType": "none"
                 },
                 {
-                  "keyActionType": "none"
+                  "keyActionType": "playMacro",
+                  "macroIndex": 2,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -9176,26 +9265,8 @@
                 },
                 {
                   "keyActionType": "playMacro",
-                  "macroIndex": 2
-                },
-                {
-                  "keyActionType": "none"
-                },
-                {
-                  "keyActionType": "none"
-                },
-                {
-                  "keyActionType": "none"
-                },
-                {
-                  "keyActionType": "none"
-                },
-                {
-                  "keyActionType": "none"
-                },
-                {
-                  "keyActionType": "playMacro",
-                  "macroIndex": 0
+                  "macroIndex": 0,
+                  "macroArguments": []
                 },
                 {
                   "keyActionType": "none"
@@ -9587,11 +9658,11 @@
       "macroActions": [
         {
           "macroActionType": "command",
-          "command": "$ifShift exec A-umlaut-big"
+          "command": "ifShift exec A-umlaut-big"
         },
         {
           "macroActionType": "command",
-          "command": "$ifNotShift exec A-umlaut-small"
+          "command": "ifNotShift exec A-umlaut-small"
         }
       ]
     },
@@ -9638,11 +9709,11 @@
       "macroActions": [
         {
           "macroActionType": "command",
-          "command": "$ifShift exec O-umlaut-big"
+          "command": "ifShift exec O-umlaut-big"
         },
         {
           "macroActionType": "command",
-          "command": "$ifNotShift exec O-umlaut-small"
+          "command": "ifNotShift exec O-umlaut-small"
         }
       ]
     },
@@ -9707,11 +9778,11 @@
       "macroActions": [
         {
           "macroActionType": "command",
-          "command": "$ifShift exec U-umlaut-big"
+          "command": "ifShift exec U-umlaut-big"
         },
         {
           "macroActionType": "command",
-          "command": "$ifNotShift exec U-umlaut-small"
+          "command": "ifNotShift exec U-umlaut-small"
         }
       ]
     },

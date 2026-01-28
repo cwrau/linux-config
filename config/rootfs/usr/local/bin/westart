@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -e
+
+if ! window_id="$(xdotool selectwindow)"; then
+  exit 1
+fi
+
+if ! process_id="$(xprop -id "$window_id" _NET_WM_PID | awk '{print $3}')"; then
+  exit 2
+fi
+
+if ! process_unit="$(ps -h -o uunit "$process_id")"; then
+  exit 3
+fi
+
+case "$process_unit" in
+  *.service)
+    exec systemctl --user restart "$process_unit"
+    ;;
+  *.scope)
+    exec systemctl --user stop "$process_unit"
+    ;;
+  -)
+    exec kill "$process_id"
+    ;;
+esac

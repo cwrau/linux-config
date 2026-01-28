@@ -86,7 +86,7 @@ return {
       linters_by_ft = {
         sh = { "shellcheck" },
         PKGBUILD = { "pkgbuildcheck" },
-        systemd = { "systemdlint", "systemd-analyze" },
+        systemd = { "systemd-analyze" },
       },
       linters = {
         shellcheck = {

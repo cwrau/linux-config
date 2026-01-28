@@ -32,8 +32,7 @@
 /fah/
 /freerdp/
 /glib-2.0/settings/keyfile
-/google-chrome
-/google-chrome-*/
+/browser-*/
 /google-cloud-tools-java/
 /gtk-2.0/gtkfilechooser.ini
 /hexchat/

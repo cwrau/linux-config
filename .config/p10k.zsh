@@ -1696,9 +1696,10 @@
   function prompt_openstack_shell() {
     if [[ -v OS_SHELL ]]; then
       local projectName
+      local projectId
       if [[ -z "${_openstack_cache}" ]]; then
-        if projectName="$(openstack project list -c Name -f value | sort | head -1)"; then
-          _openstack_cache="$projectName"
+        if projectId="$(openstack project list -c ID -f value | sort | head -1)"; then
+          _openstack_cache="$projectId"
         fi
       else
         projectName="$_openstack_cache"

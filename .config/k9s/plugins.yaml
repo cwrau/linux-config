@@ -9,9 +9,9 @@ plugins:
   #  args:
   #    - debug
   #    - node/$NAME
-  #    - --profile=general
+  #    - --profile=sysadmin
   #    - --image=alpine
-  #    - -it
+  #    - -qit
   #    - --
   #    - nsenter
   #    - -t

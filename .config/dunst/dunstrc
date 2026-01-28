@@ -237,7 +237,6 @@ override_pause_level = 100
 
 [zentrale]
 summary = "Eingehender Anruf"
-body = "Zentrale"
 script = ppause
 override_pause_level = 100
 urgency = critical

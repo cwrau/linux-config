@@ -42,6 +42,10 @@ declare -A gameScriptMapping=(
   ["Tom Clancy's Splinter Cell Conviction"]='systemd-run --user --slice=gamemode.slice -p Requires=gamemode.service -u conviction-fix.service -- bash -c "while :; do taskset -cap 0-\$(nproc --ignore=1) \$(pgrep conviction_game); sleep 10; done"'
 )
 
+declare -A gameMusicSetting=(
+  ["Creeper World 4"]=60
+)
+
 function singleScreen() {
   if [[ "$(polybar -m | wc -l)" -gt 1 ]]; then
     autorandr --load desk --force
@@ -63,7 +67,7 @@ function smallScreen() {
 # function mapping suffixed with `Screen`
 # wide -> wideScreen
 # if function exists, will be executed
-declare -A gameScreenSettings=(
+declare -A gameScreenSetting=(
   [Portal 2]="wide"
   [The Guild Gold Edition]="small"
   [Cultures 2]="small"

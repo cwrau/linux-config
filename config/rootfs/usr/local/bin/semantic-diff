@@ -3,29 +3,21 @@
 set -eu
 set -o pipefail
 
-filesToClean=()
+export TMP_DIR="$(mktemp -d)"
 
-function cleanup() {
-  for tmpFile in "${filesToClean[@]}"; do
-    if [[ -f "$tmpFile" ]]; then
-      rm -f "$tmpFile"
-    elif [[ -d "$tmpFile" ]]; then
-      rm -rf "$tmpFile"
-    fi
-  done
-}
+trap 'rm -rf "$TMP_DIR"' EXIT
 
 function sameNumberOfDocuments() {
-  local origPath="$1"
-  local origNumberOfDocuments
-  local newPath="$2"
+  local oldGitPath="$1"
+  local oldNumberOfDocuments
+  local newGitPath="$2"
   local newNumberOfDocuments
   local tool="$3"
 
-  origNumberOfDocuments=$($tool -s length "$origPath")
-  newNumberOfDocuments=$($tool -s length "$newPath")
+  oldNumberOfDocuments="$($tool -s length "$oldGitPath")"
+  newNumberOfDocuments="$($tool -s length "$newGitPath")"
 
-  if (((origNumberOfDocuments + newNumberOfDocuments) == 1)) || ((origNumberOfDocuments == newNumberOfDocuments)); then
+  if (((oldNumberOfDocuments + newNumberOfDocuments) == 1)) || ((oldNumberOfDocuments == newNumberOfDocuments)); then
     return 0
   else
     return 1
@@ -34,8 +26,8 @@ function sameNumberOfDocuments() {
 
 function getToolForFileType() {
   local filetype="$1"
-  local origPath="$2"
-  local newPath="$3"
+  local oldGitPath="$2"
+  local newGitPath="$3"
   local tool
   local tmpDir
   local filetype
@@ -53,7 +45,7 @@ function getToolForFileType() {
       tool=xq
       ;;
     text/plain)
-      for path in "$origPath" "$newPath"; do
+      for path in "$oldGitPath" "$newGitPath"; do
         if [[ "$path" == *".ini" ]]; then
           tool=tomlq
           break
@@ -61,13 +53,12 @@ function getToolForFileType() {
       done
       ;;
     application/x-trash)
-      tmpDir="$(mktemp -d)"
-      filesToClean+=("$tmpDir")
-      for path in "$origPath" "$newPath"; do
+      tmpDir="$(mktemp -d -p "$TMP_DIR")"
+      for path in "$oldGitPath" "$newGitPath"; do
         newName="$(basename -s .bak "$path")"
         cp "$path" "$tmpDir/$newName"
-        filetype=$(xdg-mime query filetype "$tmpDir/$newName")
-        if tool="$(getToolForFileType "$filetype" "$origPath" "$newPath")"; then
+        filetype="$(xdg-mime query filetype "$tmpDir/$newName")"
+        if tool="$(getToolForFileType "$filetype" "$oldGitPath" "$newGitPath")"; then
           break
         fi
       done
@@ -83,78 +74,107 @@ function getToolForFileType() {
 }
 
 function diffWithDyff() {
-  local origPath="$1"
-  local newPath="$2"
-  dyff --color on between --omit-header "$origPath" "$newPath" | tail -n +2
+  local oldGitPath="$1"
+  local newGitPath="$2"
+  dyff --color on between --omit-header "$oldGitPath" "$newGitPath" | tail -n +2
 }
 
 function diffWith_xq() {
-  local origPath="$1"
-  local newPath="$2"
-  diffWithDyff <(xq . "$origPath" | yq -y) <(xq . "$newPath" | yq -y)
+  local oldGitPath="$1"
+  local newGitPath="$2"
+  diffWithDyff <(xq . "$oldGitPath" | yq -y) <(xq . "$newGitPath" | yq -y)
 }
 
 function runTextConversion() {
-  local origPath="$1"
-  local newPath="$2"
-  local attributeMatchers=()
-  local attributeMatcher
-  local glob
-  local converter
-
-  mapfile -t attributeMatchers < <(cat "$XDG_CONFIG_HOME/git/attributes")
-
-  if [[ "$origPath" != /dev/null ]]; then
-    for attributeMatcher in "${attributeMatchers[@]}"; do
-      IFS=' ' read -r glob converter <<<"$attributeMatcher"
-      if [[ "$origPath" == $glob ]]; then
-        break
-      fi
-    done
+  local filePath
+  local gitPath
+  if [[ "$#" -eq 2 ]]; then
+    filePath="$1"
+    gitPath="$2"
+  elif [[ "$#" -eq 3 ]]; then
+    if git check-attr -a -- "$2" &>/dev/null; then
+      filePath="$1"
+      gitPath="$2"
+    elif git check-attr -a -- "$3" &>/dev/null; then
+      filePath="$1"
+      gitPath="$3"
+    else
+      return 0
+    fi
   fi
+  local newFilePath="$filePath"
+  local attribute
+  local tool
+  local command
+
+  if [[ -f "$gitPath" ]] && [[ -f "$filePath" ]]; then
+    while read -d $'\0' -r attribute; do
+      tool="$attribute" # the "last" attribute is the tool
+    done < <(
+      git check-attr -za -- "$gitPath" | grep --text $'\0diff\0'
+    )
+    if [[ -v tool ]] && command="$(git config get "diff.$tool.textconv")"; then
+      newFilePath="$(mktemp --suffix="${filePath#*.}" -p "$TMP_DIR")"
+      ${command} "$filePath" >"$newFilePath"
+    fi
+  fi
+
+  echo -n "$newFilePath"
 }
 
 function _semantic_diff() {
-  local diff
-  local origFilename
-  local origPath
-  local newPath
+  local oldGitPath
+  local oldFilePath
+  local newGitPath
+  local newFilePath
   if [[ "$#" -eq 3 ]]; then
-    origFilename="$1"
-    origPath="$2"
-    newPath="$3"
+    oldGitPath="$1"
+    oldFilePath="$2"
+    newGitPath="$3"
+    newFilePath="$newGitPath"
   elif [[ "$#" -eq 2 ]]; then
-    origPath="$1"
-    origFilename="$(basename "$origPath")"
-    newPath="$2"
+    set -x
+    oldFilePath="$1"
+    oldGitPath="$(basename "$oldFilePath")"
+    newFilePath="$2"
+    newGitPath="$(basename "$newFilePath")"
+    echo "$@"
+    exit 1
   fi
+  local newPath
   local diff
   local unifiedDiff
   local filetype
   local tool
   local exitCode=0
 
-  runTextConversion "$origPath" "$newPath"
-  unifiedDiff=$(diff -u --unidirectional-new-file "$origPath" "$newPath") || exitCode=$?
-  if [[ "$origPath" =~ /tmp/git-blob* ]]; then
-    unifiedDiff=$(<<<"$unifiedDiff" sed "1s#--- $origPath#--- $origFilename#")
-  fi
-  if [[ "$newPath" =~ /tmp/git-blob* ]]; then
-    unifiedDiff=$(<<<"$unifiedDiff" sed "2s#+++ $newPath#+++ $origFilename#")
-  fi
+  oldFilePath="$(runTextConversion "$oldFilePath" "$oldGitPath")"
+  newFilePath="$(runTextConversion "$newFilePath" "$newGitPath" "$oldGitPath")"
 
-  for path in "$origPath" "$newPath"; do
+  unifiedDiff="$(diff -u --unidirectional-new-file "$oldFilePath" "$newFilePath")" || exitCode=$?
+  #if [[ "$oldFilePath" =~ /tmp/git-blob* ]]; then
+  if [[ "$oldGitPath" != "$oldFilePath" ]]; then
+    unifiedDiff="$(<<<"$unifiedDiff" sed -r "s#^--- $oldFilePath#--- $oldGitPath#")"
+  fi
+  #fi
+  #if [[ "$newFilePath" =~ /tmp/git-blob* ]]; then
+  if [[ "$newGitPath" != "$newFilePath" ]]; then
+    unifiedDiff="$(<<<"$unifiedDiff" sed -r "s#^\+\+\+ $newFilePath#\+\+\+ $newGitPath#")"
+  fi
+  #fi
+
+  for path in "$oldFilePath" "$newFilePath"; do
     if [[ -f "$path" ]]; then
-      filetype=$(xdg-mime query filetype "$path")
+      filetype="$(xdg-mime query filetype "$path")"
       break
     fi
   done
 
-  if [[ -v filetype ]] && tool=$(getToolForFileType "$filetype" "$origPath" "$newPath") && { "$tool" -e . "$origPath" && "$tool" -e . "$newPath"; } &>/dev/null && sameNumberOfDocuments "$origPath" "$newPath" "$tool"; then
+  if [[ -v filetype ]] && tool="$(getToolForFileType "$filetype" "$oldFilePath" "$newFilePath")" && { "$tool" -e . "$oldFilePath" && "$tool" -e . "$newFilePath"; } &>/dev/null; then # && sameNumberOfDocuments "$oldFilePath" "$newFilePath" "$tool"; then
     if declare -F "diffWith_$tool" >/dev/null; then
-      diff=$("diffWith_$tool" "$origPath" "$newPath")
+      diff="$("diffWith_$tool" "$oldFilePath" "$newFilePath")"
     else
-      diff=$(diffWithDyff "$origPath" "$newPath")
+      diff="$(diffWithDyff "$oldFilePath" "$newFilePath")"
     fi
     echo "$unifiedDiff" | (diff-so-fancy || true) | head -3
     echo "$diff"

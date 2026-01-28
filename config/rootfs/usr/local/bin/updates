@@ -28,7 +28,7 @@ if [[ -e /var/lib/pacman/db.lck ]]; then
   fi
 fi
 
-if items="$(sudo informant check)"; then
+if items="$(informant check)"; then
   sudo systemctl start reflector.service
 
   UPDATES=$(paru -Qu --repo 2>/dev/null | (grep -v ignored -c || true))
@@ -43,29 +43,16 @@ if items="$(sudo informant check)"; then
         if systemd-inhibit --why Updates --mode block --what shutdown -- systemd-run --user --unit updates-run --property=Wants=powerprofile@performance.service --scope --quiet -- sudo -E systemd-run --uid "$USER" --unit updates-run --nice 19 --property=CPUWeight=1 --property=MemoryMax=16G --setenv=NICE=19 --scope --quiet -- taskset -c 0-$((($(nproc) / 2) - 1)) paru -Syu --noconfirm; then
           packagesToRebuild=()
           mapfile -t packagesToRebuild < <(checkrebuild | grep -v -e flashpoint-bin -e intellij-idea-ultimate-edition -e proton-ge-custom-bin -e rider -e prismlauncher-qt5-bin | awk '{print $2}')
-          if [[ "${#packagesToRebuild[@]}" -gt 0 ]]; then
-            dependencyPackages=()
-            explicitPackages=()
-            for package in "${packagesToRebuild[@]}"; do
-              if paru -Qi "$package" | grep -E -q 'Required By\s+: None'; then
-                explicitPackages+=("$package")
-              else
-                dependencyPackages+=("$package")
-              fi
-            done
-
-            notification_send -t 10000 -u low "${#dependencyPackages[@]} | ${#explicitPackages[@]}" "${packagesToRebuild[@]}"
-            if [[ "${#dependencyPackages[@]}" -gt 0 ]]; then
-              if ! paru -S --rebuild --redownload --noconfirm --asdeps "${dependencyPackages[@]}"; then
-                notification_send -t 20000 -u critical 'Rebuild of dependencies failed!'
-                exi 3
-              fi
+          for i in "${!packagesToRebuild[@]}"; do
+            if ! paru -Si "${packagesToRebuild[$i]}" &>/dev/null; then
+              unset 'packagesToRebuild[i]'
             fi
-            if [[ "${#explicitPackages[@]}" -gt 0 ]]; then
-              if ! paru -S --rebuild --redownload --noconfirm --asexplicit "${dependencyPackages[@]}"; then
-                notification_send -t 20000 -u critical 'Rebuild of explicit packages failed!'
-                exi 4
-              fi
+          done
+          if [[ "${#packagesToRebuild[@]}" -gt 0 ]]; then
+            notification_send -t 10000 -u low "Rebuilding ${#packagesToRebuild[@]} Packages" "$(echo "${packagesToRebuild[@]}" | tr '\n' ',')"
+            if ! paru -S --rebuild --redownload --noconfirm --asdeps "${packagesToRebuild[@]}"; then
+              notification_send -t 20000 -u critical 'Rebuild of dependencies failed!'
+              exit 3
             fi
           fi
           notification_send -t 5000 -u normal 'Updates finished!'
@@ -85,6 +72,11 @@ elif [[ "$(notification_send -t 10000 -u critical "$items Unread Arch news artic
   i3-sensible-terminal -- bash -c 'sudo informant read'
 fi
 
+if ! nix-channel --update; then
+  notification_send -t 10000 -u critical 'Nix channel update failed!'
+  exit 9
+fi
+
 fwupdmgr refresh || if [[ "$?" -ne 2 ]]; then
   notification_send -t 10000 -u critical 'Firmware update refresh failed!'
   exit 2
@@ -92,4 +84,23 @@ fi
 
 if firmware_updates="$(fwupdmgr get-updates --json | jq -e '.Devices | length')" && [[ "$firmware_updates" -gt 0 ]]; then
   notification_send -t 10000 -u normal "$firmware_updates firmware update$( ((firmware_updates > 1)) && echo -n s) available!"
+fi
+
+explicitlyInstalledPackages=()
+mapfile -t explicitlyInstalledPackages < <(paru -Qqe | grep -v -E '^linux-config')
+if [[ "${#explicitlyInstalledPackages[@]}" -gt 0 ]]; then
+  notification_send -t 10000 -u low "Cleaning up ${#explicitlyInstalledPackages[@]} explicitly installed packages" "$(echo "${explicitlyInstalledPackages[@]}" | tr '\n' ',')"
+  if ! paru -Rs --noconfirm "${explicitlyInstalledPackages[@]}"; then
+    notification_send -t 20000 -u critical 'Cleanup of explicitly installed packages failed!'
+    exit 4
+  fi
+fi
+unusedPackages=()
+mapfile -t unusedPackages < <(paru -Qtdq)
+if [[ "${#unusedPackages[@]}" -gt 0 ]]; then
+  notification_send -t 10000 -u low "Removing ${#unusedPackages[@]} unused packages" "$(echo "${unusedPackages[@]}" | tr '\n' ',')"
+  if ! paru -Rns --noconfirm "${unusedPackages[@]}"; then
+    notification_send -t 20000 -u critical 'Removal of unused packages failed!'
+    exit 10
+  fi
 fi

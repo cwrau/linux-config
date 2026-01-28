@@ -1,5 +1,6 @@
 [Unit]
 Description=WhatsApp
+PartOf=messengers.target
 After=graphical-session.target dunst.service
 Requires=graphical-session.target
 Wants=dunst.service

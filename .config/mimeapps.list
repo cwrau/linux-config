@@ -1,9 +1,9 @@
 [Default Applications]
 application/pdf=browser.desktop
-application/x-shellscript=nvim.desktop
-application/xml=nvim.desktop;
+application/x-shellscript=editor.desktop
+application/xml=editor.desktop;
 application/xspf+xml=mpv.desktop
-application/yaml=nvim.desktop
+application/yaml=editor.desktop
 application/zip=xarchiver.desktop
 image/bmp=feh.desktop
 image/gif=feh.desktop

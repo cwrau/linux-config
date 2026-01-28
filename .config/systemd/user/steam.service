@@ -3,10 +3,10 @@ Description=Steam
 After=graphical-session.target
 Requires=graphical-session.target
 ConditionACPower=true
+ConditionKernelModuleLoaded=nvidia
 
 [Service]
 Type=exec
-ExecCondition=bash -eo pipefail -c 'lsmod | grep -q nvidia'
 ExecStart=/usr/bin/steam-native
 ExecStopPost=/usr/bin/bash -exc 'shopt -u failglob; shopt -s nullglob; rm -vf "/dev/shm/u$U"* "/dev/shm/wine-"*'
 OOMScoreAdjust=-500

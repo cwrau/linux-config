@@ -1,5 +1,14 @@
 #! /usr/bin/env bash
 
+if [[ "$1" == "--toggle" ]]; then
+  if bluetoothctl show | grep -q "Powered: yes"; then
+    bluetoothctl power off
+  else
+    bluetoothctl power on
+  fi
+  exit 0
+fi
+
 source "$XDG_CONFIG_HOME/polybar/scripts/parse_colors.sh"
 
 function notify() {
@@ -53,12 +62,13 @@ fi
 function update() {
   if flock -n $RUN_LOCK; then
     flock -x $MESSAGE_LOCK
+    local message
     local mac info battery alias protocol
     local -a old_devices new_devices
     local old_device new_device
     mapfile -t old_devices <"$DEVICES_FILE"
     truncate -s 0 "$DEVICES_FILE"
-    if bluetoothctl show | grep -q "Powered: yes"; then
+    message="%{A3:$0 --toggle:}$(if bluetoothctl show | grep -q "Powered: yes"; then
       echo -n "%{F$color_blue}"
       for mac in $(bluetoothctl devices Connected | grep -E ^Device | awk '{print $2}'); do
         info="$(bluetoothctl info "$mac")"
@@ -83,10 +93,11 @@ function update() {
           fi
         fi
         echo "$alias${battery:+ ($battery%)}"
-      done | sort | paste -sd "," - | sed 's#,#, #g; s#^# #'
+      done | sort | paste -sd "," - | sed 's#,#, #g; /\S/s#^# #'
     else
       echo ""
-    fi | tee "$MESSAGE_FILE"
+    fi)%{A}"
+    echo "$message" | tee "$MESSAGE_FILE"
     mapfile -t new_devices <"$DEVICES_FILE"
     if [[ "$first_run" == false ]]; then
       for new_device in "${new_devices[@]}"; do
@@ -111,6 +122,6 @@ function update() {
 
 update
 
-dbus-monitor --system --profile member=PropertiesChanged 2>/dev/null | grep --line-buffered -e /org/bluez/hci0/dev -e /org/hsphfpd | while read -r _; do
+dbus-monitor --system --profile member=PropertiesChanged 2>/dev/null | grep --line-buffered -e /org/bluez/hci0/dev -e ':1.5.*/org/bluez/hci0' -e /org/hsphfpd | while read -r _; do
   update
 done

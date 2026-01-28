@@ -2,4 +2,10 @@
 
 set -e
 
-exec ps -h -o uunit "${1?You need to provide the PID}"
+pid="${1?You need to provide the PID}"
+
+if [[ "$(basename "$(ps -h -o exe "$pid")")" == youtube-music-desktop-app ]]; then
+  echo youtube-music-player.service
+else
+  exec ps -h -o uunit "$pid"
+fi

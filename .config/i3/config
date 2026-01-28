@@ -39,7 +39,7 @@ bindsym $alt+F4 exec --no-startup-id true
 set $exid exec --no-startup-id
 set $exaid exec_always --no-startup-id
 
-bindsym $super+d $exid rofi -show drun
+bindsym $super+d $exid timeout 10 rofi -show drun
 bindsym Ctrl+space $exid dunstctl close
 bindsym Ctrl+grave $exid dunstctl history-pop
 bindsym Ctrl+Shift+period $exid dunstctl context
@@ -159,6 +159,7 @@ no_focus [title="Java iKVM Viewer.*"]
 for_window [title="Java iKVM Viewer.*"] floating disable
 for_window [title="AusweisApp"] floating enable
 for_window [class="oidc"] floating enable
+for_window [class="oidc"] move position center
 
 
 $exaid $XDG_CONFIG_HOME/i3/rc.sh
@@ -177,9 +178,9 @@ mode $Power {
 # Emoji Keyboard
 
 #bindsym $super+period $exid rofi -show emoji -emoji-mode insert_no_copy
-bindsym $super+period $exid bemoji -t
+bindsym $super+period $exid timeout 5 bemoji -t
 bindsym $super+k $exid "sh -c 'if setxkbmap -query | grep us; then setxkbmap de; else setxkbmap us; fi'"
-bindsym $super+p $exid open_project
+bindsym $super+p $exid timeout 30 open_project
 
 # Audio controls
 bindsym XF86AudioRaiseVolume $exid pactl set-sink-volume @DEFAULT_SINK@ +5%; $exid pactl set-sink-mute @DEFAULT_SINK@ 0
@@ -215,27 +216,27 @@ bindsym $super+Ctrl+o $exid audio_profile
 bindsym $super+o $exid audio_sink
 
 # Display Manager
-bindsym $super+Shift+p $exid bash -c 'hash=$(xrandr --query | md5sum) && rofi-randr && [[ "$(xrandr --query | md5sum)" != "$hash" ]] && (sleep 1 && bash $XDG_CONFIG_HOME/autorandr/postswitch)'
-bindsym $super+Ctrl+p $exid autorandr_dmenu
-bindsym Shift+XF86Display $exid rofi-randr
-bindsym XF86Display $exid autorandr_dmenu
+bindsym $super+Shift+p $exid timeout 30 bash -c 'hash=$(xrandr --query | md5sum) && rofi-randr && [[ "$(xrandr --query | md5sum)" != "$hash" ]] && (sleep 1 && bash $XDG_CONFIG_HOME/autorandr/postswitch)'
+bindsym $super+Ctrl+p $exid timeout 30 autorandr_dmenu
+bindsym Shift+XF86Display $exid timeout 30 rofi-randr
+bindsym XF86Display $exid timeout 30 autorandr_dmenu
 #bindsym $super+p $exid /usr/bin/lxrandr
-bindsym $super+b $exid bluetooth_dmenu
+bindsym $super+b $exid timeout 10 bluetooth_dmenu
 
 # Lock
 bindsym $super+l $exid loginctl lock-session
 
 # WiFi-Manager
-bindsym $super+i $exid networkmanager_dmenu -i
+bindsym $super+i $exid timeout 30 networkmanager_dmenu -i
 
 # Mount-Manager
-bindsym $super+u $exid udiskie-dmenu
+bindsym $super+u $exid timeout 10 udiskie-dmenu
 
-bindsym --release $super+x $exid xkill
+bindsym --release $super+x $exid westart
 
 # Clipboard-Manager
-bindsym $super+Shift+v $exid sh -c 'clipmenu -i && xdotool key --clearmodifiers ctrl+shift+v'
-bindsym $super+Ctrl+v $exid sh -c 'clipmenu -i && xdotool type "$(xclip -o)"'
+bindsym $super+Shift+v $exid sh -c 'timeout 10 clipmenu -i && xdotool key --clearmodifiers ctrl+shift+v'
+bindsym $super+Ctrl+v $exid sh -c 'timeout 10 clipmenu -i && xdotool type "$(xclip -o)"'
 
 # Screenshots
 # Selection > Clipboard
@@ -250,14 +251,16 @@ bindsym Ctrl+Print --release $exid "screenshot selection --"
 bindsym Ctrl+Shift+Print --release $exid "screenshot full --"
 # Window > File
 bindsym Ctrl+Shift+$super+Print --release $exid "screenshot window --"
+# Trigger screen replay
+bindsym $super+Print --release $exid "screenshot screen-replay"
 
 # Browser stuff
 bindsym $super+c $exid browser
 bindsym $super+Shift+c $exid browser --incognito
-bindsym $super+m $exid sh -c 'systemctl --user start browser@meeting.service'
+bindsym $super+m $exid sh -c 'systemctl --user restart browser@meeting.service'
 bindsym $super+Shift+m $exid sh -c 'systemctl --user stop browser@meeting.service browser@daily.service'
 
-bindsym $super+g $exid rofi -show calc -location 2 -automatic-save-to-history -no-fixed-num-lines -no-show-match -no-sort -calc-command "echo -n '{result}' | xclip -selection clipbboard"
+bindsym $super+g $exid timeout 120 rofi -show calc -location 2 -automatic-save-to-history -no-fixed-num-lines -no-show-match -no-sort -calc-command "echo -n '{result}' | xclip -selection clipbboard"
 #new_window none
 
 bindsym $super+Page_Up workspace prev
@@ -275,8 +278,8 @@ assign [class="telefondienst"] 1
 for_window [class="telefondienst"] move to workspace 1
 assign [class="daily"] 1
 for_window [class="daily"] move to workspace 1
-assign [class="Gfeeds"] 1
-for_window [class="Gfeeds"] move to workspace 1
+assign [class="org.gabmus.gfeeds"] 1
+for_window [class="org.gabmus.gfeeds"] move to workspace 1
 for_window [floating_from="auto" title=" is sharing your screen.$"] border none, sticky enable, move position 0 px -55 px
 
 bindsym $super+2 workspace 2
@@ -322,6 +325,8 @@ assign [class="Rocket.Chat"] 19:RocketChat
 for_window [class="Rocket.Chat"] move to workspace 19:RocketChat
 assign [class="meeting"] 19:RocketChat
 for_window [class="meeting"] move to workspace 19:RocketChat
+assign [class="work-slack"] 19:RocketChat
+for_window [class="work-slack"] move to workspace 19:RocketChat
 
 bindsym $super+$alt+0 workspace 20:Chat
 assign [class="Slack"] 20:Chat

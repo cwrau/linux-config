@@ -9,15 +9,16 @@ pkgdesc='linux config'
 url="https://github.com/cwrau/linux-config"
 license=('GPL3')
 arch=('x86_64')
+provides=('dmenu')
 source=('rootfs.tar')
 noextract=('rootfs.tar')
 sha512sums=('SKIP')
 depends=(
   advcpmv
   alvr
-  ansible
   archiso-systemd-boot
   aria2
+  atuin
   ausweisapp2
   autorandr
   bandwhich
@@ -35,13 +36,16 @@ depends=(
   bluez-utils
   bottles
   breeze-hacked-cursor-theme-git
+  btop
   btrfs-progs
   calf
+  cantarell-fonts
   chafa
   chart-testing
+  chromium
+  claude-code
   clipmenu
   cloudflared
-  clusterctl
   cocogitto
   curl
   ddcutil
@@ -63,6 +67,7 @@ depends=(
   efibootmgr
   fd
   feh
+  firefox
   flameshot
   fluxcd
   fprintd
@@ -73,8 +78,8 @@ depends=(
   fzf-tab-git
   gamemode
   gamescope
+  gdu
   gfeeds
-  ghostty
   git
   git-delete-merged-branches
   git-delta
@@ -89,16 +94,15 @@ depends=(
   go
   go-task
   gomplate
-  google-chrome
   gopass
   gopass-fuse
+  gpu-screen-recorder
   gradle
   grml-full-systemd-boot
   gum
   gvfs
   helm
   helm-diff
-  helm-docs
   helmrelease-tools
   hexchat
   hsetroot
@@ -123,32 +127,31 @@ depends=(
   ksops-bin
   kube-bench-bin
   kube-score
+  linux-lts # otherwise nvidia-550xx-dkms fails to build
   kubeconform
   kubectl
   kubectl-explore
+  kubectl-node-shell
   kubelogin
   lazygit
   less
   libgnome-keyring
   libinput-gestures
   libva-mesa-driver
+  linux
   linux-firmware
-  'linux-lts<6.15' # otherwise nvidia-550xx-dkms fails to build
-  linux-lts-headers
-  linux-zen
-  linux-zen-headers
   lnav
   lscolors-git
   lsd
   lsp-plugins
   luarocks
+  lutris
   man-db
   man-pages
   masterpdfeditor-free
   matcha-gtk-theme
   mesa
   minq-ananicy-git
-  mitmproxy
   moreutils
   morsetran
   mpv
@@ -158,13 +161,15 @@ depends=(
   neovim-symlinks
   net-tools
   networkmanager-dmenu
-  nodejs-neovim
+  nix
+  nodejs-neovim # for neovim
   notify-send.sh
   noto-fonts-cjk
   noto-fonts-emoji
   noto-fonts-extra
+  npm # for neovim
   nss-mdns
-  nvim-ft-pkgbuild
+  nvim-ft-pkgbuild # for neovim
   nvtop
   obs-studio
   ocl-icd
@@ -173,8 +178,8 @@ depends=(
   pacman-contrib
   pacman-hook-systemd-preset
   papirus-icon-theme
+  parallel
   paru
-  paruz
   pavucontrol
   perl-anyevent-i3
   perl-file-mimeinfo
@@ -193,12 +198,16 @@ depends=(
   procs
   proton-ge-custom-bin
   pv
+  python-designateclient
   python-dynmen
   python-notify2
+  python-octaviaclient
+  python-openstackclient
   python-pip
+  python-poetry
   python-pre-commit
   python-pulsectl
-  python-pynvim
+  python-pynvim # for neovim
   python-rope
   python-traitlets
   python-virtualenv
@@ -210,8 +219,10 @@ depends=(
   rocketchat-desktop
   rofi
   rofi-calc
-  rofi-dmenu
   rofi-randr
+  ruby # for neovim
+  rust-src # for neovim
+  ryujinx
   siji-git
   slit-git
   slurp
@@ -222,6 +233,7 @@ depends=(
   sshpass
   sshuttle
   steam-native-runtime
+  stern
   suyu-bin
   sxiv
   systemd
@@ -235,7 +247,6 @@ depends=(
   tree
   ttf-dejavu
   ttf-firacode-nerd
-  ttf-font-awesome
   ttf-iosevka-nerd
   ttf-liberation
   ttyplot
@@ -249,6 +260,7 @@ depends=(
   v4l2loopback-dkms
   which
   wireguard-tools
+  woff2-font-awesome
   xarchiver
   xclip
   xdg-desktop-portal-gtk
@@ -268,9 +280,11 @@ depends=(
   zsh
   zsh-autosuggestions
   zsh-completions
+  zsh-nix-shell
   zsh-syntax-highlighting
   zsh-theme-powerlevel10k
   zsh-you-should-use
+  uucp
 )
 
 if grep -iq AMD /proc/cpuinfo; then
@@ -280,10 +294,19 @@ else
 fi
 
 if lspci | grep ' VGA ' | grep -q -i nvidia; then
-  case 5 in
+  case n in
+    o)
+      depends+=(
+        nvidia-dkms=580.119.02
+        opencl-nvidia
+        lib32-opencl-nvidia
+        nvidia-utils
+        lib32-nvidia-utils
+      )
+      ;;
     n)
       depends+=(
-        nvidia-dkms
+        nvidia-open
         opencl-nvidia
         lib32-opencl-nvidia
         nvidia-utils
@@ -292,20 +315,20 @@ if lspci | grep ' VGA ' | grep -q -i nvidia; then
       ;;
     5)
       depends+=(
-        nvidia-550xx-dkms
-        opencl-nvidia-550xx
-        lib32-opencl-nvidia-550xx
-        nvidia-550xx-utils
-        lib32-nvidia-550xx-utils
+        nvidia-580xx-dkms
+        opencl-nvidia-580xx
+        lib32-opencl-nvidia-580xx
+        nvidia-580xx-utils
+        lib32-nvidia-580xx-utils
       )
       ;;
-    o)
+    b)
       depends+=(
-        nvidia-open-dkms
-        opencl-nvidia
-        lib32-opencl-nvidia
-        nvidia-utils
-        lib32-nvidia-utils
+        nvidia-open-beta-dkms
+        opencl-nvidia-beta
+        lib32-opencl-nvidia-beta
+        nvidia-utils-beta
+        lib32-nvidia-utils-beta
       )
     ;;
   esac

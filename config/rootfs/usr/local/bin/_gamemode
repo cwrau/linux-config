@@ -5,7 +5,8 @@ set -x
 declare -A games
 declare -A gameServiceMappings
 declare -A gameScriptMapping
-declare -A gameScreenSettings
+declare -A gameScreenSetting
+declare -A gameMusicSetting
 source "$XDG_CONFIG_HOME/gamemode.bash"
 
 function detect_game() {
@@ -81,17 +82,20 @@ function adjust_for_game() {
   local service
   local screenSetting
   local script
+  local musicLevel
   for service in ${gameServiceMappings[$game]}; do
     systemctl --user start --no-block "$service"
   done
   script="${gameScriptMapping[$game]}"
   if [[ -n "$script" ]]; then
-    systemd-run --user --slice=gamemode.slice --property=Requires=gamemode.service --quiet --unit "script-$(systemd-escape "$game")" -- "$script"
+    systemd-run --user --slice=gamemode.slice --property=StopPropagatedFrom=gamemode.service --quiet --unit "script-$(systemd-escape "$game")" -- "$script"
   fi
-  screenSetting="${gameScreenSettings[$game]:-single}Screen"
+  screenSetting="${gameScreenSetting[$game]:-single}Screen"
   if [[ "$(type -t "${screenSetting}")" == function ]]; then
     "${screenSetting}"
   fi
+  musicLevel="${gameMusicSetting[$game]:-25}"
+  systemd-run --user --slice=gamemode.slice --property=StopPropagatedFrom=gamemode.service --property=Wants=music-volume@$musicLevel.service --quiet --unit "music-adjust-$(systemd-escape "$game")" --remain-after-exit -- true
 }
 
 services=(glava.target picom.service)
@@ -111,6 +115,9 @@ case "$1" in
         systemctl --user stop "$service"
       fi
     done
+    if ! systemctl --user is-active -q work.target; then
+      systemd-run --user --slice=gamemode.slice --property=StopPropagatedFrom=gamemode.service --property=Wants=pause-notifications.service --quiet --unit game-pause-notifications --remain-after-exit -- true
+    fi
     ;;
   stop)
     for service in "${services[@]}"; do

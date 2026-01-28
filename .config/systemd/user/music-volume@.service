@@ -4,14 +4,8 @@ StopWhenUnneeded=true
 
 [Service]
 Type=oneshot
-ExecStart=-/usr/local/bin/pctl -s youtube-music-player.service volume %i
+ExecStart=-bash -x /usr/local/bin/pctl -s youtube-music-player.service volume %i
 RemainAfterExit=true
-ExecStop=-/usr/local/bin/pctl -s youtube-music-player.service volume 100
+ExecStop=-bash -x /usr/local/bin/pctl -s youtube-music-player.service volume 100
 
-# disallow writing to /usr, /bin, /sbin, ...
-ProtectSystem=true
-# more paranoid security settings
-NoNewPrivileges=true
-ProtectKernelTunables=true
-ProtectControlGroups=true
 RestrictNamespaces=true

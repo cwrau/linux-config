@@ -17,7 +17,7 @@ function unlock() {
   flock -u 5
 }
 
-trap "unlock" EXIT
+trap unlock EXIT
 
 function fail() {
   echo "$@" >&2
@@ -105,7 +105,7 @@ function swap() {
 }
 
 function getUnitName() {
-  "$LIB_DIR/getSystemdUnitNameForPID" "$(getPIDFromPlayerctlName "$1")"
+  bash -x "$LIB_DIR/getSystemdUnitNameForPID" "$(getPIDFromPlayerctlName "$1")"
 }
 
 case "$1" in
@@ -147,9 +147,10 @@ case "$1" in
     shift
     [[ -z "$unit" ]] && fail Need to provide the unit name
     initialize
-    maxTries=50
+    maxTries=10
     while [[ ! "$(getUnitName "$PLAYER")" =~ $unit(.service)? ]] && ((tries++ < maxTries)); do
       PLAYER=$(getNext)
+      sleep 0.5
     done
     if ((tries >= maxTries)); then
       fail "Could not find player with unit name matching $unit"

@@ -1,0 +1,6 @@
+title: Arch Linux without NVIDIA
+linux: linux
+initramfs: linux
+options:
+  - module_blacklist=nvidia
+  - snd_hda_intel.power_save=1

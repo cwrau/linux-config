@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+UI=false
+
+if [[ "$1" == U ]]; then
+  UI=true
+  shift
+else
+  parentParentPID="$(ps -o ppid:1= -p "$PPID")"
+  parentParentBinary="$(basename "$(realpath "/proc/$parentParentPID/exe")")"
+  # suppress explicitly launch editor in terminal for chrome, as chrome ignores the "Terminal=true" variable
+  if [[ "$parentParentBinary" == chrome ]]; then
+    UI=true
+  fi
+fi
+
+if [[ "$UI" == true ]]; then
+  exec terminal -- "$0" "${@}"
+else
+  exec nvim "${@}"
+fi

@@ -2,8 +2,7 @@
 Description=Gaming Mode
 Wants=discord.service
 Wants=joystickwake.service
-Wants=music-volume@25.service
-Wants=pause-notifications.service
+Wants=gpu-screen-recorder.service
 Wants=powerprofile@performance.service
 StopWhenUnneeded=true
 ConditionACPower=true

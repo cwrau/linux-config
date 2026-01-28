@@ -2,7 +2,7 @@
 ---@type LazyPluginSpec[]
 return {
   {
-    "echasnovski/mini.surround",
+    "nvim-mini/mini.surround",
     opts = function(_, opts)
       if opts.mappings == nil then
         opts.mappings = {}

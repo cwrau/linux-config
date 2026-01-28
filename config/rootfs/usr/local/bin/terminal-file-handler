@@ -8,7 +8,7 @@ if [[ "$path" =~ file://* ]]; then
 fi
 
 if [[ -d "$path" ]]; then
-  exec exo-open --launch TerminalEmulator --working-directory="$path"
+  XDG_DIR="$path" exec terminal
 fi
 
 echo "Not an existing directory" >&2

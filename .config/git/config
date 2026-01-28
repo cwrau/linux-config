@@ -57,7 +57,7 @@
 [diff]
   colorMoved = default
   external = semantic-diff
-  #external = $HOME/config/rootfs/usr/local/bin/semantic-diff
+  #external = bash -x $HOME/config/rootfs/usr/local/bin/semantic-diff
   #external = bash -x semantic-diff
 [diff "sopsdiff"]
   textconv = sops decrypt
