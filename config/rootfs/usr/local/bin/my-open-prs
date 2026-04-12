@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+STALENESS_CUTOFF="2025-06"
+GITLAB_USER="cwr"
+GITHUB_ORG="teutonet"
+
+FETCH_DIR=$(mktemp -d)
+trap 'rm -rf "$FETCH_DIR"' EXIT
+
+# --- Data fetching (called inside gum spin subshells via export -f) ---
+
+fetch_gitlab() {
+  local host=$1 outfile=$2
+  local mrs
+  mrs=$(GITLAB_HOST=$host glab api "merge_requests?state=opened&author_username=${GITLAB_USER}&scope=all&per_page=100" 2>/dev/null)
+
+  while IFS='|' read -r pid iid url title; do
+    local approved
+    approved=$(GITLAB_HOST=$host glab api "projects/${pid}/merge_requests/${iid}/approvals" 2>/dev/null | jq '.approved')
+    if [[ "$approved" == "true" ]]; then continue; fi
+
+    local unresolved
+    unresolved=$(GITLAB_HOST=$host glab api "projects/${pid}/merge_requests/${iid}/discussions?per_page=100" 2>/dev/null \
+      | jq '[.[] | select(.notes != null) | select(any(.notes[]; .resolvable == true and .resolved == false))] | length')
+
+    printf '%s\t%s\t%s\n' "$url" "$title" "$unresolved" >> "$outfile"
+  done < <(echo "$mrs" | jq -r --arg cutoff "$STALENESS_CUTOFF" \
+    '.[] | select(.updated_at > $cutoff) | "\(.project_id)|\(.iid)|\(.web_url)|\(.title)"')
+}
+
+fetch_github() {
+  local outfile=$1
+  while read -r full_ref; do
+    local repo="${full_ref%/*}" num="${full_ref##*/}"
+    local data
+    data=$(gh pr view "$num" -R "$repo" --json reviewDecision,title 2>/dev/null)
+    if [[ "$(echo "$data" | jq -r '.reviewDecision')" == "APPROVED" ]]; then continue; fi
+
+    local title org reponame unresolved
+    title=$(echo "$data" | jq -r '.title')
+    org="${repo%/*}"
+    reponame="${repo#*/}"
+    unresolved=$(gh api graphql -f query="{
+      repository(owner: \"${org}\", name: \"${reponame}\") {
+        pullRequest(number: ${num}) {
+          reviewThreads(first: 100) { nodes { isResolved } }
+        }
+      }
+    }" 2>/dev/null | jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
+
+    printf '%s\t%s\t%s\n' "https://github.com/${repo}/pull/${num}" "$title" "$unresolved" >> "$outfile"
+  done < <(gh search prs --author=@me --state=open --owner="$GITHUB_ORG" \
+    --json repository,number,updatedAt 2>/dev/null \
+    | jq -r --arg cutoff "$STALENESS_CUTOFF" \
+      '.[] | select(.updatedAt > $cutoff) | "\(.repository.nameWithOwner)/\(.number)"')
+}
+
+# --- Display ---
+
+display_section() {
+  local header=$1 file=$2
+  echo
+  gum style --bold --foreground "212" --padding "0 1" " $header"
+
+  if [[ ! -s "$file" ]]; then
+    gum style --faint --margin "0 0 0 2" "nothing unapproved"
+    return
+  fi
+
+  {
+    printf 'Title\tUnresolved\tURL\n'
+    while IFS=$'\t' read -r url title unresolved; do
+      local threads=""
+      if [[ "${unresolved:-0}" -gt 0 ]]; then threads="⚠ ${unresolved}"; fi
+      printf '%s\t%s\t%s\n' "$title" "$threads" "$url"
+    done < "$file"
+  } | gum table --print -s $'\t' --border.foreground="99" --header.foreground="212"
+}
+
+# --- Run ---
+
+export -f fetch_gitlab fetch_github
+export STALENESS_CUTOFF GITLAB_USER GITHUB_ORG FETCH_DIR
+
+gum spin --spinner dot --title "Fetching tickets.teuto.net…" -- \
+  bash -c 'fetch_gitlab tickets.teuto.net "${FETCH_DIR}/tickets"'
+
+gum spin --spinner dot --title "Fetching gitlab.teuto.net…" -- \
+  bash -c 'fetch_gitlab gitlab.teuto.net "${FETCH_DIR}/gitlab"'
+
+gum spin --spinner dot --title "Fetching github.com/${GITHUB_ORG}…" -- \
+  bash -c 'fetch_github "${FETCH_DIR}/github"'
+
+display_section "tickets.teuto.net"        "${FETCH_DIR}/tickets"
+display_section "gitlab.teuto.net"         "${FETCH_DIR}/gitlab"
+display_section "github.com/${GITHUB_ORG}" "${FETCH_DIR}/github"

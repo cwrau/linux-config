@@ -51,6 +51,7 @@ export XINITRC="$XDG_CONFIG_HOME/xorg/initrc"
 export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
 
 export BROWSER=browser
+export CLAUDE_CODE_SHELL=/bin/bash
 export CLUSTERCTL_DISABLE_VERSIONCHECK="true"
 export CM_DIR="$XDG_DATA_HOME/clipmenud"
 export CM_LAUNCHER=rofi
@@ -326,10 +327,9 @@ function idea() {
 
 function diff() {
   if [ -t 1 ]; then
-    semantic-diff "$@"
-    #command diff "${@}" --color=always -u | diff-so-fancy | command less --tabs=1,5 -RF
+    git diff --no-index -- "$@"
   else
-    command diff -u "${@}"
+    command diff -u "${@}" | diff-so-fancy | command less --tabs=1,5 -RF
   fi
 }
 
@@ -757,11 +757,11 @@ function getHelm() {
 }
 
 function kk() {
-  local management_kubeconfigs="$XDG_CONFIG_HOME/kube/mgmt-dev;$XDG_CONFIG_HOME/kube/mgmt-prod;$XDG_CONFIG_HOME/kube/mgmt-bfe-prod"
+  local management_kubeconfigs="$XDG_CONFIG_HOME/kube/mgmt-dev;$XDG_CONFIG_HOME/kube/mgmt-prod;$XDG_CONFIG_HOME/kube/mgmt-bfe-prod;$XDG_CONFIG_HOME/kube/mgmt-bfe2-prod"
   local multi_capo_shell_custom_name_expression='.metadata.annotations["t8s.teuto.net/cluster"] // "" | try @base64d'
   local multi_capo_shell_custom_column_customer_name='.metadata.annotations["t8s.teuto.net/customer-name"] // "" | try @base64d // .metadata.labels["t8s.teuto.net/customer-id"]'
   local capo_shell_kubeconfig_filter='.users |= map({name: .name, user: {exec: {apiVersion: "client.authentication.k8s.io/v1beta1", command: "kubectl", args: ["oidc-login", "get-token", "--oidc-issuer-url=https://staff-auth.k8s.teuto.net", "--token-cache-storage=keyring", "--oidc-client-id=kubernetes", "--oidc-extra-scope=email", "--oidc-extra-scope=groups", "--oidc-extra-scope=offline_access", "--open-url-after-authentication="]}}})'
-  MANAGEMENT_KUBECONFIGS="${MANAGEMENT_KUBECONFIGS:-$management_kubeconfigs}" MULTI_CAPO_SHELL_CUSTOM_NAME_EXPRESSION="${MULTI_CAPO_SHELL_CUSTOM_NAME_EXPRESSION:-$multi_capo_shell_custom_name_expression}" MULTI_CAPO_SHELL_CUSTOM_COLUMN_CUSTOMER_NAME="${MULTI_CAPO_SHELL_CUSTOM_COLUMN_CUSTOMER_NAME:-$multi_capo_shell_custom_column_customer_name}" CAPO_SHELL_KUBECONFIG_FILTER="${CAPO_SHELL_KUBECONFIG_FILTER:-$capo_shell_kubeconfig_filter}" multi-capo-shell "${@}"
+  command env MANAGEMENT_KUBECONFIGS="${MANAGEMENT_KUBECONFIGS:-$management_kubeconfigs}" MULTI_CAPO_SHELL_CUSTOM_NAME_EXPRESSION="${MULTI_CAPO_SHELL_CUSTOM_NAME_EXPRESSION:-$multi_capo_shell_custom_name_expression}" MULTI_CAPO_SHELL_CUSTOM_COLUMN_CUSTOMER_NAME="${MULTI_CAPO_SHELL_CUSTOM_COLUMN_CUSTOMER_NAME:-$multi_capo_shell_custom_column_customer_name}" CAPO_SHELL_KUBECONFIG_FILTER="${CAPO_SHELL_KUBECONFIG_FILTER:-$capo_shell_kubeconfig_filter}" multi-capo-shell "${@}"
 }
 
 function kk9s() {
@@ -792,6 +792,7 @@ compdef _k9s k9s
 function schedule_meeting() {
   local time="${1?}"
   local type
+  local name
   mkdir -p "${XDG_RUNTIME_DIR}/browser"
   if [[ "$2" =~ https://* ]]; then
     local url="$2"
@@ -799,10 +800,11 @@ function schedule_meeting() {
   else
     type="${2:-meeting}"
   fi
+  name="browser-meeting@$type"
   if [[ -v url ]]; then
-    echo -n "$url" > "$XDG_RUNTIME_DIR/browser/$type"
+    name="${name}_$(systemd-escape "$url")"
   fi
-  command systemd-run --user --on-calendar=@$(date --date="$time" +%s) -- systemctl --user restart "browser@$type"
+  command systemd-run --user --on-calendar=@$(date --date="$time" +%s) -- systemctl --user start "$name"
 }
 
 function share() {
@@ -901,6 +903,7 @@ nAlias watch hwatch ' '
 nAlias task go-task
 nAlias openstack CLIFF_MAX_TERM_WIDTH=999 openstack
 nAlias auniq "awk '!x[\$0]++'"
+nAlias claudia claude
 
 alias -g A='| awk'
 alias -g B='| base64'

@@ -4,5 +4,6 @@ PartOf=work.target
 
 [Timer]
 OnCalendar=Mon..Fri, 09:30
+RandomizedDelaySec=30
 Persistent=true
 Unit=daily-trigger.service

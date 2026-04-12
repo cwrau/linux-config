@@ -15,7 +15,6 @@ off
 output eDP-1-1
 off
 output HDMI-0
-crtc 0
 mode 3440x1440
 pos 0x0
 primary

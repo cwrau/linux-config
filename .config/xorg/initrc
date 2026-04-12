@@ -37,8 +37,8 @@ mapfile -t detectedProfiles < <(autorandr --skip-options gamma,brightness --dete
 
 if [[ ${detectedProfiles[@]} =~ home ]]; then
   autorandr --load home
-elif [[ ${detectedProfiles[@]} =~ work-k8s-window-left ]]; then
-  autorandr --load work-k8s-window-left
+elif [[ ${detectedProfiles[@]} =~ work-k8s-window-first ]]; then
+  autorandr --load work-k8s-window-first
 else
   autorandr --load laptop
 fi

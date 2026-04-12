@@ -8,8 +8,8 @@ font-size = 14
 shell-integration-features = no-cursor, sudo, title
 cursor-style = block
 cursor-style-blink = true
-cursor-text = cell-background
-cursor-color = cell-foreground
+#cursor-text = cell-background
+#cursor-color = cell-foreground
 # https://ghostty.org/docs/config/reference#scrollback-limit inifinte at some point
 scrollback-limit = 17179869184
 window-new-tab-position = end

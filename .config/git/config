@@ -39,6 +39,8 @@
   autoStash = true
 [rerere]
   enabled = true
+[submodule]
+  recurse = true
 [branch]
   autoSetupRebase = always
   autoSetupMerge = true

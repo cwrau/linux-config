@@ -12,7 +12,7 @@ vim.opt.tabstop = 2
 vim.opt.softtabstop = 0
 vim.opt.shiftwidth = 0
 vim.opt.listchars = { tab = ">~" }
-vim.opt.relativenumber = true
+vim.opt.relativenumber = false
 vim.opt.spelllang = { "en_gb", "de_de" }
 vim.opt.wrap = true
 -- Ignore URLs for spell checking

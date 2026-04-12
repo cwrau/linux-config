@@ -3,5 +3,5 @@ Description=Stop Telefondienst
 PartOf=telefondienst.target
 
 [Timer]
-OnCalendar=Thu 12:30
+OnCalendar=Thu 12:29
 Persistent=true

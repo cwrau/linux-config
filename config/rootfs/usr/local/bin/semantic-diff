@@ -99,7 +99,7 @@ function runTextConversion() {
       filePath="$1"
       gitPath="$3"
     else
-      return 0
+      return 1
     fi
   fi
   local newFilePath="$filePath"
@@ -111,7 +111,7 @@ function runTextConversion() {
     while read -d $'\0' -r attribute; do
       tool="$attribute" # the "last" attribute is the tool
     done < <(
-      git check-attr -za -- "$gitPath" | grep --text $'\0diff\0'
+      git check-attr -za -- "$gitPath" 2>/dev/null | grep --text $'\0diff\0'
     )
     if [[ -v tool ]] && command="$(git config get "diff.$tool.textconv")"; then
       newFilePath="$(mktemp --suffix="${filePath#*.}" -p "$TMP_DIR")"
@@ -139,7 +139,6 @@ function _semantic_diff() {
     newFilePath="$2"
     newGitPath="$(basename "$newFilePath")"
     echo "$@"
-    exit 1
   fi
   local newPath
   local diff
@@ -148,20 +147,20 @@ function _semantic_diff() {
   local tool
   local exitCode=0
 
-  oldFilePath="$(runTextConversion "$oldFilePath" "$oldGitPath")"
-  newFilePath="$(runTextConversion "$newFilePath" "$newGitPath" "$oldGitPath")"
+  if newPath="$(runTextConversion "$oldFilePath" "$oldGitPath")"; then
+    oldfilePath="$newPath"
+  fi
+  if newPath="$(runTextConversion "$newFilePath" "$newGitPath" "$oldGitPath")"; then
+    newFilePath="$newPath"
+  fi
 
   unifiedDiff="$(diff -u --unidirectional-new-file "$oldFilePath" "$newFilePath")" || exitCode=$?
-  #if [[ "$oldFilePath" =~ /tmp/git-blob* ]]; then
   if [[ "$oldGitPath" != "$oldFilePath" ]]; then
     unifiedDiff="$(<<<"$unifiedDiff" sed -r "s#^--- $oldFilePath#--- $oldGitPath#")"
   fi
-  #fi
-  #if [[ "$newFilePath" =~ /tmp/git-blob* ]]; then
   if [[ "$newGitPath" != "$newFilePath" ]]; then
     unifiedDiff="$(<<<"$unifiedDiff" sed -r "s#^\+\+\+ $newFilePath#\+\+\+ $newGitPath#")"
   fi
-  #fi
 
   for path in "$oldFilePath" "$newFilePath"; do
     if [[ -f "$path" ]]; then
@@ -170,7 +169,7 @@ function _semantic_diff() {
     fi
   done
 
-  if [[ -v filetype ]] && tool="$(getToolForFileType "$filetype" "$oldFilePath" "$newFilePath")" && { "$tool" -e . "$oldFilePath" && "$tool" -e . "$newFilePath"; } &>/dev/null; then # && sameNumberOfDocuments "$oldFilePath" "$newFilePath" "$tool"; then
+  if [[ -v filetype ]] && tool="$(getToolForFileType "$filetype" "$oldFilePath" "$newFilePath")" && { "$tool" -e . "$oldFilePath" && "$tool" -e . "$newFilePath"; } &>/dev/null; then
     if declare -F "diffWith_$tool" >/dev/null; then
       diff="$("diffWith_$tool" "$oldFilePath" "$newFilePath")"
     else

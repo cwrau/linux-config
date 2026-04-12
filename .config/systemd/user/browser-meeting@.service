@@ -1,0 +1,18 @@
+[Unit]
+Description=Meeting starter for %I
+After=graphical-session.target
+Requires=graphical-session.target
+
+[Service]
+Type=exec
+ExecStart=meeting %I
+Restart=always
+TimeoutStopSec=5
+Nice=-5
+
+# disallow writing to /usr, /bin, /sbin, ...
+ProtectSystem=true
+# more paranoid security settings
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectControlGroups=true

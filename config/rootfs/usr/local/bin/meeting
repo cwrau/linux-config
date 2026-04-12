@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -ex
+
+name="${1?}"
+
+IFS=_ read -r type url <<<"$name"
+
+mkdir -p "$XDG_RUNTIME_DIR/browser"
+
+echo -n "$url" >"$XDG_RUNTIME_DIR/browser/$type"
+
+systemctl --user restart "browser@$type.service"

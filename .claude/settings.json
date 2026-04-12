@@ -1,0 +1,65 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"Tool rules (always apply, no exceptions):\\n- JSON: use jq for all JSON processing (parsing, filtering, transforming, querying). Never use python3 -c, perl, or awk as a substitute.\\n- Task runner: the taskfile.dev binary on this system is go-task, not task. Always run go-task instead of task.\"}}'",
+            "statusMessage": "Loading tool rules..."
+          },
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"CAVEMAN MODE ACTIVE. Rules: Drop articles/filler/pleasantries/hedging. Fragments OK. Short synonyms. Pattern: [thing] [action] [reason]. [next step]. Not: '\\''Sure! I'\\''d be happy to help you with that.'\\'' Yes: '\\''Bug in auth middleware. Fix:'\\'' Code/commits/security: write normal. User says '\\''normal'\\'' or '\\''stop caveman'\\'' to deactivate.\"}}'",
+            "statusMessage": "Activating caveman mode..."
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dunstify -u critical \"$(jq -r .message)\""
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "caveman@caveman": true,
+    "context7@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      }
+    }
+  },
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "filesystem": {
+      "denyWrite": [
+        "/"
+      ],
+      "denyRead": [
+        "~"
+      ]
+    },
+    "excludedCommands": [
+      "podman"
+    ]
+  },
+  "alwaysThinkingEnabled": true,
+  "skipDangerousModePermissionPrompt": true
+}
