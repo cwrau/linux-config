@@ -1,65 +1,161 @@
 {
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"Tool rules (always apply, no exceptions):\\n- JSON: use jq for all JSON processing (parsing, filtering, transforming, querying). Never use python3 -c, perl, or awk as a substitute.\\n- Task runner: the taskfile.dev binary on this system is go-task, not task. Always run go-task instead of task.\"}}'",
-            "statusMessage": "Loading tool rules..."
-          },
-          {
-            "type": "command",
-            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"CAVEMAN MODE ACTIVE. Rules: Drop articles/filler/pleasantries/hedging. Fragments OK. Short synonyms. Pattern: [thing] [action] [reason]. [next step]. Not: '\\''Sure! I'\\''d be happy to help you with that.'\\'' Yes: '\\''Bug in auth middleware. Fix:'\\'' Code/commits/security: write normal. User says '\\''normal'\\'' or '\\''stop caveman'\\'' to deactivate.\"}}'",
-            "statusMessage": "Activating caveman mode..."
-          }
+    "permissions": {
+        "allow": [
+            "mcp__memory__*",
+            "mcp__plugin_context7_context7__*",
+            "mcp__codebase-memory-mcp__*",
+            "WebFetch",
+            "WebSearch",
+            "Bash(rtk ls*)",
+            "Bash(rtk tree*)",
+            "Bash(rtk find*)",
+            "Bash(rtk grep*)",
+            "Bash(rtk diff*)",
+            "Bash(rtk wc*)",
+            "Bash(rtk read*)",
+            "Bash(rtk env*)",
+            "Bash(rtk json*)",
+            "Bash(rtk log*)",
+            "Bash(rtk deps*)",
+            "Bash(rtk tsc*)",
+            "Bash(rtk mypy*)",
+            "Bash(rtk rubocop*)",
+            "Bash(rtk golangci-lint*)",
+            "Bash(rtk ruff*)",
+            "Bash(rtk gain*)",
+            "Bash(rtk cc-economics*)",
+            "Bash(rtk discover*)",
+            "Bash(rtk session*)",
+            "Bash(rtk hook-audit*)",
+            "Bash(rtk rewrite*)",
+            "Bash(rtk config*)",
+            "Bash(rtk verify*)"
         ]
-      }
-    ],
-    "Notification": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "dunstify -u critical \"$(jq -r .message)\""
-          }
-        ]
-      }
-    ]
-  },
-  "enabledPlugins": {
-    "caveman@caveman": true,
-    "context7@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true,
-    "github@claude-plugins-official": true,
-    "security-guidance@claude-plugins-official": true
-  },
-  "extraKnownMarketplaces": {
-    "caveman": {
-      "source": {
-        "source": "github",
-        "repo": "JuliusBrussee/caveman"
-      }
-    }
-  },
-  "sandbox": {
-    "enabled": true,
-    "autoAllowBashIfSandboxed": true,
-    "filesystem": {
-      "denyWrite": [
-        "/"
-      ],
-      "denyRead": [
-        "~"
-      ]
     },
-    "excludedCommands": [
-      "podman"
-    ]
-  },
-  "alwaysThinkingEnabled": true,
-  "skipDangerousModePermissionPrompt": true
+    "hooks": {
+        "SessionStart": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"Tool rules (always apply, no exceptions):\\n- JSON: use jq for all JSON processing (parsing, filtering, transforming, querying). Never use python3 -c, perl, or awk as a substitute.\\n- Task runner: the taskfile.dev binary on this system is go-task, not task. Always run go-task instead of task.\"}}'",
+                        "statusMessage": "Loading tool rules..."
+                    },
+                    {
+                        "type": "command",
+                        "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"Caveman default intensity: ultra\"}}'",
+                        "statusMessage": "Activating caveman ultra mode..."
+                    }
+                ]
+            },
+            {
+                "matcher": "startup",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "~/.claude/hooks/cbm-session-reminder"
+                    }
+                ]
+            },
+            {
+                "matcher": "resume",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "~/.claude/hooks/cbm-session-reminder"
+                    }
+                ]
+            },
+            {
+                "matcher": "clear",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "~/.claude/hooks/cbm-session-reminder"
+                    }
+                ]
+            },
+            {
+                "matcher": "compact",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "~/.claude/hooks/cbm-session-reminder"
+                    }
+                ]
+            }
+        ],
+        "Notification": [
+            {
+                "matcher": "",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "dunstify -u critical \"$(jq -r .message)\""
+                    }
+                ]
+            }
+        ],
+        "PreToolUse": [
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "/home/cwr/.claude/hooks/rtk-rewrite.sh"
+                    }
+                ]
+            },
+            {
+                "matcher": "Grep|Glob|Read|Search",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "~/.claude/hooks/cbm-code-discovery-gate"
+                    }
+                ]
+            }
+        ]
+    },
+    "enabledPlugins": {
+        "caveman@caveman": true,
+        "context7@claude-plugins-official": true,
+        "superpowers@claude-plugins-official": true,
+        "code-review@claude-plugins-official": true,
+        "code-simplifier@claude-plugins-official": true,
+        "github@claude-plugins-official": true,
+        "security-guidance@claude-plugins-official": true,
+        "plannotator@plannotator": true
+    },
+    "extraKnownMarketplaces": {
+        "caveman": {
+            "source": {
+                "source": "github",
+                "repo": "JuliusBrussee/caveman"
+            }
+        },
+        "plannotator": {
+            "source": {
+                "source": "github",
+                "repo": "backnotprop/plannotator"
+            }
+        }
+    },
+    "sandbox": {
+        "enabled": true,
+        "autoAllowBashIfSandboxed": true,
+        "filesystem": {
+            "denyWrite": [
+                "/"
+            ],
+            "denyRead": [
+                "~"
+            ]
+        },
+        "excludedCommands": [
+            "podman"
+        ]
+    },
+    "alwaysThinkingEnabled": true,
+    "skipDangerousModePermissionPrompt": true
 }

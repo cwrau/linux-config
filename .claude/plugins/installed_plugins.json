@@ -1,0 +1,85 @@
+{
+  "version": 2,
+  "plugins": {
+    "caveman@caveman": [
+      {
+        "scope": "user",
+        "installPath": "/home/cwr/.claude/plugins/cache/caveman/caveman/92f892f2b997",
+        "version": "92f892f2b997",
+        "installedAt": "2026-04-11T06:55:12.358Z",
+        "lastUpdated": "2026-04-11T06:55:12.358Z",
+        "gitCommitSha": "92f892f2b99744a4501f35bce9a2e384878e4877"
+      }
+    ],
+    "context7@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/home/cwr/.claude/plugins/cache/claude-plugins-official/context7/52e95f6756e5",
+        "version": "52e95f6756e5",
+        "installedAt": "2026-04-11T13:50:05.283Z",
+        "lastUpdated": "2026-04-11T13:50:05.283Z",
+        "gitCommitSha": "52e95f6756e577b6a788c941f994ca44de2cf2d6"
+      }
+    ],
+    "superpowers@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/home/cwr/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.7",
+        "version": "5.0.7",
+        "installedAt": "2026-04-11T13:52:02.146Z",
+        "lastUpdated": "2026-04-11T13:52:02.146Z",
+        "gitCommitSha": "917e5f53b16b115b70a3a355ed5f4993b9f8b73d"
+      }
+    ],
+    "code-review@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/home/cwr/.claude/plugins/cache/claude-plugins-official/code-review/52e95f6756e5",
+        "version": "52e95f6756e5",
+        "installedAt": "2026-04-11T13:52:02.182Z",
+        "lastUpdated": "2026-04-11T13:52:02.182Z",
+        "gitCommitSha": "52e95f6756e577b6a788c941f994ca44de2cf2d6"
+      }
+    ],
+    "code-simplifier@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/home/cwr/.claude/plugins/cache/claude-plugins-official/code-simplifier/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-04-11T13:52:02.220Z",
+        "lastUpdated": "2026-04-11T13:52:02.220Z",
+        "gitCommitSha": "52e95f6756e577b6a788c941f994ca44de2cf2d6"
+      }
+    ],
+    "github@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/home/cwr/.claude/plugins/cache/claude-plugins-official/github/52e95f6756e5",
+        "version": "52e95f6756e5",
+        "installedAt": "2026-04-11T13:52:02.259Z",
+        "lastUpdated": "2026-04-11T13:52:02.259Z",
+        "gitCommitSha": "52e95f6756e577b6a788c941f994ca44de2cf2d6"
+      }
+    ],
+    "security-guidance@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/home/cwr/.claude/plugins/cache/claude-plugins-official/security-guidance/52e95f6756e5",
+        "version": "52e95f6756e5",
+        "installedAt": "2026-04-11T13:52:02.300Z",
+        "lastUpdated": "2026-04-11T13:52:02.300Z",
+        "gitCommitSha": "52e95f6756e577b6a788c941f994ca44de2cf2d6"
+      }
+    ],
+    "plannotator@plannotator": [
+      {
+        "scope": "user",
+        "installPath": "/home/cwr/.claude/plugins/cache/plannotator/plannotator/0.17.10",
+        "version": "0.17.10",
+        "installedAt": "2026-04-15T07:36:20.871Z",
+        "lastUpdated": "2026-04-15T07:36:20.871Z",
+        "gitCommitSha": "4139999526a3c462b981a2dc38bd1ce8d282c48d"
+      }
+    ]
+  }
+}

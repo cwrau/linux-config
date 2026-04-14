@@ -1,0 +1,12 @@
+[Unit]
+Description=Idle manager for Wayland (replaces xss-lock)
+After=mangowc-session.target
+PartOf=mangowc-session.target
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/swayidle -w \
+  lock 'lock' \
+  before-sleep 'loginctl lock-session'
+Restart=on-failure
+RestartSec=5

@@ -1,0 +1,92 @@
+/* Waybar Material Design theme — ported from polybar
+ * Colors: cyan accent #00BCD4, dark bg rgba(0,0,0,0.5), light fg #DFDFDF
+ */
+
+* {
+    font-family: "Terminus", "Font Awesome 7 Free", "Iosevka Nerd Font";
+    font-size: 13px;
+    min-height: 0;
+}
+
+window#waybar {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #DFDFDF;
+}
+
+window#waybar.top {
+    border-bottom: 1px solid #00BCD4;
+}
+
+window#waybar.bottom {
+    background-color: rgba(0, 0, 0, 0.75);
+    border-top: 1px solid #00BCD4;
+}
+
+tooltip {
+    background-color: rgba(0, 0, 0, 0.85);
+    border: 1px solid #00BCD4;
+    border-radius: 0;
+    color: #DFDFDF;
+}
+
+tooltip label {
+    color: #DFDFDF;
+}
+
+#clock, #battery, #cpu, #memory, #disk, #temperature, #backlight,
+#network, #pulseaudio, #tray, #mpris,
+#custom-bluetooth, #custom-wired, #custom-vpn,
+#custom-notifications, #custom-microphone, #custom-pulse-restart,
+#custom-player-info, #custom-work, #custom-messengers,
+#custom-glava, #custom-gamemode, #custom-systemd-status {
+    padding: 0 6px;
+    margin: 0 2px;
+}
+
+#tags button {
+    padding: 0 4px;
+    color: #DFDFDF;
+    background-color: transparent;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    min-width: 20px;
+}
+
+#tags button.occupied { border-bottom: 2px solid #DFDFDF; }
+#tags button.focused { color: #00BCD4; border-bottom: 2px solid #00BCD4; }
+#tags button.urgent { color: #e53935; }
+
+#battery.charging { color: #43a047; }
+#battery.warning:not(.charging) { color: #fdd835; }
+#battery.critical:not(.charging) { color: #e53935; animation: blink 0.5s linear infinite alternate; }
+@keyframes blink { to { color: #DFDFDF; } }
+
+#network.disconnected { color: #757575; }
+#pulseaudio.muted { color: #757575; }
+#temperature.critical { color: #e53935; }
+
+#custom-bluetooth.on { color: #00BCD4; }
+#custom-bluetooth.off { color: #757575; }
+#custom-bluetooth.connected { color: #43a047; }
+#custom-vpn.connected { color: #43a047; }
+#custom-vpn.disconnected { color: transparent; padding: 0; margin: 0; min-width: 0; }
+#custom-notifications.paused { color: #fdd835; }
+#custom-microphone.muted { color: #757575; }
+#custom-microphone.active { color: #e53935; }
+#custom-work.active { color: #43a047; }
+#custom-work.inactive { color: #757575; }
+#custom-messengers.active { color: #43a047; }
+#custom-messengers.inactive { color: #757575; }
+#custom-glava.active { color: #43a047; }
+#custom-glava.inactive { color: #757575; }
+#custom-gamemode.active { color: #e53935; }
+#custom-gamemode.inactive { color: #757575; }
+#custom-systemd-status.ok { color: #43a047; }
+#custom-systemd-status.degraded { color: #e53935; }
+#custom-wired.connected { color: #43a047; }
+#custom-wired.disconnected { color: transparent; padding: 0; margin: 0; min-width: 0; }
+
+#tray > .passive { -gtk-icon-effect: dim; }
+#tray > .needs-attention { -gtk-icon-effect: highlight; background-color: #e53935; }
+#mpris { color: #00BCD4; }
+#mpris.paused { color: #757575; }

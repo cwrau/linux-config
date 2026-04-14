@@ -2,4 +2,19 @@
 
 set -ex
 
-autorandr | grep -E 'detected|current' | sed -r 's#^(\S+).*#\1#g' | dmenu -auto-select -i -no-custom -p Profile | xargs -r autorandr --force --load
+if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+  # Wayland: use kanshi profiles or wlr-randr
+  # List kanshi profiles from config, let user pick via rofi
+  if [[ -f "$XDG_CONFIG_HOME/kanshi/config" ]]; then
+    profile=$(grep -oP '(?<=^profile )\S+' "$XDG_CONFIG_HOME/kanshi/config" | rofi -dmenu -auto-select -i -no-custom -p "Display Profile")
+    if [[ -n "$profile" ]]; then
+      # Restart kanshi — it will auto-apply the matching profile
+      systemctl --user restart kanshi.service
+      notify-send -t 2000 "Display" "Restarted kanshi (profile: $profile)"
+    fi
+  else
+    notify-send -t 2000 "Display" "No kanshi config found"
+  fi
+else
+  autorandr | grep -E 'detected|current' | sed -r 's#^(\S+).*#\1#g' | dmenu -auto-select -i -no-custom -p Profile | xargs -r autorandr --force --load
+fi

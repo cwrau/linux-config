@@ -1,0 +1,252 @@
+// Waybar dual-bar config — ported from polybar
+// Top bar: system status + tags + controls
+// Bottom bar: media + system monitors + systemd status
+[
+  // ═══════════════════════════════════════════
+  // TOP BAR
+  // ═══════════════════════════════════════════
+  {
+    "layer": "top",
+    "position": "top",
+    "height": 28,
+    "spacing": 4,
+
+    "modules-left": [
+      "custom/bluetooth",
+      "network",
+      "custom/wired",
+      "custom/vpn",
+      "battery"
+    ],
+    "modules-center": [
+      "dwl/tags"
+    ],
+    "modules-right": [
+      "custom/notifications",
+      "custom/microphone",
+      "custom/pulse-restart",
+      "pulseaudio",
+      "mpris",
+      "clock",
+      "tray"
+    ],
+
+    // ── Built-in modules ──
+
+    "dwl/tags": {
+      "num-tags": 9,
+      "tag-labels": ["1:Work", "2:Dev", "3:Gen", "4:Media", "5:Game", "6:Free", "7:WChat", "8:Chat", "9:Disc"]
+    },
+
+    "clock": {
+      "format": "{:%Y-%m-%dT%H:%M:%S%z (%a/%b)}",
+      "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+      "interval": 1
+    },
+
+    "battery": {
+      "bat": "BAT0",
+      "interval": 2,
+      "states": {
+        "warning": 30,
+        "critical": 15
+      },
+      "format": "{icon} {capacity}% ({time} {power:.1f}W)",
+      "format-charging": " {capacity}% ({time} +{power:.1f}W)",
+      "format-plugged": " {capacity}%",
+      "format-full": "",
+      "format-icons": ["", "", "", "", ""]
+    },
+
+    "network": {
+      "interface": "wl*",
+      "format-wifi": " {essid} {ipaddr}",
+      "format-ethernet": " {ipaddr}/{cidr}",
+      "format-linked": " {ifname} (No IP)",
+      "format-disconnected": "",
+      "tooltip-format": "{ifname} via {gwaddr}",
+      "on-click": "networkmanager_dmenu"
+    },
+
+    "pulseaudio": {
+      "format": "{icon} {volume}%",
+      "format-bluetooth": "{icon} {volume}%",
+      "format-muted": " {volume}%",
+      "format-source": " {volume}%",
+      "format-source-muted": "",
+      "format-icons": {
+        "headphone": "",
+        "hands-free": "",
+        "headset": "",
+        "phone": "",
+        "portable": "",
+        "car": "",
+        "default": ["", "", ""]
+      },
+      "on-click": "pavucontrol",
+      "on-click-right": "audio_sink",
+      "on-click-middle": "audio_program_sink"
+    },
+
+    "mpris": {
+      "format": "{player_icon} {artist} - {title}",
+      "format-paused": "{status_icon} {artist} - {title}",
+      "player-icons": {
+        "default": ""
+      },
+      "status-icons": {
+        "paused": ""
+      },
+      "max-length": 40,
+      "on-click": "pctl NEXT",
+      "on-scroll-up": "pctl volume 0.05+",
+      "on-scroll-down": "pctl volume 0.05-"
+    },
+
+    "tray": {
+      "spacing": 10
+    },
+
+    // ── Custom modules (top bar) ──
+
+    "custom/bluetooth": {
+      "exec": "~/.config/bar/scripts/bluetooth.sh",
+      "return-type": "json",
+      "on-click": "bluetooth_dmenu",
+      "restart-interval": 0
+    },
+
+    "custom/wired": {
+      "exec": "~/.config/bar/scripts/wired.sh",
+      "return-type": "json",
+      "interval": 1
+    },
+
+    "custom/vpn": {
+      "exec": "nmcli connection show --active 2>/dev/null | grep -q wireguard && echo '{\"text\":\"\",\"class\":\"connected\"}' || echo '{\"text\":\"\",\"class\":\"disconnected\"}'",
+      "return-type": "json",
+      "interval": 5
+    },
+
+    "custom/notifications": {
+      "exec": "~/.config/bar/scripts/notifications.sh",
+      "return-type": "json",
+      "on-click": "dunstctl set-paused toggle",
+      "restart-interval": 0
+    },
+
+    "custom/microphone": {
+      "exec": "~/.config/bar/scripts/microphone.sh",
+      "return-type": "json",
+      "on-click": "pactl set-source-mute @DEFAULT_SOURCE@ toggle",
+      "restart-interval": 0
+    },
+
+    "custom/pulse-restart": {
+      "format": "",
+      "on-click": "systemctl --user restart pipewire-pulse.service pipewire.service",
+      "tooltip": false
+    }
+  },
+
+  // ═══════════════════════════════════════════
+  // BOTTOM BAR
+  // ═══════════════════════════════════════════
+  {
+    "layer": "top",
+    "position": "bottom",
+    "height": 24,
+    "spacing": 4,
+
+    "modules-left": [
+      "custom/player-info"
+    ],
+    "modules-center": [
+      "cpu",
+      "memory",
+      "temperature",
+      "disk",
+      "custom/work",
+      "custom/messengers",
+      "custom/glava",
+      "custom/gamemode"
+    ],
+    "modules-right": [
+      "custom/systemd-status"
+    ],
+
+    // ── Built-in modules (bottom bar) ──
+
+    "cpu": {
+      "format": " {usage:>3}%",
+      "interval": 1,
+      "on-click": "terminal -e btop",
+      "tooltip": false
+    },
+
+    "memory": {
+      "format": " {used:0.1f}G ({percentage}%) | {swapUsed:0.1f}G ({swapPercentage}%)",
+      "interval": 1,
+      "on-click": "terminal -e btop"
+    },
+
+    "temperature": {
+      "thermal-zone": 0,
+      "critical-threshold": 80,
+      "format": "{icon} {temperatureC}°C",
+      "format-critical": "{icon} {temperatureC}°C",
+      "format-icons": ["", "", "", "", ""],
+      "interval": 1
+    },
+
+    "disk": {
+      "path": "/",
+      "format": " {free}",
+      "interval": 10,
+      "on-click": "pcmanfm ~"
+    },
+
+    // ── Custom modules (bottom bar) ──
+
+    "custom/player-info": {
+      "exec": "~/.config/bar/scripts/player-info.sh",
+      "return-type": "json",
+      "on-click": "pctl play-pause",
+      "restart-interval": 0
+    },
+
+    "custom/work": {
+      "exec": "~/.config/bar/scripts/systemd-display.sh work.target ",
+      "return-type": "json",
+      "on-click": "~/.config/bar/scripts/systemd-click.sh work.target",
+      "restart-interval": 0
+    },
+
+    "custom/messengers": {
+      "exec": "~/.config/bar/scripts/systemd-display.sh messengers.target ",
+      "return-type": "json",
+      "on-click": "~/.config/bar/scripts/systemd-click.sh messengers.target",
+      "restart-interval": 0
+    },
+
+    "custom/glava": {
+      "exec": "~/.config/bar/scripts/systemd-display.sh glava.target ",
+      "return-type": "json",
+      "on-click": "~/.config/bar/scripts/systemd-click.sh glava.target",
+      "restart-interval": 0
+    },
+
+    "custom/gamemode": {
+      "exec": "~/.config/bar/scripts/systemd-display.sh gamemode.service  gamemode.target",
+      "return-type": "json",
+      "on-click": "~/.config/bar/scripts/systemd-click.sh gamemode.service",
+      "restart-interval": 0
+    },
+
+    "custom/systemd-status": {
+      "exec": "~/.config/bar/scripts/systemd-status.sh",
+      "return-type": "json",
+      "restart-interval": 0
+    }
+  }
+]

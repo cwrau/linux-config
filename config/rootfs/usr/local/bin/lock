@@ -2,14 +2,23 @@
 
 set -x
 
+if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+  locker=swaylock
+else
+  locker=i3lock
+fi
+
 lockscreenPicture=("-i" "$XDG_CONFIG_HOME/lock.png")
 
 function unlock() {
-  pkill --exact "$@" i3lock
+  pkill --exact "$@" "$locker"
 }
 
 function lock() {
-  if systemctl --user is-active i3-session.target --quiet; then
+  if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+    swaylock -c 000000ff --scaling center "${lockscreenPicture[@]}" \
+      --inside-color 00000000 --inside-ver-color 00000000 --inside-wrong-color 00000000
+  else
     i3lock -c 000000 -C "${lockscreenPicture[@]}" \
       --pass-media-keys \
       --pass-screen-keys \
@@ -21,15 +30,12 @@ function lock() {
       --time-color ffffff \
       --verif-text= --wrong-text= --noinput-text= \
       --redraw-thread
-  else
-    swaylock -c 000000ff --scaling center "${lockscreenPicture[@]}" \
-      --inside-color 00000000 --inside-ver-color 00000000 --inside-wrong-color 00000000
   fi
 }
 
 trap unlock TERM INT EXIT
 
-if [[ -n "${XSS_SLEEP_LOCK_FD}" ]]; then
+if [[ "$XDG_SESSION_TYPE" != "wayland" ]] && [[ -n "${XSS_SLEEP_LOCK_FD}" ]]; then
   lock {XSS_SLEEP_LOCK_FD}<&-
 
   exec {XSS_SLEEP_LOCK_FD}<&-
@@ -37,6 +43,7 @@ else
   lock
 fi
 
-systemd-run --user --property=Requires=pause-notifications.service --scope --quiet --unit=lock -- tail --pid=$(pgrep --newest --exact i3lock) -f /dev/null &
+systemd-run --user --property=Requires=pause-notifications.service --scope --quiet --unit=lock -- \
+  tail --pid=$(pgrep --newest --exact "$locker") -f /dev/null &
 
 wait $!

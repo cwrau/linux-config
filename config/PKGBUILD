@@ -44,9 +44,11 @@ depends=(
   chart-testing
   chromium
   claude-code
+  clipman
   clipmenu
   cloudflared
   cocogitto
+  codebase-memory-mcp-ui-bin
   curl
   ddcutil
   devtools
@@ -80,6 +82,7 @@ depends=(
   gamescope
   gdu
   gfeeds
+  grim
   git
   git-delete-merged-branches
   git-delta
@@ -121,6 +124,7 @@ depends=(
   k9s-capi
   k9s-flux
   k9s-openstack
+  kanshi
   kdeconnect
   kernel-modules-hook
   kitty
@@ -148,6 +152,7 @@ depends=(
   lutris
   man-db
   man-pages
+  mangowm
   masterpdfeditor-free
   matcha-gtk-theme
   mesa
@@ -183,6 +188,7 @@ depends=(
   pavucontrol
   perl-anyevent-i3
   perl-file-mimeinfo
+  plannotator
   picom
   pipewire-pulse
   pkgstats
@@ -220,6 +226,7 @@ depends=(
   rofi
   rofi-calc
   rofi-randr
+  rtk-bin
   ruby # for neovim
   rust-src # for neovim
   ryujinx
@@ -229,6 +236,9 @@ depends=(
   snap-pac
   socat
   sof-firmware
+  swaybg
+  swayidle
+  swaylock
   sops
   sshpass
   sshuttle
@@ -258,12 +268,16 @@ depends=(
   up
   usbutils
   v4l2loopback-dkms
+  waybar
   which
   wireguard-tools
+  wl-clipboard
   woff2-font-awesome
+  wtype
   xarchiver
   xclip
   xdg-desktop-portal-gtk
+  xdg-desktop-portal-wlr
   xh
   xorg-server
   xorg-xev

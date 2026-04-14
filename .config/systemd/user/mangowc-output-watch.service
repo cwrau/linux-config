@@ -1,0 +1,10 @@
+[Unit]
+Description=MangoWC output change watcher
+After=mangowc-session.target
+PartOf=mangowc-session.target
+
+[Service]
+Type=exec
+ExecStart=/bin/bash -c 'mmsg -w -O 2>/dev/null | while read -r line; do sleep 1; systemctl --user restart swaybg.service; pkill -SIGUSR2 waybar; systemctl --user try-restart easyeffects.service; done'
+Restart=on-failure
+RestartSec=5

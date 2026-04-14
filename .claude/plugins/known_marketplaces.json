@@ -1,0 +1,26 @@
+{
+  "claude-plugins-official": {
+    "source": {
+      "source": "github",
+      "repo": "anthropics/claude-plugins-official"
+    },
+    "installLocation": "/home/cwr/.claude/plugins/marketplaces/claude-plugins-official",
+    "lastUpdated": "2026-03-31T11:04:46.369Z"
+  },
+  "caveman": {
+    "source": {
+      "source": "github",
+      "repo": "JuliusBrussee/caveman"
+    },
+    "installLocation": "/home/cwr/.claude/plugins/marketplaces/caveman",
+    "lastUpdated": "2026-04-11T06:55:12.000Z"
+  },
+  "plannotator": {
+    "source": {
+      "source": "github",
+      "repo": "backnotprop/plannotator"
+    },
+    "installLocation": "/home/cwr/.claude/plugins/marketplaces/plannotator",
+    "lastUpdated": "2026-04-15T07:35:41.671Z"
+  }
+}

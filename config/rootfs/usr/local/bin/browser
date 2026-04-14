@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 if [[ -v BROWSER_LOG ]]; then
+  if [[ -w "$BROWSER_LOG" ]]; then
+    exec {BASH_XTRACEFD}>>"$BROWSER_LOG"
+  fi
   echo "$@" >&2
   set -x
 fi
@@ -66,6 +69,12 @@ case "$1" in
       mitmweb)
         args=(--new-window)
         silent=true
+        ;;
+      claude)
+        if curl -f "$@" | grep -q Plannotator; then
+          args=(--new-window)
+          silent=true
+        fi
         ;;
       *)
         if [[ "$1" =~ ^https://api.*.teutostack.de:6080/vnc_auto.html* ]]; then

@@ -1,0 +1,12 @@
+[Unit]
+Description=MangoWC session
+After=graphical-session-pre.target
+BindsTo=graphical-session.target
+Wants=graphical-session-pre.target
+Wants=clipman.service
+Wants=kanshi.service
+Wants=mangowc-output-watch.service
+Wants=restart-service@dunst.path
+Wants=restart-service@waybar.path
+Wants=swaybg.service
+Wants=swayidle.service

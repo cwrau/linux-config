@@ -2,7 +2,7 @@
 SYMBOL_MIC=""
 SYMBOL_MIC_MUTED=""
 
-source "$XDG_CONFIG_HOME/polybar/scripts/parse_colors.sh"
+source "$XDG_CONFIG_HOME/bar/scripts/parse_colors.sh"
 
 conferenceServices=(browser@daily.service browser@meeting.service discord.service)
 
@@ -34,7 +34,11 @@ function update() {
 
     outputs="$(pactl list source-outputs | grep 'application.name = "' | grep -cv glava)"
     if ((outputs > 1)); then
-      outputString="%{O-3pt}$outputs"
+      if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+        outputString="$outputs"
+      else
+        outputString="%{O-3pt}$outputs"
+      fi
     fi
 
     if [[ "$muted" == yes ]]; then
@@ -61,14 +65,24 @@ function update() {
     fi
   fi
 
-  echo "%{A1:/usr/bin/pactl set-source-mute @DEFAULT_SOURCE@ toggle:}%{F$color}$symbol${outputString}%{F-}%{A}"
+  if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+    local wb_class
+    if [[ "$muted" == yes ]]; then
+      if [[ "$state" == RUNNING ]]; then wb_class="active"; else wb_class="muted"; fi
+    else
+      if [[ "$state" == RUNNING ]]; then wb_class="active"; else wb_class="idle"; fi
+    fi
+    printf '{"text":"%s%s","tooltip":"Mic: %s, %s outputs","class":"%s"}\n' "$symbol" "${outputString}" "${muted:-unknown}" "${outputs:-0}" "$wb_class"
+  else
+    echo "%{A1:/usr/bin/pactl set-source-mute @DEFAULT_SOURCE@ toggle:}%{F$color}$symbol${outputString}%{F-}%{A}"
+  fi
 
   if [[ "$state" == RUNNING ]]; then
-    flock -x "$XDG_RUNTIME_DIR/polybar/microphone-lock" bash -c "date +%s > '$XDG_RUNTIME_DIR/polybar/microphone'"
+    flock -x "$XDG_RUNTIME_DIR/bar/microphone-lock" bash -c "date +%s > '$XDG_RUNTIME_DIR/bar/microphone'"
   else
-    if [[ ! -s "$XDG_RUNTIME_DIR/polybar/microphone" ]] || ((($(date +%s) - $(cat "$XDG_RUNTIME_DIR/polybar/microphone")) > 10)); then
+    if [[ ! -s "$XDG_RUNTIME_DIR/bar/microphone" ]] || ((($(date +%s) - $(cat "$XDG_RUNTIME_DIR/bar/microphone")) > 10)); then
       pactl set-source-mute @DEFAULT_SOURCE@ true
-      flock -x "$XDG_RUNTIME_DIR/polybar/microphone-lock" bash -c "echo 0 > '$XDG_RUNTIME_DIR/polybar/microphone'"
+      flock -x "$XDG_RUNTIME_DIR/bar/microphone-lock" bash -c "echo 0 > '$XDG_RUNTIME_DIR/bar/microphone'"
     else
       (
         sleep 10
@@ -88,7 +102,7 @@ function update() {
   #done
 }
 
-[ -f "$XDG_RUNTIME_DIR/polybar/microphone" ] || (echo 0 >"$XDG_RUNTIME_DIR/polybar/microphone")
+[ -f "$XDG_RUNTIME_DIR/bar/microphone" ] || (echo 0 >"$XDG_RUNTIME_DIR/bar/microphone")
 
 update
 pactl subscribe | grep --line-buffered -E "'(change|remove|new)' on source" | while read -r _; do

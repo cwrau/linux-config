@@ -79,7 +79,7 @@ export SECRETS_EXTENSION=".gpg"
 export SYSTEMD_PAGERSECURE=false
 export VISUAL="$EDITOR"
 
-if [[ "${XDG_SESSION_TYPE:-tty}" == "tty" && -o interactive ]]; then
+if [[ "${XDG_SESSION_TYPE:-tty}" == "tty" && -o interactive ]] && ! systemctl --user is-active --quiet graphical-session.target; then
   case "${XDG_VTNR}" in
     1)
       export XDG_SESSION_TYPE=x11
@@ -90,27 +90,17 @@ if [[ "${XDG_SESSION_TYPE:-tty}" == "tty" && -o interactive ]]; then
       fi
       exec systemd-cat --stderr-priority=warning --identifier=xorg nice -n -19 startx -- $xorgConfig
       ;;
-    a)
-      export XDG_CURRENT_DESKTOP=sway
-      export GBM_BACKEND=nvidia-drm
-      export __GLX_VENDOR_LIBRARY_NAME=nvidia
+    2)
+      export XDG_CURRENT_DESKTOP=mangowc
       export MOZ_ENABLE_WAYLAND=1
       export XDG_SESSION_TYPE=wayland
-      #export WLR_DRM_NO_MODIFIERS=1
-      #export WLR_DRM_DEVICES=/dev/dri/card0
+      if lsmod | grep -Eq ^nvidia; then
+        export GBM_BACKEND=nvidia-drm
+        export __GLX_VENDOR_LIBRARY_NAME=nvidia
+        export WLR_NO_HARDWARE_CURSORS=1
+      fi
       systemctl --user import-environment 2> /dev/null
-      exec systemd-cat --stderr-priority=warning --identifier=wayland nice -n -19 sway --unsupported-gpu
-      ;;
-    a)
-      export XDG_CURRENT_DESKTOP=hyprland
-      export GBM_BACKEND=nvidia-drm
-      export __GLX_VENDOR_LIBRARY_NAME=nvidia
-      export MOZ_ENABLE_WAYLAND=1
-      export XDG_SESSION_TYPE=wayland
-      export WLR_DRM_NO_MODIFIERS=1
-      export WLR_DRM_DEVICES=/dev/dri/card0
-      systemctl --user import-environment 2> /dev/null
-      exec systemd-cat --stderr-priority=warning --identifier=wayland nice -n -19 Hyprland
+      exec systemd-cat --stderr-priority=warning --identifier=mangowc nice -n -19 mango
       ;;
   esac
 fi
@@ -879,7 +869,9 @@ nAlias grep rg
 nAlias o xdg-open
 nAlias actionlint podman-run -v $PWD:$PWD -w $PWD rhysd/actionlint
 nAlias scu command systemctl --user
+nAlias jcu command journalctl --user
 nAlias sc systemctl
+nAlias jc journalctl
 nAlias sru command systemd-run --user
 nAlias sr systemd-run
 nAlias urldecode 'sed "s@+@ @g;s@%@\\\\x@g" | parallel -0 printf "%b"'

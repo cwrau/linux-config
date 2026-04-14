@@ -10,7 +10,6 @@ Wants=polybar.target
 Wants=restart-service@dunst.path
 #Wants=restart-service@picom.path
 Wants=restart-service@polybar.path
-Wants=startup-boost.service
 Wants=unclutter.service
 Wants=xorg-settings.timer
 Wants=xss-lock.service

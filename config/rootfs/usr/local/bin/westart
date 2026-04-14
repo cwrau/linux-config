@@ -2,12 +2,24 @@
 
 set -e
 
-if ! window_id="$(xdotool selectwindow)"; then
-  exit 1
-fi
+if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+  # Get focused window PID via compositor IPC
+  # mmsg -g -c returns "appid title" — we need the PID from the process list
+  client_info="$(mmsg -g -c 2>/dev/null)" || exit 1
+  appid="$(awk '{print $1}' <<<"$client_info")"
 
-if ! process_id="$(xprop -id "$window_id" _NET_WM_PID | awk '{print $3}')"; then
-  exit 2
+  # Find PID by app_id match in process list
+  if ! process_id="$(pgrep -f "$appid" | head -1)"; then
+    exit 2
+  fi
+else
+  if ! window_id="$(xdotool selectwindow)"; then
+    exit 1
+  fi
+
+  if ! process_id="$(xprop -id "$window_id" _NET_WM_PID | awk '{print $3}')"; then
+    exit 2
+  fi
 fi
 
 if ! process_unit="$(ps -h -o uunit "$process_id")"; then

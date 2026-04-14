@@ -1,0 +1,40 @@
+# kanshi display profiles — ported from autorandr
+#
+# IMPORTANT: Output names here are PROVISIONAL. Wayland/wlroots uses different
+# naming than X11/NVIDIA. After first MangoWC boot, run `wlr-randr` or
+# `mmsg -O` to get actual output names and update this file.
+
+# Laptop — internal display only
+profile laptop {
+  output eDP-1 enable mode 2560x1440@240Hz position 0,0
+}
+
+# Home — ultrawide, internal off
+profile home {
+  output eDP-1 disable
+  output HDMI-A-1 enable mode 3440x1440@50Hz position 0,0
+}
+
+# Desk — ultrawide at 60Hz, internal off
+profile desk {
+  output eDP-1 disable
+  output HDMI-A-1 enable mode 3440x1440@60Hz position 0,0
+}
+
+# TV — DP-1 at 1080p, internal off
+profile tv {
+  output eDP-1 disable
+  output DP-1 enable mode 1920x1080@60Hz position 0,0
+}
+
+# TV docked — via dock DisplayPort chain
+profile tvd {
+  output eDP-1 disable
+  output DP-2 enable mode 1920x1080@60Hz position 0,0
+}
+
+# Work K8s first — renamed from work-k8s-window-left
+profile work-k8s-first {
+  output eDP-1 disable
+  output HDMI-A-1 enable mode 2560x1440@60Hz position 0,0
+}

@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2046
-morsetran $(xclip -selection clipboard -o | sed -r "s#/# / #g") | sed 's#  # #g' | xclip -selection clipboard -i
-sleep 0.5
-xdotool key --clearmodifiers ctrl+v
+
+if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+  morsetran $(wl-paste | sed -r "s#/# / #g") | sed 's#  # #g' | wl-copy
+  sleep 0.5
+  wtype -M ctrl v -m ctrl
+else
+  morsetran $(xclip -selection clipboard -o | sed -r "s#/# / #g") | sed 's#  # #g' | xclip -selection clipboard -i
+  sleep 0.5
+  xdotool key --clearmodifiers ctrl+v
+fi

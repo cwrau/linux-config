@@ -1,0 +1,12 @@
+#!/bin/bash
+# Gate hook: nudges Claude toward codebase-memory-mcp for code discovery.
+# First Grep/Glob/Read/Search per session -> block. Subsequent -> allow.
+# PPID = Claude Code process PID, unique per session.
+GATE=/tmp/cbm-code-discovery-gate-$PPID
+find /tmp -name 'cbm-code-discovery-gate-*' -mtime +1 -delete 2>/dev/null
+if [ -f "$GATE" ]; then
+    exit 0
+fi
+touch "$GATE"
+echo 'BLOCKED: For code discovery, use codebase-memory-mcp tools first: search_graph(name_pattern) to find functions/classes, trace_path() for call chains, get_code_snippet(qualified_name) to read source. If the graph is not indexed yet, call index_repository first. Fall back to Grep/Glob/Read only for text content search. If you need Grep, retry.' >&2
+exit 2

@@ -9,7 +9,7 @@ if [[ "$1" == "--toggle" ]]; then
   exit 0
 fi
 
-source "$XDG_CONFIG_HOME/polybar/scripts/parse_colors.sh"
+source "$XDG_CONFIG_HOME/bar/scripts/parse_colors.sh"
 
 function notify() {
   dunstify -a bluetooth -t 2000 "$@"
@@ -40,7 +40,7 @@ function unlock() {
   flock -u 5
 }
 
-LOCKDIR=$XDG_RUNTIME_DIR/polybar/bluetooth-battery
+LOCKDIR=$XDG_RUNTIME_DIR/bar/bluetooth-battery
 mkdir -p "$LOCKDIR"
 
 exec 4<>"$LOCKDIR/run-lock"
@@ -64,12 +64,15 @@ function update() {
     flock -x $MESSAGE_LOCK
     local message
     local mac info battery alias protocol
-    local -a old_devices new_devices
+    local -a old_devices new_devices device_strings
     local old_device new_device
+    local devices_text="" connected_count=0 bt_powered=false
+
     mapfile -t old_devices <"$DEVICES_FILE"
     truncate -s 0 "$DEVICES_FILE"
-    message="%{A3:$0 --toggle:}$(if bluetoothctl show | grep -q "Powered: yes"; then
-      echo -n "%{F$color_blue}"
+
+    if bluetoothctl show | grep -q "Powered: yes"; then
+      bt_powered=true
       for mac in $(bluetoothctl devices Connected | grep -E ^Device | awk '{print $2}'); do
         info="$(bluetoothctl info "$mac")"
         battery=
@@ -77,11 +80,11 @@ function update() {
         echo "$alias" >>"$DEVICES_FILE"
         if grep -q "Battery Percentage:" <<<"$info"; then
           battery=$(sed -rn 's/^\s*Battery Percentage: .+ \(([0-9]+)\)$/\1/p' <<<"$info")
-        elif grep -q '0000180f-0000-1000-8000-00805f9b34fb' <<<"$info"; then # Battery Service
+        elif grep -q '0000180f-0000-1000-8000-00805f9b34fb' <<<"$info"; then
           battery=$(dbus bluez "$mac")
-        elif grep -q '0000111e-0000-1000-8000-00805f9b34fb' <<<"$info"; then # Handsfree
+        elif grep -q '0000111e-0000-1000-8000-00805f9b34fb' <<<"$info"; then
           battery=$(echo "from bluetooth_battery import BatteryStateQuerier; print(int(BatteryStateQuerier(\"$mac\")))" | python 2>/dev/null)
-        elif $supportsHSPHFPD && grep -q '00001200-0000-1000-8000-00805f9b34fb' <<<"$info"; then # PnP Information
+        elif $supportsHSPHFPD && grep -q '00001200-0000-1000-8000-00805f9b34fb' <<<"$info"; then
           for protocol in hfp_hf hfp_ag hsp_hs; do
             battery=$(dbus hsphfpd "$mac" $protocol)
             if [[ -n "$battery" && "$battery" != "-1" ]]; then
@@ -92,11 +95,42 @@ function update() {
             unset battery
           fi
         fi
-        echo "$alias${battery:+ ($battery%)}"
-      done | sort | paste -sd "," - | sed 's#,#, #g; /\S/s#^# #'
+        device_strings+=("${alias}${battery:+ (${battery}%)}")
+        ((connected_count++))
+      done
+      devices_text=$(printf '%s, ' "${device_strings[@]}")
+      devices_text="${devices_text%, }"
+    fi
+
+    if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+      local text tooltip class
+      if $bt_powered; then
+        if ((connected_count > 0)); then
+          text=" ${devices_text}"
+          tooltip="Bluetooth: ${connected_count} device(s) - ${devices_text}"
+          class="connected"
+        else
+          text=""
+          tooltip="Bluetooth: on, no devices"
+          class="on"
+        fi
+      else
+        text=""
+        tooltip="Bluetooth: off"
+        class="off"
+      fi
+      message="$(printf '{"text":"%s","tooltip":"%s","class":"%s"}' "$text" "$tooltip" "$class")"
     else
-      echo ""
-    fi)%{A}"
+      message="%{A3:$0 --toggle:}$(if $bt_powered; then
+        echo -n "%{F$color_blue}"
+        if [[ -n "$devices_text" ]]; then
+          echo " $devices_text"
+        fi
+      else
+        echo ""
+      fi)%{A}"
+    fi
+
     echo "$message" | tee "$MESSAGE_FILE"
     mapfile -t new_devices <"$DEVICES_FILE"
     if [[ "$first_run" == false ]]; then

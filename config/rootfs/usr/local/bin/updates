@@ -57,19 +57,19 @@ if items="$(informant check)"; then
           fi
           notification_send -t 5000 -u normal 'Updates finished!'
         elif [[ "$(notification_send -t 10000 -u critical 'Updates failed!' -A Show,Show)" == "Show" ]]; then
-          i3-sensible-terminal -- bash -c 'journalctl --unit=updates-run.scope --since=-1h | exec lnav'
+          terminal -- bash -c 'journalctl --unit=updates-run.scope --since=-1h | exec lnav'
         else
           exit 1
         fi
       fi
     else
-      exec i3-sensible-terminal --wait -- paru -Syu --noconfirm
+      exec terminal --wait -- paru -Syu --noconfirm
     fi
   fi
 elif ((items > 100)); then
   notification_send -t 10000 -u normal 'Error checking Arch news!'
 elif [[ "$(notification_send -t 10000 -u critical "$items Unread Arch news articles!" -A Show,Show)" == "Show" ]]; then
-  i3-sensible-terminal -- bash -c 'sudo informant read'
+  terminal -- bash -c 'sudo informant read'
 fi
 
 if ! nix-channel --update; then
