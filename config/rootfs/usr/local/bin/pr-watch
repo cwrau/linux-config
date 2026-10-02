@@ -1,0 +1,161 @@
+#!/usr/bin/env bash
+# Poll a single GitHub PR or GitLab/tickets MR for review/CI activity and
+# merge status. Meant to be run under the Monitor tool: one line of output
+# per detected change, exits (ending the watch) on MERGED or CLOSED.
+#
+# Usage: pr-watch <pr-or-mr-url>
+
+set -euo pipefail
+
+: "${XDG_RUNTIME_DIR:?XDG_RUNTIME_DIR not set -- environment is broken}"
+
+url="${1:?usage: pr-watch <pr-or-mr-url>}"
+POLL_INTERVAL=30
+
+state_dir="$XDG_RUNTIME_DIR/pr-watch"
+mkdir -p "$state_dir"
+state_key=$(printf '%s' "$url" | sha1sum | cut -d' ' -f1)
+state_file="$state_dir/$state_key.state"
+
+# --- key=value state file helpers ---
+
+state_get() {
+  local key=$1
+  [[ -f "$state_file" ]] || return 0
+  awk -F= -v k="$key" '$1 == k { print substr($0, length(k) + 2) }' "$state_file"
+}
+
+state_set_all() {
+  # Args are key=value pairs; rewrites the whole file atomically.
+  printf '%s\n' "$@" >"$state_file.tmp"
+  mv "$state_file.tmp" "$state_file"
+}
+
+# --- one poll of a GitHub PR ---
+
+poll_github() {
+  local repo num data
+  repo=$(sed -E 's#^https://github\.com/([^/]+/[^/]+)/pull/([0-9]+).*#\1#' <<<"$url")
+  num=$(sed -E 's#.*/pull/([0-9]+).*#\1#' <<<"$url")
+
+  data=$(gh pr view "$num" -R "$repo" \
+    --json state,mergedAt,reviews,statusCheckRollup,headRefOid 2>/dev/null) || return 0
+
+  local pr_state review_count ci_bucket head_sha action_required_count
+  pr_state=$(jq -r '.state' <<<"$data")
+  review_count=$(jq '.reviews | length' <<<"$data")
+  # CheckRun objects use .status/.conclusion (never .state, which only exists
+  # on the legacy StatusContext type) -- falling back to .state left
+  # in-progress GitHub Actions checks unmatched and silently bucketed as
+  # "success" below.
+  ci_bucket=$(jq -r '
+    (.statusCheckRollup // []) as $c
+    | if ($c | length) == 0 then "none"
+      elif ($c | map(.conclusion // .status // .state) | any(. == "FAILURE" or . == "ERROR" or . == "TIMED_OUT" or . == "STARTUP_FAILURE" or . == "CANCELLED")) then "failure"
+      elif ($c | map(.conclusion // .status // .state) | any(. == "PENDING" or . == "IN_PROGRESS" or . == "EXPECTED" or . == "QUEUED" or . == "WAITING" or . == "REQUESTED")) then "pending"
+      else "success"
+      end' <<<"$data")
+
+  # A workflow run stuck needing maintainer approval (fork PR gate) finishes
+  # with conclusion=action_required but never produces a check-run, so it's
+  # invisible to statusCheckRollup above and would otherwise default to
+  # "success". Cross-check the Actions runs API for the head SHA to catch it.
+  head_sha=$(jq -r '.headRefOid // empty' <<<"$data")
+  if [[ -n "$head_sha" ]]; then
+    action_required_count=$(gh api "repos/${repo}/actions/runs?head_sha=${head_sha}" 2>/dev/null |
+      jq '[.workflow_runs[] | select(.conclusion == "action_required")] | length') || action_required_count=0
+    if [[ "${action_required_count:-0}" -gt 0 && "$ci_bucket" != "failure" ]]; then
+      ci_bucket="action_required"
+    fi
+  fi
+
+  if [[ "$pr_state" == "MERGED" ]]; then
+    echo "MERGED"
+    return 1
+  fi
+  if [[ "$pr_state" == "CLOSED" ]]; then
+    echo "CLOSED"
+    return 1
+  fi
+
+  emit_deltas "$review_count" "$ci_bucket" "$data" \
+    '.reviews[-1] | "\(.author.login) \(.state)"'
+  return 0
+}
+
+# --- one poll of a GitLab/tickets MR ---
+
+poll_gitlab() {
+  local host project_path encoded_path iid mr_data approvals unresolved pipeline_status
+  host=$(sed -E 's#^https?://([^/]+)/.*#\1#' <<<"$url")
+  project_path=$(sed -E 's#^https?://[^/]+/(.*)/-/merge_requests/[0-9]+.*#\1#' <<<"$url")
+  iid=$(sed -E 's#.*/merge_requests/([0-9]+).*#\1#' <<<"$url")
+  encoded_path=$(jq -rn --arg p "$project_path" '$p|@uri')
+
+  mr_data=$(GITLAB_HOST="$host" glab api "projects/${encoded_path}/merge_requests/${iid}" 2>/dev/null) || return 0
+
+  local mr_state
+  mr_state=$(jq -r '.state' <<<"$mr_data")
+  if [[ "$mr_state" == "merged" ]]; then
+    echo "MERGED"
+    return 1
+  fi
+  if [[ "$mr_state" == "closed" ]]; then
+    echo "CLOSED"
+    return 1
+  fi
+
+  approvals=$(GITLAB_HOST="$host" glab api "projects/${encoded_path}/merge_requests/${iid}/approvals" 2>/dev/null |
+    jq '.approved_by | length') || approvals=0
+  unresolved=$(GITLAB_HOST="$host" glab api "projects/${encoded_path}/merge_requests/${iid}/discussions?per_page=100" 2>/dev/null |
+    jq '[.[] | select(.notes != null) | select(any(.notes[]; .resolvable == true and .resolved == false))] | length') || unresolved=0
+  pipeline_status=$(jq -r '.pipeline.status // .head_pipeline.status // "none"' <<<"$mr_data")
+  local ci_bucket
+  case "$pipeline_status" in
+    success) ci_bucket=success ;;
+    failed | canceled) ci_bucket=failure ;;
+    running | pending | created | preparing | waiting_for_resource) ci_bucket=pending ;;
+    *) ci_bucket=none ;;
+  esac
+
+  emit_deltas "$approvals" "$ci_bucket" "$mr_data" '"unresolved threads: '"$unresolved"'"' "$unresolved"
+  return 0
+}
+
+# --- shared delta detection: compares against state_file, emits event lines ---
+
+emit_deltas() {
+  local new_review_count=$1 new_ci_bucket=$2 raw_data=$3 latest_review_jq=${4:-} new_unresolved=${5:-}
+  local prev_review_count prev_ci_bucket prev_unresolved
+  prev_review_count=$(state_get review_count); prev_review_count=${prev_review_count:-0}
+  prev_ci_bucket=$(state_get ci_bucket); prev_ci_bucket=${prev_ci_bucket:-none}
+  prev_unresolved=$(state_get unresolved); prev_unresolved=${prev_unresolved:-0}
+
+  if [[ -n "$new_unresolved" && "$new_unresolved" != "$prev_unresolved" && "$new_unresolved" -gt "$prev_unresolved" ]]; then
+    echo "COMMENT unresolved threads: $prev_unresolved -> $new_unresolved"
+  fi
+  if [[ "$new_review_count" -gt "$prev_review_count" && -n "$latest_review_jq" ]]; then
+    jq -r "$latest_review_jq" <<<"$raw_data" 2>/dev/null | sed 's/^/REVIEW /'
+  fi
+  if [[ "$new_ci_bucket" != "$prev_ci_bucket" && "$new_ci_bucket" != "none" ]]; then
+    echo "CI $new_ci_bucket"
+  fi
+
+  state_set_all "review_count=$new_review_count" "ci_bucket=$new_ci_bucket" "unresolved=${new_unresolved:-0}"
+}
+
+# --- main loop ---
+
+is_github=0
+case "$url" in
+  https://github.com/*) is_github=1 ;;
+esac
+
+while true; do
+  if [[ "$is_github" -eq 1 ]]; then
+    poll_github || break
+  else
+    poll_gitlab || break
+  fi
+  sleep "$POLL_INTERVAL"
+done

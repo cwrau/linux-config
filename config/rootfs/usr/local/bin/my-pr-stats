@@ -1,0 +1,169 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+GITHUB_ORG="teutonet"
+GITHUB_USER="cwrau"
+LIMIT=50
+
+FETCH_DIR=$(mktemp -d)
+trap 'rm -rf "$FETCH_DIR"' EXIT
+
+# --- Data fetching ---
+
+fetch_pr_stats() {
+  local outfile=$1
+
+  gh api graphql \
+    -f query='
+      query($searchQuery: String!, $limit: Int!) {
+        search(query: $searchQuery, type: ISSUE, first: $limit) {
+          nodes {
+            ... on PullRequest {
+              title
+              createdAt
+              repository { nameWithOwner }
+              author { login }
+              commits(last: 1) {
+                nodes { commit { pushedDate committedDate } }
+              }
+              reviews(first: 50) {
+                nodes {
+                  author { login __typename }
+                  submittedAt
+                  state
+                }
+              }
+            }
+          }
+        }
+      }
+    ' \
+    -f searchQuery="author:${GITHUB_USER} is:pr is:merged org:${GITHUB_ORG}" \
+    -F limit="$LIMIT" \
+    2>/dev/null \
+    | jq --arg author "$GITHUB_USER" '
+      [
+        .data.search.nodes[] |
+        . as $pr |
+        (
+          $pr.reviews.nodes
+          | map(select(
+              .author.login != $author and
+              .author.__typename == "User"
+            ))
+          | sort_by(.submittedAt)
+        ) as $human_reviews |
+        {
+          title: $pr.title,
+          repo:  $pr.repository.nameWithOwner,
+          createdAt: $pr.createdAt,
+          reviewSecs: (
+            ($human_reviews[0].submittedAt) as $t |
+            if $t != null
+            then ($t | fromdateiso8601) - ($pr.createdAt | fromdateiso8601)
+            else null end
+          ),
+          approvalSecs: (
+            ($human_reviews | map(select(.state == "APPROVED"))[0].submittedAt) as $t |
+            if $t != null
+            then ($t | fromdateiso8601) - ($pr.createdAt | fromdateiso8601)
+            else null end
+          ),
+          approvalWaitSecs: (
+            ($pr.commits.nodes[0].commit | (.pushedDate // .committedDate)) as $lastPush |
+            ($human_reviews | map(select(.state == "APPROVED" and .submittedAt > $lastPush))[0].submittedAt) as $t |
+            if $t != null and $lastPush != null
+            then ($t | fromdateiso8601) - ($lastPush | fromdateiso8601)
+            else null end
+          )
+        }
+      ]
+    ' > "$outfile"
+}
+export -f fetch_pr_stats
+export GITHUB_ORG GITHUB_USER LIMIT FETCH_DIR
+
+gum spin --spinner dot --title "Fetching merged PRs from github.com/${GITHUB_ORG}…" -- \
+  bash -c 'fetch_pr_stats "${FETCH_DIR}/stats.json"'
+
+if ! jq -e 'length > 0' "${FETCH_DIR}/stats.json" > /dev/null 2>&1; then
+  gum style --faint --margin "0 0 0 2" "no merged PRs found"
+  exit 0
+fi
+
+# --- jq helpers (shared across display functions) ---
+
+JQ_HELPERS='
+  def fmt(x):
+    if x == null then "—"
+    elif x < 3600 then "\(x / 60 | floor)m"
+    elif x < 86400 then "\(x / 3600 | floor)h \((x % 3600) / 60 | floor)m"
+    else "\(x / 86400 | floor)d \((x % 86400) / 3600 | floor)h"
+    end;
+
+  def stats:
+    map(numbers) | map(select(. >= 0)) | sort as $s |
+    ($s | length) as $n |
+    {
+      count: $n,
+      avg:    (if $n > 0 then ($s | add) / $n else null end),
+      median: (
+        if $n == 0 then null
+        elif ($n % 2) == 1 then $s[($n / 2 | floor)]
+        else ($s[$n/2 - 1] + $s[$n/2]) / 2
+        end
+      ),
+      p90: (if $n == 0 then null else $s[(($n * 9 / 10) | floor)] end)
+    };
+'
+
+# --- Display ---
+
+display_summary() {
+  echo
+  gum style --bold --foreground "212" --padding "0 1" " PR Review Timings — github.com/${GITHUB_ORG} (last ${LIMIT} merged)"
+
+  {
+    printf 'Metric\tAvg\tMedian\tp90\tPRs\n'
+    jq -r "${JQ_HELPERS}"'
+      . as $data |
+      ([.[].reviewSecs]      | stats) as $r |
+      ([.[].approvalSecs]    | stats) as $a |
+      ([.[].approvalWaitSecs] | stats) as $w |
+      (length) as $total |
+      ["Time to first review",          fmt($r.avg), fmt($r.median), fmt($r.p90), "\($r.count)/\($total)"],
+      ["Time to approval",              fmt($a.avg), fmt($a.median), fmt($a.p90), "\($a.count)/\($total)"],
+      ["Approval wait (after last push)", fmt($w.avg), fmt($w.median), fmt($w.p90), "\($w.count)/\($total)"]
+      | @tsv
+    ' "${FETCH_DIR}/stats.json"
+  } | gum table --print -s $'\t' --border.foreground="99" --header.foreground="212"
+}
+
+display_per_repo() {
+  local repo_count
+  repo_count=$(jq '[.[].repo] | unique | length' "${FETCH_DIR}/stats.json")
+  (( repo_count <= 1 )) && return
+
+  echo
+  gum style --bold --foreground "212" --padding "0 1" " Per Repository"
+
+  {
+    printf 'Repo\tAvg Review\tAvg Approval\tApproval Wait\tPRs\n'
+    jq -r "${JQ_HELPERS}"'
+      group_by(.repo) |
+      map({
+        repo: .[0].repo,
+        prs:  length,
+        avgReview:       ([.[].reviewSecs]       | stats | .avg),
+        avgApproval:     ([.[].approvalSecs]     | stats | .avg),
+        avgApprovalWait: ([.[].approvalWaitSecs] | stats | .avg)
+      }) |
+      sort_by(.avgReview // 1e18) |
+      .[] |
+      [.repo, fmt(.avgReview), fmt(.avgApproval), fmt(.avgApprovalWait), "\(.prs)"] | @tsv
+    ' "${FETCH_DIR}/stats.json"
+  } | gum table --print -s $'\t' --border.foreground="99" --header.foreground="212"
+}
+
+display_summary
+display_per_repo

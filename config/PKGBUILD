@@ -1,6 +1,6 @@
 # Maintainer Chris Werner Rau <aur@cwrau.io>
 
-tar -h --exclude=.idea -cf rootfs.tar -C rootfs .
+tar --exclude=.idea -cf rootfs.tar -C rootfs .
 
 pkgname=linux-config
 pkgver=0.1.0
@@ -13,272 +13,80 @@ provides=('dmenu')
 source=('rootfs.tar')
 noextract=('rootfs.tar')
 sha512sums=('SKIP')
-depends=(
-  advcpmv
-  alvr
+
+_system_core=(
   archiso-systemd-boot
-  aria2
-  atuin
-  ausweisapp2
-  autorandr
-  bandwhich
   base
   base-devel
-  bash-completion
-  bash-git-prompt
-  bat
-  bat-extras
-  batsignal
-  bc
-  bemoji
-  bind
-  blueman
-  bluez-utils
-  bottles
-  breeze-hacked-cursor-theme-git
-  btop
   btrfs-progs
-  calf
-  cantarell-fonts
-  chafa
-  chart-testing
-  chromium
-  claude-code
-  clipman
-  clipmenu
-  cloudflared
-  cocogitto
-  codebase-memory-mcp-ui-bin
-  curl
-  ddcutil
-  devtools
-  diff-so-fancy
-  direnv
-  discord
-  discover-overlay
-  dive
-  dnsmasq
-  dolphin-emu
-  dua-cli
-  duf
-  dunst
-  dyff
   earlyoom
-  easyeffects
   edk2-ovmf
   efibootmgr
-  fd
-  feh
-  firefox
-  flameshot
-  fluxcd
   fprintd
-  freerdp
-  freetype2
   fwupd
-  fzf
-  fzf-tab-git
-  gamemode
-  gamescope
-  gdu
-  gfeeds
-  grim
-  git
-  git-delete-merged-branches
-  git-delta
-  git-secret
-  github-cli
-  glab
-  glava
-  gnome-keyring
-  gnome-terminal
-  gnu-netcat
-  gnupg
-  go
-  go-task
-  gomplate
-  gopass
-  gopass-fuse
-  gpu-screen-recorder
-  gradle
   grml-full-systemd-boot
-  gum
-  gvfs
-  helm
-  helm-diff
-  helmrelease-tools
-  hexchat
-  hsetroot
-  hwatch
-  i3-wm
-  i3lock-color
-  ibus
   informant
-  inotify-tools
-  intellij-idea-ultimate-edition
-  intellij-idea-ultimate-edition-jre
-  jdk-openjdk
-  joystickwake
-  jq
-  k9s
-  k9s-capi
-  k9s-flux
-  k9s-openstack
-  kanshi
-  kdeconnect
   kernel-modules-hook
-  kitty
-  ksops-bin
-  kube-bench-bin
-  kube-score
-  linux-lts # otherwise nvidia-550xx-dkms fails to build
-  kubeconform
-  kubectl
-  kubectl-explore
-  kubectl-node-shell
-  kubelogin
-  lazygit
-  less
-  libgnome-keyring
-  libinput-gestures
   libva-mesa-driver
   linux
   linux-firmware
-  lnav
-  lscolors-git
-  lsd
-  lsp-plugins
-  luarocks
-  lutris
+  linux-lts
   man-db
   man-pages
-  mangowm
-  masterpdfeditor-free
-  matcha-gtk-theme
   mesa
   minq-ananicy-git
-  moreutils
-  morsetran
-  mpv
-  mpv-mpris
-  mtr
-  neovim
-  neovim-symlinks
-  net-tools
-  networkmanager-dmenu
-  nix
-  nodejs-neovim # for neovim
-  notify-send.sh
-  noto-fonts-cjk
-  noto-fonts-emoji
-  noto-fonts-extra
-  npm # for neovim
-  nss-mdns
-  nvim-ft-pkgbuild # for neovim
-  nvtop
-  obs-studio
   ocl-icd
-  oh-my-zsh-git
-  openssh
   pacman-contrib
   pacman-hook-systemd-preset
-  papirus-icon-theme
-  parallel
-  paru
-  pavucontrol
-  perl-anyevent-i3
-  perl-file-mimeinfo
-  plannotator
-  picom
-  pipewire-pulse
   pkgstats
-  playerctl
-  podman
+  powertop
+  rebuild-detector
+  reflector
+  snap-pac
+  sof-firmware
+  systemd
+  systemd-boot-pacman-hook
+  systemd-resolvconf
+  tuxedo-control-center-bin
+  usbutils
+  v4l2loopback-dkms
+)
+
+_window_management=(
+  autorandr
+  ddcutil
+  feh
+  glava
+  grim
+  hsetroot
+  hyprland
+  i3-wm
+  i3lock-color
+  ibus
+  kanshi
+  libinput-gestures
+  mangowm
+  perl-anyevent-i3
+  picom
   polkit
   polkit-gnome
   polybar
   polybar-scripts-git
-  powertop
-  prettyping
-  prismlauncher-qt5-bin
-  procs
-  proton-ge-custom-bin
-  pv
-  python-designateclient
-  python-dynmen
-  python-notify2
-  python-octaviaclient
-  python-openstackclient
-  python-pip
-  python-poetry
-  python-pre-commit
-  python-pulsectl
-  python-pynvim # for neovim
-  python-rope
-  python-traitlets
-  python-virtualenv
-  qtqr
-  r-quick-share
-  rebuild-detector
-  reflector
-  ripgrep
-  rocketchat-desktop
   rofi
   rofi-calc
   rofi-randr
-  rtk-bin
-  ruby # for neovim
-  rust-src # for neovim
-  ryujinx
-  siji-git
-  slit-git
   slurp
-  snap-pac
-  socat
-  sof-firmware
+  sway
   swaybg
   swayidle
   swaylock
-  sops
-  sshpass
-  sshuttle
-  steam-native-runtime
-  stern
-  suyu-bin
   sxiv
-  systemd
-  systemd-boot-pacman-hook
-  systemd-resolvconf
-  sysz
-  tailscale
-  telegram-desktop
-  telepresence2-bin
-  tmux
-  tree
-  ttf-dejavu
-  ttf-firacode-nerd
-  ttf-iosevka-nerd
-  ttf-liberation
-  ttyplot
-  tuxedo-control-center-bin
-  udiskie-dmenu-git
-  uhk-agent-appimage
   unclutter
-  unzip
-  up
-  usbutils
-  v4l2loopback-dkms
   waybar
-  which
-  wireguard-tools
-  wl-clipboard
-  woff2-font-awesome
+  wlr-randr
   wtype
-  xarchiver
-  xclip
   xdg-desktop-portal-gtk
   xdg-desktop-portal-wlr
-  xh
   xorg-server
   xorg-xev
   xorg-xinit
@@ -287,10 +95,56 @@ depends=(
   xorg-xprop
   xorg-xwininfo
   xss-lock-session
-  yamllint
-  yq
-  ytmdesktop-bin
-  zip
+  ydotool
+)
+
+_audio_video=(
+  blueman
+  bluez-utils
+  calf
+  easyeffects
+  gpu-screen-recorder
+  lsp-plugins
+  mpv
+  mpv-mpris
+  obs-studio
+  pavucontrol
+  pipewire-pulse
+  playerctl
+  python-pulsectl
+)
+
+_networking=(
+  aria2
+  bind
+  cloudflared
+  curl
+  dnsmasq
+  freerdp
+  gnu-netcat
+  mtr
+  net-tools
+  networkmanager-dmenu
+  nss-mdns
+  openssh
+  sshpass
+  sshuttle
+  tailscale
+  wireguard-tools
+  xh
+)
+
+_terminal_shell=(
+  bash-completion
+  bash-git-prompt
+  fzf
+  fzf-tab-git
+  gnome-terminal
+  kitty
+  less
+  oh-my-zsh-git
+  tmux
+  tree
   zsh
   zsh-autosuggestions
   zsh-completions
@@ -298,7 +152,248 @@ depends=(
   zsh-syntax-highlighting
   zsh-theme-powerlevel10k
   zsh-you-should-use
+)
+
+_cli_utils=(
+  advcpmv
+  bandwhich
+  bat
+  bat-extras
+  bc
+  btop
+  chafa
+  dua-cli
+  duf
+  fd
+  gdu
+  gum
+  hwatch
+  inotify-tools
+  jq
+  lnav
+  lscolors-git
+  lsd
+  moreutils
+  morsetran
+  nvtop
+  parallel
+  prettyping
+  procs
+  pv
+  ripgrep
+  slit-git
+  socat
+  sysz
+  ttyplot
+  unzip
+  up
   uucp
+  websocat
+  which
+  yq
+  zip
+)
+
+_development=(
+  cocogitto
+  devtools
+  diff-so-fancy
+  direnv
+  git
+  git-delete-merged-branches
+  git-delta
+  git-secret
+  github-cli
+  glab
+  go
+  go-task
+  gradle
+  intellij-idea-ultimate-edition
+  intellij-idea-ultimate-edition-jre
+  jdk-openjdk
+  lazygit
+  namcap
+  npm
+  paru
+  python-pip
+  python-poetry
+  python-pre-commit
+  python-rope
+  python-traitlets
+  python-virtualenv
+  yamllint
+)
+
+_neovim=(
+  luarocks
+  neovim
+  neovim-symlinks
+  nodejs-neovim
+  npm
+  nvim-ft-pkgbuild
+  python-pynvim
+  ruby
+  rust-src
+)
+
+_ai_tooling=(
+  claude-code
+  claude-agent-acp
+  codebase-memory-mcp-ui-bin
+  nodejs-paperclipai
+  gopls
+  opencode
+  plannotator
+  uv
+  python-bashlex # for preTool hooks
+)
+
+_kubernetes=(
+  capi-shell
+  capi-shell-plugin-capo
+  capi-shell-plugin-api-endpoint-proxy
+  capi-shell-mcp
+  chart-testing
+  dive
+  dyff
+  fluxcd
+  gomplate
+  helm
+  helm-unittest
+  helm-diff
+  helmrelease-tools
+  k9s
+  sofka
+  k9s-capi
+  k9s-flux
+  k9s-openstack
+  ksops-bin
+  kube-bench-bin
+  kube-score
+  kubeconform
+  kubectl
+  kubectl-explore
+  kubectl-node-shell
+  kubelogin
+  podman
+  sops
+  stern
+  telepresence2-bin
+)
+
+_openstack=(
+  python-designateclient
+  python-dynmen
+  python-octaviaclient
+  python-openstackclient
+)
+
+_security=(
+  ausweisapp
+  gnome-keyring
+  gnupg
+  gopass
+  gopass-fuse
+  libgnome-keyring
+)
+
+_notifications=(
+  bemoji
+  clipman
+  clipmenu
+  dunst
+  kdeconnect
+  notify-send.sh
+  ntfy
+  python-notify2
+)
+
+_communication=(
+  discord
+  discover-overlay
+  hexchat
+  rocketchat-desktop
+  telegram-desktop
+)
+
+_browsers=(
+  chromium
+  firefox
+)
+
+_gaming=(
+  alvr-launcher-bin
+  bottles
+  dolphin-emu
+  gamemode
+  gamescope
+  joystickwake
+  lutris
+  owmods-gui-bin
+  prismlauncher-qt5-bin
+  proton-ge-custom-bin
+  ryujinx
+  steam-native-runtime
+  suyu-bin
+)
+
+_fonts_themes=(
+  breeze-hacked-cursor-theme-git
+  cantarell-fonts
+  freetype2
+  matcha-gtk-theme
+  noto-fonts-cjk
+  noto-fonts-emoji
+  noto-fonts-extra
+  otf-font-awesome
+  papirus-icon-theme
+  siji-git
+  ttf-dejavu
+  ttf-firacode-nerd
+  ttf-iosevka-nerd
+  ttf-liberation
+  woff2-font-awesome
+)
+
+_misc=(
+  batsignal
+  flameshot
+  gfeeds
+  gvfs
+  masterpdfeditor-free
+  nix
+  perl-file-mimeinfo
+  qtqr
+  r-quick-share
+  udiskie-dmenu-git
+  uhk-agent-appimage
+  wl-clipboard
+  xarchiver
+  xclip
+  ytmdesktop-bin
+  # weird work stuff
+  strongswan
+)
+
+depends=(
+  "${_system_core[@]}"
+  "${_window_management[@]}"
+  "${_audio_video[@]}"
+  "${_networking[@]}"
+  "${_terminal_shell[@]}"
+  "${_cli_utils[@]}"
+  "${_development[@]}"
+  "${_neovim[@]}"
+  "${_ai_tooling[@]}"
+  "${_kubernetes[@]}"
+  "${_openstack[@]}"
+  "${_security[@]}"
+  "${_notifications[@]}"
+  "${_communication[@]}"
+  "${_browsers[@]}"
+  "${_gaming[@]}"
+  "${_fonts_themes[@]}"
+  "${_misc[@]}"
 )
 
 if grep -iq AMD /proc/cpuinfo; then
@@ -308,6 +403,7 @@ else
 fi
 
 if lspci | grep ' VGA ' | grep -q -i nvidia; then
+  depends+=(nvidia-container-toolkit)
   case n in
     o)
       depends+=(

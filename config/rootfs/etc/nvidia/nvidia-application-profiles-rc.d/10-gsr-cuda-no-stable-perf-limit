@@ -1,0 +1,11 @@
+{
+    "profiles": [
+        {
+            "name": "CudaNoStablePerfLimit",
+            "settings": ["0x166c5e", 0]
+        }
+    ],
+    "rules": [
+        { "pattern": "gpu-screen-recorder", "profile": "CudaNoStablePerfLimit" }
+    ]
+}

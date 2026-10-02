@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export MCP_EMAIL_SERVER_PASSWORD="$(systemd-creds decrypt --user "$XDG_CONFIG_HOME/credstore.encrypted/zimbra-password")"
+
+exec uvx mcp-email-server@latest stdio

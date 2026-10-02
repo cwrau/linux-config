@@ -35,7 +35,7 @@ elif [[ $1 == _ ]]; then
     project=
 else
     if ! project="$(fd --no-ignore-vcs --hidden --type directory --search-path="$HOME/"{work,projects} "\.($projectFoldersRegex)\$" --exec-batch stat --format "%X:%n" |
-        grep -v -P "node_modules|/\.(?!$projectFoldersRegex)" |
+        grep -v -P "node_modules|-worktrees/|/\.(?!$projectFoldersRegex)" |
         sort --reverse --field-separator : --key 1 |
         cut --delimiter : --fields 2- |
         xargs --no-run-if-empty -- dirname |
@@ -45,6 +45,32 @@ else
         exit 1
     else
         project="$HOME/$project"
+    fi
+fi
+
+if [[ -n "$project" ]] && git -C "$project" rev-parse --is-inside-work-tree &>/dev/null; then
+    declare -A worktreePathForLabel
+    labels=()
+    while IFS=$'\t' read -r wtPath wtBranch; do
+        if [[ "$wtPath" == "$project" ]]; then
+            wtName=main
+        else
+            wtName=$(basename "$wtPath")
+        fi
+        label="$wtBranch ($wtName)"
+        labels+=("$label")
+        worktreePathForLabel["$label"]="$wtPath"
+    done < <(git -C "$project" worktree list --porcelain | awk '
+        /^worktree / { path=$2 }
+        /^branch refs\/heads\// { branch=$2; sub("refs/heads/", "", branch); print path "\t" branch; next }
+        /^detached/ { print path "\t(detached)" }
+    ')
+
+    if (( ${#labels[@]} > 1 )); then
+        if ! chosen="$(printf '%s\n' "${labels[@]}" | dmenu -sync -i --no-custom -p Worktree)"; then
+            exit 1
+        fi
+        project="${worktreePathForLabel[$chosen]}"
     fi
 fi
 

@@ -16,10 +16,10 @@ meetingUrl=https://3cx.teuto.net/meet/e4137641ace7978f5234a42b416fc79fb1795c71
 dailyUrl=https://3cx.teuto.net/meet/82214e8a663bf1373fda9e8cd0133de281802573
 
 case "$1" in
-  $dailyUrl)
+  "$dailyUrl")
     exec systemctl --user restart browser@daily.service
     ;;
-  $meetingUrl)
+  "$meetingUrl")
     exec systemctl --user restart browser@meeting.service
     ;;
   https://3cx.teuto.net/*)
@@ -34,6 +34,10 @@ case "$1" in
     shift
     profile="$1"
     shift
+    if [[ "$profile" == mcp && -v CLAUDE_CODE_SESSION_ID ]]; then
+      profile="mcp/$CLAUDE_CODE_SESSION_ID"
+      mkdir -p "$XDG_CONFIG_HOME/browser-mcp"
+    fi
     lastArgIndex="${#@}"
     if ! [[ "${!lastArgIndex}" =~ ^https://* ]]; then
       if [[ -f "$XDG_RUNTIME_DIR/browser/$profile" ]]; then
@@ -42,10 +46,10 @@ case "$1" in
       fi
       case "$profile" in
         meeting)
-          args=(--app=$meetingUrl)
+          args+=(--app="$meetingUrl")
           ;;
         daily)
-          args=(--app=$dailyUrl)
+          args+=(--app="$dailyUrl")
           ;;
       esac
     fi
@@ -56,29 +60,45 @@ case "$1" in
     esac
     ;;
   *)
-    parentParentPID="$(ps -o ppid:1= -p "$PPID")"
-    #parentParentService="$(/usr/local/bin/lib/getSystemdUnitNameForPID "$parentParentPID")"
-    parentParentBinary="$(basename "$(realpath "/proc/$parentParentPID/exe")")"
+    # Walk up the process tree to find the identifying ancestor binary. Credential-exec
+    # configs may wrap the real command in `timeout`/env/etc (e.g. kubeconfig
+    # `exec: command: timeout, args: [30s, kubectl, oidc-login, ...]`), which shifts
+    # kubectl-oidc_login further up than a fixed number of levels would catch.
+    identityBinary=""
+    pid="$PPID"
+    for _ in 1 2 3 4; do
+      [[ -z "$pid" || "$pid" == 0 ]] && break
+      binary="$(basename "$(realpath "/proc/$pid/exe" 2>/dev/null)" 2>/dev/null)"
+      case "$binary" in
+        kubectl-oidc_login | kubelogin | mitmweb | claude | opencode)
+          identityBinary="$binary"
+          break
+          ;;
+      esac
+      pid="$(ps -o ppid:1= -p "$pid" 2>/dev/null | tr -d ' ')"
+    done
     # suppress output for kubectl-oidc_login, otherwise this messes with commands like k9s
-    case "$parentParentBinary" in
+    case "$identityBinary" in
       kubectl-oidc_login | kubelogin)
-        args=(--user-data-dir="$XDG_CONFIG_HOME/browser-oidc" --class=oidc "--app=$1")
+        args+=(--user-data-dir="$XDG_CONFIG_HOME/browser-oidc" --class=oidc "--app=$1")
         shift
         silent=true
         ;;
       mitmweb)
-        args=(--new-window)
+        args+=(--new-window)
         silent=true
         ;;
-      claude)
+      claude | opencode)
         if curl -f "$@" | grep -q Plannotator; then
-          args=(--new-window)
+          args+=(--new-window)
           silent=true
+          systemctl --user start browser@stuff.service
         fi
         ;;
       *)
         if [[ "$1" =~ ^https://api.*.teutostack.de:6080/vnc_auto.html* ]]; then
-          args=(--new-window)
+          args+=(--user-data-dir="$XDG_CONFIG_HOME/browser-vnc" --class=vnc "--app=$1")
+          shift
           silent=true
         fi
         if ! systemctl --user is-active --quiet browser@stuff.service; then

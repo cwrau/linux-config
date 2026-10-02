@@ -25,10 +25,11 @@ toolIDs=("$( (
   grep -Eo 'require_tool_appid"\s+"[0-9]+"' "$XDG_DATA_HOME/Steam/compatibilitytools.d/"*/toolmanifest.vdf | awk '{print $2}' | tr -d '"'
   grep -Eo 'Loaded manifest for tool [0-9]+' "$XDG_DATA_HOME/Steam/logs/compat_log.txt" | awk '{print $5}'
 ) | sort -u)")
+toolIDdRegex="$(echo "${toolIDs[@]}" | paste -sd '|')"
 function resolve_steam_appmanifest() {
   local path="$1"
   local appmanifest
-  until appmanifest="$(grep -P -l '"installdir"\s+"\Q'"$(basename "$path")"'\E"' "$XDG_DATA_HOME/Steam/steamapps"/appmanifest_*.acf)" && ! grep -Eq '"appid"\s+"'"$(echo "${toolIDs[@]}" | paste -sd '|')"'"' "$appmanifest"; do
+  until appmanifest="$(grep -P -l '"installdir"\s+"\Q'"$(basename "$path")"'\E"' "$XDG_DATA_HOME/Steam/steamapps"/appmanifest_*.acf)" && ! grep -Eq '"appid"\s+"'"$toolIDdRegex"'"' "$appmanifest"; do
     path="$(dirname "$path")"
     [[ "$path" == "common" || "$path" == "$HOME" ]] && return 1
   done
@@ -95,11 +96,13 @@ function adjust_for_game() {
     "${screenSetting}"
   fi
   musicLevel="${gameMusicSetting[$game]:-25}"
-  systemd-run --user --slice=gamemode.slice --property=StopPropagatedFrom=gamemode.service --property=Wants=music-volume@$musicLevel.service --quiet --unit "music-adjust-$(systemd-escape "$game")" --remain-after-exit -- true
+  systemd-run --user --slice=gamemode.slice --property=StopPropagatedFrom=gamemode.service --property=Wants=music-volume@"$musicLevel".service --quiet --unit "music-adjust-$(systemd-escape "$game")" --remain-after-exit -- true
 }
 
 services=(glava.target picom.service)
 STATE_DIR="$XDG_RUNTIME_DIR/gamemode"
+PLAYED_GAMES_FILE="$XDG_CACHE_HOME/played_games"
+touch "$PLAYED_GAMES_FILE"
 
 case "$1" in
   start)
@@ -107,6 +110,9 @@ case "$1" in
     mkdir -p "$STATE_DIR"
     if game="$(detect_game)" || game="$(auto_detect_steam_game)" || game="$(auto_detect_bottles_game)"; then
       systemd-notify --status="Game detected: $game"
+      if [[ "$game" != "$(tail -1 "$PLAYED_GAMES_FILE")" ]]; then
+        echo "$game" >>"$PLAYED_GAMES_FILE"
+      fi
       adjust_for_game "$game"
     fi
     for service in "${services[@]}"; do

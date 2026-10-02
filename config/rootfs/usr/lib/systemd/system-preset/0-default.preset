@@ -8,6 +8,9 @@ enable fwupd-refresh.timer
 enable fwupd.service
 enable linux-modules-cleanup.service
 enable nix-daemon.socket
+enable nvidia-hibernate.service
+enable nvidia-resume.service
+enable nvidia-suspend.service
 enable paccache.timer
 enable pkgstats.timer
 enable reflector.timer

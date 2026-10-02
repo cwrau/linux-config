@@ -6,6 +6,13 @@ function notification_send() {
   dunstify -h string:x-dunst-stack-tag:updates "$@"
 }
 
+FAILED_HASHES_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/updates/failed-hashes"
+
+function save_failed_hash() {
+  mkdir -p "$(dirname "$FAILED_HASHES_FILE")"
+  echo "$1" >"$FAILED_HASHES_FILE"
+}
+
 if systemctl --user is-active -q gamemode.service; then
   exit 5
 fi
@@ -31,10 +38,18 @@ fi
 if items="$(informant check)"; then
   sudo systemctl start reflector.service
 
-  UPDATES=$(paru -Qu --repo 2>/dev/null | (grep -v ignored -c || true))
-  AUR_UPDATES=$(paru -Qu --aur --devel 2>/dev/null | (grep -v ignored -c || true))
+  repoUpdates="$(paru -Qu --repo 2>/dev/null | grep -v ignored || true)"
+  aurUpdates="$(paru -Qu --aur --devel 2>/dev/null | grep -v ignored || true)"
+  UPDATES=$(printf '%s' "$repoUpdates" | grep -c . || true)
+  AUR_UPDATES=$(printf '%s' "$aurUpdates" | grep -c . || true)
+  updateHash="$(printf '%s\n%s\n' "$repoUpdates" "$aurUpdates" | sort | sha256sum | awk '{print $1}')"
 
   if (((UPDATES + AUR_UPDATES) >= 1)) && ! pgrep -x paru &>/dev/null; then
+    if [[ -f "$FAILED_HASHES_FILE" ]] && grep -qxF "$updateHash" "$FAILED_HASHES_FILE"; then
+      notification_send -t 10000 -u critical 'Updates skipped!' $'This exact set of updates already failed before.'
+      exit 11
+    fi
+
     if [[ "$1" == '--unattended' ]]; then
       sudo systemctl reset-failed updates-run.scope || true
       if ! sudo systemctl is-active -q updates-run.scope; then
@@ -49,16 +64,24 @@ if items="$(informant check)"; then
             fi
           done
           if [[ "${#packagesToRebuild[@]}" -gt 0 ]]; then
-            notification_send -t 10000 -u low "Rebuilding ${#packagesToRebuild[@]} Packages" "$(echo "${packagesToRebuild[@]}" | tr '\n' ',')"
+            notification_send -t 10000 -u low "Rebuilding ${#packagesToRebuild[@]} Packages" "$(echo "${packagesToRebuild[@]}" | sed -z '$ s/\n$//' | tr '\n' ',')"
             if ! paru -S --rebuild --redownload --noconfirm --asdeps "${packagesToRebuild[@]}"; then
               notification_send -t 20000 -u critical 'Rebuild of dependencies failed!'
               exit 3
             fi
           fi
           notification_send -t 5000 -u normal 'Updates finished!'
+        elif ! [[ -v UPDATE_RETRY ]]; then
+          rm -rf "$XDG_CACHE_HOME/paru/clone" # often some packages fail to renew the git folder or such simple errors,
+          export UPDATE_RETRY=1
+          notification_send -t 5000 'Updates failed, retrying'
+          exec "$0" "$@" # so just retry
         elif [[ "$(notification_send -t 10000 -u critical 'Updates failed!' -A Show,Show)" == "Show" ]]; then
+          save_failed_hash "$updateHash"
           terminal -- bash -c 'journalctl --unit=updates-run.scope --since=-1h | exec lnav'
+          exit 1
         else
+          save_failed_hash "$updateHash"
           exit 1
         fi
       fi

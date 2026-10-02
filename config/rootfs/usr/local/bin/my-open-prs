@@ -11,35 +11,81 @@ trap 'rm -rf "$FETCH_DIR"' EXIT
 
 # --- Data fetching (called inside gum spin subshells via export -f) ---
 
+checks_symbol() {
+  case "$1" in
+    success | passing | SUCCESS) echo "✓" ;;
+    failed | failing | FAILURE | ERROR) echo "✗" ;;
+    running | pending | created | waiting_for_resource | preparing | PENDING | IN_PROGRESS | EXPECTED) echo "⋯" ;;
+    *) echo "" ;;
+  esac
+}
+
 fetch_gitlab() {
   local host=$1 outfile=$2
   local mrs
   mrs=$(GITLAB_HOST=$host glab api "merge_requests?state=opened&author_username=${GITLAB_USER}&scope=all&per_page=100" 2>/dev/null)
 
-  while IFS='|' read -r pid iid url title; do
-    local approved
+  declare -A default_branch_cache
+
+  while IFS='|' read -r pid iid url title target_branch; do
+    local default_branch="${default_branch_cache[$pid]:-}"
+    if [[ -z "$default_branch" ]]; then
+      default_branch=$(GITLAB_HOST=$host glab api "projects/${pid}" 2>/dev/null | jq -r '.default_branch')
+      default_branch_cache[$pid]="$default_branch"
+    fi
+    [[ "$target_branch" == "$default_branch" ]] || continue
+
+    local approved approved_flag
     approved=$(GITLAB_HOST=$host glab api "projects/${pid}/merge_requests/${iid}/approvals" 2>/dev/null | jq '.approved')
-    if [[ "$approved" == "true" ]]; then continue; fi
+    if [[ "$approved" == "true" ]]; then approved_flag="✓"; else approved_flag=""; fi
 
     local unresolved
-    unresolved=$(GITLAB_HOST=$host glab api "projects/${pid}/merge_requests/${iid}/discussions?per_page=100" 2>/dev/null \
-      | jq '[.[] | select(.notes != null) | select(any(.notes[]; .resolvable == true and .resolved == false))] | length')
+    unresolved=$(GITLAB_HOST=$host glab api "projects/${pid}/merge_requests/${iid}/discussions?per_page=100" 2>/dev/null |
+      jq '[.[] | select(.notes != null) | select(any(.notes[]; .resolvable == true and .resolved == false))] | length')
 
-    printf '%s\t%s\t%s\n' "$url" "$title" "$unresolved" >> "$outfile"
+    local pipeline_status checks
+    pipeline_status=$(GITLAB_HOST=$host glab api "projects/${pid}/merge_requests/${iid}" 2>/dev/null |
+      jq -r '.pipeline.status // .head_pipeline.status // ""')
+    checks=$(checks_symbol "$pipeline_status")
+
+    printf '%s\x1f%s\x1f%s\x1f%s\x1f%s\n' "$url" "$title" "$unresolved" "$approved_flag" "$checks" >>"$outfile"
   done < <(echo "$mrs" | jq -r --arg cutoff "$STALENESS_CUTOFF" \
-    '.[] | select(.updated_at > $cutoff) | "\(.project_id)|\(.iid)|\(.web_url)|\(.title)"')
+    '.[] | select(.updated_at > $cutoff) | "\(.project_id)|\(.iid)|\(.web_url)|\(.title)|\(.target_branch)"')
 }
 
 fetch_github() {
   local outfile=$1
+  declare -A default_branch_cache
+
   while read -r full_ref; do
     local repo="${full_ref%/*}" num="${full_ref##*/}"
     local data
-    data=$(gh pr view "$num" -R "$repo" --json reviewDecision,title 2>/dev/null)
-    if [[ "$(echo "$data" | jq -r '.reviewDecision')" == "APPROVED" ]]; then continue; fi
+    data=$(gh pr view "$num" -R "$repo" --json reviewDecision,title,baseRefName,statusCheckRollup 2>/dev/null)
+
+    local base_ref="${data:+$(echo "$data" | jq -r '.baseRefName')}"
+    local default_branch="${default_branch_cache[$repo]:-}"
+    if [[ -z "$default_branch" ]]; then
+      default_branch=$(gh repo view "$repo" --json defaultBranchRef -q '.defaultBranchRef.name' 2>/dev/null)
+      default_branch_cache[$repo]="$default_branch"
+    fi
+    [[ "$base_ref" == "$default_branch" ]] || continue
+
+    local review_decision approved_flag
+    review_decision=$(echo "$data" | jq -r '.reviewDecision')
+    if [[ "$review_decision" == "APPROVED" ]]; then approved_flag="✓"; else approved_flag=""; fi
+
+    local checks_status checks
+    checks_status=$(echo "$data" | jq -r '
+      (.statusCheckRollup // []) as $c
+      | if ($c | length) == 0 then ""
+        elif ($c | map(.conclusion // .state) | any(. == "FAILURE" or . == "ERROR")) then "FAILURE"
+        elif ($c | map(.conclusion // .state) | any(. == "PENDING" or . == "IN_PROGRESS" or . == "EXPECTED")) then "PENDING"
+        else "SUCCESS"
+        end')
+    checks=$(checks_symbol "$checks_status")
 
     local title org reponame unresolved
-    title=$(echo "$data" | jq -r '.title')
+    title=$(echo "$data" | jq -r '.title | gsub("\""; "'\''")')
     org="${repo%/*}"
     reponame="${repo#*/}"
     unresolved=$(gh api graphql -f query="{
@@ -50,10 +96,10 @@ fetch_github() {
       }
     }" 2>/dev/null | jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
 
-    printf '%s\t%s\t%s\n' "https://github.com/${repo}/pull/${num}" "$title" "$unresolved" >> "$outfile"
+    printf '%s\x1f%s\x1f%s\x1f%s\x1f%s\n' "https://github.com/${repo}/pull/${num}" "$title" "$unresolved" "$approved_flag" "$checks" >>"$outfile"
   done < <(gh search prs --author=@me --state=open --owner="$GITHUB_ORG" \
-    --json repository,number,updatedAt 2>/dev/null \
-    | jq -r --arg cutoff "$STALENESS_CUTOFF" \
+    --json repository,number,updatedAt 2>/dev/null |
+    jq -r --arg cutoff "$STALENESS_CUTOFF" \
       '.[] | select(.updatedAt > $cutoff) | "\(.repository.nameWithOwner)/\(.number)"')
 }
 
@@ -65,34 +111,34 @@ display_section() {
   gum style --bold --foreground "212" --padding "0 1" " $header"
 
   if [[ ! -s "$file" ]]; then
-    gum style --faint --margin "0 0 0 2" "nothing unapproved"
+    gum style --faint --margin "0 0 0 2" "nothing open"
     return
   fi
 
   {
-    printf 'Title\tUnresolved\tURL\n'
-    while IFS=$'\t' read -r url title unresolved; do
+    printf 'Title\tApproved\tChecks\tUnresolved\tURL\n'
+    while IFS=$'\x1f' read -r url title unresolved approved checks; do
       local threads=""
       if [[ "${unresolved:-0}" -gt 0 ]]; then threads="⚠ ${unresolved}"; fi
-      printf '%s\t%s\t%s\n' "$title" "$threads" "$url"
-    done < "$file"
+      printf '%s\t%s\t%s\t%s\t%s\n' "$title" "$approved" "$checks" "$threads" "$url"
+    done <"$file"
   } | gum table --print -s $'\t' --border.foreground="99" --header.foreground="212"
 }
 
 # --- Run ---
 
-export -f fetch_gitlab fetch_github
+export -f checks_symbol fetch_gitlab fetch_github
 export STALENESS_CUTOFF GITLAB_USER GITHUB_ORG FETCH_DIR
 
-gum spin --spinner dot --title "Fetching tickets.teuto.net…" -- \
+gum spin --spinner dot --title "Fetching tickets.teuto.net..." -- \
   bash -c 'fetch_gitlab tickets.teuto.net "${FETCH_DIR}/tickets"'
 
-gum spin --spinner dot --title "Fetching gitlab.teuto.net…" -- \
+gum spin --spinner dot --title "Fetching gitlab.teuto.net..." -- \
   bash -c 'fetch_gitlab gitlab.teuto.net "${FETCH_DIR}/gitlab"'
 
-gum spin --spinner dot --title "Fetching github.com/${GITHUB_ORG}…" -- \
+gum spin --spinner dot --title "Fetching github.com/${GITHUB_ORG}..." -- \
   bash -c 'fetch_github "${FETCH_DIR}/github"'
 
-display_section "tickets.teuto.net"        "${FETCH_DIR}/tickets"
-display_section "gitlab.teuto.net"         "${FETCH_DIR}/gitlab"
+display_section "tickets.teuto.net" "${FETCH_DIR}/tickets"
+display_section "gitlab.teuto.net" "${FETCH_DIR}/gitlab"
 display_section "github.com/${GITHUB_ORG}" "${FETCH_DIR}/github"

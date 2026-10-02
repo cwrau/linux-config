@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+import argparse
+import sys
+
+import dynmen
+from dynmen import Menu, MenuResult, MenuError
+
+from lib.audio_script import *
+
+
+def audio_sink_volume(sink_name: str | None, volume: int | None):
+    if sink_name:
+        matching = [s for s in sinks if s.name == sink_name]
+        sink = matching[0] if len(matching) == 1 else None
+        if sink is None:
+            print(f"Sink {sink_name} not found", file=sys.stderr)
+            return
+    else:
+        sink: PulseSinkInfo = get_choice(
+            sinks, "sink",
+            lambda s: f'{s.description} ({s.port_active.description}) ({int(s.volume.value_flat * 100)}%)',
+            lambda s: s.name == default_sink,
+            lambda s: s.description)
+
+    if sink is None:
+        return
+
+    try:
+        if volume is not None:
+            desired_volume = volume
+        else:
+            menu_args = ["dmenu", "-format", "s", "-p",
+                         f'New volume percentage for {sink.description} (current: {int(sink.volume.value_flat * 100)}%)',
+                         "-l", "0"]
+            menu: Menu = dynmen.Menu(menu_args)
+            raw_result: MenuResult = menu()
+            if raw_result.selected == '':
+                return
+            desired_volume: int = int(raw_result.selected)
+        clamped_volume: float = max(min(int(desired_volume) / 100, 1.5), 0.01)
+        pulse.volume_set_all_chans(sink, clamped_volume)
+    except MenuError:
+        return
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "-s", "--sink",
+        help="Sink name to change volume for",
+        default=None,
+        type=str
+    )
+
+    parser.add_argument(
+        "-v", "--volume",
+        default=None,
+        type=int
+    )
+
+    args = parser.parse_args()
+
+    audio_sink_volume(args.sink, args.volume)

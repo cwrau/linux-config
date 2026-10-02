@@ -1,94 +1,142 @@
 #!/usr/bin/env bash
 
-mode=${1:?Specify mode: full/selection/window/screen-replay}
-target=${2:?Specify output: <file>/clipboard}
-
-# Screen replay is session-agnostic
-if [[ "$mode" == "screen-replay" ]]; then
-  if systemctl --user is-active --quiet gpu-screen-recorder.service; then
-    systemctl --user kill -s USR1 gpu-screen-recorder.service
-    notify-send -t 2000 -u low "Replay saved"
-    exit 0
+function grim_output() {
+  local region_args=()
+  [[ -n "$1" ]] && region_args=(-g "$1")
+  if [[ -n "$outfile" ]]; then
+    grim "${region_args[@]}" "$outfile"
   else
-    notify-send -t 2000 -u low "No replay recording in progress"
-    exit 1
+    grim "${region_args[@]}" - | wl-copy --type image/png
   fi
-fi
+}
 
-if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
-  # ── Wayland path: grim + slurp + wl-copy ──
-  outfile=""
-  case "$target" in
-    clipboard) ;;
-    --)
-      outfile="$HOME/Screenshots/$(date +%FT%T.%2N%z).png"
-      mkdir -p "$(dirname "$outfile")"
-      ;;
-    *)
-      outfile="$target"
-      mkdir -p "$(dirname "$outfile")"
-      ;;
-  esac
-
-  function grim_output() {
-    local region_args=()
-    [[ -n "$1" ]] && region_args=(-g "$1")
-    if [[ -n "$outfile" ]]; then
-      grim "${region_args[@]}" "$outfile"
-    else
-      grim "${region_args[@]}" - | wl-copy --type image/png
+case "$#" in
+  1)
+    if [[ "$1" != screen-replay ]]; then
+      echo "Missing parameters; single arg is only supported for screen-replay" >&2
+      exit 2
     fi
-  }
+    ;;
+  3)
+    subMode=${2:?Specify mode: selection/window}
+    set "$1" "$3"
+    ;&
+  2)
+    mode=${1:?Specify mode: full/selection/window/screen-replay/record}
+    target=${2:?Specify output: <file>/clipboard}
+    ;;
+esac
 
-  case "$mode" in
-    full)
-      grim_output
-      ;;
-    selection)
-      region=$(slurp) || exit 1
-      grim_output "$region"
-      ;;
-    window)
-      # Get focused window geometry via compositor IPC
-      geom=$(mmsg -g -x 2>/dev/null) || { region=$(slurp) || exit 1; }
-      if [[ -n "$geom" ]]; then
-        # mmsg -g -x returns "x y w h" — convert to slurp format "x,y wxh"
-        read -r wx wy ww wh <<<"$geom"
-        region="${wx},${wy} ${ww}x${wh}"
-      fi
-      grim_output "$region"
-      ;;
-    *)
-      echo "Wrong mode: $mode" >&2
+outfile="$HOME/Screenshots/$(date +%FT%T.%2N%z).png"
+
+case "$mode" in
+  screen-replay)
+    if systemctl --user is-active --quiet gpu-screen-recorder.service; then
+      systemctl --user kill -s USR1 gpu-screen-recorder.service
+      notify-send -t 2000 -u low "Replay saved"
+      exit 0
+    else
+      notify-send -t 2000 -u low "No replay recording in progress"
       exit 1
-      ;;
-  esac
-else
-  # ── X11 path: flameshot ──
-  case "$mode" in
-    full) params=(full) ;;
-    selection) params=(gui) ;;
-    window)
-      eval "$(xdotool getactivewindow getwindowgeometry --shell)"
-      params=(full --region "${WIDTH}x${HEIGHT}+${X}+${Y}")
-      ;;
-    *)
-      echo "Wrong mode: $mode" >&2
-      exit 1
-      ;;
-  esac
+    fi
+    ;;
+  record)
+    params=()
+    case "$subMode" in
+      selection)
+        params+=(-w "$(import MIFF:- | magick MIFF:- -format "%wx%h%X%Y\n" info:)")
+        ;;
+      window)
+        eval "$(xdotool getactivewindow getwindowgeometry --shell)"
+        params+=(-w "${WIDTH}x${HEIGHT}+${X}+${Y}")
+        ;;
+      *)
+        echo "record subMode '$subMode' not supported" >&2
+        exit 2
+        ;;
+    esac
 
-  case "$target" in
-    clipboard) params+=(-c) ;;
-    -) params+=(-r) ;;
-    --)
-      target="$HOME/Screenshots/$(date +%FT%T.%2N%z).png"
-      ;&
-    *)
-      mkdir -p "$(dirname "$target")"
-      params+=(-p "$target")
-      ;;
-  esac
+    case "$target" in
+      clipboard)
+        echo "clipboard output for record not supported" >&2
+        exit 2
+        ;;
+      --)
+        params+=(-o "${outfile/png/mkv}")
+        ;;
+      *)
+        params+=(-o "$target")
+        ;;
+    esac
 
-  flameshot "${params[@]}"
-fi
+    gpu-screen-recorder -s 0x0 "${params[@]}"
+    ;;
+  *)
+
+    if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+      # ── Wayland path: grim + slurp + wl-copy ──
+      outfile=""
+      case "$target" in
+        clipboard) ;;
+        --)
+          mkdir -p "$(dirname "$outfile")"
+          ;;
+        *)
+          outfile="$target"
+          mkdir -p "$(dirname "$outfile")"
+          ;;
+      esac
+
+      case "$mode" in
+        full)
+          grim_output
+          ;;
+        selection)
+          region=$(slurp) || exit 1
+          grim_output "$region"
+          ;;
+        window)
+          # Get focused window geometry via compositor IPC
+          geom=$(mmsg -g -x 2>/dev/null) || { region=$(slurp) || exit 1; }
+          if [[ -n "$geom" ]]; then
+            # mmsg -g -x returns "x y w h" — convert to slurp format "x,y wxh"
+            read -r wx wy ww wh <<<"$geom"
+            region="${wx},${wy} ${ww}x${wh}"
+          fi
+          grim_output "$region"
+          ;;
+        *)
+          echo "Wrong mode: $mode" >&2
+          exit 1
+          ;;
+      esac
+    else
+      case "$mode" in
+        full) params=(full) ;;
+        selection) params=(gui) ;;
+        window)
+          eval "$(xdotool getactivewindow getwindowgeometry --shell)"
+          params=(full --region "${WIDTH}x${HEIGHT}+${X}+${Y}")
+          ;;
+        *)
+          echo "Wrong mode: $mode" >&2
+          exit 1
+          ;;
+      esac
+
+      case "$target" in
+        clipboard) params+=(-c) ;;
+        -) params+=(-r) ;;
+        --)
+          target="$outfile"
+          ;&
+        *)
+          mkdir -p "$(dirname "$target")"
+          params+=(-p "$target")
+          ;;
+      esac
+
+      flameshot "${params[@]}"
+    fi
+    ;;
+esac

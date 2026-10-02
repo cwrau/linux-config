@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat >&2 <<'EOF'
+Usage: agent-notification [-t TITLE] MESSAGE...
+
+Sends a push notification (via Pushbullet) to cwr's phone. Meant for
+any agent session (Claude Code or otherwise) to flag something that
+needs attention: a blocking question, an error, a finished long-running
+task.
+
+If run inside an Agent of Empires session (AOE_ARTIFACT_DIR set), a
+link back to that chat is appended automatically.
+
+  -t TITLE   Notification title (default: "Agent notification")
+  -h         Show this help
+EOF
+}
+
+TITLE="Agent notification"
+while getopts "t:h" opt; do
+  case "$opt" in
+    t) TITLE="$OPTARG" ;;
+    h) usage; exit 0 ;;
+    *) usage; exit 1 ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+MESSAGE="$*"
+if [[ -z "$MESSAGE" ]]; then
+  usage
+  exit 1
+fi
+
+if [[ -n "${AOE_ARTIFACT_DIR:-}" ]]; then
+  SESSION_ID="$(basename "$AOE_ARTIFACT_DIR")"
+  MESSAGE="${MESSAGE}
+
+Chat: https://agent.cwrau.de/session/${SESSION_ID}"
+fi
+
+CRED_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/credstore.encrypted"
+TOKEN="$(systemd-creds --user decrypt "${CRED_DIR}/pushbullet-token")"
+
+ntfy -t "$TITLE" -b pushbullet -o access_token "$TOKEN" send "$MESSAGE"

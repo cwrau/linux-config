@@ -148,7 +148,7 @@ function _semantic_diff() {
   local exitCode=0
 
   if newPath="$(runTextConversion "$oldFilePath" "$oldGitPath")"; then
-    oldfilePath="$newPath"
+    oldFilePath="$newPath"
   fi
   if newPath="$(runTextConversion "$newFilePath" "$newGitPath" "$oldGitPath")"; then
     newFilePath="$newPath"
