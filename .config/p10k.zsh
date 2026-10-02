@@ -33,7 +33,8 @@
   # The list of segments shown on the left. Fill it with the most important segments.
   typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
     os_icon                 # os identifier
-    openstack_shell
+    kubecontext             # current kubernetes context (https://kubernetes.io/)
+    #openstack_shell
     newline
     # =========================[ Line #1 ]=========================
     vcs                     # git status

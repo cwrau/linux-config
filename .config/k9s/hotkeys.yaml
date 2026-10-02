@@ -2,3 +2,6 @@ hotKeys:
   machinedeployments:
     shortCut: Ctrl-B
     command: machines cluster.x-k8s.io/deployment-name=$NAME
+  markRange:
+    shortCut: Ctrl-N
+    command: markRange

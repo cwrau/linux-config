@@ -3,13 +3,15 @@ processAllOutputs=false
 
 [StreamInputs]
 inputDevice=alsa_input.usb-C-Media_Electronics_Inc._TONOR_TC-777_Audio_Device-00.mono-fallback
-plugins=rnnoise#0,reverb#0,loudness#0,pitch#0,speex#0,limiter#0,multiband_gate#0
+plugins=reverb#0,loudness#0,pitch#0,speex#0,limiter#0,rnnoise#0,multiband_gate#0
 visiblePage=pluginsPage
-visiblePlugin=rnnoise#0
+visiblePlugin=speex#0
 
 [StreamOutputs]
-outputDevice=alsa_output.pci-0000_06_00.6.analog-stereo
+outputDevice=alsa_output.pci-0000_01_00.1.hdmi-stereo
+visiblePage=pluginsPage
 
 [Window]
-height=933
-width=938
+height=889
+visiblePage=inputPage
+width=1888

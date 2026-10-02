@@ -1,3 +1,4 @@
 [sie][RNNoise#0]
+bypass=true
 enableVad=true
 outputGain=-5

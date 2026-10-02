@@ -1,2 +1,3 @@
 [sie][Speex#0]
-bypass=true
+enableVad=true
+noiseSuppression=-30
