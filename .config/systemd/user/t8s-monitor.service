@@ -1,0 +1,11 @@
+[Unit]
+Description=Monitor t8s (scs-kaas-certification) HelmRelease on mgmt-bfe2-prod
+
+[Service]
+Type=simple
+ExecStart=%E/scs/t8s-monitor.sh
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=default.target

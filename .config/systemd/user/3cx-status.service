@@ -1,0 +1,14 @@
+[Unit]
+Description=Update 3CX Status
+Requires=telefondienst.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+LoadCredentialEncrypted=3cx-password
+LoadCredentialEncrypted=3cx-2fa-secret
+ExecStart=/usr/local/bin/3cx-status.sh Available
+ExecStop=/usr/bin/systemd-run --user --quiet --collect --wait -p LoadCredentialEncrypted=3cx-password -p LoadCredentialEncrypted=3cx-2fa-secret /usr/local/bin/3cx-status.sh "Home Office"
+
+[Install]
+WantedBy=telefondienst.target

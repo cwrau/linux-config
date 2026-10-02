@@ -3,9 +3,9 @@ Description=Starts the work.target, if applicable
 
 [Service]
 Type=oneshot
-EnvironmentFile=%E/credstore/homeassistant-token
+LoadCredentialEncrypted=homeassistant-token
 ExecCondition=not systemctl --user is-active -q work.target
-ExecCondition=bash -euo pipefail -c 'curl -m 10 -fsSLq -H "Authorization: Bearer $HA_TOKEN" https://homeassistant.cwrau.de/api/states/binary_sensor.workday | jq -e \'.state == "on"\' >/dev/null'
+ExecCondition=bash -euo pipefail -c 'curl -m 30 -fsSLq -H "Authorization: Bearer $(cat ${CREDENTIALS_DIRECTORY}/homeassistant-token)" https://homeassistant.cwrau.de/api/states/binary_sensor.workday | jq -e \'.state == "on"\' >/dev/null'
 ExecStart=systemctl --user start work.target
 ExecStart=loginctl unlock-session
-ExecStart=bash -euo pipefail -c 'curl -m 10 -fsSLq -H "Authorization: Bearer $HA_TOKEN" https://homeassistant.cwrau.de/api/states/device_tracker.steve | jq -e \'.state == "home"\' >/dev/null && autorandr --load home --force'
+ExecStart=bash -euo pipefail -c 'curl -m 30 -fsSLq -H "Authorization: Bearer $(cat ${CREDENTIALS_DIRECTORY}/homeassistant-token)" https://homeassistant.cwrau.de/api/states/device_tracker.steve | jq -e \'.state == "home"\' >/dev/null && autorandr --load home --force'

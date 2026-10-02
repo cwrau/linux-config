@@ -6,7 +6,7 @@ Requires=graphical-session.target
 [Service]
 Type=exec
 ExecStart=meeting %I
-Restart=always
+Restart=on-failure
 TimeoutStopSec=5
 Nice=-5
 

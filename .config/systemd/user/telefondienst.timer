@@ -3,7 +3,8 @@ Description=Start Telefondienst
 PartOf=work.target
 
 [Timer]
-OnCalendar=Thu 09..11:00..50/10
-OnCalendar=Thu 12:00..20/10
+OnCalendar=Thu 09..11:00/10
+OnCalendar=Thu 11:00..11:50/10
+OnCalendar=Thu 12:00,10,20
 Unit=telefondienst.target
 Persistent=true

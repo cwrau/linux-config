@@ -1,0 +1,11 @@
+[Unit]
+Description=sshuttle tunnel to gitlab.teuto.net via gateway
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/sshuttle -r gateway gitlab.teuto.net
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=basic.target

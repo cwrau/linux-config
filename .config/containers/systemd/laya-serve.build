@@ -1,0 +1,8 @@
+[Unit]
+Description=laya-serve image
+
+[Build]
+ImageTag=localhost/laya-serve:latest
+File=%h/projects/laya/Dockerfile
+SetWorkingDirectory=%h/projects/laya
+BuildArg=TORCH_INDEX=cu130

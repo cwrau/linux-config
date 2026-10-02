@@ -1,0 +1,7 @@
+[Unit]
+Description=Claude usage limit scraper
+
+[Timer]
+OnActiveSec=0
+OnUnitActiveSec=1m
+AccuracySec=5s

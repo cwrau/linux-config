@@ -1,0 +1,12 @@
+[Unit]
+Description=cloudflare VPN
+Requires=gamemode.service
+CollectMode=inactive-or-failed
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/bin/sudo systemctl start warp-svc.service
+ExecStart=/usr/bin/warp-cli connect
+ExecStop=/usr/bin/warp-cli disconnect
+ExecStop=/usr/bin/sudo systemctl stop warp-svc.service

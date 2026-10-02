@@ -1,0 +1,16 @@
+[Unit]
+Description=Paperclip (agent-center)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+Nice=19
+CPUWeight=1
+IOWeight=1
+ExecStart=/usr/bin/paperclipai run --data-dir %h/.config/paperclip
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=default.target

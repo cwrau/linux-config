@@ -1,0 +1,21 @@
+[Unit]
+Description=laya-serve
+
+[Service]
+ExecStartPre=/usr/bin/go build -C %h/.claude/hooks/laya-safety-gate -o %h/.claude/hooks/bin/laya-safety-gate ./...
+Restart=on-failure
+TimeoutStartSec=900
+
+[Container]
+Image=laya-serve.build
+Exec=laya-serve
+PublishPort=127.0.0.1:8000:8000
+AddDevice=nvidia.com/gpu=0
+Volume=laya-hf:/home/laya/.cache/huggingface
+Environment=LAYA_DEVICE=cuda
+Environment=LAYA_HOST=0.0.0.0
+Environment=LAYA_PRELOAD=1
+Notify=healthy
+HealthCmd=python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4)"
+HealthInterval=10s
+HealthStartPeriod=10m

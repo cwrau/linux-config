@@ -3,7 +3,7 @@ Description=Stop Telefondienst
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/systemctl --user stop telefondienst.target
+ExecStart=/usr/bin/systemctl --user stop telefondienst.target telefondienst.timer
 
 # disallow writing to /usr, /bin, /sbin, ...
 ProtectSystem=true

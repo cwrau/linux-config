@@ -1,0 +1,15 @@
+[Unit]
+After=graphical-session.target
+Requires=graphical-session.target
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/rquickshare
+Restart=always
+
+# disallow writing to /usr, /bin, /sbin, ...
+ProtectSystem=true
+# more paranoid security settings
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectControlGroups=true

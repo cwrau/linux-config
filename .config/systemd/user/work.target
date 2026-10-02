@@ -1,6 +1,7 @@
 [Unit]
 Description=Work applications
 After=graphical-session.target
+Wants=agent-ui.service
 Wants=daily.timer
 Wants=browser@work-todo.service
 Wants=browser@work.service

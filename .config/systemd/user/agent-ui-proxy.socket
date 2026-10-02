@@ -1,0 +1,5 @@
+[Socket]
+ListenStream=127.0.0.1:25888
+ListenStream=10.69.42.69:25888
+FreeBind=yes
+Service=localhost-proxy@25808.service

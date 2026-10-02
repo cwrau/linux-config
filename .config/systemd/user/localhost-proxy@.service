@@ -1,3 +1,4 @@
 [Service]
 Environment=TIMEOUT=10m
-ExecStart=/usr/lib/systemd/systemd-socket-proxyd --exit-idle-time=${TIMEOUT} 127.0.0.2:%I
+Environment=HOST=127.0.0.2
+ExecStart=/usr/lib/systemd/systemd-socket-proxyd --exit-idle-time=${TIMEOUT} ${HOST}:%I

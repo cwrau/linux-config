@@ -1,0 +1,47 @@
+remember_sort = false
+
+[views."*"]
+sort = "AGE:desc"
+
+# CAPI drill-down chain: Cluster -> Machines, MachineDeployment -> MachineSets
+# -> Machines, KubeadmControlPlane -> Machines, and each installed CAPI
+# operator provider -> its controller pod. Verified against mgmt-dev's actual
+# label layout (cluster.x-k8s.io/*, cluster.x-k8s.io/provider=<type>-<name>).
+#
+# hostedcontrolplanes/openstackclusters were left out: their objects get a
+# generated name (e.g. "<cluster>-hcp-m6x94") while their pods/machines are
+# labeled with the parent Cluster's name instead — sofka's drill only fills
+# {name}/{namespace} from the row itself, so that selector can't be built.
+
+[views.clusters]
+drill = { kind = "machines", labels = "cluster.x-k8s.io/cluster-name={name}" }
+
+[views.machinedeployments]
+drill = { kind = "machinesets", labels = "cluster.x-k8s.io/deployment-name={name}" }
+
+[views.machinesets]
+drill = { kind = "machines", labels = "cluster.x-k8s.io/set-name={name}" }
+
+[views.kubeadmcontrolplanes]
+drill = { kind = "machines", labels = "cluster.x-k8s.io/control-plane-name={name}" }
+
+[views.infrastructureproviders]
+drill = { kind = "pods", labels = "cluster.x-k8s.io/provider=infrastructure-{name}" }
+
+[views.bootstrapproviders]
+drill = { kind = "pods", labels = "cluster.x-k8s.io/provider=bootstrap-{name}" }
+
+[views.controlplaneproviders]
+drill = { kind = "pods", labels = "cluster.x-k8s.io/provider=control-plane-{name}" }
+
+[views.coreproviders]
+drill = { kind = "pods", labels = "cluster.x-k8s.io/provider={name}" }
+
+[[workspaces]]
+key = "ctrl-z"
+name = "faulty pods"
+
+[[workspaces.views]]
+name = "faulty pods"
+resource = "Pods"
+filter = "Error|Crash"

@@ -1,0 +1,16 @@
+[Unit]
+Description=Claude usage limit scraper
+
+[Service]
+Type=oneshot
+StateDirectory=agent-limit
+LoadCredentialEncrypted=homeassistant-token
+ExecStart=%E/agent-limit/update.sh
+
+# disallow writing to /usr, /bin, /sbin, ...
+ProtectSystem=true
+# more paranoid security settings
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictNamespaces=true

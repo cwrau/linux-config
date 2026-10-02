@@ -1,0 +1,14 @@
+[Unit]
+Description=Tailscale node agent
+Documentation=https://tailscale.com/kb/
+StopWhenUnneeded=true
+CollectMode=inactive-or-failed
+
+[Service]
+EnvironmentFile=/etc/default/tailscaled
+RuntimeDirectory=tailscaled
+ExecStart=/usr/bin/tailscaled --socket ${RUNTIME_DIRECTORY}/tailscaled.sock --tun=userspace-networking --port=${PORT} $FLAGS
+#ExecStartPost=/usr/bin/tailscaled --socket ${RUNTIME_DIRECTORY}/tailscaled.sock up
+
+Restart=on-failure
+Type=notify

@@ -1,0 +1,40 @@
+kubeconfigs:
+  mgmt-dev:
+    path: $XDG_CONFIG_HOME/kube/mgmt-dev
+
+  mgmt-prod:
+    path: $XDG_CONFIG_HOME/kube/mgmt-prod
+
+  mgmt-bfe-prod:
+    path: $XDG_CONFIG_HOME/kube/mgmt-bfe-prod
+
+  mgmt-bfe2-prod:
+    path: $XDG_CONFIG_HOME/kube/mgmt-bfe2-prod
+
+plugins:
+  api-endpoint-proxy:
+    sshuttle:
+      host: gateway
+
+transforms:
+  users: >-
+    {name: .name, user: {exec: {
+      apiVersion: "client.authentication.k8s.io/v1beta1",
+      command: "kubectl",
+      args: ["oidc-login", "get-token",
+        "--oidc-issuer-url=https://staff-auth.k8s.teuto.net",
+        "--token-cache-storage=keyring",
+        "--oidc-client-id=kubernetes",
+        "--oidc-extra-scope=email",
+        "--oidc-extra-scope=groups",
+        "--oidc-extra-scope=offline_access",
+        "--open-url-after-authentication="]}}}
+
+custom_fields:
+  friendly_name: '.metadata.annotations["t8s.teuto.net/cluster"] // "" | try @base64d'
+  customer_name: '(.metadata.annotations["t8s.teuto.net/customer-name"] | if . != null then try @base64d else null end) // .metadata.labels["t8s.teuto.net/customer-id"]'
+  customer_id: '.metadata.labels["t8s.teuto.net/customer-id"]'
+
+cache:
+  cluster_list_ttl: 300
+  kubeconfig_ttl: 3600

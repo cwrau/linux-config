@@ -1,0 +1,64 @@
+listen:
+  mcp: 127.0.0.2:8790
+  approval: 127.0.0.1:8788
+  admin_socket: /run/user/1000/gatekeeper/admin.sock
+approval:
+  timeout: 10m
+  # Placeholder until a tunnel fronts the approval listener.
+  base_url: http://127.0.0.1:8788
+  rate_limit: 30
+limits:
+  tool_calls_per_minute: 120
+  tier2_requests_per_minute: 6
+audit_path: /home/cwr/.local/state/gatekeeper/audit.jsonl
+sessions_path: /home/cwr/.local/state/gatekeeper/sessions.json
+notify_command:
+  - bash
+  - -c
+  - agent-notification -t "gatekeeper $GATEKEEPER_KIND (tier $GATEKEEPER_TIER)" "$GATEKEEPER_SUMMARY $GATEKEEPER_URL"
+remotes:
+  - host: github.com
+    path: cwrau/*
+    role: fork
+    forge: github
+  - host: github.com
+    path: teutonet/*
+    role: upstream
+    forge: github
+  - host: gitlab.teuto.net
+    path: '*/*'
+    role: upstream
+    forge: gitlab
+rules:
+  - tool: git_commit
+    tier: 0
+  - tool: git_fetch
+    tier: 0
+  - tool: git_push
+    match:
+      force: true
+    tier: 2
+  - tool: git_push
+    match:
+      protected: true
+    tier: 2
+  - tool: git_push
+    match:
+      role: upstream
+      fork_exists: true
+    tier: 2
+  - tool: git_push
+    match:
+      role: fork
+    tier: 1
+  - tool: git_push
+    match:
+      role: upstream
+      fork_exists: false
+    tier: 1
+  - tool: pr_create
+    tier: 1
+  - tool: pr_comment
+    tier: 1
+  - tool: pr_merge
+    tier: 2

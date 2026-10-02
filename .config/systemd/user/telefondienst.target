@@ -6,4 +6,4 @@ After=graphical-session.target
 Wants=browser@telefondienst.service
 Wants=rss.service
 Wants=stop-telefondienst.timer
-Wants=telefondienst.service
+Wants=3cx-status.service

@@ -1,0 +1,22 @@
+[acp]
+compaction_reminder = true
+compaction_reminder_percent = 80
+default_agent = "claude"
+rate_limit_auto_resume = true
+
+[acp.acp_defaults.claude]
+mode = "bypassPermissions"
+
+[session]
+confirm_delete = true
+conversation_summary = false
+smart_rename = true
+smart_rename_agent = "opencode"
+tie_workdir_to_name = false
+yolo_mode_default = true
+
+[updates]
+update_check_mode = "off"
+
+[worktree]
+enabled = true

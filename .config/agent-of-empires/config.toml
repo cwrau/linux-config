@@ -1,0 +1,339 @@
+default_profile = "main"
+
+[acp]
+allow_agent_install = false
+allowed_agents = []
+auto_stop_idle_secs = 3600
+compaction_reminder = false
+compaction_reminder_percent = 75
+default_agent = "claude-code"
+default_new_session_view = "auto"
+max_concurrent_workers = 100
+node_path = ""
+offer_structured_in_new_session = false
+rate_limit_auto_resume = true
+replay_events = 0
+restrict_agents = false
+show_tool_durations = true
+silent_orphan_grace_secs = 120
+
+[auth]
+persist_sessions = true
+
+[diff]
+context_lines = 3
+split_view = false
+
+[hooks]
+
+[host_hooks]
+
+[logging]
+default_level = "info"
+file_path = "debug.log"
+keep_count = 5
+max_size_mib = 50
+output = "file"
+rotation = "size"
+show_spans = false
+
+[logging.targets]
+
+[plugins."agent-of-empires.cron"]
+enabled = true
+source = "gh:agent-of-empires/plugin-cron"
+
+[plugins."agent-of-empires.cron".grant]
+capabilities = [
+    "runtime.worker",
+    "session.create",
+    "session.prompt",
+    "session.unattended",
+]
+granted_at = "2026-08-09T13:23:13.397688168Z"
+manifest_hash = "sha256:c883c7ae0cf24405bdebb4d3a9fa5714f3663afe7c13edf79a4008eeadbfcefb"
+
+[[plugins."agent-of-empires.cron".settings.jobs]]
+agent_id = "claude"
+enabled = true
+group = "Date Night"
+id = "5d847572-ea31-49e4-99e6-9de7f0ceccef"
+mode_id = "bypassPermissions"
+model_id = "default"
+name = "Date Night"
+project_paths = ["/home/cwr/projects/dates"]
+prompt = """
+Zuerst, vor allem anderen: Führe `aoe list --json --state=live` aus und filtere auf Einträge mit group == "Date Night". Ermittle die eigene Session-ID via `basename "$AOE_ARTIFACT_DIR"` und vergleiche die created_at-Zeitstempel. Falls eine ANDERE live Session dieser Gruppe ein neueres created_at hat als diese eigene Session, läuft bereits eine neuere Instanz dieses Jobs — brich sofort und komplett ab, tue nichts weiter (keine Recherche, keine Benachrichtigung, kein Löschen alter Sessions).
+
+Checke ob heute der 2. Freitag im graden Monat ist. Falls nicht, überspringe direkt zum letzten Schritt unten (Löschen alter Sessions — der läuft immer, auch bei diesem frühen Abbruch) und tue sonst nichts.
+
+Schaue die existierenden Ideen an und recherchiere aber auch immer nach neuen Möglichkeiten, vor allen auch aktuelle Dinge. Die Date Night findet diesen Monat am 4. Freitag statt.
+
+Schicke mir dann 4 Ideen via pushbullet (siehe notify (ntfy) skill) — nicht mehr, das Tool für die Auswahl danach unterstützt maximal 4 Optionen. Mindestens 3 davon sollten garantiert kostenlos sein und bei den die Geld kosten schreibe die garantierten kosten plus eine Schätzung dazu, also beispielsweise 30€ fix für Tickets und geschätzte 30€ für trinken zusätzlich.
+
+Falls möglich sollte auch immer ein link dabei sein, und wenn es nur ein Google Maps link zur location ist.
+
+Stelle mir danach im Chat die tool Frage welche der 4 Möglichkeiten ich will (richtiger tool call, maximal 4 Optionen). Speichere jedes Feedback, was wir mögen und was nicht,... in die CLAUDE.md und beachte diese immer.
+
+Lösche IMMER als letzten Schritt alle alten Date Night sessions in AoE in den trash — auch wenn du oben wegen des Datums-Checks früh abgebrochen bist. (Ausnahme: der Session-Duplikat-Check ganz oben, falls DER abbricht, dann wirklich nichts tun — eine neuere Instanz kümmert sich darum.)"""
+sandbox = false
+schedule = "0 10 * * 5"
+
+[[plugins."agent-of-empires.cron".settings.jobs]]
+agent_id = "claude"
+enabled = true
+group = "Pull Requests"
+id = "2256fbff-4007-4882-91b1-a9c9f893c74a"
+mode_id = "bypassPermissions"
+model_id = "default"
+name = "Pull Requests"
+project_paths = ["/home/cwr/.cache/agent-of-empires/cron-plugin/runtime"]
+prompt = """
+First, before anything else: run `aoe list --json --state=live` and filter to entries with group == "Pull Requests". Get this session's own id via `basename "$AOE_ARTIFACT_DIR"` and compare created_at timestamps. If any OTHER live session in that group has a newer created_at than this one, a newer run of this exact job is already active — abort immediately and completely, do nothing else.
+
+Then, check if https://homeassistant.cwrau.de/api/states/binary_sensor.workday is on. If not, skip directly to the final cleanup step below (still run it) and do nothing else.
+
+Check-up on my pull requests in the GitHub organization teutonet and my merge requests in gitlab.teuto.net and tickets.teuto.net. You should use the my-open-prs script.
+
+After this, output a small markdown report just like the script (PR names and links at least) to chat, including a raw list of any unapproved ones that don't have open threads called out separately.
+
+Always delete all the old Pull Requests sessions in AoE to trash as the final step -- even if you skipped everything else above due to the workday check. (Exception: the session-duplicate check at the very top -- if THAT one aborts, do nothing at all, a newer instance already owns cleanup.)"""
+sandbox = false
+schedule = "0 1 * * 1-5"
+
+[[plugins."agent-of-empires.cron".settings.jobs]]
+agent_id = "claude"
+enabled = false
+group = "Cluster Check"
+id = "c0dfff2a-ba7d-4ddc-a77f-f87f7c4e3605"
+mode_id = "bypassPermissions"
+model_id = "sonnet"
+name = "Cluster Overview"
+project_paths = ["/home/cwr/.cache/agent-of-empires/cron-plugin/runtime"]
+prompt = """
+First, before anything else: run `aoe list --json --state=live` and filter to entries with group == "Cluster Check". Get this session's own id via `basename "$AOE_ARTIFACT_DIR"` and compare created_at timestamps. If any OTHER live session in that group has a newer created_at than this one, a newer run of this exact job is already active — abort immediately and completely, do nothing else.
+
+Then, check if https://homeassistant.cwrau.de/api/states/binary_sensor.workday is on. If not, skip directly to the final cleanup step below (still run it) and do nothing else.
+
+Go through each and every cluster via capo shell mcp, including the management clusters, and get an overview of the cluster. Pods, HelmReleases, Kustomizations,...
+
+Analyse if anything is broken.
+
+Always delete all the old Cluster Check sessions in AoE to trash as the final step -- even if you skipped everything else above due to the workday check. (Exception: the session-duplicate check at the very top -- if THAT one aborts, do nothing at all, a newer instance already owns cleanup.)"""
+sandbox = false
+schedule = "0 1 * * 1-5"
+
+[[plugins."agent-of-empires.cron".settings.jobs]]
+agent_id = "claude"
+enabled = true
+group = "AOE Weekly Learnings"
+id = "f2def40e-245b-47ff-9437-42c6f3212d99"
+mode_id = "bypassPermissions"
+model_id = "default"
+name = "AOE Weekly Learnings"
+project_paths = ["/home/cwr/.cache/agent-of-empires/cron-plugin/runtime"]
+prompt = """
+First, before anything else: run `aoe list --json --state=live` and filter to entries with group == "AOE Weekly Learnings". Get this session's own id via `basename "$AOE_ARTIFACT_DIR"` and compare created_at timestamps. If any OTHER live session in that group has a newer created_at than this one, a newer run of this exact job is already active — abort immediately and completely, do nothing else.
+
+Read-only review. Gather and present findings only — do NOT edit ~/.claude/CLAUDE.md or any file under ~/.claude/memory/ yourself. This mirrors the manual review done on 2026-08-18, just automated and weekly.
+
+1. Read ~/.claude/CLAUDE.md and ~/.claude/memory/MEMORY.md (and skim the memory files it indexes) so you know the current hard rules and recorded memories and don't re-suggest what's already covered.
+
+2. Read ~/.config/agent-of-empires/weekly-learnings-log.md (create it, empty, if it doesn't exist yet — this file is the durable cross-week record, since AoE sessions themselves get trashed). If it has a previous dated entry, take its "Proposed" items (each has a short `slug` for reference) and check each one:
+   - Was it actually adopted since then (does that rule/memory now genuinely exist in CLAUDE.md/memory, in some form)? If yes, look at this week's sessions (gathered in step 4) for evidence it's being followed, still causing friction, firing when it shouldn't, or being pushed back on — give it a short verdict: "adopted, working", "adopted, needs adjusting: <why + evidence>", or "adopted, no evidence either way yet".
+   - If not adopted at all, re-surface it once more noting "pending since <date>", unless this week's evidence suggests it's no longer relevant (say why if so).
+
+3. Find all AOE sessions active in the last 7 days: query the sqlite3 db at ~/.config/agent-of-empires/acp_events.db, table acp_events(session_id, seq, event_json, created_at, discriminant) — created_at is epoch-ms. Cross-reference ~/.config/agent-of-empires/workspace-ordering.json to find each session's project path. Exclude this job's own session.
+
+4. For each session, pull the UserPromptSent events in order (event_json like {"UserPromptSent":{"text":"..."}}) plus ApprovalRequested/ApprovalResolved/PromptRejected/ConversationCompacted/AgentStartupError/PromptRuntimeError/RateLimit — this reconstructs what was asked and where there was friction, a correction, an explicit confirmation, or a new durable fact. Also specifically watch for anything relevant to last run's proposals, for the adoption-check in step 2.
+
+5. Fan this out across parallel subagents (batch ~5-8 sessions per subagent) so it stays fast — there are usually 20-40 sessions/week.
+
+6. Flag: corrections likely to recur (not one-off typo fixes), explicit praise/confirmation of a non-obvious approach, repeated friction or mistakes, new durable project facts/deadlines/ownership, pointers to external systems, agent/skill config bugs or capability gaps, and anything that contradicts an existing rule. Skip routine work with no correction or friction.
+
+7. Synthesize one prioritized digest: adoption-check verdicts from step 2 first, then urgent bugs, then new CLAUDE.md rule candidates, then new memory candidates (grouped by which existing file they'd extend vs. a new file), then rule-violation reinforcement call-outs, then low-priority/skip items. Put it in the chat as your final response. Give every new proposal a short kebab-case `slug` in backticks so next week's run can reference it.
+
+8. Append this week's digest to ~/.config/agent-of-empires/weekly-learnings-log.md as a new dated section (`## YYYY-MM-DD`, today's date). Append-only — never rewrite or delete past entries.
+
+9. Send me a notification (see notify/ntfy skill) with a link to this session, since this runs unattended overnight and I need to come review it and decide what to actually apply.
+
+10. Delete old "AOE Weekly Learnings" sessions in AoE to trash — the log file, not the session, is the durable record now."""
+sandbox = false
+schedule = "0 22 * * 6"
+
+[[plugins."agent-of-empires.cron".settings.jobs]]
+agent_id = "claude"
+enabled = true
+group = "Check Updates"
+id = "562f75e3-f9cc-44e3-b3b2-91df7cb22a20"
+mode_id = "bypassPermissions"
+model_id = "default"
+name = "Check Updates"
+project_paths = ["/home/cwr/.cache/agent-of-empires/cron-plugin/runtime"]
+prompt = """
+First, before anything else: run `aoe list --json --state=live` and filter to entries with group == "Check Updates". Get this session's own id via `basename "$AOE_ARTIFACT_DIR"` and compare created_at timestamps. If any OTHER live session in that group has a newer created_at than this one, a newer run of this exact job is already active — abort immediately and completely, do nothing else.
+
+Then, check if `systemctl --user is-active --quiet work.target` succeeds (exit code 0). If not, skip directly to the final cleanup step below (still run it) and do nothing else.
+
+Run `aoe list --json --state=live | jq 'map(select(.group == "updates"))'` to find live sessions tagged group == "updates" -- these are long-running dependency-MR-review sessions (one per repo, running the `dependency-mr-review` skill) that watch their repo's renovate/dependabot MRs but don't proactively notice brand-new ones appearing later. For each session found, ping it via `aoe send <id> "<message>"` asking it to re-run discovery for any newly-opened dependency-update MRs/PRs in its repo that aren't already being tracked, and handle them through the skill's usual triage-then-confirm workflow -- no action needed if nothing new turned up. If none are found, that's fine, just note it, there's nothing to ping.
+
+Report to chat which sessions (titles) got pinged, or that none were found.
+
+Always delete all the old Check Updates sessions in AoE to trash as the final step -- even if you skipped everything else above due to the work.target check. (Exception: the session-duplicate check at the very top -- if THAT one aborts, do nothing at all, a newer instance already owns cleanup.)"""
+sandbox = false
+schedule = "0 10 * * *"
+
+[plugins."dev.talador12.aoaoe"]
+enabled = false
+source = "gh:Talador12/agent-of-agent-of-empires"
+
+[plugins."dev.talador12.aoaoe".grant]
+capabilities = [
+    "runtime.worker",
+    "session.read",
+    "notifications",
+    "acp.capabilities.read",
+    "session.create",
+    "session.prompt",
+    "process.spawn",
+    "net",
+]
+granted_at = "2026-07-30T09:06:23.914607131Z"
+manifest_hash = "sha256:c2a06b59315ffed1444a9e5fcd407a0c6f691208a0bcb354c78ec345c96f2b58"
+
+[plugins."dev.talador12.aoaoe".settings]
+allow_nudge = true
+reasoner = "rules"
+spawn_agent = "claude"
+spawn_model = "default"
+
+[plugins."io.cwrau.pr-watch-mcp"]
+enabled = false
+source = "/home/cwr/projects/aoe-plugin-pr-watch-mcp"
+
+[plugins."io.cwrau.pr-watch-mcp".grant]
+capabilities = [
+    "net",
+    "runtime.worker",
+    "browser_open",
+]
+granted_at = "2026-09-28T10:14:01.836030449Z"
+manifest_hash = "sha256:e41d61bfb7b604265c4b3824c6519c1c730acdde3481f13698b035784736ac7d"
+
+[plugins."io.cwrau.pr-watch-mcp".settings]
+dashboard_base_url = "https://agent.cwrau.de"
+
+[plugins."io.cwrau.usage-badge"]
+enabled = true
+source = "/home/cwr/projects/aoe-plugin-usage-badge"
+
+[plugins."io.cwrau.usage-badge".grant]
+capabilities = ["runtime.worker"]
+granted_at = "2026-09-27T18:59:47.478139254Z"
+manifest_hash = "sha256:e9ebcd1ffbd3ec38f1777119badc324e420c47a38a9184398fbb94fe43322207"
+
+[plugins."io.cwrau.usage-badge".settings]
+session_id = "56e37158-06b4-4856-ba46-74c850b99f2e"
+
+[sandbox]
+auto_cleanup = true
+container_runtime = "podman"
+default_image = "ghcr.io/agent-of-empires/aoe-sandbox:latest"
+default_terminal_mode = "host"
+enabled_by_default = false
+environment = [
+    "TERM",
+    "COLORTERM",
+    "FORCE_COLOR",
+    "NO_COLOR",
+]
+extra_volumes = []
+mount_ssh = false
+privileged = false
+selinux_relabel = false
+volume_ignores = []
+volume_ignores_strategy = "anonymous"
+
+[session]
+agent_status_hooks = true
+auto_resume_on_restart = true
+auto_stop_idle_secs = 0
+click_action = "live_send"
+confirm_before_quit = true
+confirm_delete = true
+conversation_summary = false
+daemon_sidebar = true
+default_attach_mode = "live_send"
+delete_to_trash = true
+favorites_first = true
+host_tab_title = true
+inherit_host_environment = true
+live_send_exit_chord = "C-q"
+live_send_leader = "C-b"
+live_send_on_view_switch = false
+merge_hooks_into_selected_agent = true
+mouse_capture = true
+new_session_mode = "match_default"
+opencode_preassign_session_id = false
+pre_trust_agent_folders = false
+prevent_sleep_idle_grace_minutes = 15
+prevent_sleep_when_active = true
+restart_wake_message = "wake up: pick up what you were doing"
+row_tag = "branch"
+scratch_smart_rename = "inherit"
+session_id_poller_max_threads = 50
+show_diagnostics_pane = false
+show_session_colors = true
+show_tips = true
+sidebar_position = "left"
+smart_rename = true
+smart_rename_agent = ""
+snooze_duration_minutes = 30
+strict_hotkeys = false
+tie_workdir_to_name = true
+trash_retention_days = 30
+unread_indicator = true
+yolo_mode_default = false
+
+[skills]
+auto_propagate = false
+
+[sound]
+enabled = false
+
+[status_hooks]
+enabled = false
+
+[telemetry]
+enabled = false
+
+[theme]
+color_mode = "truecolor"
+idle_decay_minutes = 0
+name = "tokyo-night-storm"
+
+[tmux]
+clipboard = "auto"
+mouse = "auto"
+status_bar = "auto"
+vt_live = true
+
+[updates]
+auto_update_plugins = true
+update_check_mode = "notify"
+
+[web]
+notifications_enabled = true
+notify_on_error = true
+notify_on_idle = false
+notify_on_waiting = true
+notify_on_wake_fire = true
+
+[worktree]
+auto_cleanup = true
+bare_repo_path_template = "./{branch}"
+delete_branch_on_cleanup = false
+enabled = false
+init_submodules = true
+path_template = "../{repo-name}-worktrees/{branch}"
+workspace_path_template = "../{branch}-workspace-{session-id}"

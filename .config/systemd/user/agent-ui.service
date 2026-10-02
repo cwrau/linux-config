@@ -1,0 +1,14 @@
+[Unit]
+After=graphical-session.target
+After=laya-serve.service
+PartOf=graphical-session.target
+Wants=laya-serve.service
+
+[Service]
+Type=exec
+Nice=19
+CPUWeight=1
+IOWeight=1
+#ExecStart=/opt/AionUi/AionUi --webui
+LoadCredentialEncrypted=aoe-passphrase
+ExecStart=/bin/sh -c 'exec env AOE_SERVE_PASSPHRASE="$(cat ${CREDENTIALS_DIRECTORY}/aoe-passphrase)" cargo run -m %h/projects/aoe/Cargo.toml --profile dev-release --features=web -- serve --host 127.0.0.1 --allowed-host agent.cwrau.de --port 25808 --behind-proxy --auth=passphrase'

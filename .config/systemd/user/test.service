@@ -1,0 +1,5 @@
+[Service]
+Type=oneshot
+LoadCredentialEncrypted=homeassistant-token
+EnvironmentFile=%d/homeassistant-token
+ExecStart=env
