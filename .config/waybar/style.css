@@ -3,23 +3,18 @@
  */
 
 * {
-    font-family: "Terminus", "Font Awesome 7 Free", "Iosevka Nerd Font";
-    font-size: 13px;
+    font-family: "Noto Sans", "Font Awesome 7 Free", "Font Awesome 7 Brands", "Iosevka Nerd Font", "Siji", "Misc Termsyn";
+    font-size: 10pt;
     min-height: 0;
 }
 
 window#waybar {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: #000000;
     color: #DFDFDF;
 }
 
-window#waybar.top {
-    border-bottom: 1px solid #00BCD4;
-}
-
 window#waybar.bottom {
-    background-color: rgba(0, 0, 0, 0.75);
-    border-top: 1px solid #00BCD4;
+    background-color: #000000;
 }
 
 tooltip {
@@ -34,10 +29,10 @@ tooltip label {
 }
 
 #clock, #battery, #cpu, #memory, #disk, #temperature, #backlight,
-#network, #pulseaudio, #tray, #mpris,
+#network, #pulseaudio, #tray, #custom-current-player,
 #custom-bluetooth, #custom-wired, #custom-vpn,
-#custom-notifications, #custom-microphone, #custom-pulse-restart,
-#custom-player-info, #custom-work, #custom-messengers,
+#custom-notifications, #custom-microphone, #custom-screenshare, #custom-anlage, #custom-ringlicht, #custom-fernsehen, #custom-pulse-restart,
+#mpris, #custom-work, #custom-messengers,
 #custom-glava, #custom-gamemode, #custom-systemd-status {
     padding: 0 6px;
     margin: 0 2px;
@@ -65,28 +60,10 @@ tooltip label {
 #pulseaudio.muted { color: #757575; }
 #temperature.critical { color: #e53935; }
 
-#custom-bluetooth.on { color: #00BCD4; }
-#custom-bluetooth.off { color: #757575; }
-#custom-bluetooth.connected { color: #43a047; }
-#custom-vpn.connected { color: #43a047; }
-#custom-vpn.disconnected { color: transparent; padding: 0; margin: 0; min-width: 0; }
-#custom-notifications.paused { color: #fdd835; }
-#custom-microphone.muted { color: #757575; }
-#custom-microphone.active { color: #e53935; }
-#custom-work.active { color: #43a047; }
-#custom-work.inactive { color: #757575; }
-#custom-messengers.active { color: #43a047; }
-#custom-messengers.inactive { color: #757575; }
-#custom-glava.active { color: #43a047; }
-#custom-glava.inactive { color: #757575; }
-#custom-gamemode.active { color: #e53935; }
-#custom-gamemode.inactive { color: #757575; }
-#custom-systemd-status.ok { color: #43a047; }
-#custom-systemd-status.degraded { color: #e53935; }
-#custom-wired.connected { color: #43a047; }
 #custom-wired.disconnected { color: transparent; padding: 0; margin: 0; min-width: 0; }
 
 #tray > .passive { -gtk-icon-effect: dim; }
 #tray > .needs-attention { -gtk-icon-effect: highlight; background-color: #e53935; }
-#mpris { color: #00BCD4; }
-#mpris.paused { color: #757575; }
+#custom-current-player { color: #DFDFDF; }
+
+

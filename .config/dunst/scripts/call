@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+playerctl -a pause
+
+systemctl --user stop browser@meeting.service browser@daily.service

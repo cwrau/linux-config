@@ -1,8 +1,6 @@
 [Unit]
 Description=sway session
-After=graphical-session-pre.target
+After=graphical-session-pre.target wayland.target
 BindsTo=graphical-session.target
 Wants=graphical-session-pre.target
-Wants=clipman.service
-Wants=restart-service@waybar.path
-Wants=swaybg.service
+Wants=wayland.target

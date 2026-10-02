@@ -11,9 +11,7 @@ function update() {
 
   if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
     if [[ -n "$failedUnits" ]]; then
-      printf '{"text":"%s","tooltip":"Failed units:\\n%s","class":"degraded"}\n' "$failedUnits" "${failedUnits//,/\\n}"
-    else
-      printf '{"text":"","tooltip":"All units healthy","class":"ok"}\n'
+      jq -cn --arg text "<span color=\"$color_red\">$failedUnits</span>" --arg tooltip "Failed units:\n${failedUnits//,/\\n}" '{text:$text,tooltip:$tooltip}'
     fi
   else
     echo "${failedUnits:+%{F$color_red\}${failedUnits}}"

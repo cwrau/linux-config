@@ -40,7 +40,7 @@ if [[ ${detectedProfiles[@]} =~ home ]]; then
 elif [[ ${detectedProfiles[@]} =~ work-k8s-window-first ]]; then
   autorandr --load work-k8s-window-first
 else
-  autorandr --load laptop
+  autorandr --load horizontal
 fi
 
 systemd-cat --stderr-priority=warning --identifier=i3 nice -n -15 i3

@@ -237,7 +237,7 @@ override_pause_level = 100
 
 [zentrale]
 summary = "Eingehender Anruf"
-script = ppause
+script = $XDG_CONFIG_HOME/dunst/scripts/call
 override_pause_level = 100
 urgency = critical
 

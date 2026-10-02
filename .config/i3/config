@@ -161,9 +161,8 @@ for_window [title="AusweisApp"] floating enable
 for_window [class="oidc"] floating enable
 for_window [class="oidc"] move position center
 for_window [class="oidc" instance="localhost" title="Authenticated"] kill
-
-
-$exaid $XDG_CONFIG_HOME/i3/rc.sh
+for_window [class="vnc"] floating enable
+for_window [class="vnc"] move position center
 
 set $Power "Power menu"
 bindsym $super+q mode $Power
@@ -211,6 +210,7 @@ bindsym Shift+XF86AudioPrev $exid pctl position 5-
 bindsym Shift+button8 $exid pctl position 5-
 
 # Change Audio Settings
+bindsym $super+Ctrl+Mod1+o $exid audio_sink_volume
 bindsym $super+Ctrl+Shift+o $exid audio_program_volume
 bindsym $super+Shift+o $exid audio_program_sink
 bindsym $super+Ctrl+o $exid audio_profile
@@ -282,6 +282,7 @@ for_window [class="org.gabmus.gfeeds"] move to workspace 1
 assign [class="stuff" title="^_GMail$"] 1
 for_window [class="stuff" title="^_GMail$"] move to workspace 1
 for_window [floating_from="auto" title=" is sharing your screen.$"] border none, sticky enable, move position 0 px -55 px
+for_window [floating_from="auto" title=" is sharing a window.$"] border none, sticky enable, move position 0 px -55 px
 bindsym $super+2 workspace 2
 bindsym $super+3 workspace 3
 bindsym $super+4 workspace 4
@@ -295,6 +296,8 @@ bindsym $super+8 workspace 8:WorkTodo
 assign [class="work-todo"] 8:WorkTodo
 for_window [class="work-todo"] move to workspace 8:WorkTodo
 bindsym $super+9 workspace 9
+assign [instance=".*mcp-chromium.*"] 9
+for_window [instance=".*mcp-chromium.*"] move to workspace 9
 bindsym $super+0 workspace 10
 bindsym $super+$alt+1 workspace 11
 bindsym $super+$alt+2 workspace 12
@@ -316,13 +319,13 @@ bindsym $super+$alt+7 workspace 17:Netflix
 assign [class="stuff" title="^_Netflix \d+$"] 17:Netflix
 for_window [class="stuff" title="^_Netflix \d+$"] move to workspace 17:Netflix
 bindsym $super+$alt+8 workspace 18:YMP
-assign [class="YouTube Music Desktop App"] 18:YMP
-for_window [class="YouTube Music Desktop App"] move to workspace 18:YMP
+assign [class="youtube-music-desktop-app"] 18:YMP
+for_window [class="youtube-music-desktop-app"] move to workspace 18:YMP
 assign [class="ytm"] 18:YMP
 for_window [class="ytm"] move to workspace 18:YMP
 bindsym $super+$alt+9 workspace 19:RocketChat
-assign [class="Rocket.Chat"] 19:RocketChat
-for_window [class="Rocket.Chat"] move to workspace 19:RocketChat
+assign [class="rocket-chat"] 19:RocketChat
+for_window [class="rocket-chat"] move to workspace 19:RocketChat
 assign [class="meeting"] 19:RocketChat
 for_window [class="meeting"] move to workspace 19:RocketChat
 assign [class="work-slack"] 19:RocketChat

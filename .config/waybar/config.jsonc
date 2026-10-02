@@ -8,34 +8,55 @@
   {
     "layer": "top",
     "position": "top",
-    "height": 28,
-    "spacing": 4,
+    "height": 54, // __TOP_HEIGHT__
+    "spacing": 3,
 
     "modules-left": [
       "custom/bluetooth",
       "network",
       "custom/wired",
-      "custom/vpn",
       "battery"
     ],
     "modules-center": [
-      "dwl/tags"
+      "dwl/tags",
+      "sway/workspaces",
+      "sway/mode",
+      "hyprland/workspaces"
     ],
     "modules-right": [
       "custom/notifications",
       "custom/microphone",
+      "custom/screenshare",
+      "custom/anlage",
+      "custom/ringlicht",
+      "custom/fernsehen",
       "custom/pulse-restart",
       "pulseaudio",
-      "mpris",
-      "clock",
-      "tray"
+      "custom/current-player",
+      "clock"
     ],
 
     // ── Built-in modules ──
 
     "dwl/tags": {
       "num-tags": 9,
-      "tag-labels": ["1:Work", "2:Dev", "3:Gen", "4:Media", "5:Game", "6:Free", "7:WChat", "8:Chat", "9:Disc"]
+      "tag-labels": ["\uf0b1", "\uf121", "\uf015", "\uf144", "\uf11b", "\uf120", "\uf232", "\uf27a", "\uf392"]
+    },
+
+    "sway/workspaces": {
+      "disable-scroll": true,
+      "all-outputs": false,
+      "format": "{name}"
+    },
+
+    "sway/mode": {
+      "format": "<span style=\"italic\">{}</span>"
+    },
+
+    "hyprland/workspaces": {
+      "disable-scroll": true,
+      "all-outputs": false,
+      "format": "{name}"
     },
 
     "clock": {
@@ -52,18 +73,18 @@
         "critical": 15
       },
       "format": "{icon} {capacity}% ({time} {power:.1f}W)",
-      "format-charging": " {capacity}% ({time} +{power:.1f}W)",
-      "format-plugged": " {capacity}%",
-      "format-full": "",
-      "format-icons": ["", "", "", "", ""]
+      "format-charging": "\uf0e7 {capacity}% ({time} +{power:.1f}W)",
+      "format-plugged": "\uf1e6 {capacity}%",
+      "format-full": "\uf240",
+      "format-icons": ["\uf244", "\uf243", "\uf242", "\uf241", "\uf240"]
     },
 
     "network": {
       "interface": "wl*",
-      "format-wifi": " {essid} {ipaddr}",
-      "format-ethernet": " {ipaddr}/{cidr}",
-      "format-linked": " {ifname} (No IP)",
-      "format-disconnected": "",
+      "format-wifi": "\uf1eb {essid} {ipaddr}",
+      "format-ethernet": "\uf6ff {ipaddr}/{cidr}",
+      "format-linked": "\uf6ff {ifname} (No IP)",
+      "format-disconnected": "\uf1eb",
       "tooltip-format": "{ifname} via {gwaddr}",
       "on-click": "networkmanager_dmenu"
     },
@@ -71,40 +92,28 @@
     "pulseaudio": {
       "format": "{icon} {volume}%",
       "format-bluetooth": "{icon} {volume}%",
-      "format-muted": " {volume}%",
-      "format-source": " {volume}%",
-      "format-source-muted": "",
+      "format-muted": "\uf6a9 {volume}%",
+      "format-source": "\uf130 {volume}%",
+      "format-source-muted": "\uf131",
       "format-icons": {
-        "headphone": "",
-        "hands-free": "",
-        "headset": "",
-        "phone": "",
-        "portable": "",
-        "car": "",
-        "default": ["", "", ""]
+        "headphone": "\uf025",
+        "hands-free": "\uf590",
+        "headset": "\uf590",
+        "phone": "\uf095",
+        "portable": "\uf001",
+        "car": "\uf1b9",
+        "default": ["\uf026", "\uf027", "\uf028"]
       },
       "on-click": "pavucontrol",
       "on-click-right": "audio_sink",
       "on-click-middle": "audio_program_sink"
     },
 
-    "mpris": {
-      "format": "{player_icon} {artist} - {title}",
-      "format-paused": "{status_icon} {artist} - {title}",
-      "player-icons": {
-        "default": ""
-      },
-      "status-icons": {
-        "paused": ""
-      },
-      "max-length": 40,
+    "custom/current-player": {
+      "exec": "pctl PRINT -f",
       "on-click": "pctl NEXT",
       "on-scroll-up": "pctl volume 0.05+",
       "on-scroll-down": "pctl volume 0.05-"
-    },
-
-    "tray": {
-      "spacing": 10
     },
 
     // ── Custom modules (top bar) ──
@@ -112,7 +121,9 @@
     "custom/bluetooth": {
       "exec": "~/.config/bar/scripts/bluetooth.sh",
       "return-type": "json",
+      "escape": false,
       "on-click": "bluetooth_dmenu",
+      "on-click-right": "~/.config/bar/scripts/bluetooth.sh --toggle",
       "restart-interval": 0
     },
 
@@ -122,15 +133,10 @@
       "interval": 1
     },
 
-    "custom/vpn": {
-      "exec": "nmcli connection show --active 2>/dev/null | grep -q wireguard && echo '{\"text\":\"\",\"class\":\"connected\"}' || echo '{\"text\":\"\",\"class\":\"disconnected\"}'",
-      "return-type": "json",
-      "interval": 5
-    },
-
     "custom/notifications": {
       "exec": "~/.config/bar/scripts/notifications.sh",
       "return-type": "json",
+      "escape": false,
       "on-click": "dunstctl set-paused toggle",
       "restart-interval": 0
     },
@@ -138,7 +144,39 @@
     "custom/microphone": {
       "exec": "~/.config/bar/scripts/microphone.sh",
       "return-type": "json",
+      "escape": false,
       "on-click": "pactl set-source-mute @DEFAULT_SOURCE@ toggle",
+      "restart-interval": 0
+    },
+
+    "custom/screenshare": {
+      "exec": "~/.config/bar/scripts/screenshare.sh",
+      "return-type": "json",
+      "escape": false,
+      "restart-interval": 0
+    },
+
+    "custom/anlage": {
+      "exec": "~/.config/bar/scripts/ha-toggle.sh anlage",
+      "return-type": "json",
+      "escape": false,
+      "on-click": "kill -USR1 $(cat $XDG_RUNTIME_DIR/bar/ha-toggle-anlage.pid)",
+      "restart-interval": 0
+    },
+
+    "custom/ringlicht": {
+      "exec": "~/.config/bar/scripts/ha-toggle.sh ringlicht",
+      "return-type": "json",
+      "escape": false,
+      "on-click": "kill -USR1 $(cat $XDG_RUNTIME_DIR/bar/ha-toggle-ringlicht.pid)",
+      "restart-interval": 0
+    },
+
+    "custom/fernsehen": {
+      "exec": "~/.config/bar/scripts/ha-toggle.sh fernsehen",
+      "return-type": "json",
+      "escape": false,
+      "on-click": "kill -USR1 $(cat $XDG_RUNTIME_DIR/bar/ha-toggle-fernsehen.pid)",
       "restart-interval": 0
     },
 
@@ -146,7 +184,8 @@
       "format": "",
       "on-click": "systemctl --user restart pipewire-pulse.service pipewire.service",
       "tooltip": false
-    }
+    },
+
   },
 
   // ═══════════════════════════════════════════
@@ -155,11 +194,11 @@
   {
     "layer": "top",
     "position": "bottom",
-    "height": 24,
-    "spacing": 4,
+    "height": 43, // __BOT_HEIGHT__
+    "spacing": 3,
 
     "modules-left": [
-      "custom/player-info"
+      "mpris"
     ],
     "modules-center": [
       "cpu",
@@ -178,14 +217,14 @@
     // ── Built-in modules (bottom bar) ──
 
     "cpu": {
-      "format": " {usage:>3}%",
+      "format": "\uf2db {usage:>3}%",
       "interval": 1,
       "on-click": "terminal -e btop",
       "tooltip": false
     },
 
     "memory": {
-      "format": " {used:0.1f}G ({percentage}%) | {swapUsed:0.1f}G ({swapPercentage}%)",
+      "format": "\uf538 {used:0.1f}G ({percentage}%) | {swapUsed:0.1f}G ({swapPercentage}%)",
       "interval": 1,
       "on-click": "terminal -e btop"
     },
@@ -195,50 +234,66 @@
       "critical-threshold": 80,
       "format": "{icon} {temperatureC}°C",
       "format-critical": "{icon} {temperatureC}°C",
-      "format-icons": ["", "", "", "", ""],
+      "format-icons": ["\uf2cb", "\uf2ca", "\uf2c9", "\uf2c8", "\uf2c7"],
       "interval": 1
     },
 
     "disk": {
       "path": "/",
-      "format": " {free}",
+      "format": "\uf0a0 {free}",
       "interval": 10,
       "on-click": "pcmanfm ~"
     },
 
     // ── Custom modules (bottom bar) ──
 
-    "custom/player-info": {
-      "exec": "~/.config/bar/scripts/player-info.sh",
-      "return-type": "json",
-      "on-click": "pctl play-pause",
-      "restart-interval": 0
+    "mpris": {
+      "format": "{position}/{length}  {artist} - {title}",
+      "format-paused": "{position}/{length}  {artist} - {title}",
+      "format-stopped": "",
+      "status-icons": {
+        "playing": "\uf144",
+        "paused": "\uf28b",
+        "stopped": "\uf28d"
+      },
+      "interval": 1,
+      "ignored-players": ["kdeconnect"],
+      "on-click": "play-pause",
+      "on-click-middle": "previous",
+      "on-click-right": "next",
+      "artist-len": 30,
+      "title-len": 60,
+      "tooltip-format": "{artist} - {title}\n{album}"
     },
 
     "custom/work": {
-      "exec": "~/.config/bar/scripts/systemd-display.sh work.target ",
+      "exec": "~/.config/bar/scripts/systemd-display.sh work.target \ue066",
       "return-type": "json",
+      "escape": false,
       "on-click": "~/.config/bar/scripts/systemd-click.sh work.target",
       "restart-interval": 0
     },
 
     "custom/messengers": {
-      "exec": "~/.config/bar/scripts/systemd-display.sh messengers.target ",
+      "exec": "~/.config/bar/scripts/systemd-display.sh messengers.target \uf086",
       "return-type": "json",
+      "escape": false,
       "on-click": "~/.config/bar/scripts/systemd-click.sh messengers.target",
       "restart-interval": 0
     },
 
     "custom/glava": {
-      "exec": "~/.config/bar/scripts/systemd-display.sh glava.target ",
+      "exec": "~/.config/bar/scripts/systemd-display.sh glava.target \uf83e",
       "return-type": "json",
+      "escape": false,
       "on-click": "~/.config/bar/scripts/systemd-click.sh glava.target",
       "restart-interval": 0
     },
 
     "custom/gamemode": {
-      "exec": "~/.config/bar/scripts/systemd-display.sh gamemode.service  gamemode.target",
+      "exec": "~/.config/bar/scripts/systemd-display.sh gamemode.service \uf11b gamemode.target",
       "return-type": "json",
+      "escape": false,
       "on-click": "~/.config/bar/scripts/systemd-click.sh gamemode.service",
       "restart-interval": 0
     },
@@ -246,7 +301,9 @@
     "custom/systemd-status": {
       "exec": "~/.config/bar/scripts/systemd-status.sh",
       "return-type": "json",
+      "escape": false,
       "restart-interval": 0
-    }
+    },
+
   }
 ]

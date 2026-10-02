@@ -1,7 +1,7 @@
 [Unit]
 Description=kanshi
-After=sway-session.target
-Requires=sway-session.target
+After=wayland.target
+PartOf=wayland.target
 
 [Service]
 Type=exec

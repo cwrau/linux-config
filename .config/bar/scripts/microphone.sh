@@ -66,13 +66,9 @@ function update() {
   fi
 
   if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
-    local wb_class
-    if [[ "$muted" == yes ]]; then
-      if [[ "$state" == RUNNING ]]; then wb_class="active"; else wb_class="muted"; fi
-    else
-      if [[ "$state" == RUNNING ]]; then wb_class="active"; else wb_class="idle"; fi
-    fi
-    printf '{"text":"%s%s","tooltip":"Mic: %s, %s outputs","class":"%s"}\n' "$symbol" "${outputString}" "${muted:-unknown}" "${outputs:-0}" "$wb_class"
+    local text="<span color=\"$color\">${symbol}${outputString}</span>"
+    local tooltip="Mic: ${muted:-unknown}, ${outputs:-0} outputs"
+    jq -cn --arg text "$text" --arg tooltip "$tooltip" '{text:$text,tooltip:$tooltip}'
   else
     echo "%{A1:/usr/bin/pactl set-source-mute @DEFAULT_SOURCE@ toggle:}%{F$color}$symbol${outputString}%{F-}%{A}"
   fi
@@ -106,5 +102,8 @@ function update() {
 
 update
 pactl subscribe | grep --line-buffered -E "'(change|remove|new)' on source" | while read -r _; do
+  while read -r -t 0.2 _; do :; done
+  update
+  sleep 1
   update
 done

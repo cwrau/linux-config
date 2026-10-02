@@ -1,7 +1,7 @@
 [Unit]
 Description=Idle manager for Wayland (replaces xss-lock)
-After=mangowc-session.target
-PartOf=mangowc-session.target
+After=wayland.target
+PartOf=wayland.target
 
 [Service]
 Type=exec

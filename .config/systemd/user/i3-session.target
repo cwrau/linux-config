@@ -5,6 +5,7 @@ BindsTo=graphical-session.target
 Wants=clipmenud.service
 Wants=feh.service
 Wants=graphical-session-pre.target
+Wants=i3-focus-renice.service
 #Wants=picom.service
 Wants=polybar.target
 Wants=restart-service@dunst.path

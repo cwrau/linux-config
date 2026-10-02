@@ -59,11 +59,23 @@ if busctl status org.hsphfpd &>/dev/null; then
   supportsHSPHFPD=true
 fi
 
+function get_charging_state() {
+  local mac=$1
+  local path info
+  while IFS= read -r path; do
+    info=$(upower -i "$path" 2>/dev/null)
+    if grep -qi "serial:.*$mac" <<<"$info"; then
+      awk '/^[[:space:]]*state:/{print $2}' <<<"$info"
+      return
+    fi
+  done < <(upower -e 2>/dev/null | grep -v DisplayDevice)
+}
+
 function update() {
   if flock -n $RUN_LOCK; then
     flock -x $MESSAGE_LOCK
     local message
-    local mac info battery alias protocol
+    local mac info battery charging alias protocol
     local -a old_devices new_devices device_strings
     local old_device new_device
     local devices_text="" connected_count=0 bt_powered=false
@@ -95,39 +107,48 @@ function update() {
             unset battery
           fi
         fi
-        device_strings+=("${alias}${battery:+ (${battery}%)}")
+        charging=$(get_charging_state "$mac")
+        if [[ "$charging" == "charging" ]]; then
+          device_strings+=("${alias} (charging)")
+        else
+          device_strings+=("${alias}${battery:+ (${battery}%)}")
+        fi
         ((connected_count++))
       done
       devices_text=$(printf '%s, ' "${device_strings[@]}")
       devices_text="${devices_text%, }"
     fi
 
+    local bt_icon=$'\uf294'
     if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
-      local text tooltip class
+      local text tooltip class color
       if $bt_powered; then
+        color="$color_blue"
         if ((connected_count > 0)); then
-          text=" ${devices_text}"
+          text="<span color=\"$color\">${bt_icon} ${devices_text}</span>"
           tooltip="Bluetooth: ${connected_count} device(s) - ${devices_text}"
           class="connected"
         else
-          text=""
+          text="<span color=\"$color\">${bt_icon}</span>"
           tooltip="Bluetooth: on, no devices"
           class="on"
         fi
       else
-        text=""
+        color="$color_grey"
+        text="<span color=\"$color\">${bt_icon}</span>"
         tooltip="Bluetooth: off"
         class="off"
       fi
-      message="$(printf '{"text":"%s","tooltip":"%s","class":"%s"}' "$text" "$tooltip" "$class")"
+      message="$(jq -cn --arg text "$text" --arg tooltip "$tooltip" --arg class "$class" '{text:$text,tooltip:$tooltip,class:$class}')"
     else
       message="%{A3:$0 --toggle:}$(if $bt_powered; then
-        echo -n "%{F$color_blue}"
+        echo -n "%{F$color_blue}${bt_icon}"
         if [[ -n "$devices_text" ]]; then
-          echo " $devices_text"
+          echo -n " $devices_text"
         fi
+        echo -n "%{F-}"
       else
-        echo ""
+        echo -n "%{F$color_grey}${bt_icon}%{F-}"
       fi)%{A}"
     fi
 

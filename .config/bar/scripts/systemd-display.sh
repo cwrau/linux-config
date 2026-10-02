@@ -13,37 +13,22 @@ dbusUnitName="$(dbus-send --type=method_call --dest=org.freedesktop.systemd1 --p
 function update() {
   local state
   state=$(systemctl --user is-active "${unit}" 2>/dev/null || true)
+  local color
+  case "$state" in
+    active) color="$color_green" ;;
+    inactive) color="$color_orange" ;;
+    failed) color="$color_red" ;;
+    *) color="$color_orange" ;;
+  esac
 
   if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
-    local class
-    case "$state" in
-      active) class="active" ;;
-      inactive) class="inactive" ;;
-      failed) class="failed" ;;
-      *) class="inactive" ;;
-    esac
-    printf '{"text":"%s","tooltip":"%s: %s","class":"%s"}\n' "$display" "$unit" "$state" "$class"
+    jq -cn --arg text "<span color=\"$color\">$display</span>" --arg tooltip "$unit: $state" '{text:$text,tooltip:$tooltip}'
   else
-    local output="%{A1:$XDG_CONFIG_HOME/bar/scripts/systemd-click.sh $clickUnit:}"
-    local print=false
     case "$state" in
-      active)
-        print=true
-        output+="%{F$color_green}${display}%{F-}"
-        ;;
-      inactive)
-        print=true
-        output+="%{F$color_orange}${display}%{F-}"
-        ;;
-      failed)
-        print=true
-        output+="%{F$color_red}${display}%{F-}"
+      active | inactive | failed)
+        echo "%{A1:$XDG_CONFIG_HOME/bar/scripts/systemd-click.sh $clickUnit:}%{F$color}${display}%{F-}%{A}"
         ;;
     esac
-    output+="%{A}"
-    if $print; then
-      echo "$output"
-    fi
   fi
 }
 

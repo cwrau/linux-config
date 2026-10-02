@@ -1,0 +1,9 @@
+[Unit]
+Description=Renice the i3-focused window back to its configured priority
+PartOf=i3-session.target
+After=i3-session.target
+
+[Service]
+Type=exec
+ExecStart=%h/.config/i3/scripts/focus-renice.sh
+Restart=always
