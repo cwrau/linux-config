@@ -1,0 +1,2 @@
+cookiecutters_dir: ~/.local/share/cookiecutter/templates
+replay_dir: ~/.local/state/cookiecutter/replay

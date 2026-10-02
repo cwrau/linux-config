@@ -1,99 +1,51 @@
-export XDG_CACHE_HOME="$HOME/.cache"
-export XDG_CONFIG_HOME="$HOME/.config"
-export XDG_DATA_HOME="$HOME/.local/share"
-export XDG_DESKTOP_DIR="$XDG_DATA_HOME/applications"
-export XDG_DOCUMENTS_DIR="$HOME/Downloads"
-export XDG_DOWNLOAD_DIR="$HOME/Downloads"
-export XDG_MUSIC_DIR="$HOME/Downloads"
-export XDG_PICTURES_DIR="$HOME/Downloads"
-export XDG_PUBLICSHARE_DIR="$HOME/Downloads"
-export XDG_RUNTIME_DIR="/run/user/${UID:-$(id -u)}"
-export XDG_SCREENSHOT_DIR="$HOME/Screenshots"
-export XDG_STATE_HOME="$HOME/.local/state"
-export XDG_TEMPLATES_DIR="$HOME/Downloads"
-export XDG_VIDEOS_DIR="$HOME/Downloads"
+# Single source of truth for the static, $HOME-derivable exports is
+# ~/.config/environment.d/ (also read by the systemd --user manager before
+# any unit, including basic.target's Wants=, ever starts). Source the same
+# files here instead of re-declaring them — environment.d's KEY=value and
+# ${OTHER_KEY} syntax is plain zsh assignment syntax, so `setopt allexport`
+# is all that's needed to export each line as it's sourced. Deliberately
+# NOT done via `systemctl --user show-environment`: that reflects whatever
+# was last pushed with `import-environment` below, which is session/tty
+# state (e.g. TERM) as well as our vars — pulling all of it back in here
+# clobbers the terminal's own TERM before p10k even loads.
+setopt allexport
+for _env_file in "$HOME"/.config/environment.d/*.conf(N); do
+  source "$_env_file"
+done
+unset _env_file
+unsetopt allexport
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/${UID:-$(id -u)}}"
 
 declare -x | grep -E '^XDG_.+_DIR=.+$' | sed -r 's#=#="#; s#$#"#' > $XDG_CONFIG_HOME/user-dirs.dirs
 
-export ADB_VENDOR_KEY="$XDG_CONFIG_HOME/android"
-export ANDROID_AVD_HOME="$XDG_DATA_HOME/android"
-export ANDROID_EMULATOR_HOME="$XDG_DATA_HOME/android"
-export ANDROID_SDK_HOME="$XDG_CONFIG_HOME/android"
-export ANSIBLE_HOME="$XDG_DATA_HOME/ansible"
-export AWS_CONFIG_FILE="$XDG_CONFIG_HOME/aws/config"
-export AWS_SHARED_CREDENTIALS_FILE="$XDG_CONFIG_HOME/aws/credentials"
-export AZURE_CONFIG_DIR="$XDG_DATA_HOME/azure"
-export CARGO_HOME="$XDG_DATA_HOME/cargo"
-export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
-export DVDCSS_CACHE="$XDG_DATA_HOME/dvdcss"
-export GOPATH="$XDG_CACHE_HOME/go"
-export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
-export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
-export KONAN_DATA_DIR="$XDG_DATA_HOME/konan"
-export LESSHISTFILE="$XDG_CACHE_HOME/less/history"
-export MC_CONFIG_DIR="$XDG_CONFIG_HOME/mcli"
-export MINIKUBE_HOME="$XDG_DATA_HOME/minikube"
-export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
-export NUGET_PACKAGES="$XDG_DATA_HOME/NuGet"
-export PEX_ROOT="$XDG_CACHE_HOME/pex"
-export PULSE_COOKIE="$XDG_RUNTIME_DIR/pulse/cookie"
-export REGISTRY_AUTH_FILE="$XDG_CONFIG_HOME/containers/auth.json"
-export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
-export SECRETS_DIR="$(realpath --relative-base=$HOME $XDG_CONFIG_HOME/gitsecret)"
-export SLIT_DIR="$XDG_DATA_HOME/slit"
-export SONAR_USER_HOME="$XDG_DATA_HOME/sonarlint"
-export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
-export STACK_ROOT="$XDG_CONFIG_HOME/stack"
-export TALOSCONFIG="$XDG_CONFIG_HOME/talos/config.yaml"
-export WINEPREFIX="$XDG_DATA_HOME/wine"
-export XAUTHORITY="$XDG_CACHE_HOME/x11/authority"
-export XINITRC="$XDG_CONFIG_HOME/xorg/initrc"
-export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
-
-export BROWSER=browser
-export CLAUDE_CODE_SHELL=/bin/bash
-export CLUSTERCTL_DISABLE_VERSIONCHECK="true"
-export CM_DIR="$XDG_DATA_HOME/clipmenud"
-export CM_LAUNCHER=rofi
-export CM_MAX_CLIPS=0
-export EDITOR=editor
+# Shell-interactive-only: not needed by any systemd --user service, so these
+# stay here rather than in environment.d.
 export FZF_ALT_C_COMMAND='fd -t d --hidden --exclude=.git'
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -20'"
 export FZF_CTRL_T_COMMAND='fd -t f --hidden --exclude=.git'
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --pager=never -p {} | head -20'"
-export GLAMOUR_STYLE=dracula
-export GOFLAGS="-modcacherw"
 export GRADLE_COMPLETION_UNQUALIFIED_TASKS="true"
-export GRADLE_OPTS=-Dorg.gradle.jvmargs=-Xmx1G
 export GUM_SPIN_SPINNER=points
-export HELM_DIFF_OUTPUT="dyff --color=on"
-export HELM_PLUGINS="/usr/lib/helm/plugins"
 export HISTSIZE=9223372036854775807
 export HWATCH="--differences word --no-help-banner"
-export KUBECTL_NODE_SHELL_POD_CPU=0
-export KUBECTL_NODE_SHELL_POD_MEMORY=0
-export PAGER=less
 export SAVEHIST=9223372036854775807
-export SDL_AUDIODRIVER="pulse"
-export SECRETS_EXTENSION=".gpg"
-export SYSTEMD_PAGERSECURE=false
-export VISUAL="$EDITOR"
 
-if [[ "${XDG_SESSION_TYPE:-tty}" == "tty" && -o interactive ]] && ! systemctl --user is-active --quiet graphical-session.target; then
+if [[ $(id -u) != 0 && "${XDG_SESSION_TYPE:-tty}" == "tty" && -o interactive ]] && ! systemctl --user is-active --quiet graphical-session.target; then
   case "${XDG_VTNR}" in
     1)
       export XDG_SESSION_TYPE=x11
-      systemctl --user import-environment 2> /dev/null
       xorgConfig=""
       if lsmod | grep -Eq ^nvidia; then
         xorgConfig="-config nvidia.conf"
       fi
+      systemctl --user import-environment 2> /dev/null
       exec systemd-cat --stderr-priority=warning --identifier=xorg nice -n -19 startx -- $xorgConfig
       ;;
     2)
       export XDG_CURRENT_DESKTOP=mangowc
       export MOZ_ENABLE_WAYLAND=1
       export XDG_SESSION_TYPE=wayland
+      export ELECTRON_OZONE_PLATFORM_HINT=auto
       if lsmod | grep -Eq ^nvidia; then
         export GBM_BACKEND=nvidia-drm
         export __GLX_VENDOR_LIBRARY_NAME=nvidia
@@ -101,6 +53,32 @@ if [[ "${XDG_SESSION_TYPE:-tty}" == "tty" && -o interactive ]] && ! systemctl --
       fi
       systemctl --user import-environment 2> /dev/null
       exec systemd-cat --stderr-priority=warning --identifier=mangowc nice -n -19 mango
+      ;;
+    3)
+      export XDG_CURRENT_DESKTOP=sway
+      export MOZ_ENABLE_WAYLAND=1
+      export XDG_SESSION_TYPE=wayland
+      export ELECTRON_OZONE_PLATFORM_HINT=auto
+      if lsmod | grep -Eq ^nvidia; then
+        export GBM_BACKEND=nvidia-drm
+        export __GLX_VENDOR_LIBRARY_NAME=nvidia
+        export WLR_NO_HARDWARE_CURSORS=1
+      fi
+      systemctl --user import-environment 2> /dev/null
+      exec systemd-cat --stderr-priority=warning --identifier=sway nice -n -19 sway --unsupported-gpu
+      ;;
+    4)
+      export XDG_CURRENT_DESKTOP=hyprland
+      export MOZ_ENABLE_WAYLAND=1
+      export XDG_SESSION_TYPE=wayland
+      export ELECTRON_OZONE_PLATFORM_HINT=auto
+      if lsmod | grep -Eq ^nvidia; then
+        export GBM_BACKEND=nvidia-drm
+        export __GLX_VENDOR_LIBRARY_NAME=nvidia
+        export WLR_NO_HARDWARE_CURSORS=1
+      fi
+      systemctl --user import-environment 2> /dev/null
+      exec systemd-cat --stderr-priority=warning --identifier=hyprland nice -n -19 Hyprland
       ;;
   esac
 fi
@@ -430,7 +408,7 @@ function krsdiff() {
   firstRS="$(kubectl -n "$namespace" get replicasets -o custom-columns=:metadata.name | fzf -1 --preview "kubectl -n '$namespace' get replicaset {} -o custom-columns=:metadata.creationTimestamp")"
   secondRS="$(kubectl -n "$namespace" get replicasets -o custom-columns=:metadata.name | rg -v "^$firstRS\$" | fzf -1 --preview "kubectl -n '$namespace' get replicaset {} -o custom-columns=:metadata.creationTimestamp")"
 
-  dyff between <(kubectl -n "$namespace" get rs "$firstRS" -o yaml | yq -y '.metadata.name="rs"') <(kubectl -n "$namespace" get rs "$secondRS" -o yaml | yq -y '.metadata.name="rs"')
+  dyff between <(kubectl -n "$namespace" get rs "$firstRS" -o yaml | yq -y .spec.template) <(kubectl -n "$namespace" get rs "$secondRS" -o yaml | yq -y .spec.template)
 }
 
 function pkgSync() {
@@ -648,7 +626,7 @@ function releaseAur() {
     grep -q source= PKGBUILD && updpkgsums
     makepkg -df
     makepkg --printsrcinfo > .SRCINFO
-    choice=$(gum choose "Version Bump" custom)
+    choice=$(gum choose custom "Version Bump")
     case "$choice" in
       "Version Bump")
         git commit . -m "chore: Version Bump"
@@ -747,11 +725,7 @@ function getHelm() {
 }
 
 function kk() {
-  local management_kubeconfigs="$XDG_CONFIG_HOME/kube/mgmt-dev;$XDG_CONFIG_HOME/kube/mgmt-prod;$XDG_CONFIG_HOME/kube/mgmt-bfe-prod;$XDG_CONFIG_HOME/kube/mgmt-bfe2-prod"
-  local multi_capo_shell_custom_name_expression='.metadata.annotations["t8s.teuto.net/cluster"] // "" | try @base64d'
-  local multi_capo_shell_custom_column_customer_name='.metadata.annotations["t8s.teuto.net/customer-name"] // "" | try @base64d // .metadata.labels["t8s.teuto.net/customer-id"]'
-  local capo_shell_kubeconfig_filter='.users |= map({name: .name, user: {exec: {apiVersion: "client.authentication.k8s.io/v1beta1", command: "kubectl", args: ["oidc-login", "get-token", "--oidc-issuer-url=https://staff-auth.k8s.teuto.net", "--token-cache-storage=keyring", "--oidc-client-id=kubernetes", "--oidc-extra-scope=email", "--oidc-extra-scope=groups", "--oidc-extra-scope=offline_access", "--open-url-after-authentication="]}}})'
-  command env MANAGEMENT_KUBECONFIGS="${MANAGEMENT_KUBECONFIGS:-$management_kubeconfigs}" MULTI_CAPO_SHELL_CUSTOM_NAME_EXPRESSION="${MULTI_CAPO_SHELL_CUSTOM_NAME_EXPRESSION:-$multi_capo_shell_custom_name_expression}" MULTI_CAPO_SHELL_CUSTOM_COLUMN_CUSTOMER_NAME="${MULTI_CAPO_SHELL_CUSTOM_COLUMN_CUSTOMER_NAME:-$multi_capo_shell_custom_column_customer_name}" CAPO_SHELL_KUBECONFIG_FILTER="${CAPO_SHELL_KUBECONFIG_FILTER:-$capo_shell_kubeconfig_filter}" multi-capo-shell "${@}"
+  multi-capi-shell "${@}"
 }
 
 function kk9s() {
@@ -784,8 +758,11 @@ function schedule_meeting() {
   local type
   local name
   mkdir -p "${XDG_RUNTIME_DIR}/browser"
-  if [[ "$2" =~ https://* ]]; then
+  if [[ "$2" == https://* ]]; then
     local url="$2"
+    type="${3:-meeting}"
+  elif [[ -n "$2" && "$2" == *.* ]]; then
+    local url="https://$2"
     type="${3:-meeting}"
   else
     type="${2:-meeting}"
@@ -794,20 +771,32 @@ function schedule_meeting() {
   if [[ -v url ]]; then
     name="${name}_$(systemd-escape "$url")"
   fi
-  command systemd-run --user --on-calendar=@$(date --date="$time" +%s) -- systemctl --user start "$name"
+  command systemd-run --user --unit "meeting-trigger-$time" --on-calendar=@$(date --date="$time" +%s) -- systemctl --user start "$name"
 }
 
 function share() {
   local curlCommand=(curl -fsSL https://0x0.st)
   local url
+  local file=false
+  while [[ "$#" -gt 1 ]]; do
+    if [[ "$1" == -s ]]; then # TODO: add param for / or always output control token (to stdout?)
+      curlCommand+=(-Fsecret=)
+    elif [[ -r "$1" ]]; then
+      curlCommand+=(-F "file=@$1")
+      file=true
+    else
+      echo "Unsopported arg '$1'" >&2
+      exit 2
+    fi
+    shift
+  done
   if [[ ! -t 0 ]]; then
-    url="$("${curlCommand[@]}" -F 'file=@-')"
-  elif [[ -v 1 && -f "$1" ]]; then
-    url="$("${curlCommand[@]}" -F "file=@$1")"
-  else
-    echo "Neither stdin nor a file has been given or the file doesn't exist" >&2
+    curlCommand+=(-F file=@-)
+  elif [[ $file == false ]]; then
+    echo "Neither stdin nor a (readable) file has been given or the file doesn't exist" >&2
     return 1
   fi
+  url="$("${curlCommand[@]}")"
   echo "$url" | if [[ -t 1 ]]; then
     clip
     echo "$url"
@@ -821,6 +810,16 @@ function _lnav() {
     _arguments  '1:remote files:_remote_files -- ssh'
 }
 compdef _lnav lnav
+
+function livesort () {
+  linesfd=$(mktemp)
+  trap "rm -i -f '$linesfd'" EXIT
+  while read -r line; do
+    echo "$line" >> "$linesfd"
+    clear
+    sort "${@}" "$linesfd"
+  done
+}
 
 function reAlias() {
   nAlias $1 $1 ${@:2}
@@ -849,7 +848,7 @@ fi
 nAlias top htop
 nAlias vim editor
 nAlias vi vim
-nAlias cat "bat --pager 'less -RF' --nonprintable-notation unicode"
+nAlias cat "bat --pager 'less -RF -i' --nonprintable-notation unicode"
 reAlias dyff --color=on
 nAlias man batman
 compdef _man batman
@@ -895,7 +894,7 @@ nAlias watch hwatch ' '
 nAlias task go-task
 nAlias openstack CLIFF_MAX_TERM_WIDTH=999 openstack
 nAlias auniq "awk '!x[\$0]++'"
-nAlias claudia claude
+reAlias less -i
 
 alias -g A='| awk'
 alias -g B='| base64'

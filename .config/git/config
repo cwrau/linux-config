@@ -48,7 +48,7 @@
   helper = store
 [pager]
   diff = bash -c 'semantic-diff | less --tabs=1,5 -RFS' # delta # less --tabs=1,5 -RFS
-  show = less --tabs=1,5 -RFS
+  show = less --tabs=1,5 -RFS -i
 [interactive]
   diffFilter = diff-so-fancy --patch # delta --color-only
 [delta]
@@ -81,3 +81,10 @@
   whitespace = red reverse
 [alias]
   cleanup = "!git-delete-merged-branches"
+  plab = 'push --push-option=merge_request.create=true --push-option=merge_request.auto_merge=true --push-option=merge_request.remove_source_branch=true --push-option=description="/assign me\n/request_review @mw @st\n/label ~kubernetes"'
+[credential "https://github.com"]
+  helper =
+  helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+  helper =
+  helper = !/usr/bin/gh auth git-credential

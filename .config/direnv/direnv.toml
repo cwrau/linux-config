@@ -1,3 +1,6 @@
 [global]
 log_format = "-"
 log_filter = "^$"
+
+[whitelist]
+prefix = [ "~/work/cluster-api-control-plane-provider-hcp", "~/work/helm-charts" ]
