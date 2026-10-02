@@ -1,0 +1,53 @@
+{
+  "laya_url": "http://127.0.0.1:8000",
+  "timeout_ms": 2000,
+  "allowlist": {
+    "exact_names": [
+      "Read",
+      "Grep",
+      "Glob",
+      "TodoWrite",
+      "NotebookRead",
+      "ExitPlanMode",
+      "AskUserQuestion",
+      "WebSearch",
+      "WebFetch",
+      "Skill",
+      "ToolSearch"
+    ],
+    "name_prefixes": [
+      "get_",
+      "list_",
+      "search_",
+      "read_"
+    ],
+    "name_suffixes": [
+      "_readonly",
+      "_get",
+      "_list"
+    ],
+    "mutating_prefixes": [
+      "delete_",
+      "remove_",
+      "create_",
+      "set_",
+      "update_",
+      "send_",
+      "write_",
+      "clear_",
+      "reset_",
+      "drop_",
+      "add_",
+      "put_",
+      "post_"
+    ]
+  },
+  "thresholds": {
+    "allow_max_irreversible": 0.05,
+    "allow_max_mutates": 0.05,
+    "allow_max_off_task": 0.05,
+    "deny_min_irreversible": 1.0,
+    "deny_min_mutates_and_off_task": 0.7
+  },
+  "mode": "log-only"
+}

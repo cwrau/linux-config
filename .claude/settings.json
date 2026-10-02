@@ -1,161 +1,237 @@
 {
-    "permissions": {
-        "allow": [
-            "mcp__memory__*",
-            "mcp__plugin_context7_context7__*",
-            "mcp__codebase-memory-mcp__*",
-            "WebFetch",
-            "WebSearch",
-            "Bash(rtk ls*)",
-            "Bash(rtk tree*)",
-            "Bash(rtk find*)",
-            "Bash(rtk grep*)",
-            "Bash(rtk diff*)",
-            "Bash(rtk wc*)",
-            "Bash(rtk read*)",
-            "Bash(rtk env*)",
-            "Bash(rtk json*)",
-            "Bash(rtk log*)",
-            "Bash(rtk deps*)",
-            "Bash(rtk tsc*)",
-            "Bash(rtk mypy*)",
-            "Bash(rtk rubocop*)",
-            "Bash(rtk golangci-lint*)",
-            "Bash(rtk ruff*)",
-            "Bash(rtk gain*)",
-            "Bash(rtk cc-economics*)",
-            "Bash(rtk discover*)",
-            "Bash(rtk session*)",
-            "Bash(rtk hook-audit*)",
-            "Bash(rtk rewrite*)",
-            "Bash(rtk config*)",
-            "Bash(rtk verify*)"
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "SHELL": "/bin/bash"
+  },
+  "cleanupPeriodDays": 9999,
+  "permissions": {
+    "allow": [
+      "mcp__memory__*",
+      "mcp__plugin_context7_context7__*",
+      "mcp__codebase-memory-mcp__*",
+      "mcp__plugin_serena_serena__*",
+      "mcp__capi-shell-mcp__list_clusters",
+      "mcp__capi-shell-mcp__get_cluster_kubeconfig_readonly",
+      "mcp__capi-shell-mcp__exec_in_cluster_readonly",
+      "WebFetch",
+      "WebSearch",
+      "Bash(python3 *)",
+      "Bash(gh pr view*)",
+      "Bash(gh pr list*)",
+      "Bash(gh pr diff*)",
+      "Bash(gh pr checks*)",
+      "Bash(gh pr status*)",
+      "Bash(gh issue view*)",
+      "Bash(gh issue list*)",
+      "Bash(gh issue status*)",
+      "Bash(gh repo view*)",
+      "Bash(gh repo list*)",
+      "Bash(gh run view*)",
+      "Bash(gh run list*)",
+      "Bash(gh run watch*)",
+      "Bash(gh workflow view*)",
+      "Bash(gh workflow list*)",
+      "Bash(gh release view*)",
+      "Bash(gh release list*)",
+      "Bash(gh search*)",
+      "Bash(gh status*)",
+      "Bash(gh auth status*)",
+      "Bash(gh label list*)",
+      "Bash(gh browse*)",
+      "Bash(gh api graphql*)",
+      "Bash(gh api repos/*)"
+    ],
+    "defaultMode": "auto"
+  },
+  "model": "sonnet[1m]",
+  "disabledMcpjsonServers": [
+    "codebase-memory-mcp"
+  ],
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"Tool rules (always apply, no exceptions):\\n- JSON: use jq for all JSON processing (parsing, filtering, transforming, querying). Never use python3 -c, perl, or awk as a substitute.\\n- Task runner: the taskfile.dev binary on this system is go-task, not task. Always run go-task instead of task.\\n- File finding: always use `fd`, never `find` (bare find, /bin/find, /usr/bin/find, etc. are all hard-blocked by a PreToolUse hook -- using find wastes a full turn on the denial+retry, so reach for fd from the start, no exceptions). Same hook also blocks `fd`/`rg`/recursive `grep` targeting the literal filesystem root (/) -- any other path (/etc, ../../.., etc.) is fine, just never search the whole filesystem.\"}}'",
+            "statusMessage": "Loading tool rules..."
+          },
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"Caveman default intensity: ultra\"}}'",
+            "statusMessage": "Activating caveman ultra mode..."
+          },
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"Memory MCP (mcp__memory__*) is the shared store for durable cross-session facts. At session start, memory_search for the current project/topic before non-trivial work. When the user states a durable preference, decision, or gotcha, memory_store it with metadata.tags (project name + type), not top-level tags. Behavior rules that must load every session stay in MEMORY.md files, not the MCP.\"}}'",
+            "statusMessage": "Loading memory MCP rules..."
+          }
         ]
-    },
-    "hooks": {
-        "SessionStart": [
-            {
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"Tool rules (always apply, no exceptions):\\n- JSON: use jq for all JSON processing (parsing, filtering, transforming, querying). Never use python3 -c, perl, or awk as a substitute.\\n- Task runner: the taskfile.dev binary on this system is go-task, not task. Always run go-task instead of task.\"}}'",
-                        "statusMessage": "Loading tool rules..."
-                    },
-                    {
-                        "type": "command",
-                        "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"Caveman default intensity: ultra\"}}'",
-                        "statusMessage": "Activating caveman ultra mode..."
-                    }
-                ]
-            },
-            {
-                "matcher": "startup",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "~/.claude/hooks/cbm-session-reminder"
-                    }
-                ]
-            },
-            {
-                "matcher": "resume",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "~/.claude/hooks/cbm-session-reminder"
-                    }
-                ]
-            },
-            {
-                "matcher": "clear",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "~/.claude/hooks/cbm-session-reminder"
-                    }
-                ]
-            },
-            {
-                "matcher": "compact",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "~/.claude/hooks/cbm-session-reminder"
-                    }
-                ]
-            }
-        ],
-        "Notification": [
-            {
-                "matcher": "",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "dunstify -u critical \"$(jq -r .message)\""
-                    }
-                ]
-            }
-        ],
-        "PreToolUse": [
-            {
-                "matcher": "Bash",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "/home/cwr/.claude/hooks/rtk-rewrite.sh"
-                    }
-                ]
-            },
-            {
-                "matcher": "Grep|Glob|Read|Search",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "~/.claude/hooks/cbm-code-discovery-gate"
-                    }
-                ]
-            }
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c '[ -n \"$AOE_INSTANCE_ID\" ] || exit 0; [ -n \"$AOE_HOOK_BIN\" ] || exit 0; [ -x \"$AOE_HOOK_BIN\" ] || exit 0; \"$AOE_HOOK_BIN\" __extract-session-id --field session-id 2>/dev/null; exit 0 # aoe-hooks'"
+          }
         ]
-    },
-    "enabledPlugins": {
-        "caveman@caveman": true,
-        "context7@claude-plugins-official": true,
-        "superpowers@claude-plugins-official": true,
-        "code-review@claude-plugins-official": true,
-        "code-simplifier@claude-plugins-official": true,
-        "github@claude-plugins-official": true,
-        "security-guidance@claude-plugins-official": true,
-        "plannotator@plannotator": true
-    },
-    "extraKnownMarketplaces": {
-        "caveman": {
-            "source": {
-                "source": "github",
-                "repo": "JuliusBrussee/caveman"
-            }
-        },
-        "plannotator": {
-            "source": {
-                "source": "github",
-                "repo": "backnotprop/plannotator"
-            }
-        }
-    },
-    "sandbox": {
-        "enabled": true,
-        "autoAllowBashIfSandboxed": true,
-        "filesystem": {
-            "denyWrite": [
-                "/"
-            ],
-            "denyRead": [
-                "~"
-            ]
-        },
-        "excludedCommands": [
-            "podman"
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dunstify -u critical \"$(jq -r .message)\""
+          }
         ]
+      },
+      {
+        "matcher": "permission_prompt|elicitation_dialog|agent_needs_input",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'unset IFS; set -f; umask 077; [ -n \"$AOE_INSTANCE_ID\" ] || exit 0; case \"$AOE_INSTANCE_ID\" in *[!0-9a-zA-Z_-]*) exit 0 ;; esac; B=/tmp/aoe-hooks-1000; mkdir -p \"$B\" 2>/dev/null || exit 0; LS=$(LC_ALL=C ls -ldn \"$B\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; ME=$(id -u 2>/dev/null) || exit 0; [ \"$3\" = \"$ME\" ] || exit 0; D=\"$B/$AOE_INSTANCE_ID\"; mkdir -p \"$D\" 2>/dev/null; LS=$(LC_ALL=C ls -ldn \"$D\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; [ \"$3\" = \"$ME\" ] || exit 0; printf waiting > \"$D/status\" 2>/dev/null; exit 0 # aoe-hooks'"
+          }
+        ]
+      },
+      {
+        "matcher": "idle_prompt|agent_completed",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'unset IFS; set -f; umask 077; [ -n \"$AOE_INSTANCE_ID\" ] || exit 0; case \"$AOE_INSTANCE_ID\" in *[!0-9a-zA-Z_-]*) exit 0 ;; esac; B=/tmp/aoe-hooks-1000; mkdir -p \"$B\" 2>/dev/null || exit 0; LS=$(LC_ALL=C ls -ldn \"$B\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; ME=$(id -u 2>/dev/null) || exit 0; [ \"$3\" = \"$ME\" ] || exit 0; D=\"$B/$AOE_INSTANCE_ID\"; mkdir -p \"$D\" 2>/dev/null; LS=$(LC_ALL=C ls -ldn \"$D\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; [ \"$3\" = \"$ME\" ] || exit 0; printf idle > \"$D/status\" 2>/dev/null; exit 0 # aoe-hooks'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/cwr/.claude/hooks/block-find.py"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'unset IFS; set -f; umask 077; [ -n \"$AOE_INSTANCE_ID\" ] || exit 0; case \"$AOE_INSTANCE_ID\" in *[!0-9a-zA-Z_-]*) exit 0 ;; esac; B=/tmp/aoe-hooks-1000; mkdir -p \"$B\" 2>/dev/null || exit 0; LS=$(LC_ALL=C ls -ldn \"$B\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; ME=$(id -u 2>/dev/null) || exit 0; [ \"$3\" = \"$ME\" ] || exit 0; D=\"$B/$AOE_INSTANCE_ID\"; mkdir -p \"$D\" 2>/dev/null; LS=$(LC_ALL=C ls -ldn \"$D\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; [ \"$3\" = \"$ME\" ] || exit 0; IN=$(cat 2>/dev/null); S=running; case \"$IN\" in *\\\"tool_name\\\":\\\"AskUserQuestion\\\"*) S=waiting ;; esac; printf %s \"$S\" > \"$D/status\" 2>/dev/null; exit 0 # aoe-hooks'"
+          }
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/cwr/.claude/hooks/bin/laya-safety-gate"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'unset IFS; set -f; umask 077; [ -n \"$AOE_INSTANCE_ID\" ] || exit 0; case \"$AOE_INSTANCE_ID\" in *[!0-9a-zA-Z_-]*) exit 0 ;; esac; B=/tmp/aoe-hooks-1000; mkdir -p \"$B\" 2>/dev/null || exit 0; LS=$(LC_ALL=C ls -ldn \"$B\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; ME=$(id -u 2>/dev/null) || exit 0; [ \"$3\" = \"$ME\" ] || exit 0; D=\"$B/$AOE_INSTANCE_ID\"; mkdir -p \"$D\" 2>/dev/null; LS=$(LC_ALL=C ls -ldn \"$D\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; [ \"$3\" = \"$ME\" ] || exit 0; printf running > \"$D/status\" 2>/dev/null; exit 0 # aoe-hooks'"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c '[ -n \"$AOE_INSTANCE_ID\" ] || exit 0; [ -n \"$AOE_HOOK_BIN\" ] || exit 0; [ -x \"$AOE_HOOK_BIN\" ] || exit 0; \"$AOE_HOOK_BIN\" __extract-session-id --field session-id 2>/dev/null; exit 0 # aoe-hooks'"
+          },
+          {
+            "type": "command",
+            "command": "sh -c 'unset IFS; set -f; umask 077; [ -n \"$AOE_INSTANCE_ID\" ] || exit 0; case \"$AOE_INSTANCE_ID\" in *[!0-9a-zA-Z_-]*) exit 0 ;; esac; B=/tmp/aoe-hooks-1000; mkdir -p \"$B\" 2>/dev/null || exit 0; LS=$(LC_ALL=C ls -ldn \"$B\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; ME=$(id -u 2>/dev/null) || exit 0; [ \"$3\" = \"$ME\" ] || exit 0; D=\"$B/$AOE_INSTANCE_ID\"; mkdir -p \"$D\" 2>/dev/null; LS=$(LC_ALL=C ls -ldn \"$D\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; [ \"$3\" = \"$ME\" ] || exit 0; printf running > \"$D/status\" 2>/dev/null; exit 0 # aoe-hooks'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'unset IFS; set -f; umask 077; [ -n \"$AOE_INSTANCE_ID\" ] || exit 0; case \"$AOE_INSTANCE_ID\" in *[!0-9a-zA-Z_-]*) exit 0 ;; esac; B=/tmp/aoe-hooks-1000; mkdir -p \"$B\" 2>/dev/null || exit 0; LS=$(LC_ALL=C ls -ldn \"$B\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; ME=$(id -u 2>/dev/null) || exit 0; [ \"$3\" = \"$ME\" ] || exit 0; D=\"$B/$AOE_INSTANCE_ID\"; mkdir -p \"$D\" 2>/dev/null; LS=$(LC_ALL=C ls -ldn \"$D\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; [ \"$3\" = \"$ME\" ] || exit 0; printf idle > \"$D/status\" 2>/dev/null; exit 0 # aoe-hooks'"
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'unset IFS; set -f; umask 077; [ -n \"$AOE_INSTANCE_ID\" ] || exit 0; case \"$AOE_INSTANCE_ID\" in *[!0-9a-zA-Z_-]*) exit 0 ;; esac; B=/tmp/aoe-hooks-1000; mkdir -p \"$B\" 2>/dev/null || exit 0; LS=$(LC_ALL=C ls -ldn \"$B\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; ME=$(id -u 2>/dev/null) || exit 0; [ \"$3\" = \"$ME\" ] || exit 0; D=\"$B/$AOE_INSTANCE_ID\"; mkdir -p \"$D\" 2>/dev/null; LS=$(LC_ALL=C ls -ldn \"$D\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; [ \"$3\" = \"$ME\" ] || exit 0; printf idle > \"$D/status\" 2>/dev/null; exit 0 # aoe-hooks'"
+          }
+        ]
+      }
+    ],
+    "ElicitationResult": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'unset IFS; set -f; umask 077; [ -n \"$AOE_INSTANCE_ID\" ] || exit 0; case \"$AOE_INSTANCE_ID\" in *[!0-9a-zA-Z_-]*) exit 0 ;; esac; B=/tmp/aoe-hooks-1000; mkdir -p \"$B\" 2>/dev/null || exit 0; LS=$(LC_ALL=C ls -ldn \"$B\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; ME=$(id -u 2>/dev/null) || exit 0; [ \"$3\" = \"$ME\" ] || exit 0; D=\"$B/$AOE_INSTANCE_ID\"; mkdir -p \"$D\" 2>/dev/null; LS=$(LC_ALL=C ls -ldn \"$D\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; [ \"$3\" = \"$ME\" ] || exit 0; printf running > \"$D/status\" 2>/dev/null; exit 0 # aoe-hooks'"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "caveman@caveman": true,
+    "context7@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "serena@claude-plugins-official": true,
+    "hookify@claude-plugins-official": true,
+    "gopls-lsp@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      }
+    }
+  },
+  "sandbox": {
+    "enabled": false,
+    "autoAllowBashIfSandboxed": true,
+    "filesystem": {
+      "denyWrite": [
+        "/"
+      ],
+      "denyRead": [
+        "~"
+      ]
     },
-    "alwaysThinkingEnabled": true,
-    "skipDangerousModePermissionPrompt": true
+    "excludedCommands": [
+      "podman"
+    ]
+  },
+  "awaySummaryEnabled": false,
+  "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "skipAutoPermissionPrompt": true
 }
