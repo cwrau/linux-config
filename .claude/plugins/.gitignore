@@ -5,4 +5,6 @@
 
 /blocklist.json
 /install-counts-cache.json
-/blocklist.json
+/.last_inuse_sweep
+/plugin-catalog-cache.json
+/synced/

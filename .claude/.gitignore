@@ -1,6 +1,7 @@
 /backups/
 /cache/
 /debug/
+/docs/
 /file-history/
 /history.jsonl
 /hooks/.rtk-hook.sha256
@@ -20,3 +21,24 @@
 
 /.credentials.json
 /policy-limits.json
+/hooks/bin/
+
+# runtime state
+/.last-cleanup
+/agent-memory/
+/memory/
+/daemon/
+/hooks/__pycache__/
+/jobs/
+/policy-limits.json.stamp.json*
+/remote-settings.json
+/sandbox-v2/
+/settings.json.bak-*
+/settings.json.lock
+/skills/paperclip-create-plugin
+/skills/paperclip-dev
+/skills/para-memory-files
+/skills/synced/
+/state/
+/teams/
+/telemetry/
